@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+   <item
+   android:id="@+id/submitted"
+   android:title="@string/show_submitted"
+   android:icon="@drawable/ic_menu_database"
+   />
+   <item
+   android:id="@+id/new_note"
+   android:title="@string/show_new_note"
+   android:icon="@drawable/ic_menu_ebt"
+   />
+   <item
+   android:id="@+id/settings"
+   android:title="@string/settings"
+   android:icon="@drawable/ic_menu_settings"
+   />
+   <item
+   android:id="@+id/about"
+   android:title="@string/about"
+   android:icon="@android:drawable/ic_menu_info_details"
+   />
+</menu>

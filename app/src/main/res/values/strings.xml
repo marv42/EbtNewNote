@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <!-- app -->
+   <string name="app_name">EBT New Note</string>
+   <string name="ime_name">EBT keyboard</string>
+   
+   <!-- general -->
+   <string name="ok">OK</string>
+   <string name="cancel">Cancel</string>
+   <string name="yes">Yes</string>
+   <string name="no">No</string>
+   <string name="info">Information</string>
+   <string name="error">Error</string>
+   <string name="hello">Hello</string>
+   
+   <!-- notes -->
+   <string name="note">Note</string>
+   <plurals name="xNotes">
+      <item quantity="one">1 note</item>
+      <item quantity="other">%d notes</item>
+    </plurals>
+   <string name="hit">HIT</string>
+   <plurals name="xHits">
+      <item quantity="one">1 hit</item>
+      <item quantity="other">%d hits</item>
+   </plurals>
+   
+   <!-- results activity -->
+   <string name="show_submitted">Submitted Notes</string>
+   <string name="edit_data">edit note data</string>
+   <string name="show_in_browser">show on EBT web site</string>
+   <string name="no_data">No note data has been submitted to the EBT server yet.</string>
+   <string name="show_new_note">New Note</string>
+   
+   <string name="insertion">Insertion</string>
+   <string name="submission">submission</string>
+   <string name="submission_result">Submission Result</string>
+   <string name="submitting">The data is being submitted to the EBT server. You will be notified&#8230;</string>
+   <string name="submitted">submitted</string>
+   <string name="failed">failed</string>
+   <string name="successful">successful</string>
+   <string name="sent">sent</string>
+   <string name="unknown">unknown</string>
+   <string name="missing">missing</string>
+   <string name="invalid">invalid</string>
+   <string name="result">result</string>
+   
+   <!-- server responses -->
+   <string name="couldnt_connect">"Couldn\'t connect to the EBT server"</string>
+   <string name="wrong_password">"Password or email address incorrect. Please edit your EBT login information in the settings menu."</string>
+   <string name="error_interpreting">"Error interpreting the reply of the EBT server"</string>
+   <string name="server_error">"Unusable response from the EBT server"</string>
+   
+   <!-- note status -->
+   <string name="has_been_entered">"Note has been entered into the system."</string>
+   <string name="got_hit">"CONGRATULATIONS! You have got a hit. This note has already been entered into the system."</string>
+   <string name="invalid_denomination">"You have attempted to enter an invalid denomination."</string>
+   <string name="invalid_country">"You have attempted to enter an invalid country."</string>
+   <string name="invalid_serial_number">"You have attempted to enter an invalid serial number."</string>
+   <string name="invalid_short_code">"You have attempted to enter an invalid short code."</string>
+   <string name="city_missing">"The city or postal code is missing."</string>
+   <string name="already_entered">"You have already entered this note."</string>
+   <string name="different_short_code">"This note has already been entered with a different short code."</string>
+   
+   <!-- main activity -->
+   <string name="city">City</string>
+   <string name="country">Country</string>
+   <string name="postal_code">Postal Code</string>
+   <string name="get_location">Get Current Location</string>
+   <string name="value">Denomination</string>
+   <string-array name="values">
+      <item>5 €</item>
+      <item>10 €</item>
+      <item>20 €</item>
+      <item>50 €</item>
+      <item>100 €</item>
+      <item>200 €</item>
+      <item>500 €</item>
+   </string-array>
+   <string name="short_code">Short Code</string>
+   <string name="serial_number">Serial Number</string>
+   <string name="comment">Comment</string>
+   <string name="submit">Submit Data to EBT</string>
+   <string name="acquire">Acquire Values from Photo</string>
+   
+   <!-- settings -->
+   <string name="settings">Settings</string>
+   <string name="settings_ebt_account">EBT account settings</string>
+   <string name="settings_email_title">Email address</string>
+   <string name="settings_email_summary">Email address to log in to your EBT account</string>
+   <string name="settings_summary_currently">, currently:</string>
+   <string name="settings_password_title">Password</string>
+   <string name="settings_password_summary">Password of your EBT account</string>
+   <string name="settings_misc">Miscellaneous settings</string>
+   <string name="settings_comment_title">Additional comment</string>
+   <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
+   <string name="logged_in">You have successfully been logged in to EBT.</string>
+   <string name="trying_login">Trying to log in to EBT&#8230;</string>
+   <string name="wrong_login_info">You haven\'t provided valid EBT login information (email address and password).\n\nDo you want to do this now?</string>
+   
+   <!-- preferences -->
+   <string name="pref_settings_email_key">pref_settings_email</string>
+   <string name="pref_settings_password_key">pref_settings_password</string>
+   <string name="pref_settings_comment_key">pref_settings_comment</string>
+   <string name="pref_country_key">pref_country</string>
+   <string name="pref_city_key">pref_city</string>
+   <string name="pref_postal_code_key">pref_postal_code</string>
+   <string name="pref_denomination_key">pref_denomination</string>
+   <string name="pref_short_code_key">pref_short_code</string>
+   <string name="pref_serial_number_key">pref_serial_number</string>
+   <string name="pref_comment_key">pref_comment</string>
+   <string name="pref_login_values_ok_key">pref_login_values_ok</string>
+   <string name="pref_login_changed_key">pref_login_changed</string>
+   <string name="pref_calling_login_key">pref_calling_login</string>
+   <string name="pref_calling_my_comments_key">pref_calling_my_comments</string>
+   <string name="pref_getting_location_key">pref_getting_location</string>
+   
+   <!-- keyboard -->
+   <string name="label_next_key">Next</string>
+   <string name="label_done_key">Done</string>
+   
+   <!-- photo -->
+   <string name="processing">The photo is being processed. You will be notified&#8230;</string>
+   <string name="ocr_return">Photo processing finished</string>
+   <string name="ocr_return_detailed">See the result of the text recognition</string>
+   <string name="ocr_dialog_title">Text Recognition Result</string>
+   <string name="ocr_dialog_text">This is the result of the text recognition and processing:</string>
+   <string name="ocr_dialog_question">Do you want to put it into the serial number text field?</string>
+   
+   <!-- location -->
+   <string name="location">Location</string>
+   <string name="no_location">No location</string>
+   <string name="getting_location">Getting location information&#8230;</string>
+   <string name="location_accurate">Got an accurate location</string>
+   <string name="location_no_accurate">Couldn\'t get an accurate location. For a more accurate location, make sure GPS is activated and usable.</string>
+   <string name="location_up_to_date">Got an up-to-date location</string>
+   <string name="location_no_up_to_date">No up-to-date location</string>
+   <string name="location_got_one">Got a location</string>
+   <string name="no_address">Geocoder (Google Maps API service) didn\'t get an address for this location</string>
+   <string name="geocoder_exception">Geocoder (Google Maps API service) couldn\'t get location information</string>
+   
+   <!-- about -->
+   <string name="about">About</string>
+   <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (www.eurobilltracker.com), a web site for tracking Euro bills.\n\nThis software is still under development, i.e. it may contain errors and bugs.\n\nDeveloper contact: marv42@gmail.com</string>
+   <string name="version">Version</string>
+   
+   <!-- OCR -->
+   <string name="error_creating_file">Error creating file for saving picture</string>
+   <string name="error_no_connection">No internet connection</string>
+   <string name="ocr_failed_download">The OCR server could not load the image. OCR server response:</string>
+   <string name="ocr_failed_conversion">The text recognition did not give a result. OCR server response:</string>
+   <string name="ocr_failed_conversion_explanation">(-> Maybe the quality of the photo was not good enough&#8230;)</string>
+   <string name="ocr_failed_no_funds">We have used up the amount of free OCRs for this month. OCR server response:</string>
+   <string name="ocr_failed_internal">Internal OCR server error. OCR server response:</string>
+<!--   <string name="unknown_ocr_error">"Unspecified text recognition server error"</string>-->
+   
+   <string name="crash_toast_text">The app EbtNewNote just crashed. A report has been sent to the developer to help him fix the problem.</string>
+</resources>

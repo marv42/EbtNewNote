@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:theme="@android:style/Theme.Dialog"
+>
+   <TableLayout
+   android:layout_width="fill_parent"
+   android:layout_height="wrap_content"
+   android:stretchColumns="*"
+   >
+      <TableRow>
+         <TextView
+         android:id="@+id/about_version"
+         android:paddingLeft="15px"
+         />
+         <ImageView
+         android:id="@+id/about_image"
+         android:gravity="right"
+         />
+      </TableRow>
+   </TableLayout>
+   <TextView
+   android:id="@+id/about_text"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:autoLink="web|email"
+   android:padding="15px"
+   />
+   <Button
+   android:id="@+id/about_ok_button"
+   android:layout_width="@dimen/ok_button_width"
+   android:layout_height="wrap_content"
+   android:text="@string/ok"
+   android:layout_gravity="center"
+   />
+</LinearLayout>
