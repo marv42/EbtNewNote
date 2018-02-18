@@ -40,7 +40,7 @@ import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.PhotoSaveLocation;
 
 public class EbtNewNote extends AppCompatActivity implements LocationTask.Callback {
-   public static final String LOG_TARGET = EbtNewNote.class.getSimpleName();
+   public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
 
    private static final int IMAGE_CAPTURE_REQUEST_CODE = 0;
 
@@ -103,7 +103,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
       // avoid keyboard pop-up
       // TODO Doesn't work on the device
       if (! findViewById(R.id.submit_button).requestFocus())
-         Log.e(LOG_TARGET, "Button didn't take focus. -> Why?");
+         Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
 
       (findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener()
               {
@@ -126,16 +126,16 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
               ! CallManager.weAreCalling(R.string.pref_calling_login_key, this))
       {
          if (! prefs.edit().putBoolean(loginChangedKey, false).commit())
-            Log.e(EbtNewNote.LOG_TARGET, "Editor's commit failed");
-         Log.d(EbtNewNote.LOG_TARGET, loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, false));
+            Log.e(LOG_TAG, "Editor's commit failed");
+         Log.d(LOG_TAG, loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, false));
 
          new LoginChecker(this).execute();
       }
 
-      Log.d(EbtNewNote.LOG_TARGET, "check mOcrResult");
+      Log.d(LOG_TAG, "check mOcrResult");
       if (mOcrResult.length() > 0)
          showOcrDialog();
-      Log.d(EbtNewNote.LOG_TARGET, "-> empty");
+      Log.d(LOG_TAG, "-> empty");
 
       mLocationTextWatcher = new LocationTextWatcher();
 
@@ -203,7 +203,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
       Toast.makeText(this, getString(R.string.submitting), Toast.LENGTH_LONG).show();
 
-      new NoteDataHandler(this).execute(new NoteData(
+      new NoteDataHandler(getApplicationContext()).execute(new NoteData(
               mCountryText    .getText().toString(),
               mCityText       .getText().toString(),
               mPostalCodeText .getText().toString(),
@@ -275,8 +275,8 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
       editor.putBoolean(callingMyCommentsKey, false);
       editor.putBoolean(gettingLocationKey,   false);
       if (! editor.commit())
-         Log.e(LOG_TARGET, "Editor's commit failed");
-      Log.d(LOG_TARGET, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
+         Log.e(LOG_TAG, "Editor's commit failed");
+      Log.d(LOG_TAG, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
    }
 
    public void savePreferences(final NoteData noteData) {
@@ -289,7 +289,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
       editor.putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber());
       editor.putString(getString(R.string.pref_comment_key),       noteData.getComment()     );
       if (! editor.commit())
-         Log.e(LOG_TARGET, "Editor's commit failed");
+         Log.e(LOG_TAG, "Editor's commit failed");
    }
 
    private void loadPreferences() {
@@ -347,7 +347,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
    }
 
    public void setOcrResult(final String ocrResult) {
-      Log.d(EbtNewNote.LOG_TARGET, "set mOcrResult");
+      Log.d(LOG_TAG, "set mOcrResult");
       mOcrResult = ocrResult;
    }
 
@@ -386,7 +386,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
          if (button == DialogInterface.BUTTON_POSITIVE)
             mSerialText.setText(mOcrResult);
 
-         Log.d(EbtNewNote.LOG_TARGET, "reset mOcrResult");
+         Log.d(LOG_TAG, "reset mOcrResult");
          mOcrResult = "";
          dialog.dismiss();
       }

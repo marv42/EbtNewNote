@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
@@ -62,7 +63,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
       if (! PreferenceManager.getDefaultSharedPreferences(mContext).edit()
             .putBoolean(mContext.getString(R.string.pref_calling_my_comments_key), false)
             .commit())
-         Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
+         Log.e(LOG_TAG, "editor's commit failed");
    }
 
 
@@ -117,7 +118,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
       for (int i = 0; i < list.size(); ++i)
       {
          String value = list.get(i).optString("comment");
-         Log.d(EbtNewNote.LOG_TARGET, value + " (" + list.get(i).optString("amount") + ")");
+         Log.d(LOG_TAG, value + " (" + list.get(i).optString("amount") + ")");
          if (value.endsWith(additionalComment))
             value = value.substring(0, value.length() - additionalComment.length());
          uniqueList.add(value);

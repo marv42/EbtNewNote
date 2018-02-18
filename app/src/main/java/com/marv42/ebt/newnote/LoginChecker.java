@@ -11,8 +11,6 @@
 
 package com.marv42.ebt.newnote;
 
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +22,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class LoginChecker extends AsyncTask<Void, Void, Boolean>
@@ -52,7 +53,7 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean>
    protected Boolean
    doInBackground(Void... params)
    {
-      Log.d(EbtNewNote.LOG_TARGET, "checking login");
+      Log.d(LOG_TAG, "checking login");
       Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
 
       String loginValuesOkKey = mContext.getString(R.string.pref_login_values_ok_key);
@@ -60,13 +61,13 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean>
       if (ApiCaller.getInstance().callLogin())
       {
          if (! editor.putBoolean(loginValuesOkKey, true).commit())
-            Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
+            Log.e(LOG_TAG, "editor's commit failed");
 
          return true;
       }
 
       if (! editor.putBoolean(loginValuesOkKey, false).commit())
-         Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
+         Log.e(LOG_TAG, "editor's commit failed");
 
       return false;
    }
@@ -81,7 +82,7 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean>
 
       if (loginSuccessful)
       {
-         Log.d(EbtNewNote.LOG_TARGET, "successful");
+         Log.d(LOG_TAG, "successful");
          JSONObject result = apiCaller.getResult();
 
          Toast.makeText(mContext, mContext.getString(R.string.hello) + " " + result.optString("username") + ". " + mContext.getString(R.string.logged_in), Toast.LENGTH_LONG).show();
@@ -92,7 +93,7 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean>
       }
       else
       {
-         Log.d(EbtNewNote.LOG_TARGET, "not successful");
+         Log.d(LOG_TAG, "not successful");
          String error = apiCaller.getError();
          if (error.equals(mContext.getString(R.string.wrong_password)))
             showWrongLoginDialog();
@@ -103,8 +104,8 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean>
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
       String callingLoginKey = mContext.getString(R.string.pref_calling_login_key);
       if (! prefs.edit().putBoolean(callingLoginKey, false).commit())
-         Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
-      Log.d(EbtNewNote.LOG_TARGET, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
+         Log.e(LOG_TAG, "editor's commit failed");
+      Log.d(LOG_TAG, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
    }
 
 

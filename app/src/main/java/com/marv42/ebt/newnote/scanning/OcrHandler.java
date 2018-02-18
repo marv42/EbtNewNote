@@ -44,7 +44,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TARGET;
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 // TODO Check if we can continue on certain exceptions
@@ -53,7 +53,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
    private static final String OCR_HOST = "http://svc.webservius.com/v1/wisetrend/wiseocr/submit";
 
    private static final int RESULT_POLLING_INTERVAL = 5000; // ms
-   public static final int OCR_NOTIFICATION_ID = 2;
+   private static final int OCR_NOTIFICATION_ID = 2;
 
    private EbtNewNote mEbtObject;
 
@@ -87,13 +87,13 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
 
    private  String doOcr(Uri uri) {
       String uploadResult = PictureUploader.upload(uri);
-//       Log.d(EbtNewNote.LOG_TARGET, "uploadResult: " + uploadResult);
+//       Log.d(LOG_TAG, "uploadResult: " + uploadResult);
 
       if (uploadResult.startsWith("Error"))
          return uploadResult;
 
       String resultUrl = scanPicture(uploadResult);
-      Log.d(LOG_TARGET, "resultUrl: " + resultUrl);
+      Log.d(LOG_TAG, "resultUrl: " + resultUrl);
 
       if (resultUrl.startsWith("Error"))
          return resultUrl;
@@ -107,11 +107,11 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
          }
          catch (InterruptedException e)
          {
-            Log.e(LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+            Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
          }
 
          ocrResult = getOcrResult(resultUrl);
-         Log.d(LOG_TARGET, "ocrResult: " + ocrResult);
+         Log.d(LOG_TAG, "ocrResult: " + ocrResult);
       }
 
 //      ocrResult = "http://api.ocr-it.com/ocr/v2/download/58dfac97ab4845ad9d1489bdbb703e66.UTF8.TXT";
@@ -119,7 +119,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
          return ocrResult;
 
       String ocrContent = downloadContent(ocrResult);
-      Log.d(LOG_TARGET, "ocrContent: " + ocrContent);
+      Log.d(LOG_TAG, "ocrContent: " + ocrContent);
 
       return TextProcessor.getOcrResult(ocrContent);
    }
@@ -145,7 +145,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
          dis = connection.getInputStream();
       }
       catch (IOException e) {
-         Log.e(LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
       }
       return extractResultUrl(dis);
    }
@@ -222,7 +222,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
       if (status.startsWith("Failed"))
       {
          String codeAndMessage = getError(rootChildren);
-         Log.e(LOG_TARGET, "OCR failed, status: " + status +
+         Log.e(LOG_TAG, "OCR failed, status: " + status +
                  ". Code and message: " + codeAndMessage);
 
          if (status.equals("FailedDownload"))
@@ -288,7 +288,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
          return "Error: DocumentBuildFactory couldn't create Document (see logs)";
 
       String root = doc.getFirstChild().getNodeName();
-//      Log.d(EbtNewNote.LOG_TARGET, "doc.getFirstChild().getNodeName(): " + root);
+//      Log.d(LOG_TAG, "doc.getFirstChild().getNodeName(): " + root);
 
       if (root.equals("wsvError"))
       {
@@ -326,19 +326,19 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
       }
       catch (SAXException e)
       {
-         Log.e(LOG_TARGET, "XML is not well-formed: "             + e.getMessage());
+         Log.e(LOG_TAG, "XML is not well-formed: "             + e.getMessage());
       }
       catch (IOException e)
       {
-         Log.e(LOG_TARGET, "The parser could not check the XML: " + e.getMessage());
+         Log.e(LOG_TAG, "The parser could not check the XML: " + e.getMessage());
       }
       catch (FactoryConfigurationError e)
       {
-         Log.e(LOG_TARGET, "Could not locate a factory class: "   + e.getMessage());
+         Log.e(LOG_TAG, "Could not locate a factory class: "   + e.getMessage());
       }
       catch (ParserConfigurationException e)
       {
-         Log.e(LOG_TARGET, "Could not locate a JAXP parser: "     + e.getMessage());
+         Log.e(LOG_TAG, "Could not locate a JAXP parser: "     + e.getMessage());
       }
 
       return null;
@@ -387,7 +387,7 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
          if (nodeIs(s, nodeList.item(i)))
          {
             String value = nodeList.item(i).getFirstChild().getNodeValue();
-            Log.d(LOG_TARGET, s + ": " + value);
+            Log.d(LOG_TAG, s + ": " + value);
             return value;
          }
 
@@ -442,8 +442,8 @@ public class OcrHandler extends AsyncTask<Uri, Void, String>
 //   {
 //      for (int i = 0; i < nodeList.getLength(); ++i)
 //      {
-//         Log.d(EbtNewNote.LOG_TARGET, "NodeName: " + nodeList.item(i).getNodeName());
-////          Log.d(EbtNewNote.LOG_TARGET, "NodeName: " + nodeList.item(i).getNodeValue());
+//         Log.d(LOG_TAG, "NodeName: " + nodeList.item(i).getNodeName());
+////          Log.d(LOG_TAG, "NodeName: " + nodeList.item(i).getNodeValue());
 //      }
 //   }
 }

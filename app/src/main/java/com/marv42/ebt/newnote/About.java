@@ -21,6 +21,8 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+
 public class About implements OnMenuItemClickListener {
    private final Context mContext;
    
@@ -41,7 +43,7 @@ public class About implements OnMenuItemClickListener {
          versionNumber = mContext.getPackageManager().getPackageInfo(
                mContext.getPackageName(), 0).versionName;
       } catch (NameNotFoundException e) {
-         Log.e(EbtNewNote.LOG_TARGET, "Package info not found", e);
+         Log.e(LOG_TAG, "Package info not found", e);
       }
       
       ((TextView)dialog.findViewById(R.id.about_version)).setText(

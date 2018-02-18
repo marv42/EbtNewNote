@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class LocationTask extends AsyncTask<Void, String, Location> {
@@ -93,13 +94,13 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
       }
 
       if (isGpsEnabled()) {
-         //Log.d(EbtNewNote.LOG_TARGET, "GPS enabled");
+         //Log.d(LOG_TAG, "GPS enabled");
          mGpsLocationListener = new MyLocationListener(LocationManager.GPS_PROVIDER);
          mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                  0, 0, mGpsLocationListener);
       }
       if (isNetworkEnabled()) {
-         //Log.d(EbtNewNote.LOG_TARGET, "network location enabled");
+         //Log.d(LOG_TAG, "network location enabled");
          mNetworkLocationListener = new MyLocationListener(LocationManager.NETWORK_PROVIDER);
          mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                  0, 0, mNetworkLocationListener);
@@ -121,7 +122,7 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
          mLocationManager.removeUpdates(mGpsLocationListener);
       if (mNetworkLocationListener != null)
          mLocationManager.removeUpdates(mNetworkLocationListener);
-      //Log.d(EbtNewNote.LOG_TARGET, "[LocationTask] stopped all location updates");
+      //Log.d(LOG_TAG, "[LocationTask] stopped all location updates");
 
 //      mGpsLocationListener     = null;
 //      mNetworkLocationListener = null;
@@ -133,7 +134,7 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
       if (! PreferenceManager.getDefaultSharedPreferences(mApplicationContext).edit()
               .putBoolean(mApplicationContext.getString(R.string.pref_getting_location_key), false)
               .commit())
-         Log.e(EbtNewNote.LOG_TARGET, "Editor's commit failed");
+         Log.e(LOG_TAG, "Editor's commit failed");
    }
 
    private boolean isGpsEnabled() {
@@ -155,18 +156,18 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
 
       if (mGpsLocation != null) {
          publishProgress(mApplicationContext.getString(R.string.location_accurate));
-         //Log.d(EbtNewNote.LOG_TARGET, "got a GPS location");
+         //Log.d(LOG_TAG, "got a GPS location");
          return mGpsLocation;
       }
 
       if (mNetworkLocation != null) {
          publishProgress(mApplicationContext.getString(R.string.location_no_accurate));
-         //Log.d(EbtNewNote.LOG_TARGET, "got a network location");
+         //Log.d(LOG_TAG, "got a network location");
          return mNetworkLocation;
       }
 
       publishProgress(mApplicationContext.getString(R.string.location_no_up_to_date));
-      //Log.d(EbtNewNote.LOG_TARGET, "no up-to-date location");
+      //Log.d(LOG_TAG, "no up-to-date location");
 
       mGpsLocation     = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER    );
       mNetworkLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -184,17 +185,17 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
 
    private void setLocationValues(Location l) {
       if (l == null) {
-         //Log.d(LOG_TARGET, "location: null");
+         //Log.d(LOG_TAG, "location: null");
          Toast.makeText(mApplicationContext, mApplicationContext.getString(R.string.no_location), Toast.LENGTH_LONG).show();
          return;
       }
 
-      //Log.d(EbtNewNote.LOG_TARGET, "location: " + l.getLatitude() + ", " + l.getLongitude());
+      //Log.d(LOG_TAG, "location: " + l.getLatitude() + ", " + l.getLongitude());
       try {
          final Geocoder gc = new Geocoder(mApplicationContext);
          List<Address> addresses = gc.getFromLocation(
                  l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
-         //Log.d(EbtNewNote.LOG_TARGET, "Geocoder got " + addresses.size() + " address(es)");
+         //Log.d(LOG_TAG, "Geocoder got " + addresses.size() + " address(es)");
 
          if (addresses.size() == 0)
             Toast.makeText(mApplicationContext, mApplicationContext.getString(R.string.no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", Toast.LENGTH_LONG).show();
@@ -207,7 +208,7 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
                     new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode(), true));
          }
       } catch (IOException e) {
-         Log.e(EbtNewNote.LOG_TARGET, "Geocoder IOException: " + e.getMessage());
+         Log.e(LOG_TAG, "Geocoder IOException: " + e.getMessage());
          Toast.makeText(mApplicationContext, mApplicationContext.getString(R.string.geocoder_exception) + ": " + e.getMessage() + ".", Toast.LENGTH_LONG).show();
       }
    }
@@ -221,7 +222,7 @@ public class LocationTask extends AsyncTask<Void, String, Location> {
       }
 
       public void onLocationChanged(Location l) {
-         //Log.d(EbtNewNote.LOG_TARGET, "location changed");
+         //Log.d(LOG_TAG, "location changed");
          mLocationResult.gotLocation(l, mProvider);
       }
 

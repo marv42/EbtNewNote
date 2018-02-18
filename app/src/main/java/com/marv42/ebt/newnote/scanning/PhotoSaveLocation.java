@@ -11,17 +11,17 @@
 
 package com.marv42.ebt.newnote.scanning;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.marv42.ebt.newnote.EbtNewNote;
-import com.marv42.ebt.newnote.R;
-
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.marv42.ebt.newnote.R;
+
+import java.io.File;
+import java.io.IOException;
+
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class PhotoSaveLocation
@@ -37,16 +37,16 @@ public class PhotoSaveLocation
       File file = new File(path, PICTURE_FILE);
       
       if (! file.getParentFile().mkdirs())
-         Log.w(EbtNewNote.LOG_TARGET, "Didn't create directory for " + PICTURE_FILE );
+         Log.w(LOG_TAG, "Didn't create directory for " + PICTURE_FILE );
       
       try
       {
          if (! file.createNewFile())
-            Log.w(EbtNewNote.LOG_TARGET, "Didn't create " + PICTURE_FILE );
+            Log.w(LOG_TAG, "Didn't create " + PICTURE_FILE );
       }
       catch (IOException e)
       {
-         Log.e(EbtNewNote.LOG_TARGET, e.getMessage());
+         Log.e(LOG_TAG, e.getMessage());
          Toast.makeText(context, context.getString(R.string.error_creating_file),
                         Toast.LENGTH_LONG).show();
 //         return null;
@@ -54,7 +54,7 @@ public class PhotoSaveLocation
       
 //      file.deleteOnExit();
       
-      Log.d(EbtNewNote.LOG_TARGET, "getPath: " + file.getAbsolutePath());
+      Log.d(LOG_TAG, "getPath: " + file.getAbsolutePath());
       
       return file;
    }

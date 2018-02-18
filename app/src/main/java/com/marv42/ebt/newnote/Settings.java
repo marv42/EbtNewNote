@@ -14,13 +14,12 @@ package com.marv42.ebt.newnote;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class Settings extends PreferenceActivity
 {
@@ -85,9 +84,9 @@ public class Settings extends PreferenceActivity
                 key.equals(getString(R.string.pref_settings_password_key)))
             {
                String loginChangedKey = getString(R.string.pref_login_changed_key);
-               //Log.d(EbtNewNote.LOG_TARGET, "[SettingsChangeListener] " + loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, true));
+               //Log.d(LOG_TAG, "[SettingsChangeListener] " + loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, true));
                if (! prefs.edit().putBoolean(loginChangedKey, true).commit())
-                  Log.e(EbtNewNote.LOG_TARGET, "Editor's commit failed");
+                  Log.e(LOG_TAG, "Editor's commit failed");
             }
          }
       }
@@ -105,8 +104,9 @@ public class Settings extends PreferenceActivity
          String summary = getString(R.string.settings_email_summary);
          if (! TextUtils.isEmpty(email))
             summary += getString(R.string.settings_summary_currently) + " " + email;
-         
-         ((Preference) findPreference(emailKey)).setSummary(summary);
+
+         // TODO
+         (findPreference(emailKey)).setSummary(summary);
       }
    }
 }

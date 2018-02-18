@@ -11,11 +11,6 @@
 
 package com.marv42.ebt.newnote;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,21 +22,28 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
-//import android.webkit.WebView;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+
+//import android.webkit.WebView;
 
 
 public class ResultRepresentation extends ExpandableListActivity
@@ -278,7 +280,7 @@ public class ResultRepresentation extends ExpandableListActivity
       editor.putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber());
       editor.putString(getString(R.string.pref_comment_key      ), noteData.getComment()     );
       if (! editor.commit())
-         Log.e(EbtNewNote.LOG_TARGET, "Editor's commit failed");
+         Log.e(LOG_TAG, "Editor's commit failed");
       
       startActivity(new Intent(this, EbtNewNote.class));
    }

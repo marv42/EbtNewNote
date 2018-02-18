@@ -11,6 +11,9 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.marv42.ebt.newnote.EbtNewNote;
-
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class TextProcessor
@@ -31,7 +30,7 @@ public class TextProcessor
    getOcrResult(String s)
    {
       String serialNumber = extractEssentials(s);
-      Log.d(EbtNewNote.LOG_TARGET, "serialNumber: " + serialNumber);
+      Log.d(LOG_TAG, "serialNumber: " + serialNumber);
       
       return correct(serialNumber);
    }
@@ -138,7 +137,7 @@ public class TextProcessor
       if (matcher.find())
       {
          s = s.substring(matcher.start(), matcher.end());
-         Log.d(EbtNewNote.LOG_TARGET, "cutting out " + s);
+         Log.d(LOG_TAG, "cutting out " + s);
       }
       
       return s;
@@ -153,11 +152,11 @@ public class TextProcessor
       if (char2char.containsKey(sC))
       {
          String replacement = char2char.get(sC);
-         Log.d(EbtNewNote.LOG_TARGET, "replacing " + c + " with " + replacement);
+         Log.d(LOG_TAG, "replacing " + c + " with " + replacement);
          return replacement;
       }
       
-      Log.d(EbtNewNote.LOG_TARGET, "didn't replace " + c);
+      Log.d(LOG_TAG, "didn't replace " + c);
       return sC;
    }
 }

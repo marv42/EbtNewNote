@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 
 public class CallManager
@@ -29,8 +30,8 @@ public class CallManager
       if (! prefs.getBoolean(callingKey, false))
       {
          if (! prefs.edit().putBoolean(callingKey, true).commit())
-            Log.e(EbtNewNote.LOG_TARGET, "Editor's commit failed");
-         Log.d(EbtNewNote.LOG_TARGET, callingKey + ": " + prefs.getBoolean(callingKey, false));
+            Log.e(LOG_TAG, "Editor's commit failed");
+         Log.d(LOG_TAG, callingKey + ": " + prefs.getBoolean(callingKey, false));
          
          return false;
       }

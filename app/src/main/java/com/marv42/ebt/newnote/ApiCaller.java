@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class ApiCaller
 {
@@ -92,7 +93,7 @@ public class ApiCaller
    public String
    getError()
    {
-      Log.d(EbtNewNote.LOG_TARGET, "ApiCaller.getError: " + mError);
+      Log.d(LOG_TAG, "ApiCaller.getError: " + mError);
       mMayCall.release();
       return mError;
    }
@@ -102,7 +103,7 @@ public class ApiCaller
    public JSONObject
    getResult()
    {
-      // Log.d(EbtNewNote.LOG_TARGET, "ApiCaller.getResult: " + mResult);
+      // Log.d(LOG_TAG, "ApiCaller.getResult: " + mResult);
       mMayCall.release();
       return mResult;
    }
@@ -115,7 +116,7 @@ public class ApiCaller
       JSONObject jsonObject = getJsonObject(response);
       if (jsonObject == null)
          mError = mContext.getString(R.string.error_interpreting);
-      //else Log.d(EbtNewNote.LOG_TARGET, "response: " + jsonObject.toString());
+      //else Log.d(LOG_TAG, "response: " + jsonObject.toString());
 
       return jsonObject;
    }
@@ -125,14 +126,14 @@ public class ApiCaller
       try {
          mMayCall.acquire();
       } catch (InterruptedException e) {
-         Log.e(EbtNewNote.LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
       }
    }
 
    boolean callLogin()
    {
       acquire();
-      Log.d(EbtNewNote.LOG_TARGET, "ApiCaller.callLogin");
+      Log.d(LOG_TAG, "ApiCaller.callLogin");
 
       SharedPreferences prefs =
               PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -141,7 +142,7 @@ public class ApiCaller
       if (! editor.putBoolean(mContext.getString(R.string.pref_login_values_ok_key),
               false)
               .commit())
-         Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
+         Log.e(LOG_TAG, "editor's commit failed");
 
       List<Pair<String, String>> params = new ArrayList<>();
       params.add(new Pair("m", "login"));
@@ -159,13 +160,13 @@ public class ApiCaller
          return false;
       }
 
-      Log.d(EbtNewNote.LOG_TARGET, "login successful, sessionId: " + jsonObject.optString("sessionid"));
+      Log.d(LOG_TAG, "login successful, sessionId: " + jsonObject.optString("sessionid"));
 
       mResult = jsonObject;
       if (! editor.putBoolean(mContext.getString(R.string.pref_login_values_ok_key),
               true)
               .commit())
-         Log.e(EbtNewNote.LOG_TARGET, "editor's commit failed");
+         Log.e(LOG_TAG, "editor's commit failed");
 
       return true;
    }
@@ -176,7 +177,7 @@ public class ApiCaller
    callInsertBills(List<Pair<String, String>> params)
    {
       acquire();
-      Log.d(EbtNewNote.LOG_TARGET, "ApiCaller.callInsertBill");
+      Log.d(LOG_TAG, "ApiCaller.callInsertBill");
 
       JSONObject jsonObject = doBasicCall(params);
       if (jsonObject == null)
@@ -195,7 +196,7 @@ public class ApiCaller
       }
       catch (JSONException e)
       {
-         Log.e(EbtNewNote.LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
       }
 
       if (note0 == null)
@@ -211,7 +212,7 @@ public class ApiCaller
       }
 
       mResult = note0;
-      //Log.d(EbtNewNote.LOG_TARGET, "note0 status: " + note0.get("status"));
+      //Log.d(LOG_TAG, "note0 status: " + note0.get("status"));
       return true;
    }
 
@@ -221,7 +222,7 @@ public class ApiCaller
    callMyComments(List<Pair<String, String>> params)
    {
       acquire();
-      Log.d(EbtNewNote.LOG_TARGET, "ApiCaller.callMyComments");
+      Log.d(LOG_TAG, "ApiCaller.callMyComments");
 
       JSONObject jsonObject = doBasicCall(params);
       if (jsonObject == null)
@@ -312,7 +313,7 @@ public class ApiCaller
       try {
          jsonObject = new JSONObject(response);
       } catch (JSONException e) {
-         Log.e(EbtNewNote.LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
          mError = mContext.getString(R.string.error_interpreting);
       }
 
@@ -339,12 +340,12 @@ public class ApiCaller
 //      }
 //      catch (IOException e)
 //      {
-//         Log.e(EbtNewNote.LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+//         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
 //         return e.getClass().getSimpleName() + ": " + e.getMessage();
 //      }
 //      catch (IllegalStateException e)
 //      {
-//         Log.e(EbtNewNote.LOG_TARGET, e.getClass().getSimpleName() + ": " + e.getMessage());
+//         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
 //         return e.getClass().getSimpleName() + ": " + e.getMessage();
 //      }
 //
