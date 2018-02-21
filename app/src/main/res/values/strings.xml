@@ -120,6 +120,8 @@
    <string name="label_done_key">Done</string>
    
    <!-- photo -->
+   <string name="no_camera_activity">No activity for taking pictures</string>
+   <string name="no_camera_permission">Camera permissions have not been granted</string>
    <string name="processing">The photo is being processed. You will be notified&#8230;</string>
    <string name="ocr_return">Photo processing finished</string>
    <string name="ocr_return_detailed">See the result of the text recognition</string>
@@ -130,6 +132,7 @@
    <!-- location -->
    <string name="location">Location</string>
    <string name="no_location">No location</string>
+   <string name="no_location_permission">Location permissions have not been granted</string>
    <string name="getting_location">Getting location information&#8230;</string>
    <string name="location_accurate">Got an accurate location</string>
    <string name="location_no_accurate">Couldn\'t get an accurate location. For a more accurate location, make sure GPS is activated and usable.</string>

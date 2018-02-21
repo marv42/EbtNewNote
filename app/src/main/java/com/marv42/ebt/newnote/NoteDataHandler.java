@@ -31,10 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
-    private static final int EBT_NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "default";
 
     private final Context mApplicationContext;

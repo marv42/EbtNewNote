@@ -11,9 +11,7 @@
 
 package com.marv42.ebt.newnote.scanning;
 
-
 class Keys
 {
-   public static final String WSV_SHORT_TERM_STORAGE = "WcgtlLcbCqs-AsvFlXZo8fZsBf5pj1VU";
-   public static final String OCR_SERVICE            = "7YRICYSlZ_5avsXhqFuiAtaBbJBNE2MM";
+   static final String OCR_SERVICE            = "fef037c68288957";
 }

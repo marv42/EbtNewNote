@@ -28,8 +28,6 @@ android {
 def acraVersion = '4.9.2' // '5.1.0'
 
 dependencies {
-//    compile files('libs/apache-mime4j-0.6.jar')
-//    compile files('libs/httpmime-4.0.3.jar')
 //    implementation 'com.android.support:multidex:1.0.2'
 //    implementation "ch.acra:acra:$acraVersion"
 //    implementation "ch.acra:acra-mail:$acraVersion"
@@ -39,4 +37,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    // TODO implementation 'com.squareup.retrofit:retrofit:1.9.0'
 }
