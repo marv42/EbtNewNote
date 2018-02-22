@@ -4,14 +4,12 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 android:id="@+id/list_parent"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
-android:orientation="vertical"
->
+android:orientation="vertical">
    <TableRow>
       <TextView
       android:id="@+id/list_place_holder"
-      android:layout_width="40px"
-      android:layout_height="wrap_content"
-      />
+      android:layout_width="40dp"
+      android:layout_height="wrap_content" />
 <!--       <WebView-->
 <!--      android:id="@+id/list_denomination_image"-->
 <!--      android:layout_width="fill_parent"-->
@@ -24,21 +22,18 @@ android:orientation="vertical"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:layout_weight="1"
-      />
+      android:layout_weight="1" />
       <TextView
       android:id="@+id/list_serial"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:layout_weight="5"
-      />
+      android:layout_weight="5" />
       <TextView
       android:id="@+id/list_result"
       android:layout_width="wrap_content"
-      android:layout_height="35px"
+      android:layout_height="35dp"
       android:gravity="center"
-      android:layout_weight="1"
-      />
+      android:layout_weight="1" />
    </TableRow>
 </TableLayout>

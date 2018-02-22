@@ -3,34 +3,29 @@
 xmlns:android="http://schemas.android.com/apk/res/android"
 android:orientation="vertical"
 android:layout_width="fill_parent"
-android:layout_height="wrap_content"
->
+android:layout_height="wrap_content">
    <TextView
    android:id="@+id/list_reason"
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
-   android:paddingLeft="5px"
-   android:paddingRight="5px"
-   />
+   android:paddingLeft="5dp"
+   android:paddingRight="5dp" />
    <TextView
    android:id="@+id/list_note"
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
-   android:paddingLeft="5px"
-   android:paddingRight="5px"
-   />
+   android:paddingLeft="5dp"
+   android:paddingRight="5dp" />
    <TextView
    android:id="@+id/list_comment"
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
-   android:paddingLeft="5px"
-   android:paddingRight="5px"
-   />
+   android:paddingLeft="5dp"
+   android:paddingRight="5dp" />
    <TextView
    android:id="@+id/list_location"
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
-   android:paddingLeft="5px"
-   android:paddingRight="5px"
-   />
+   android:paddingLeft="5dp"
+   android:paddingRight="5dp" />
 </LinearLayout>

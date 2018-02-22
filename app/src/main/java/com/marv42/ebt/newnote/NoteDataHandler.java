@@ -18,11 +18,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Pair;
-import android.text.Html;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -31,6 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static android.text.Html.fromHtml;
+import static android.text.TextUtils.isEmpty;
 import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
@@ -55,14 +56,13 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         app.addResult(result);
 
         final int n = app.getNumberOfResults();
-        String contentTitle = String.format(mApplicationContext.getResources().getQuantityString(R.plurals.xNotes, n) +
-                " " + mApplicationContext.getString(R.string.sent), n);
+        String contentTitle = String.format(mApplicationContext.getResources().getQuantityString(R.plurals.xNotes, n) + " " + mApplicationContext.getString(R.string.sent), n);
 
         Intent intent = new Intent(app, ResultRepresentation.class);
         PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationManager notificationManager = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
         if (notificationManager == null) {
             Log.e(LOG_TAG, "could not get notification manager");
             return;
@@ -82,7 +82,6 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                 .setContentText(getSummary(app.getSummary()))
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
-
         notificationManager.notify(EBT_NOTIFICATION_ID, builder.build());
     }
 
@@ -95,7 +94,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                 noteData.getShortCode(),
                 noteData.getSerialNumber(),
                 noteData.getComment() +
-                        PreferenceManager.getDefaultSharedPreferences(mApplicationContext).getString(
+                        getDefaultSharedPreferences(mApplicationContext).getString(
                                 mApplicationContext.getString(R.string.pref_settings_comment_key), ""));
 
         ApiCaller apiCaller = ApiCaller.getInstance();
@@ -148,7 +147,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
             reply += mApplicationContext.getString(R.string.invalid_serial_number) + "<br>";
         if (reply.endsWith("<br>"))
             reply = reply.substring(0, reply.length() - 4);
-        if (TextUtils.isEmpty(reply))
+        if (isEmpty(reply))
             reply = "Someone seems to have to debug something here...";
 
         return new SubmissionResult(submittedNoteData, false, reply, billId);
@@ -157,24 +156,24 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
     private CharSequence getSummary(final ThisApp.ResultSummary summary) {
         String s = "";
         int numHits = summary.getHits();
-        if ( numHits > 0) {
+        if (numHits > 0) {
             s = "<font color=\"green\">" + String.format(mApplicationContext.getResources().getQuantityString(
                     R.plurals.xHits, numHits), numHits) + "</font>";
         }
         int numFailed = summary.getFailed();
-        if ( numFailed > 0) {
+        if (numFailed > 0) {
             if (s.length() > 0)
                 s += ", ";
             s += "<font color=\"red\">" + Integer.toString(numFailed) + " " +
                     mApplicationContext.getString(R.string.failed) + "</font>";
         }
         int numSuccessful = summary.getSuccessful();
-        if ( numSuccessful > 0) {
+        if (numSuccessful > 0) {
             if (s.length() > 0)
                 s += ", ";
             s += Integer.toString(numSuccessful) + " " +
                     mApplicationContext.getString(R.string.successful);
         }
-        return Html.fromHtml(s);
+        return fromHtml(s);
     }
 }

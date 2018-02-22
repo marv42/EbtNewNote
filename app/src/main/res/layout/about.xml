@@ -14,7 +14,7 @@ android:theme="@android:style/Theme.Dialog"
       <TableRow>
          <TextView
          android:id="@+id/about_version"
-         android:paddingLeft="15px"
+         android:paddingLeft="15dp"
          />
          <ImageView
          android:id="@+id/about_image"
@@ -27,7 +27,7 @@ android:theme="@android:style/Theme.Dialog"
    android:layout_width="wrap_content"
    android:layout_height="wrap_content"
    android:autoLink="web|email"
-   android:padding="15px"
+   android:padding="15dp"
    />
    <Button
    android:id="@+id/about_ok_button"
