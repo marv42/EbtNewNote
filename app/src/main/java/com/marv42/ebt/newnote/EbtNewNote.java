@@ -11,19 +11,17 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -44,14 +42,16 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import dagger.android.support.DaggerAppCompatActivity;
+
 import static android.Manifest.permission.CAMERA;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.support.v4.content.FileProvider.getUriForFile;
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.getBase64;
 import static java.io.File.createTempFile;
 
-public class EbtNewNote extends AppCompatActivity implements LocationTask.Callback, OcrHandler.Callback {
+public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.Callback, OcrHandler.Callback /*, LifecycleOwner*/{
     public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
     //   public static final int OCR_NOTIFICATION_ID = 2;
     static final int EBT_NOTIFICATION_ID = 1;
@@ -63,13 +63,13 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
     protected MyGestureListener mGestureListener;
 
-    private EditText             mCountryText;
+    private EditText mCountryText;
     private EditText             mCityText;
     private EditText             mPostalCodeText;
     private EditText             mShortCodeText;
     private EditText             mSerialText;
     private AutoCompleteTextView mCommentText;
-    private Spinner              mSpinner;
+    private Spinner mSpinner;
 
     private LocationTextWatcher mLocationTextWatcher;
 
@@ -88,8 +88,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
         mGestureListener = new MyGestureListener(this) {
             public boolean onTouch(View v, MotionEvent event) {
                 if (mGestureListener.getDetector().onTouchEvent(event)) {
-                    startActivity(new Intent(EbtNewNote.this,
-                            ResultRepresentation.class));
+                    startActivity(new Intent(EbtNewNote.this, ResultRepresentation.class));
                     return true;
                 }
                 else
@@ -98,19 +97,13 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
         };
 
         (findViewById(R.id.submit_layout)).setOnTouchListener(mGestureListener);
-        (findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener()
-        {
-            public void
-            onClick(View v)
-            {
+        (findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 requestLocation();
             }
         });
-        (findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener()
-        {
-            public void
-            onClick(View v)
-            {
+        (findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 submitValues();
             }
         });
@@ -119,11 +112,8 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
         if (! findViewById(R.id.submit_button).requestFocus())
             Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
 
-        (findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener()
-        {
-            public void
-            onClick(View v)
-            {
+        (findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 acquireNumberFromPhoto();
             }
         });
@@ -132,17 +122,16 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
     @Override
     protected void onResume() {
+        Log.d(LOG_TAG, "onResume");
         super.onResume();
 
         String loginChangedKey = getString(R.string.pref_login_changed_key);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (prefs.getBoolean(loginChangedKey, true) &&
-                ! CallManager.weAreCalling(R.string.pref_calling_login_key, this))
-        {
+                ! CallManager.weAreCalling(R.string.pref_calling_login_key, this)) {
             if (! prefs.edit().putBoolean(loginChangedKey, false).commit())
                 Log.e(LOG_TAG, "Editor's commit failed");
             Log.d(LOG_TAG, loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, false));
-
             new LoginChecker(this).execute();
         }
 
@@ -163,9 +152,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
         if (mPostalCodeText != null)
             mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
 
-        if (mCountryText   .getText() == null ||
-                mCityText      .getText() == null ||
-                mPostalCodeText.getText() == null)
+        if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
             return;
 
         if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, this))
@@ -177,21 +164,17 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
     @Override
     protected void onPause() {
-        if (mCountryText   .getText() == null ||
-                mCityText      .getText() == null ||
-                mPostalCodeText.getText() == null)
+        if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
             return;
-
-        savePreferences(new NoteData(mCountryText    .getText().toString(),
+        savePreferences(new NoteData(
+                mCountryText.getText().toString(),
                 mCityText       .getText().toString(),
                 mPostalCodeText .getText().toString(),
                 mSpinner.getSelectedItem().toString(),
                 mShortCodeText  .getText().toString(),
                 mSerialText     .getText().toString(),
                 mCommentText    .getText().toString()));
-
         mLocationTextWatcher = null;
-
         super.onPause();
     }
 
@@ -214,9 +197,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
                 mCommentText   .getText()  == null ||
                 mSpinner.getSelectedItem() == null)
             return;
-
         Toast.makeText(this, getString(R.string.submitting), LENGTH_LONG).show();
-
         new NoteDataHandler(getApplicationContext()).execute(new NoteData(
                 mCountryText    .getText().toString(),
                 mCityText       .getText().toString(),
@@ -225,10 +206,9 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
                 mShortCodeText  .getText().toString(),
                 mSerialText     .getText().toString(),
                 mCommentText    .getText().toString()));
-
         mShortCodeText.setText("");
-        if (mSerialText.length() > 1)
-            mSerialText.setText(mSerialText.getText().delete(1, mSerialText.length()));
+//        if (mSerialText.length() > 1)
+//            mSerialText.setText(mSerialText.getText().delete(1, mSerialText.length()));
     }
 
     private void requestLocation() {
@@ -279,7 +259,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
     private void resetPreferences()
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = prefs.edit();
 
         String callingLoginKey      = getString(R.string.pref_calling_login_key      );
         String callingMyCommentsKey = getString(R.string.pref_calling_my_comments_key);
@@ -369,9 +349,9 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()); // TODO
-        String imageFileName = "EBT_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = createTempFile( imageFileName, ".jpg", storageDir);
+        File image = createTempFile("EBT_" + timeStamp + "_", ".jpg",
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+        // TODO reduce image size
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -381,7 +361,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == IMAGE_CAPTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-            new OcrHandler(this, this, getBase64(this, mCurrentPhotoPath)).execute();
+            new OcrHandler(this, getBase64(this, mCurrentPhotoPath)).execute();
         }
     }
 
@@ -435,9 +415,7 @@ public class EbtNewNote extends AppCompatActivity implements LocationTask.Callba
 
     private class LocationTextWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
-            if (mCountryText   .getText() == null ||
-                    mCityText      .getText() == null ||
-                    mPostalCodeText.getText() == null)
+            if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
                 return;
 
             if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, EbtNewNote.this))

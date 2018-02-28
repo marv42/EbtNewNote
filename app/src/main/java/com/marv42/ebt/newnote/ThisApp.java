@@ -11,9 +11,12 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.Application;
+import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
 
 import java.util.ArrayList;
+
+import dagger.android.AndroidInjector;
+import dagger.android.support.DaggerApplication;
 
 //@AcraCore(buildConfigClass = BuildConfig.class)
 //@AcraMailSender(mailTo = "marv42+acra@gmail.com")
@@ -22,9 +25,14 @@ import java.util.ArrayList;
 //        mailTo = "marv42+acra@gmail.com",
 //        mode         = ReportingInteractionMode.TOAST,
 //        resToastText = R.string.crash_toast_text)
-public class ThisApp extends Application {
+public class ThisApp extends DaggerApplication {
    private ArrayList<SubmissionResult> mResults = new ArrayList<>();
    private LocationValues mLocationValues = new LocationValues();
+
+   @Override
+   protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+      return DaggerApplicationComponent.builder().create(this);
+   }
 
 //   @Override
 //   protected void attachBaseContext(Context base) {
