@@ -25,7 +25,7 @@ android {
     }
 }
 
-def buildtoolsVersion = '27.0.2'
+def buildtoolsVersion = '27.1.0'
 def acraVersion = '4.9.2' // '5.1.0'
 def daggerVersion = '2.14.1'
 
