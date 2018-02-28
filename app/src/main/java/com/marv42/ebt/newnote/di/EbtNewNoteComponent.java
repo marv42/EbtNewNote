@@ -1,4 +1,14 @@
 package com.marv42.ebt.newnote.di;
 
-public class EbtNewNoteComponent {
+import com.marv42.ebt.newnote.EbtNewNote;
+
+import dagger.Subcomponent;
+import dagger.android.AndroidInjector;
+
+@ActivityScope
+@Subcomponent(modules = {EbtNewNoteModule.class})
+public interface EbtNewNoteComponent extends AndroidInjector<EbtNewNote> {
+    @Subcomponent.Builder
+    abstract class Builder extends AndroidInjector.Builder<EbtNewNote> {
+    }
 }

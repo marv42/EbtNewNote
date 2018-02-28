@@ -13,7 +13,6 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -25,6 +24,7 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -32,51 +32,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import javax.inject.Inject;
+
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class ApiCaller {
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
-    private static ApiCaller mInstance = null;
-
     private final Semaphore mMayCall = new Semaphore(1, true);
-    private final Context mContext;
+    private WeakReference<Context> mContext;
+    private SharedPreferences mSharedPreferences;
 
     private JSONObject mResult = null;
-    private String     mError  = "";
+    private String mError = "";
 
-    private ApiCaller() {
-        // ... exists only to prevent instantiation
-        mContext = null;
-    }
-
-    private ApiCaller(Context context) {
-        mContext = context;
-        mError   = mContext.getString(R.string.error);
-    }
-
-    static synchronized void create(Context context) {
-        if (mInstance == null)
-            mInstance = new ApiCaller(context);
-    }
-
-    synchronized static ApiCaller getInstance()
-    {
-        return mInstance;
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException();
+    @Inject
+    public ApiCaller(Context context, SharedPreferences sharedPreferences) {
+        mContext = new WeakReference<>(context);
+        mSharedPreferences = sharedPreferences;
+        mError = mContext.get().getString(R.string.error);
     }
 
     String getError() {
-        Log.d(LOG_TAG, "ApiCaller.getError: " + mError);
+        Log.d(LOG_TAG, "release, ApiCaller.getError: " + mError);
         mMayCall.release();
         return mError;
     }
 
     JSONObject getResult() {
-        // Log.d(LOG_TAG, "ApiCaller.getResult: " + mResult);
+        Log.d(LOG_TAG, "release, ApiCaller.getResult: " + mResult);
         mMayCall.release();
         return mResult;
     }
@@ -85,56 +69,49 @@ public class ApiCaller {
         String response = executeRequest(params);
         JSONObject jsonObject = getJsonObject(response);
         if (jsonObject == null)
-            mError = mContext.getString(R.string.error_interpreting);
-        //else Log.d(LOG_TAG, "response: " + jsonObject.toString());
+            mError = mContext.get().getString(R.string.error_interpreting);
+        else
+            Log.d(LOG_TAG, "response: " + jsonObject.toString());
         return jsonObject;
     }
 
     private void acquire() {
+        Log.d(LOG_TAG, "acquire");
         try {
             mMayCall.acquire();
         } catch (InterruptedException e) {
-            Log.e(LOG_TAG, "acquire interrupted: " + e);
+            Log.d(LOG_TAG, "acquire interrupted: " + e);
         }
     }
 
     boolean callLogin() {
         acquire();
         Log.d(LOG_TAG, "ApiCaller.callLogin");
-
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(mContext);
-
-        SharedPreferences.Editor editor = prefs.edit();
-        if (! editor.putBoolean(mContext.getString(R.string.pref_login_values_ok_key),
-                false)
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        if (! editor.putBoolean(mContext.get().getString(R.string.pref_login_values_ok_key), false)
                 .commit())
             Log.e(LOG_TAG, "editor's commit failed");
 
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair("m", "login"));
         params.add(new Pair("v", "2"));
-        params.add(new Pair("my_email",    prefs.getString(mContext.getString(R.string.pref_settings_email_key),    "").trim()));
-        params.add(new Pair("my_password", prefs.getString(mContext.getString(R.string.pref_settings_password_key), "")));
+        params.add(new Pair("my_email", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_email_key), "").trim()));
+        params.add(new Pair("my_password", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_password_key), "")));
 
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return false;
 
-        if (! jsonObject.has("sessionid"))
-        {
-            mError = mContext.getString(R.string.wrong_password);
+        if (!jsonObject.has("sessionid")) {
+            mError = mContext.get().getString(R.string.wrong_password);
             return false;
         }
-
         Log.d(LOG_TAG, "login successful, sessionId: " + jsonObject.optString("sessionid"));
 
         mResult = jsonObject;
-        if (! editor.putBoolean(mContext.getString(R.string.pref_login_values_ok_key),
-                true)
+        if (! editor.putBoolean(mContext.get().getString(R.string.pref_login_values_ok_key), true)
                 .commit())
             Log.e(LOG_TAG, "editor's commit failed");
-
         return true;
     }
 
@@ -146,8 +123,8 @@ public class ApiCaller {
         if (jsonObject == null)
             return false;
 
-        if (! jsonObject.has("note0")) {
-            mError = mContext.getString(R.string.server_error);
+        if (!jsonObject.has("note0")) {
+            mError = mContext.get().getString(R.string.server_error);
             return false;
         }
 
@@ -159,12 +136,12 @@ public class ApiCaller {
         }
 
         if (note0 == null) {
-            mError = mContext.getString(R.string.error_interpreting);
+            mError = mContext.get().getString(R.string.error_interpreting);
             return false;
         }
 
-        if (! note0.has("status")) {
-            mError = mContext.getString(R.string.server_error);
+        if (!note0.has("status")) {
+            mError = mContext.get().getString(R.string.server_error);
             return false;
         }
 
@@ -179,7 +156,7 @@ public class ApiCaller {
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return false;
-        if (! jsonObject.has("rows") || ! jsonObject.has("data"))
+        if (!jsonObject.has("rows") || !jsonObject.has("data"))
             return false;
         mResult = jsonObject;
         return true;
@@ -206,19 +183,19 @@ public class ApiCaller {
         return result.toString();
     }
 
-    static String executePost(String url, String urlParameters) {
+    private static String executePost(String url, String urlParameters) {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type",  "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
             connection.setRequestProperty("Content-Language", "en-US");
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
-            DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream ());
+            DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             dataOutputStream.writeBytes(urlParameters);
             dataOutputStream.flush();
             dataOutputStream.close();
@@ -227,17 +204,17 @@ public class ApiCaller {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             StringBuilder response = new StringBuilder();
-            while((line = bufferedReader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 response.append(line);
                 response.append('\r');
             }
             bufferedReader.close();
             return response.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "Error executing POST request: " + e);
             return null;
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
@@ -256,36 +233,4 @@ public class ApiCaller {
         }
         return jsonObject;
     }
-
-
-
-    // convenient for debugging...
-//   private static String
-//   entity2String(HttpEntity entity)
-//   {
-//      StringBuilder sb =  new StringBuilder();
-//      try
-//      {
-//         InputStream content = entity.getContent();
-//
-//         String line;
-//         BufferedReader br = new BufferedReader(new InputStreamReader(content));
-//         while ((line = br.readLine()) != null)
-//         {
-//            sb.append(line);
-//         }
-//      }
-//      catch (IOException e)
-//      {
-//         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-//         return e.getClass().getSimpleName() + ": " + e.getMessage();
-//      }
-//      catch (IllegalStateException e)
-//      {
-//         Log.e(LOG_TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-//         return e.getClass().getSimpleName() + ": " + e.getMessage();
-//      }
-//
-//      return sb.toString();
-//   }
 }

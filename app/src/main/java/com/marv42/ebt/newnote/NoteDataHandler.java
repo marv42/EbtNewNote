@@ -27,6 +27,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
@@ -39,14 +41,16 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
     private static final String CHANNEL_ID = "default";
 
     private final Context mApplicationContext;
+    private ApiCaller mApiCaller;
 
-    NoteDataHandler(final Context context) {
+    @Inject
+    NoteDataHandler(final Context context, ApiCaller apiCaller) {
         mApplicationContext = context;
+        mApiCaller = apiCaller;
     }
 
     @Override
-    protected SubmissionResult doInBackground(final NoteData... params)
-    {
+    protected SubmissionResult doInBackground(final NoteData... params) {
         return submit(params[0]);
     }
 
@@ -97,15 +101,14 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                         getDefaultSharedPreferences(mApplicationContext).getString(
                                 mApplicationContext.getString(R.string.pref_settings_comment_key), ""));
 
-        ApiCaller apiCaller = ApiCaller.getInstance();
-        if (! apiCaller.callLogin())
-            return new SubmissionResult(submittedNoteData, false, apiCaller.getError());
+        if (! mApiCaller.callLogin())
+            return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
 
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair("m", "insertbills"));
         params.add(new Pair("v", "1"));
         params.add(new Pair("PHPSESSID",
-                apiCaller.getResult().optString("sessionid")));
+                mApiCaller.getResult().optString("sessionid")));
         params.add(new Pair("city",       noteData.getCity())        );
         params.add(new Pair("zip",        noteData.getPostalCode())  );
         params.add(new Pair("country",    noteData.getCountry())     );
@@ -115,10 +118,10 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         params.add(new Pair("shortcode0", noteData.getShortCode())   );
         params.add(new Pair("comment0",   submittedNoteData.getComment()));
 
-        if (! apiCaller.callInsertBills(params))
-            return new SubmissionResult(submittedNoteData, false, apiCaller.getError());
+        if (! mApiCaller.callInsertBills(params))
+            return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
 
-        JSONObject result = apiCaller.getResult();
+        JSONObject result = mApiCaller.getResult();
         int billId = result.optInt("billId");
         int status = result.optInt("status");
 

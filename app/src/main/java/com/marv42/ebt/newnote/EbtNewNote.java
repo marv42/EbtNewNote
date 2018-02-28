@@ -11,6 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -18,7 +19,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.inject.Inject;
+
 import dagger.android.support.DaggerAppCompatActivity;
 
 import static android.Manifest.permission.CAMERA;
@@ -52,6 +54,13 @@ import static com.marv42.ebt.newnote.scanning.PictureConverter.getBase64;
 import static java.io.File.createTempFile;
 
 public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.Callback, OcrHandler.Callback /*, LifecycleOwner*/{
+    @Inject
+    Context mContext;
+    @Inject
+    SharedPreferences mSharedPreferences;
+    @Inject
+    ApiCaller mApiCaller;
+
     public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
     //   public static final int OCR_NOTIFICATION_ID = 2;
     static final int EBT_NOTIFICATION_ID = 1;
@@ -64,10 +73,10 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     protected MyGestureListener mGestureListener;
 
     private EditText mCountryText;
-    private EditText             mCityText;
-    private EditText             mPostalCodeText;
-    private EditText             mShortCodeText;
-    private EditText             mSerialText;
+    private EditText mCityText;
+    private EditText mPostalCodeText;
+    private EditText mShortCodeText;
+    private EditText mSerialText;
     private AutoCompleteTextView mCommentText;
     private Spinner mSpinner;
 
@@ -80,9 +89,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.submit);
-
-        ApiCaller.create(this);
-
         findAllViewsById();
 
         mGestureListener = new MyGestureListener(this) {
@@ -126,13 +132,12 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         super.onResume();
 
         String loginChangedKey = getString(R.string.pref_login_changed_key);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (prefs.getBoolean(loginChangedKey, true) &&
+        if (mSharedPreferences.getBoolean(loginChangedKey, true) &&
                 ! CallManager.weAreCalling(R.string.pref_calling_login_key, this)) {
-            if (! prefs.edit().putBoolean(loginChangedKey, false).commit())
+            if (! mSharedPreferences.edit().putBoolean(loginChangedKey, false).commit())
                 Log.e(LOG_TAG, "Editor's commit failed");
-            Log.d(LOG_TAG, loginChangedKey + ": " + prefs.getBoolean(loginChangedKey, false));
-            new LoginChecker(this).execute();
+            Log.d(LOG_TAG, loginChangedKey + ": " + mSharedPreferences.getBoolean(loginChangedKey, false));
+            new LoginChecker(this, mApiCaller).execute();
         }
 
         Log.d(LOG_TAG, "check mOcrResult");
@@ -156,7 +161,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
             return;
 
         if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, this))
-            new CommentSuggestion(this).execute(new LocationValues(
+            new CommentSuggestion(this, mApiCaller, mSharedPreferences).execute(new LocationValues(
                     mCountryText   .getText().toString(),
                     mCityText      .getText().toString(),
                     mPostalCodeText.getText().toString()));
@@ -198,7 +203,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
                 mSpinner.getSelectedItem() == null)
             return;
         Toast.makeText(this, getString(R.string.submitting), LENGTH_LONG).show();
-        new NoteDataHandler(getApplicationContext()).execute(new NoteData(
+        new NoteDataHandler(mContext, mApiCaller).execute(new NoteData(
                 mCountryText    .getText().toString(),
                 mCityText       .getText().toString(),
                 mPostalCodeText .getText().toString(),
@@ -213,8 +218,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
     private void requestLocation() {
         if (! CallManager.weAreCalling(R.string.pref_getting_location_key, this)) {
-            // Toast.makeText(this, getString(R.string.getting_location), Toast.LENGTH_LONG).show();
-            new LocationTask(getApplicationContext(), this).execute();
+            Toast.makeText(this, getString(R.string.getting_location), Toast.LENGTH_LONG).show();
+            new LocationTask(mContext, this).execute();
         }
     }
 
@@ -241,13 +246,13 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
     private void findAllViewsById()
     {
-        mCountryText    = (EditText) findViewById(R.id.edit_text_country);
-        mCityText       = (EditText) findViewById(R.id.edit_text_city   );
-        mPostalCodeText = (EditText) findViewById(R.id.edit_text_zip    );
-        mShortCodeText  = (EditText) findViewById(R.id.edit_text_printer);
-        mSerialText     = (EditText) findViewById(R.id.edit_text_serial );
-        mSpinner        = (Spinner)  findViewById(R.id.spinner);
-        mCommentText    = (AutoCompleteTextView) findViewById(R.id.edit_text_comment);
+        mCountryText    = findViewById(R.id.edit_text_country);
+        mCityText       = findViewById(R.id.edit_text_city);
+        mPostalCodeText = findViewById(R.id.edit_text_zip);
+        mShortCodeText  = findViewById(R.id.edit_text_printer);
+        mSerialText     = findViewById(R.id.edit_text_serial);
+        mSpinner        = findViewById(R.id.spinner);
+        mCommentText    = findViewById(R.id.edit_text_comment);
         mCommentText.setThreshold(0);
 
         ArrayAdapter<CharSequence> denominationAdapter = ArrayAdapter.createFromResource(
@@ -258,8 +263,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
     private void resetPreferences()
     {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
 
         String callingLoginKey      = getString(R.string.pref_calling_login_key      );
         String callingMyCommentsKey = getString(R.string.pref_calling_my_comments_key);
@@ -270,11 +274,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         editor.putBoolean(gettingLocationKey,   false);
         if (! editor.commit())
             Log.e(LOG_TAG, "Editor's commit failed");
-        Log.d(LOG_TAG, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
+        Log.d(LOG_TAG, callingLoginKey + ": " + mSharedPreferences.getBoolean(callingLoginKey, false));
     }
 
     public void savePreferences(final NoteData noteData) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(getString(R.string.pref_country_key),       noteData.getCountry()     );
         editor.putString(getString(R.string.pref_city_key),          noteData.getCity()        );
         editor.putString(getString(R.string.pref_postal_code_key),   noteData.getPostalCode()  );
@@ -287,23 +291,22 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     }
 
     private void loadPreferences() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mCountryText   .setText(prefs.getString(getString(R.string.pref_country_key),       ""));
-        mCityText      .setText(prefs.getString(getString(R.string.pref_city_key),          ""));
-        mPostalCodeText.setText(prefs.getString(getString(R.string.pref_postal_code_key),   ""));
-        mShortCodeText .setText(prefs.getString(getString(R.string.pref_short_code_key),    ""));
-        mSerialText    .setText(prefs.getString(getString(R.string.pref_serial_number_key), ""));
-        mCommentText   .setText(prefs.getString(getString(R.string.pref_comment_key),       ""));
-        mSpinner.setSelection(getIndexOfDenomination(prefs.getString(getString(R.string.pref_denomination_key), "5 €")));
+        mCountryText   .setText(mSharedPreferences.getString(getString(R.string.pref_country_key),       ""));
+        mCityText      .setText(mSharedPreferences.getString(getString(R.string.pref_city_key),          ""));
+        mPostalCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_postal_code_key),   ""));
+        mShortCodeText .setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key),    ""));
+        mSerialText    .setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
+        mCommentText   .setText(mSharedPreferences.getString(getString(R.string.pref_comment_key),       ""));
+        mSpinner.setSelection(getIndexOfDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), "5 €")));
 
-        String additionalComment = prefs.getString(getString(R.string.pref_settings_comment_key), "");
+        String additionalComment = mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
         if (mCommentText.getText().toString().endsWith(additionalComment))
             mCommentText.setText(mCommentText.getText().toString().substring(0,
                     mCommentText.getText().toString().length() - additionalComment.length()));
     }
 
     public void loadLocationValues() {
-        setLocationValues(((ThisApp) getApplicationContext()).getLocationValues());
+        setLocationValues(((ThisApp) mContext).getLocationValues());
     }
 
     private int getIndexOfDenomination(final String denomination) {
@@ -419,7 +422,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
                 return;
 
             if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, EbtNewNote.this))
-                new CommentSuggestion(EbtNewNote.this).execute(new LocationValues(
+                new CommentSuggestion(EbtNewNote.this, mApiCaller, mSharedPreferences).execute(new LocationValues(
                         mCountryText   .getText().toString(),
                         mCityText      .getText().toString(),
                         mPostalCodeText.getText().toString()));
