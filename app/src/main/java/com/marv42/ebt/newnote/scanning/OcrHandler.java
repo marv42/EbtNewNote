@@ -11,8 +11,6 @@
 
 package com.marv42.ebt.newnote.scanning;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,7 +19,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
@@ -31,47 +28,28 @@ import javax.net.ssl.HttpsURLConnection;
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 
-public class OcrHandler extends AsyncTask {
+public class OcrHandler extends AsyncTask<Void, Void, String> {
     public interface Callback {
         void onOcrResult(String result);
     }
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
-    private WeakReference<Context> mContext;
     private Callback mCallback;
     private String mBase64Image;
-    private ProgressDialog mProgressDialog;
 
-    public OcrHandler(final Context context, Callback callback, String base64Image) {
-        mContext = new WeakReference<>(context);
+    public OcrHandler(Callback callback, String base64Image) {
         mCallback = callback;
         mBase64Image = base64Image;
     }
 
     @Override
-    protected void onPreExecute() {
-        mProgressDialog = new ProgressDialog(mContext.get());
-        mProgressDialog.setTitle("Wait while processing....");
-        mProgressDialog.setCanceledOnTouchOutside(false);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
-        super.onPreExecute();
-    }
-
-    @Override
-    protected String doInBackground(Object[] params)
-    {
+    protected String doInBackground(Void... voids) {
         return doOcr();
     }
 
     @Override
-    protected void onPostExecute(Object result) {
-        super.onPostExecute(result);
-        if (mProgressDialog != null && mProgressDialog.isShowing())
-            mProgressDialog.dismiss();
-        String response = (String) result;
-        mCallback.onOcrResult(response);
-        Log.d(LOG_TAG, "OCR result:" + response);
+    protected void onPostExecute(String result) {
+        mCallback.onOcrResult(TextProcessor.getOcrResult(result));
     }
 
     private String doOcr() {
@@ -90,28 +68,29 @@ public class OcrHandler extends AsyncTask {
 //            postDataParams.put("filetype", "JPG");
             postDataParams.put("base64Image", "data:image/jpeg;base64," + mBase64Image);
 
+            Log.d(LOG_TAG, "new DataOutputStream");
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             dataOutputStream.writeBytes(getPostDataString(postDataParams));
             dataOutputStream.flush();
             dataOutputStream.close();
 
+            Log.d(LOG_TAG, "new InputStreamReader");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
             StringBuffer response = new StringBuffer();
-
             while ((inputLine = bufferedReader.readLine()) != null) {
                 response.append(inputLine);
             }
             bufferedReader.close();
-
+            Log.d(LOG_TAG, "return value of response");
             return String.valueOf(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "error creating/sending OCR http request: " + e);
         }
         return null;
     }
 
-    String getPostDataString(JSONObject params) throws Exception {
+    private String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         Iterator<String> itr = params.keys();

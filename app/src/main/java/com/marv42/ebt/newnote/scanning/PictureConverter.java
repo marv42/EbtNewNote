@@ -22,6 +22,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static android.graphics.Bitmap.CompressFormat.JPEG;
+import static android.util.Base64.NO_WRAP;
+
 public class PictureConverter {
     public static String getBase64(Context context, String path) {
         try {
@@ -30,9 +33,9 @@ public class PictureConverter {
             final InputStream inputStream = context.getContentResolver().openInputStream(uri);
             final Bitmap selectedImage = BitmapFactory.decodeStream(inputStream);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            selectedImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            selectedImage.compress(JPEG, 100, byteArrayOutputStream);
             byte[] b = byteArrayOutputStream.toByteArray();
-            return Base64.encodeToString(b, Base64.DEFAULT);
+            return Base64.encodeToString(b, NO_WRAP);
         } catch (FileNotFoundException e) {
             // this should not happen
         }
