@@ -27,35 +27,37 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
-public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
-{
+public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
+    interface Callback {
+        void onSuggestions(String[] suggestions);
+    }
+
     private static final int MAX_NUMBER_SUGGESTIONS = 50;
 
+    private Callback mCallback;
     private WeakReference<Context> mContext;
     private ApiCaller mApiCaller;
     private SharedPreferences mSharedPreferences;
 
-    @Inject
-    CommentSuggestion(final Context context, ApiCaller apiCaller, SharedPreferences sharedPreferences) {
+    //@Inject
+    CommentSuggestion(Callback callback, Context context, ApiCaller apiCaller, SharedPreferences sharedPreferences) {
+        mCallback = callback;
         mContext = new WeakReference<>(context);
         mApiCaller = apiCaller;
         mSharedPreferences = sharedPreferences;
     }
 
     @Override
-    protected String[] doInBackground(LocationValues... params)
-    {
+    protected String[] doInBackground(LocationValues... params) {
         return getSuggestion(params[0]);
     }
 
     @Override
     protected void onPostExecute(String[] s) {
         if (s != null && s.length > 0)
-            ((EbtNewNote) mContext.get()).setCommentSuggestions(s);
+            mCallback.onSuggestions(s);
         if (! mSharedPreferences.edit()
                 .putBoolean(mContext.get().getString(R.string.pref_calling_my_comments_key), false)
                 .commit())
@@ -80,7 +82,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         }
 
         JSONArray allComments = mApiCaller.getResult().optJSONArray("data");
-        List<JSONObject> list = new ArrayList<JSONObject>();
+        List<JSONObject> list = new ArrayList<>();
         for (int i = 0; i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
 
@@ -90,24 +92,28 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
             }
         });
 
-        String additionalComment = mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_comment_key), "");
+        String additionalComment = mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_comment_key), "").replace("\u00a0", " ");
 
         // unique wrt additionalComment
         List<String> uniqueList = new ArrayList<>();
         for (int i = 0; i < list.size(); ++i) {
-            String value = list.get(i).optString("comment");
-            Log.d(LOG_TAG, value + " (" + list.get(i).optString("amount") + ")");
+            String value = list.get(i).optString("comment").replace("\u00a0", " ");
+            //Log.d(LOG_TAG, value + " (" + list.get(i).optString("amount") + ")");
             if (value.endsWith(additionalComment))
                 value = value.substring(0, value.length() - additionalComment.length());
-            uniqueList.add(value);
+            if (value.length() > 0 && ! uniqueList.contains(value))
+                uniqueList.add(value);
         }
         uniqueList = new ArrayList<>(new LinkedHashSet<>(uniqueList));
 
         int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
+        Log.d(LOG_TAG, numSuggestions + " suggestion(s)");
 
         String[] s = new String[numSuggestions];
-        for (int i = 0; i < numSuggestions; ++i)
+        for (int i = 0; i < numSuggestions; ++i) {
             s[i] = uniqueList.get(i);
+            Log.d(LOG_TAG, i + 1 + ".: " + s[i].replace(" ", "_"));
+        }
         return s;
     }
 }
