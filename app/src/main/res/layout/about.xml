@@ -29,11 +29,4 @@ android:theme="@android:style/Theme.Dialog"
    android:autoLink="web|email"
    android:padding="15dp"
    />
-   <Button
-   android:id="@+id/about_ok_button"
-   android:layout_width="@dimen/ok_button_width"
-   android:layout_height="wrap_content"
-   android:text="@string/ok"
-   android:layout_gravity="center"
-   />
 </LinearLayout>
