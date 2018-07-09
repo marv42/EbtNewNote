@@ -15,11 +15,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -35,25 +41,33 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.support.v4.content.FileProvider.getUriForFile;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.getBase64;
 import static java.io.File.createTempFile;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.Callback, OcrHandler.Callback /*, LifecycleOwner*/{
+public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Callback, CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
     Context mContext;
     @Inject
@@ -66,6 +80,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     static final int EBT_NOTIFICATION_ID = 1;
 
     private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
+    private static final int NUMBER_ADDRESSES = 5;
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
@@ -81,9 +97,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     private Spinner mSpinner;
 
     private LocationTextWatcher mLocationTextWatcher;
-
-//   private CommentTextWatcher  mCommentTextWatcher;
-//   private CommentAdapter      mCommentAdapter;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +105,14 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         setContentView(R.layout.submit);
         findAllViewsById();
 
+        mFusedLocationClient = getFusedLocationProviderClient(this);
+
         mGestureListener = new MyGestureListener(this) {
             public boolean onTouch(View v, MotionEvent event) {
                 if (mGestureListener.getDetector().onTouchEvent(event)) {
                     startActivity(new Intent(EbtNewNote.this, ResultRepresentation.class));
                     return true;
-                }
-                else
+                } else
                     return false;
             }
         };
@@ -114,8 +129,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
             }
         });
         // avoid keyboard pop-up
-        // TODO Doesn't work on the device
-        if (! findViewById(R.id.submit_button).requestFocus())
+        if (!findViewById(R.id.submit_button).requestFocus())
             Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
 
         (findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener() {
@@ -133,8 +147,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
         String loginChangedKey = getString(R.string.pref_login_changed_key);
         if (mSharedPreferences.getBoolean(loginChangedKey, true) &&
-                ! CallManager.weAreCalling(R.string.pref_calling_login_key, this)) {
-            if (! mSharedPreferences.edit().putBoolean(loginChangedKey, false).commit())
+                !CallManager.weAreCalling(R.string.pref_calling_login_key, this)) {
+            if (!mSharedPreferences.edit().putBoolean(loginChangedKey, false).commit())
                 Log.e(LOG_TAG, "Editor's commit failed");
             Log.d(LOG_TAG, loginChangedKey + ": " + mSharedPreferences.getBoolean(loginChangedKey, false));
             new LoginChecker(this, mApiCaller).execute();
@@ -150,21 +164,14 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         loadPreferences();
         loadLocationValues();
 
-        if (mCountryText    != null)
-            mCountryText   .addTextChangedListener(mLocationTextWatcher);
-        if (mCityText       != null)
-            mCityText      .addTextChangedListener(mLocationTextWatcher);
+        if (mCountryText != null)
+            mCountryText.addTextChangedListener(mLocationTextWatcher);
+        if (mCityText != null)
+            mCityText.addTextChangedListener(mLocationTextWatcher);
         if (mPostalCodeText != null)
             mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
 
-        if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
-            return;
-
-        if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, this))
-            new CommentSuggestion(this, mApiCaller, mSharedPreferences).execute(new LocationValues(
-                    mCountryText   .getText().toString(),
-                    mCityText      .getText().toString(),
-                    mPostalCodeText.getText().toString()));
+        executeCommentSuggestion();
     }
 
     @Override
@@ -173,12 +180,12 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
             return;
         savePreferences(new NoteData(
                 mCountryText.getText().toString(),
-                mCityText       .getText().toString(),
-                mPostalCodeText .getText().toString(),
+                mCityText.getText().toString(),
+                mPostalCodeText.getText().toString(),
                 mSpinner.getSelectedItem().toString(),
-                mShortCodeText  .getText().toString(),
-                mSerialText     .getText().toString(),
-                mCommentText    .getText().toString()));
+                mShortCodeText.getText().toString(),
+                mSerialText.getText().toString(),
+                mCommentText.getText().toString()));
         mLocationTextWatcher = null;
         super.onPause();
     }
@@ -186,40 +193,93 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        menu.findItem(R.id.settings) .setIntent(new Intent(this, Settings.class));
-        menu.findItem(R.id.about)    .setOnMenuItemClickListener(new About(this));
+        menu.findItem(R.id.settings).setIntent(new Intent(this, Settings.class));
+        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
         menu.findItem(R.id.submitted).setIntent(new Intent(this, ResultRepresentation.class));
-        menu.findItem(R.id.new_note) .setEnabled(false);
+        menu.findItem(R.id.new_note).setEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
     private void submitValues() {
-        if (mCountryText   .getText()  == null ||
-                mCityText      .getText()  == null ||
-                mPostalCodeText.getText()  == null ||
-                mShortCodeText .getText()  == null ||
-                mSerialText    .getText()  == null ||
-                mCommentText   .getText()  == null ||
+        if (mCountryText.getText() == null ||
+                mCityText.getText() == null ||
+                mPostalCodeText.getText() == null ||
+                mShortCodeText.getText() == null ||
+                mSerialText.getText() == null ||
+                mCommentText.getText() == null ||
                 mSpinner.getSelectedItem() == null)
             return;
         Toast.makeText(this, getString(R.string.submitting), LENGTH_LONG).show();
         new NoteDataHandler(mContext, mApiCaller).execute(new NoteData(
-                mCountryText    .getText().toString(),
-                mCityText       .getText().toString(),
-                mPostalCodeText .getText().toString(),
+                mCountryText.getText().toString(),
+                mCityText.getText().toString(),
+                mPostalCodeText.getText().toString(),
                 mSpinner.getSelectedItem().toString(),
-                mShortCodeText  .getText().toString(),
-                mSerialText     .getText().toString(),
-                mCommentText    .getText().toString()));
+                mShortCodeText.getText().toString().replace(" ", ""),
+                mSerialText.getText().toString().replace(" ", ""),
+                mCommentText.getText().toString()));
         mShortCodeText.setText("");
-//        if (mSerialText.length() > 1)
-//            mSerialText.setText(mSerialText.getText().delete(1, mSerialText.length()));
+        mSerialText.setText("");
     }
 
     private void requestLocation() {
-        if (! CallManager.weAreCalling(R.string.pref_getting_location_key, this)) {
-            Toast.makeText(this, getString(R.string.getting_location), Toast.LENGTH_LONG).show();
-            new LocationTask(mContext, this).execute();
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Toast.makeText(this, getString(R.string.location_getting), LENGTH_LONG).show();
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    setLocationValues(location);
+                }
+            }
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    // Location settings are not satisfied, but this can be fixed
+                    // by showing the user a dialog.
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(EbtNewNote.this, REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
+    }
+
+    void setLocationValues(Location l) {
+        Log.d(LOG_TAG, "location: " + l.getLatitude() + ", " + l.getLongitude());
+        try {
+            final Geocoder gc = new Geocoder(mContext);
+            List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
+            Log.d(LOG_TAG, "Geocoder got " + addresses.size() + " address(es)");
+
+            if (addresses.size() == 0)
+                Toast.makeText(mContext, mContext.getString(R.string.location_no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
+
+            for (Address a : addresses) {
+                if (a == null)
+                    continue;
+                setLocationValues(
+                        new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode(), true));
+            }
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Geocoder IOException: " + e);
+            Toast.makeText(mContext, mContext.getString(R.string.location_geocoder_exception) + ": " + e.getMessage() + ".", LENGTH_LONG).show();
         }
     }
 
@@ -230,13 +290,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
                 TextUtils.isEmpty(l.getPostalCode()))
             return;
 
-        if (! l.canOverwrite() &&
-                (mCountryText   .getText() == null ||
-                        mCityText      .getText() == null ||
-                        mPostalCodeText.getText() == null ||
-                        ! TextUtils.isEmpty(mCountryText   .getText().toString()) ||
-                        ! TextUtils.isEmpty(mCityText      .getText().toString()) ||
-                        ! TextUtils.isEmpty(mPostalCodeText.getText().toString())))
+        if (! l.canOverwrite() && (
+                mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null ||
+                ! TextUtils.isEmpty(mCountryText   .getText().toString()) ||
+                ! TextUtils.isEmpty(mCityText      .getText().toString()) ||
+                ! TextUtils.isEmpty(mPostalCodeText.getText().toString())))
             return;
 
         mCountryText   .setText(l.getCountry()   );
@@ -244,8 +302,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         mPostalCodeText.setText(l.getPostalCode());
     }
 
-    private void findAllViewsById()
-    {
+    private void findAllViewsById() {
         mCountryText    = findViewById(R.id.edit_text_country);
         mCityText       = findViewById(R.id.edit_text_city);
         mPostalCodeText = findViewById(R.id.edit_text_zip);
@@ -261,8 +318,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
         mSpinner.setAdapter(denominationAdapter);
     }
 
-    private void resetPreferences()
-    {
+    private void resetPreferences() {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
 
         String callingLoginKey      = getString(R.string.pref_calling_login_key      );
@@ -375,8 +431,9 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
             mOcrResult = result;
     }
 
-    public void setCommentSuggestions(String[] suggestions) {
-        ArrayAdapter<String> commentAdapter = new ArrayAdapter<String>(this,
+    @Override
+    public void onSuggestions(String[] suggestions) {
+        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, suggestions);
         mCommentText.setAdapter(commentAdapter);
     }
@@ -398,11 +455,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
                     .show();
     }
 
-    @Override
-    public void onNewLocation(LocationValues locationValues) {
-        setLocationValues(locationValues);
-    }
-
     private class OcrDialogButtonHandler implements OnClickListener {
         public void
         onClick(DialogInterface dialog, int button)
@@ -418,14 +470,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
     private class LocationTextWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
-            if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
-                return;
-
-            if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, EbtNewNote.this))
-                new CommentSuggestion(EbtNewNote.this, mApiCaller, mSharedPreferences).execute(new LocationValues(
-                        mCountryText   .getText().toString(),
-                        mCityText      .getText().toString(),
-                        mPostalCodeText.getText().toString()));
+            executeCommentSuggestion();
+            mCommentText.setText("");
         }
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -433,5 +479,15 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LocationTask.
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
         }
+    }
+
+    private void executeCommentSuggestion() {
+        if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, getApplicationContext()) &&
+                mCountryText.getText() != null && mCityText.getText() != null && mPostalCodeText.getText() != null)
+            new CommentSuggestion(this, getApplicationContext(), mApiCaller, mSharedPreferences)
+                    .execute(new LocationValues(
+                            mCountryText.getText().toString(),
+                            mCityText.getText().toString(),
+                            mPostalCodeText.getText().toString()));
     }
 }

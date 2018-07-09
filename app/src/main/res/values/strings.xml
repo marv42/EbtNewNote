@@ -131,16 +131,17 @@
    
    <!-- location -->
    <string name="location">Location</string>
-   <string name="no_location">No location</string>
-   <string name="no_location_permission">Location permissions have not been granted</string>
-   <string name="getting_location">Getting location information&#8230;</string>
+   <string name="location_none">No location</string>
+   <string name="location_no_permission">Location permissions have not been granted</string>
+   <string name="location_getting">Getting location information&#8230;</string>
+   <string name="location_executing">The previous location information request is still running</string>
    <string name="location_accurate">Got an accurate location</string>
    <string name="location_no_accurate">Couldn\'t get an accurate location. For a more accurate location, make sure GPS is activated and usable.</string>
    <string name="location_up_to_date">Got an up-to-date location</string>
    <string name="location_no_up_to_date">No up-to-date location</string>
    <string name="location_got_one">Got a location</string>
-   <string name="no_address">Geocoder (Google Maps API service) didn\'t get an address for this location</string>
-   <string name="geocoder_exception">Geocoder (Google Maps API service) couldn\'t get location information</string>
+   <string name="location_no_address">Geocoder (Google Maps API service) didn\'t get an address for this location</string>
+   <string name="location_geocoder_exception">Geocoder (Google Maps API service) couldn\'t get location information</string>
    
    <!-- about -->
    <string name="about">About</string>
