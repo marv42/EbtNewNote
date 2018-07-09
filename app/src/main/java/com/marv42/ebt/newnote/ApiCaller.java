@@ -65,7 +65,7 @@ public class ApiCaller {
         return mResult;
     }
 
-    private JSONObject doBasicCall(List<Pair<String, String>> params) {
+    private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
         String response = executeRequest(params);
         JSONObject jsonObject = getJsonObject(response);
         if (jsonObject == null)
