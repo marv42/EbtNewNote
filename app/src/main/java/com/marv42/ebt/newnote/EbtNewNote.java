@@ -46,12 +46,15 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
+import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -66,6 +69,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.getBase64;
 import static java.io.File.createTempFile;
+import static java.text.DateFormat.getDateTimeInstance;
 
 public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Callback, CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
@@ -76,10 +80,10 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     ApiCaller mApiCaller;
 
     public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
-    //   public static final int OCR_NOTIFICATION_ID = 2;
     static final int EBT_NOTIFICATION_ID = 1;
 
     private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
+    private static final int OCR_RESULT_REQUEST_CODE = 2;
     private static final int NUMBER_ADDRESSES = 5;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -154,10 +158,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
             new LoginChecker(this, mApiCaller).execute();
         }
 
-        Log.d(LOG_TAG, "check mOcrResult");
         if (mOcrResult.length() > 0)
             showOcrDialog();
-        Log.d(LOG_TAG, "-> empty");
 
         mLocationTextWatcher = new LocationTextWatcher();
 
@@ -215,8 +217,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
                 mSpinner.getSelectedItem().toString(),
-                mShortCodeText.getText().toString().replace(" ", ""),
-                mSerialText.getText().toString().replace(" ", ""),
+                mShortCodeText.getText().toString().replaceAll("\\s+", ""),
+                mSerialText.getText().toString().replaceAll("\\s+", ""),
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
@@ -407,7 +409,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()); // TODO
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY).format(new Date());
         File image = createTempFile("EBT_" + timeStamp + "_", ".jpg",
                 getExternalFilesDir(Environment.DIRECTORY_PICTURES));
         // TODO reduce image size
@@ -418,17 +420,21 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if (requestCode == IMAGE_CAPTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-            new OcrHandler(this, getBase64(this, mCurrentPhotoPath)).execute();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
+                Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
+                new OcrHandler(this, getBase64(this, mCurrentPhotoPath)).execute();
+            } else if (requestCode == OCR_RESULT_REQUEST_CODE) {
+                showOcrDialog();
+            }
         }
     }
 
     @Override
     public void onOcrResult(String result) {
         Log.d(LOG_TAG, "set mOcrResult");
-        if (result != null)
-            mOcrResult = result;
+        mOcrResult = result;
+        startActivityForResult(new Intent(EbtNewNote.this, EbtNewNote.class), OCR_RESULT_REQUEST_CODE);
     }
 
     @Override
@@ -439,9 +445,16 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void showOcrDialog() {
+        Log.d(LOG_TAG, "showOcrDialog");
         OcrDialogButtonHandler handler = new OcrDialogButtonHandler();
 
-        if (mOcrResult.startsWith("Error: "))
+        if (mOcrResult.equals(TextProcessor.EMPTY))
+            new AlertDialog.Builder(this).setTitle(R.string.ocr_dialog_title)
+                    .setMessage(getString(R.string.ocr_dialog_text) + "\n\n"
+                            + getString(R.string.ocr_dialog_empty))
+                    .setNeutralButton(R.string.ok, handler)
+                    .show();
+        else if (mOcrResult.startsWith("Error: "))
             new AlertDialog.Builder(this).setTitle(R.string.ocr_dialog_title)
                     .setMessage(mOcrResult.substring(7, mOcrResult.length()))
                     .setNeutralButton(R.string.ok, handler)
