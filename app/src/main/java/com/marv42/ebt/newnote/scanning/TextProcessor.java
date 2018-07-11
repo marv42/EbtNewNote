@@ -28,10 +28,14 @@ import java.util.regex.Pattern;
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
-class TextProcessor {
+public class TextProcessor {
+    public static final String EMPTY = "<empty>";
+
     static String getOcrResult(String s) {
         String serialNumber = extractEssentials(s);
         Log.d(LOG_TAG, "serialNumber: " + serialNumber);
+        if (serialNumber.equals(EMPTY) || serialNumber.startsWith("Error"))
+            return serialNumber;
         return correct(serialNumber);
     }
 
@@ -51,32 +55,32 @@ class TextProcessor {
 //      if (shortCodeMatcher.matches())
 //         return shortCodeMatcher.group();
         // reduce white spaces
-        s = s.replaceAll("\\s+", "");
-        if (TextUtils.isEmpty(s.trim()))
-            s = "<empty>";
+        s = s.replaceAll("\\s+", "").trim();
+        if (TextUtils.isEmpty(s))
+            s = EMPTY;
         return s;
     }
 
     private static String getResult(String s) {
-        String result = null;
+        StringBuilder result = new StringBuilder();
         try {
             JSONObject json = new JSONObject(s);
             int exitCode = json.getInt("OCRExitCode");
-            Log.d(LOG_TAG, "OCR exit code: " + exitCode);
+            Log.d(LOG_TAG, "OCR exit code: " + exitCode + "(1: Parsed Successfully, 2: Parsed Partially. 3: Failed Parsing, 4: Error, https://ocr.space/ocrapi)");
             if (exitCode == 3 || exitCode == 4) {
                 String errorMessage = json.getString("ErrorMessage");
                 String errorDetails = json.getString("ErrorDetails");
-                result = "Error: " + errorMessage + " " + errorDetails;
+                result = result.append("Error: ").append(errorMessage).append(" ").append(errorDetails);
             } else if (exitCode == 1 || exitCode == 2) {
                 JSONArray parsedResults = json.getJSONArray("ParsedResults");
                 for (int i = 0; i < parsedResults.length(); i++) {
                     Log.d(LOG_TAG, "parsed OCR result number " + i);
                     JSONObject aResult = parsedResults.getJSONObject(i);
                     int fileParseExitCode = aResult.getInt("FileParseExitCode");
-                    Log.d(LOG_TAG, "file parse exit code: " + fileParseExitCode);
+                    Log.d(LOG_TAG, "file parse exit code: " + fileParseExitCode + "(0: File not found, 1: Success, -10: OCR Engine Parse Error, -20: Timeout, -30: Validation Error, -99: Unknown Error)");
                     if (fileParseExitCode == 1) {
                         String parsedText = aResult.getString("ParsedText");
-                        result += parsedText;
+                        result = result.append(parsedText);
                     }
                 }
             } else {
@@ -85,12 +89,12 @@ class TextProcessor {
         } catch (JSONException e) {
             Log.e(LOG_TAG, "error parsing JSON: " + e);
         }
-        return result;
+        return result.toString();
     }
 
     private static String correct(String s) {
         // when we don't know whether the result must be a letter or a digit
-        Map<String, String> char2unambiguous = new HashMap<String, String>();
+        Map<String, String> char2unambiguous = new HashMap<>();
         // char2unambiguous.put("$", "S");
         // char2unambiguous.put("$", "5");
         char2unambiguous.put("W", "U");
@@ -109,7 +113,7 @@ class TextProcessor {
         char2unambiguous.put("&", "8");
 
         // when we know the result must be a letter
-        Map<String, String> char2letter = new HashMap<String, String>();
+        Map<String, String> char2letter = new HashMap<>();
         char2letter.put("4", "N");
         char2letter.put("0", "O");
         char2letter.put("W", "U");
@@ -117,7 +121,7 @@ class TextProcessor {
         char2letter.put("%", "X");
 
         // when we know the result must be a digit
-        Map<String, String> char2digit = new HashMap<String, String>();
+        Map<String, String> char2digit = new HashMap<>();
         char2digit.put("D", "0");
         char2digit.put("O", "0");
         char2digit.put("o", "0");
@@ -137,28 +141,28 @@ class TextProcessor {
         char2digit.put("A", "8");
         char2digit.put("B", "8");
 
-        List<Integer> letterIndices = new ArrayList<Integer>();
-
+        List<Integer> letterIndices = new ArrayList<>();
         letterIndices.add(0);
+        if (s.length() > 9)
+            letterIndices.add(1); // probably a serial number
+        else
+            letterIndices.add(4); // probably a short code
 
         for (int i = 0; i < s.length(); ++i) {
             s = s.substring(0, i) + correctCharacter(s.charAt(i), char2unambiguous) + s.substring(i+1);
-
             if (letterIndices.contains(i)) {
                 if (! s.substring(i, i+1).matches("\\w"))
                     s = s.substring(0, i) + correctCharacter(s.charAt(i), char2letter) + s.substring(i+1);
             } else
-            if (! s.substring(i, i+1).matches("\\d"))
-                s = s.substring(0, i) + correctCharacter(s.charAt(i), char2digit) + s.substring(i+1);
+                if (! s.substring(i, i+1).matches("\\d"))
+                    s = s.substring(0, i) + correctCharacter(s.charAt(i), char2digit) + s.substring(i+1);
         }
-
-        Pattern pattern = Pattern.compile("\\w\\d{11}", CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(s);
         if (matcher.find()) {
             s = s.substring(matcher.start(), matcher.end());
             Log.d(LOG_TAG, "cutting out " + s);
         }
-
         return s;
     }
 
@@ -169,7 +173,6 @@ class TextProcessor {
             Log.d(LOG_TAG, "replacing " + c + " with " + replacement);
             return replacement;
         }
-
         Log.d(LOG_TAG, "didn't replace " + c);
         return sC;
     }
