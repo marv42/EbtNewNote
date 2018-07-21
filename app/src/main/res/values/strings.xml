@@ -122,6 +122,7 @@
    <!-- photo -->
    <string name="no_camera_activity">No activity for taking pictures</string>
    <string name="no_camera_permission">Camera permissions have not been granted</string>
+   <string name="camera_permission">Camera permissions have been granted. Please try again.</string>
    <string name="processing">The photo is being processed. You will be notified&#8230;</string>
    <string name="ocr_return">Photo processing finished</string>
    <string name="ocr_return_detailed">See the result of the text recognition</string>
@@ -134,6 +135,7 @@
    <string name="location">Location</string>
    <string name="location_none">No location</string>
    <string name="location_no_permission">Location permissions have not been granted</string>
+   <string name="location_permission">Location permissions have been granted. Please try again.</string>
    <string name="location_getting">Getting location information&#8230;</string>
    <string name="location_executing">The previous location information request is still running</string>
    <string name="location_accurate">Got an accurate location</string>

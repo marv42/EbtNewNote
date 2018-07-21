@@ -50,7 +50,6 @@ import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -63,13 +62,12 @@ import dagger.android.support.DaggerAppCompatActivity;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
+import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.support.v4.content.FileProvider.getUriForFile;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
-import static com.marv42.ebt.newnote.scanning.PictureConverter.getBase64;
 import static java.io.File.createTempFile;
-import static java.text.DateFormat.getDateTimeInstance;
 
 public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Callback, CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
@@ -83,9 +81,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     static final int EBT_NOTIFICATION_ID = 1;
 
     private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
-    private static final int OCR_RESULT_REQUEST_CODE = 2;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
     private static final int NUMBER_ADDRESSES = 5;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
+
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
@@ -132,15 +132,14 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
                 submitValues();
             }
         });
-        // avoid keyboard pop-up
-        if (!findViewById(R.id.submit_button).requestFocus())
-            Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
-
         (findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 acquireNumberFromPhoto();
             }
         });
+        if (!findViewById(R.id.edit_text_printer).requestFocus())
+            Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
+
         resetPreferences();
     }
 
@@ -157,9 +156,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
             Log.d(LOG_TAG, loginChangedKey + ": " + mSharedPreferences.getBoolean(loginChangedKey, false));
             new LoginChecker(this, mApiCaller).execute();
         }
-
-        if (mOcrResult.length() > 0)
-            showOcrDialog();
 
         mLocationTextWatcher = new LocationTextWatcher();
 
@@ -225,15 +221,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void requestLocation() {
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
         Toast.makeText(this, getString(R.string.location_getting), LENGTH_LONG).show();
@@ -261,6 +253,28 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
                 }
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
+                    Toast.makeText(this, getString(R.string.location_no_permission), LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, getString(R.string.location_permission), LENGTH_LONG).show();
+                }
+                break;
+            }
+            case CAMERA_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
+                    Toast.makeText(this, getString(R.string.no_camera_permission), LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, getString(R.string.camera_permission), LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     void setLocationValues(Location l) {
@@ -376,7 +390,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void acquireNumberFromPhoto() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) == null) {
             Toast.makeText(this, getString(R.string.no_camera_activity), LENGTH_LONG).show();
             return;
@@ -394,15 +408,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         Uri photoURI = getUriForFile(this, getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
-        if(ContextCompat.checkSelfPermission(this, CAMERA) != PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(this, getString(R.string.no_camera_permission), LENGTH_LONG).show();
+        if (ContextCompat.checkSelfPermission(this, CAMERA) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
         startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
@@ -410,9 +417,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY).format(new Date());
-        File image = createTempFile("EBT_" + timeStamp + "_", ".jpg",
+        File image = createTempFile("EBT_" + timeStamp + "_", ".png",
                 getExternalFilesDir(Environment.DIRECTORY_PICTURES));
-        // TODO reduce image size
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -423,18 +429,16 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler(this, getBase64(this, mCurrentPhotoPath)).execute();
-            } else if (requestCode == OCR_RESULT_REQUEST_CODE) {
-                showOcrDialog();
+                new OcrHandler(this, mCurrentPhotoPath).execute();
             }
         }
     }
 
     @Override
     public void onOcrResult(String result) {
-        Log.d(LOG_TAG, "set mOcrResult");
+        Log.d(LOG_TAG, "set mOcrResult: " + result);
         mOcrResult = result;
-        startActivityForResult(new Intent(EbtNewNote.this, EbtNewNote.class), OCR_RESULT_REQUEST_CODE);
+        showOcrDialog();
     }
 
     @Override
