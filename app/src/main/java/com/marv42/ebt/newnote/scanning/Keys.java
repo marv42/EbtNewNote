@@ -11,7 +11,6 @@
 
 package com.marv42.ebt.newnote.scanning;
 
-class Keys
-{
-   static final String OCR_SERVICE            = "fef037c68288957";
+class Keys {
+   static final String OCR_SERVICE = "fef037c68288957";
 }

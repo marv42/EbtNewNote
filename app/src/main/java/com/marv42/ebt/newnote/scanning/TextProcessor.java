@@ -14,6 +14,8 @@ package com.marv42.ebt.newnote.scanning;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.marv42.ebt.newnote.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,11 +34,13 @@ public class TextProcessor {
     public static final String EMPTY = "<empty>";
 
     static String getOcrResult(String s) {
+        if (s.startsWith("Error"))
+            return s;
         String serialNumber = extractEssentials(s);
         Log.d(LOG_TAG, "serialNumber: " + serialNumber);
         if (serialNumber.equals(EMPTY) || serialNumber.startsWith("Error"))
             return serialNumber;
-        return correct(serialNumber);
+        return correct(serialNumber.replaceAll("\\s+", "").trim());
     }
 
     private static String extractEssentials(String s) {
@@ -54,8 +58,7 @@ public class TextProcessor {
 //         return serialNumberMatcher.group();
 //      if (shortCodeMatcher.matches())
 //         return shortCodeMatcher.group();
-        // reduce white spaces
-        s = s.replaceAll("\\s+", "").trim();
+
         if (TextUtils.isEmpty(s))
             s = EMPTY;
         return s;
@@ -66,7 +69,7 @@ public class TextProcessor {
         try {
             JSONObject json = new JSONObject(s);
             int exitCode = json.getInt("OCRExitCode");
-            Log.d(LOG_TAG, "OCR exit code: " + exitCode + "(1: Parsed Successfully, 2: Parsed Partially. 3: Failed Parsing, 4: Error, https://ocr.space/ocrapi)");
+            Log.d(LOG_TAG, "OCR exit code: " + exitCode + " (1: Parsed Successfully, 2: Parsed Partially. 3: Failed Parsing, 4: Error, https://ocr.space/ocrapi)");
             if (exitCode == 3 || exitCode == 4) {
                 String errorMessage = json.getString("ErrorMessage");
                 String errorDetails = json.getString("ErrorDetails");
@@ -77,7 +80,7 @@ public class TextProcessor {
                     Log.d(LOG_TAG, "parsed OCR result number " + i);
                     JSONObject aResult = parsedResults.getJSONObject(i);
                     int fileParseExitCode = aResult.getInt("FileParseExitCode");
-                    Log.d(LOG_TAG, "file parse exit code: " + fileParseExitCode + "(0: File not found, 1: Success, -10: OCR Engine Parse Error, -20: Timeout, -30: Validation Error, -99: Unknown Error)");
+                    Log.d(LOG_TAG, "file parse exit code: " + fileParseExitCode + " (0: File not found, 1: Success, -10: OCR Engine Parse Error, -20: Timeout, -30: Validation Error, -99: Unknown Error)");
                     if (fileParseExitCode == 1) {
                         String parsedText = aResult.getString("ParsedText");
                         result = result.append(parsedText);
