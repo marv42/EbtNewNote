@@ -70,12 +70,12 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
             return null;
         }
         List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair("m", "mycomments"));
-        params.add(new Pair("v", "1"));
-        params.add(new Pair("PHPSESSID", mApiCaller.getResult().optString("sessionid")));
-        params.add(new Pair("city",    l.getCity()      ));
-        params.add(new Pair("country", l.getCountry()   ));
-        params.add(new Pair("zip",     l.getPostalCode()));
+        params.add(new Pair<>("m", "mycomments"));
+        params.add(new Pair<>("v", "1"));
+        params.add(new Pair<>("PHPSESSID", mApiCaller.getResult().optString("sessionid")));
+        params.add(new Pair<>("city",    l.getCity()      ));
+        params.add(new Pair<>("country", l.getCountry()   ));
+        params.add(new Pair<>("zip",     l.getPostalCode()));
         if (! mApiCaller.callMyComments(params)) {
             mApiCaller.getError();
             return null;
@@ -112,7 +112,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         String[] s = new String[numSuggestions];
         for (int i = 0; i < numSuggestions; ++i) {
             s[i] = uniqueList.get(i);
-            Log.d(LOG_TAG, i + 1 + ".: " + s[i].replace(" ", "_"));
+            //Log.d(LOG_TAG, i + 1 + ".: " + s[i].replace(" ", "_"));
         }
         return s;
     }

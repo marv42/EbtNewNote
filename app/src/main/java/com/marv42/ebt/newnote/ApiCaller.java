@@ -67,6 +67,9 @@ public class ApiCaller {
 
     private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
         String response = executeRequest(params);
+        if (response.startsWith("false")) {
+            return null;
+        }
         JSONObject jsonObject = getJsonObject(response);
         if (jsonObject == null)
             mError = mContext.get().getString(R.string.error_interpreting);
@@ -93,14 +96,16 @@ public class ApiCaller {
             Log.e(LOG_TAG, "editor's commit failed");
 
         List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair("m", "login"));
-        params.add(new Pair("v", "2"));
-        params.add(new Pair("my_email", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_email_key), "").trim()));
-        params.add(new Pair("my_password", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_password_key), "")));
+        params.add(new Pair<>("m", "login"));
+        params.add(new Pair<>("v", "2"));
+        params.add(new Pair<>("my_email", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_email_key), "").trim()));
+        params.add(new Pair<>("my_password", mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_password_key), "")));
 
         JSONObject jsonObject = doBasicCall(params);
-        if (jsonObject == null)
+        if (jsonObject == null) {
+            mError = mContext.get().getString(R.string.wrong_password);
             return false;
+        }
 
         if (!jsonObject.has("sessionid")) {
             mError = mContext.get().getString(R.string.wrong_password);
