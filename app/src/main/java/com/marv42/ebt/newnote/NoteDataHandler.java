@@ -105,18 +105,18 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
             return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
 
         List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair("m", "insertbills"));
-        params.add(new Pair("v", "1"));
-        params.add(new Pair("PHPSESSID",
+        params.add(new Pair<>("m", "insertbills"));
+        params.add(new Pair<>("v", "1"));
+        params.add(new Pair<>("PHPSESSID",
                 mApiCaller.getResult().optString("sessionid")));
-        params.add(new Pair("city",       noteData.getCity())        );
-        params.add(new Pair("zip",        noteData.getPostalCode())  );
-        params.add(new Pair("country",    noteData.getCountry())     );
-        params.add(new Pair("serial0",    noteData.getSerialNumber()));
-        params.add(new Pair("denomination0",
+        params.add(new Pair<>("city",       noteData.getCity())        );
+        params.add(new Pair<>("zip",        noteData.getPostalCode())  );
+        params.add(new Pair<>("country",    noteData.getCountry())     );
+        params.add(new Pair<>("serial0",    noteData.getSerialNumber()));
+        params.add(new Pair<>("denomination0",
                 noteData.getDenomination().substring(0, noteData.getDenomination().length() - 2)));
-        params.add(new Pair("shortcode0", noteData.getShortCode())   );
-        params.add(new Pair("comment0",   submittedNoteData.getComment()));
+        params.add(new Pair<>("shortcode0", noteData.getShortCode())   );
+        params.add(new Pair<>("comment0",   submittedNoteData.getComment()));
 
         if (! mApiCaller.callInsertBills(params))
             return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
