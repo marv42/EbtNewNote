@@ -24,6 +24,7 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import javax.inject.Inject;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
 import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
@@ -40,12 +42,12 @@ import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
     private static final String CHANNEL_ID = "default";
 
-    private final Context mApplicationContext;
+    private WeakReference<Context> mContext;
     private ApiCaller mApiCaller;
 
     @Inject
     NoteDataHandler(final Context context, ApiCaller apiCaller) {
-        mApplicationContext = context;
+        mContext = new WeakReference<>(context);
         mApiCaller = apiCaller;
     }
 
@@ -56,11 +58,11 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
 
     @Override
     protected void onPostExecute(final SubmissionResult result) {
-        ThisApp app = (ThisApp) mApplicationContext.getApplicationContext();
+        ThisApp app = (ThisApp) mContext.get().getApplicationContext();
         app.addResult(result);
 
         final int n = app.getNumberOfResults();
-        String contentTitle = String.format(mApplicationContext.getResources().getQuantityString(R.plurals.xNotes, n) + " " + mApplicationContext.getString(R.string.sent), n);
+        String contentTitle = String.format(mContext.get().getResources().getQuantityString(R.plurals.xNotes, n) + " " + mContext.get().getString(R.string.sent), n);
 
         Intent intent = new Intent(app, ResultRepresentation.class);
         PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
@@ -98,8 +100,8 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                 noteData.getShortCode(),
                 noteData.getSerialNumber(),
                 noteData.getComment() +
-                        getDefaultSharedPreferences(mApplicationContext).getString(
-                                mApplicationContext.getString(R.string.pref_settings_comment_key), ""));
+                        getDefaultSharedPreferences(mContext.get()).getString(
+                                mContext.get().getString(R.string.pref_settings_comment_key), ""));
 
         if (! mApiCaller.callLogin())
             return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
@@ -127,27 +129,27 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
 
         if (status == 0)
             return new SubmissionResult(submittedNoteData, true,
-                    mApplicationContext.getString(R.string.has_been_entered), billId);
+                    mContext.get().getString(R.string.has_been_entered), billId);
 
         if (status == 1)
             return new SubmissionResult(submittedNoteData, true,
-                    mApplicationContext.getString(R.string.got_hit), billId, true);
+                    mContext.get().getString(R.string.got_hit), billId, true);
 
         String reply = "";
         if ((status &  64) != 0)
-            reply += mApplicationContext.getString(R.string.already_entered      ) + "<br>";
+            reply += mContext.get().getString(R.string.already_entered      ) + "<br>";
         if ((status & 128) != 0)
-            reply += mApplicationContext.getString(R.string.different_short_code ) + "<br>";
+            reply += mContext.get().getString(R.string.different_short_code ) + "<br>";
         if ((status &   4) != 0)
-            reply += mApplicationContext.getString(R.string.invalid_country      ) + "<br>";
+            reply += mContext.get().getString(R.string.invalid_country      ) + "<br>";
         if ((status &  32) != 0)
-            reply += mApplicationContext.getString(R.string.city_missing         ) + "<br>";
+            reply += mContext.get().getString(R.string.city_missing         ) + "<br>";
         if ((status &   2) != 0)
-            reply += mApplicationContext.getString(R.string.invalid_denomination ) + "<br>"; // ;-)
+            reply += mContext.get().getString(R.string.invalid_denomination ) + "<br>"; // ;-)
         if ((status &  16) != 0)
-            reply += mApplicationContext.getString(R.string.invalid_short_code   ) + "<br>";
+            reply += mContext.get().getString(R.string.invalid_short_code   ) + "<br>";
         if ((status &   8) != 0)
-            reply += mApplicationContext.getString(R.string.invalid_serial_number) + "<br>";
+            reply += mContext.get().getString(R.string.invalid_serial_number) + "<br>";
         if (reply.endsWith("<br>"))
             reply = reply.substring(0, reply.length() - 4);
         if (isEmpty(reply))
@@ -160,7 +162,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         String s = "";
         int numHits = summary.getHits();
         if (numHits > 0) {
-            s = "<font color=\"green\">" + String.format(mApplicationContext.getResources().getQuantityString(
+            s = "<font color=\"green\">" + String.format(mContext.get().getResources().getQuantityString(
                     R.plurals.xHits, numHits), numHits) + "</font>";
         }
         int numFailed = summary.getFailed();
@@ -168,15 +170,15 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
             if (s.length() > 0)
                 s += ", ";
             s += "<font color=\"red\">" + Integer.toString(numFailed) + " " +
-                    mApplicationContext.getString(R.string.failed) + "</font>";
+                    mContext.get().getString(R.string.failed) + "</font>";
         }
         int numSuccessful = summary.getSuccessful();
         if (numSuccessful > 0) {
             if (s.length() > 0)
                 s += ", ";
             s += Integer.toString(numSuccessful) + " " +
-                    mApplicationContext.getString(R.string.successful);
+                    mContext.get().getString(R.string.successful);
         }
-        return fromHtml(s);
+        return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }
 }
