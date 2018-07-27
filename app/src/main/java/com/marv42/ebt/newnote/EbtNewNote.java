@@ -12,8 +12,6 @@
 package com.marv42.ebt.newnote;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -256,7 +254,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
@@ -439,6 +437,9 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         Log.d(LOG_TAG, "set mOcrResult: " + result);
         mOcrResult = result;
         showOcrDialog();
+        if (! new File(mCurrentPhotoPath).delete()) {
+            Log.e(LOG_TAG, "Error deleting image file");
+        }
     }
 
     @Override
@@ -449,40 +450,22 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void showOcrDialog() {
-        Log.d(LOG_TAG, "showOcrDialog");
-        OcrDialogButtonHandler handler = new OcrDialogButtonHandler();
-
         if (mOcrResult.equals(TextProcessor.EMPTY))
             new AlertDialog.Builder(this).setTitle(R.string.ocr_dialog_title)
-                    .setMessage(getString(R.string.ocr_dialog_text) + "\n\n"
-                            + getString(R.string.ocr_dialog_empty))
-                    .setNeutralButton(R.string.ok, handler)
+                    .setMessage(getString(R.string.ocr_dialog_empty))
                     .show();
         else if (mOcrResult.startsWith("Error: "))
             new AlertDialog.Builder(this).setTitle(R.string.ocr_dialog_title)
                     .setMessage(mOcrResult.substring(7, mOcrResult.length()))
-                    .setNeutralButton(R.string.ok, handler)
                     .show();
-        else
-            new AlertDialog.Builder(this).setTitle(R.string.ocr_dialog_title)
-                    .setMessage(getString(R.string.ocr_dialog_text) + "\n\n   "
-                            + mOcrResult + "\n\n" + getString(R.string.ocr_dialog_question))
-                    .setPositiveButton(R.string.yes, handler)
-                    .setNegativeButton(R.string.no, handler)
-                    .show();
-    }
-
-    private class OcrDialogButtonHandler implements OnClickListener {
-        public void
-        onClick(DialogInterface dialog, int button)
-        {
-            if (button == DialogInterface.BUTTON_POSITIVE)
+        else {
+            if (mOcrResult.length() < 9)
+                mShortCodeText.setText(mOcrResult);
+            else
                 mSerialText.setText(mOcrResult);
-
-            Log.d(LOG_TAG, "reset mOcrResult");
-            mOcrResult = "";
-            dialog.dismiss();
+            Toast.makeText(this, getString(R.string.ocr_return), LENGTH_LONG).show();
         }
+        mOcrResult = "";
     }
 
     private class LocationTextWatcher implements TextWatcher {
