@@ -14,8 +14,6 @@ package com.marv42.ebt.newnote.scanning;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.marv42.ebt.newnote.R;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,11 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class TextProcessor {
     public static final String EMPTY = "<empty>";
@@ -45,20 +40,6 @@ public class TextProcessor {
 
     private static String extractEssentials(String s) {
         s = getResult(s);
-
-        // accept a lot because we may correct it later
-        // -> accept *everything* and let the user decide!
-//      Pattern serialNumberPattern = Pattern.compile("[\\S]{12,14}");
-//      Pattern shortCodePattern    = Pattern.compile("[\\S]{6,8}");
-//
-//      Matcher serialNumberMatcher = serialNumberPattern.matcher(s);
-//      Matcher shortCodeMatcher    =    shortCodePattern.matcher(s);
-//
-//      if (serialNumberMatcher.matches())
-//         return serialNumberMatcher.group();
-//      if (shortCodeMatcher.matches())
-//         return shortCodeMatcher.group();
-
         if (TextUtils.isEmpty(s))
             s = EMPTY;
         return s;
@@ -160,12 +141,7 @@ public class TextProcessor {
                 if (! s.substring(i, i+1).matches("\\d"))
                     s = s.substring(0, i) + correctCharacter(s.charAt(i), char2digit) + s.substring(i+1);
         }
-        Pattern pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(s);
-        if (matcher.find()) {
-            s = s.substring(matcher.start(), matcher.end());
-            Log.d(LOG_TAG, "cutting out " + s);
-        }
+
         return s;
     }
 
