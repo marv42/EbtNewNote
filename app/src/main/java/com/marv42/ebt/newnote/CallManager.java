@@ -23,8 +23,7 @@ class CallManager {
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
       String callingKey = context.getString(key);
       if (! prefs.getBoolean(callingKey, false)) {
-         if (! prefs.edit().putBoolean(callingKey, true).commit())
-            Log.e(LOG_TAG, "Editor's commit failed");
+         prefs.edit().putBoolean(callingKey, true).apply();
          Log.d(LOG_TAG, callingKey + ": " + prefs.getBoolean(callingKey, false));
          return false;
       }
