@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android">
    <PreferenceCategory
-   android:title="@string/settings_ebt_account">
+       android:title="@string/settings_ebt_account">
       <EditTextPreference
-      android:id="@+id/settings_email"
-      android:key="@string/pref_settings_email_key"
-      android:title="@string/settings_email_title"
-      android:summary="@string/settings_email_summary"
-      android:inputType="textEmailAddress"/>
+          android:key="@string/pref_settings_email_key"
+          android:title="@string/settings_email_title"
+          android:summary="@string/settings_email_summary"
+          android:inputType="textEmailAddress"/>
       <EditTextPreference
-      android:id="@+id/settings_password"
-      android:key="@string/pref_settings_password_key"
-      android:title="@string/settings_password_title"
-      android:summary="@string/settings_password_summary"
-      android:password="true"/>
+          android:key="@string/pref_settings_password_key"
+          android:title="@string/settings_password_title"
+          android:summary="@string/settings_password_summary"
+          android:inputType="textPassword"/>
    </PreferenceCategory>
    <PreferenceCategory
-   android:title="@string/settings_misc">
+       android:title="@string/settings_misc">
       <EditTextPreference
-      android:id="@+id/settings_comment"
-      android:key="@string/pref_settings_comment_key"
-      android:title="@string/settings_comment_title"
-      android:summary="@string/settings_comment_summary"/>
+          android:key="@string/pref_settings_comment_key"
+          android:title="@string/settings_comment_title"
+          android:summary="@string/settings_comment_summary"/>
    </PreferenceCategory>
 </PreferenceScreen>

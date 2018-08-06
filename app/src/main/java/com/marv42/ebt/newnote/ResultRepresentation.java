@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,8 +38,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.content.Intent.ACTION_VIEW;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
+import static android.view.View.GONE;
 
 public class ResultRepresentation extends ExpandableListActivity {
     private static final String EBT_HOST = "http://en.eurobilltracker.com/";
@@ -57,7 +61,7 @@ public class ResultRepresentation extends ExpandableListActivity {
     private static final int MENU_ITEM_EDIT = 0;
     private static final int MENU_ITEM_SHOW = 1;
 
-    protected MyGestureListener mGestureListener;
+    private GestureDetector mDetector;
 
     private ArrayList<SubmissionResult> mResults;
 
@@ -66,18 +70,7 @@ public class ResultRepresentation extends ExpandableListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.results);
         mResults = ((ThisApp) getApplicationContext()).getResults();
-        mGestureListener = new MyGestureListener(this) {
-            public boolean
-            onTouch(View v, MotionEvent event) {
-                if (mGestureListener.getDetector().onTouchEvent(event)) {
-                    startActivity(new Intent(ResultRepresentation.this, EbtNewNote.class));
-                    return true;
-                }
-                else
-                    return false;
-            }
-        };
-        (findViewById(R.id.result_layout)).setOnTouchListener(mGestureListener);
+        mDetector = new GestureDetector(this, new MyGestureListener());
     }
 
     @Override
@@ -86,7 +79,6 @@ public class ResultRepresentation extends ExpandableListActivity {
 
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
-
         Map<String, String> groupMap;
         Map<String, String> childMap;
 
@@ -156,6 +148,25 @@ public class ResultRepresentation extends ExpandableListActivity {
             for (int i = 0; i < groupFrom.length; ++i)
                 layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
         registerForContextMenu(getExpandableListView());
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDown(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            startActivity(new Intent(ResultRepresentation.this, EbtNewNote.class));
+            return true;
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 
     @Override
@@ -230,7 +241,7 @@ public class ResultRepresentation extends ExpandableListActivity {
     }
 
     private void showInBrowser(int groupPos) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
+        startActivity(new Intent(ACTION_VIEW, Uri.parse(
                 EBT_HOST + "notes/?id=" + Integer.toString(
                         mResults.get(groupPos).getBillId()))));
     }
@@ -277,7 +288,7 @@ public class ResultRepresentation extends ExpandableListActivity {
         public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
                                  ViewGroup parent) {
             View v = ((LayoutInflater) getApplicationContext().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_parents, null);
+                    (LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_parents, null);
             bindView(v, mGroupData.get(groupPosition), mGroupFrom, mGroupTo);
             return v;
         }
@@ -286,7 +297,7 @@ public class ResultRepresentation extends ExpandableListActivity {
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                      View convertView, ViewGroup parent) {
             View v = ((LayoutInflater) getApplicationContext().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_children, null);
+                    (LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_children, null);
             bindView(v, mChildData.get(groupPosition).get(childPosition),
                     mChildFrom, mChildTo);
             return v;
@@ -303,10 +314,10 @@ public class ResultRepresentation extends ExpandableListActivity {
 //            } else {
                 TextView v = view.findViewById(to[i]);
                 if (v != null) {
-                    v.setText(fromHtml(s));
+                    v.setText(fromHtml(s, FROM_HTML_MODE_COMPACT));
                     v.setTextColor(0xffffffff);
                     if (TextUtils.isEmpty(s))
-                        v.setVisibility(View.GONE);
+                        v.setVisibility(GONE);
                 }
 //            }
             }

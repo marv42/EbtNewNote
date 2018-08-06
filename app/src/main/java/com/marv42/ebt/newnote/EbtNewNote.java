@@ -25,11 +25,13 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +40,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -67,7 +70,8 @@ import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static java.io.File.createTempFile;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Callback, CommentSuggestion.Callback /*, LifecycleOwner*/ {
+public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Callback,
+        CommentSuggestion.Callback, SharedPreferences.OnSharedPreferenceChangeListener/*, LifecycleOwner*/ {
     @Inject
     Context mContext;
     @Inject
@@ -88,7 +92,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
 
-    protected MyGestureListener mGestureListener;
+    private GestureDetector mDetector;
 
     private EditText mCountryText;
     private EditText mCityText;
@@ -109,17 +113,14 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
 
         mFusedLocationClient = getFusedLocationProviderClient(this);
 
-        mGestureListener = new MyGestureListener(this) {
+        ViewFlipper flipper = findViewById(R.id.flipper);
+        mDetector = new GestureDetector(this, new MyGestureListener());
+        (findViewById(R.id.submit_layout)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (mGestureListener.getDetector().onTouchEvent(event)) {
-                    startActivity(new Intent(EbtNewNote.this, ResultRepresentation.class));
-                    return true;
-                } else
-                    return false;
+                return mDetector.onTouchEvent(event);
             }
-        };
-
-        (findViewById(R.id.submit_layout)).setOnTouchListener(mGestureListener);
+        });
         (findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 requestLocation();
@@ -145,45 +146,55 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     protected void onResume() {
         Log.d(LOG_TAG, "onResume");
         super.onResume();
-
-        String loginChangedKey = getString(R.string.pref_login_changed_key);
-        if (mSharedPreferences.getBoolean(loginChangedKey, true) &&
-                !CallManager.weAreCalling(R.string.pref_calling_login_key, this)) {
-            if (!mSharedPreferences.edit().putBoolean(loginChangedKey, false).commit())
-                Log.e(LOG_TAG, "Editor's commit failed");
-            Log.d(LOG_TAG, loginChangedKey + ": " + mSharedPreferences.getBoolean(loginChangedKey, false));
-            new LoginChecker(this, mApiCaller).execute();
-        }
-
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mLocationTextWatcher = new LocationTextWatcher();
-
         loadPreferences();
         loadLocationValues();
-
-        if (mCountryText != null)
-            mCountryText.addTextChangedListener(mLocationTextWatcher);
-        if (mCityText != null)
-            mCityText.addTextChangedListener(mLocationTextWatcher);
-        if (mPostalCodeText != null)
-            mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
-
+        mCountryText.addTextChangedListener(mLocationTextWatcher);
+        mCityText.addTextChangedListener(mLocationTextWatcher);
+        mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
         executeCommentSuggestion();
     }
 
     @Override
     protected void onPause() {
-        if (mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null)
-            return;
-        savePreferences(new NoteData(
-                mCountryText.getText().toString(),
-                mCityText.getText().toString(),
-                mPostalCodeText.getText().toString(),
-                mSpinner.getSelectedItem().toString(),
-                mShortCodeText.getText().toString(),
-                mSerialText.getText().toString(),
-                mCommentText.getText().toString()));
+        mSharedPreferences.edit().putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
+                .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
+                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString())
+                .putString(getString(R.string.pref_denomination_key), mSpinner.getSelectedItem().toString())
+                .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
+                .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
+                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
+        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         mLocationTextWatcher = null;
         super.onPause();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == mSharedPreferences) {
+            String loginChangedKey = getString(R.string.pref_login_changed_key);
+            if (key.equals(loginChangedKey)) {
+                CallManager.weAreCalling(R.string.pref_calling_login_key, this);
+                sharedPreferences.edit().putBoolean(loginChangedKey, false).apply();
+                Log.d(LOG_TAG, loginChangedKey + ": " + sharedPreferences.getBoolean(loginChangedKey, false));
+                new LoginChecker(this, mApiCaller).execute();
+            }
+        }
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+            /*implements GestureDetector.OnGestureListener*/  {
+        @Override
+        public boolean onDown(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            startActivity(new Intent(EbtNewNote.this, ResultRepresentation.class));
+            return true;
+        }
     }
 
     @Override
@@ -197,14 +208,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void submitValues() {
-        if (mCountryText.getText() == null ||
-                mCityText.getText() == null ||
-                mPostalCodeText.getText() == null ||
-                mShortCodeText.getText() == null ||
-                mSerialText.getText() == null ||
-                mCommentText.getText() == null ||
-                mSpinner.getSelectedItem() == null)
-            return;
         Toast.makeText(this, getString(R.string.submitting), LENGTH_LONG).show();
         new NoteDataHandler(mContext, mApiCaller).execute(new NoteData(
                 mCountryText.getText().toString(),
@@ -238,15 +241,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
-                    // Location settings are not satisfied, but this can be fixed
-                    // by showing the user a dialog.
                     try {
-                        // Show the dialog by calling startResolutionForResult(),
-                        // and check the result in onActivityResult().
                         ResolvableApiException resolvable = (ResolvableApiException) e;
                         resolvable.startResolutionForResult(EbtNewNote.this, REQUEST_CHECK_SETTINGS);
                     } catch (IntentSender.SendIntentException sendEx) {
-                        // Ignore the error.
+                        // ignore this
                     }
                 }
             }
@@ -256,21 +255,17 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
-                    Toast.makeText(this, getString(R.string.location_no_permission), LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, getString(R.string.location_permission), LENGTH_LONG).show();
-                }
-                break;
-            }
-            case CAMERA_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
-                    Toast.makeText(this, getString(R.string.no_camera_permission), LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, getString(R.string.camera_permission), LENGTH_LONG).show();
-                }
+        String permissionObject = "";
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            permissionObject = getString(R.string.location);
+        } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            permissionObject = getString(R.string.camera);
+        }
+        if (!TextUtils.isEmpty(permissionObject)) {
+            if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
+                Toast.makeText(this, permissionObject + " " + getString(R.string.no_permission), LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, permissionObject + " " + getString(R.string.permission), LENGTH_LONG).show();
             }
         }
     }
@@ -303,14 +298,12 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
                 TextUtils.isEmpty(l.getCity()   ) ||
                 TextUtils.isEmpty(l.getPostalCode()))
             return;
-
         if (! l.canOverwrite() && (
                 mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null ||
                 ! TextUtils.isEmpty(mCountryText   .getText().toString()) ||
                 ! TextUtils.isEmpty(mCityText      .getText().toString()) ||
                 ! TextUtils.isEmpty(mPostalCodeText.getText().toString())))
             return;
-
         mCountryText   .setText(l.getCountry()   );
         mCityText      .setText(l.getCity()      );
         mPostalCodeText.setText(l.getPostalCode());
@@ -333,31 +326,13 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void resetPreferences() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-
         String callingLoginKey      = getString(R.string.pref_calling_login_key      );
         String callingMyCommentsKey = getString(R.string.pref_calling_my_comments_key);
         String gettingLocationKey   = getString(R.string.pref_getting_location_key);
-
-        editor.putBoolean(callingLoginKey,      false);
-        editor.putBoolean(callingMyCommentsKey, false);
-        editor.putBoolean(gettingLocationKey,   false);
-        if (! editor.commit())
-            Log.e(LOG_TAG, "Editor's commit failed");
+        mSharedPreferences.edit().putBoolean(callingLoginKey, false)
+                .putBoolean(callingMyCommentsKey, false)
+                .putBoolean(gettingLocationKey, false).apply();
         Log.d(LOG_TAG, callingLoginKey + ": " + mSharedPreferences.getBoolean(callingLoginKey, false));
-    }
-
-    public void savePreferences(final NoteData noteData) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString(getString(R.string.pref_country_key),       noteData.getCountry()     );
-        editor.putString(getString(R.string.pref_city_key),          noteData.getCity()        );
-        editor.putString(getString(R.string.pref_postal_code_key),   noteData.getPostalCode()  );
-        editor.putString(getString(R.string.pref_denomination_key),  noteData.getDenomination());
-        editor.putString(getString(R.string.pref_short_code_key),    noteData.getShortCode()   );
-        editor.putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber());
-        editor.putString(getString(R.string.pref_comment_key),       noteData.getComment()     );
-        if (! editor.commit())
-            Log.e(LOG_TAG, "Editor's commit failed");
     }
 
     private void loadPreferences() {
@@ -383,7 +358,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         for (int i = 0; i < mSpinner.getAdapter().getCount(); ++i)
             if (mSpinner.getItemAtPosition(i).equals(denomination))
                 return i;
-
         return -1;
     }
 
@@ -482,8 +456,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     }
 
     private void executeCommentSuggestion() {
-        if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, getApplicationContext()) &&
-                mCountryText.getText() != null && mCityText.getText() != null && mPostalCodeText.getText() != null)
+        if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, getApplicationContext()))
             new CommentSuggestion(this, getApplicationContext(), mApiCaller, mSharedPreferences)
                     .execute(new LocationValues(
                             mCountryText.getText().toString(),
