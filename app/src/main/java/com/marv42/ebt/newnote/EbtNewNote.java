@@ -25,7 +25,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -38,9 +37,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.RadioButton;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -100,7 +98,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     private EditText mShortCodeText;
     private EditText mSerialText;
     private AutoCompleteTextView mCommentText;
-    private Spinner mSpinner;
 
     private LocationTextWatcher mLocationTextWatcher;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -113,11 +110,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
 
         mFusedLocationClient = getFusedLocationProviderClient(this);
 
-        ViewFlipper flipper = findViewById(R.id.flipper);
         mDetector = new GestureDetector(this, new MyGestureListener());
         (findViewById(R.id.submit_layout)).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                v.performClick();
                 return mDetector.onTouchEvent(event);
             }
         });
@@ -146,13 +143,16 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     protected void onResume() {
         Log.d(LOG_TAG, "onResume");
         super.onResume();
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        mLocationTextWatcher = new LocationTextWatcher();
+
         loadPreferences();
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
         loadLocationValues();
+        mLocationTextWatcher = new LocationTextWatcher();
         mCountryText.addTextChangedListener(mLocationTextWatcher);
         mCityText.addTextChangedListener(mLocationTextWatcher);
         mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
+
         executeCommentSuggestion();
     }
 
@@ -161,7 +161,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         mSharedPreferences.edit().putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
                 .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
                 .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString())
-                .putString(getString(R.string.pref_denomination_key), mSpinner.getSelectedItem().toString())
+                .putString(getString(R.string.pref_denomination_key), getDenomination())
                 .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
                 .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
                 .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
@@ -183,8 +183,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         }
     }
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
-            /*implements GestureDetector.OnGestureListener*/  {
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDown(MotionEvent event) {
             return true;
@@ -213,7 +212,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
                 mCountryText.getText().toString(),
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
-                mSpinner.getSelectedItem().toString(),
+                getDenomination(),
                 mShortCodeText.getText().toString().replaceAll("\\s+", ""),
                 mSerialText.getText().toString().replaceAll("\\s+", ""),
                 mCommentText.getText().toString()));
@@ -315,14 +314,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         mPostalCodeText = findViewById(R.id.edit_text_zip);
         mShortCodeText  = findViewById(R.id.edit_text_printer);
         mSerialText     = findViewById(R.id.edit_text_serial);
-        mSpinner        = findViewById(R.id.spinner);
         mCommentText    = findViewById(R.id.edit_text_comment);
         mCommentText.setThreshold(0);
-
-        ArrayAdapter<CharSequence> denominationAdapter = ArrayAdapter.createFromResource(
-                this, R.array.values, android.R.layout.simple_spinner_item);
-        denominationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinner.setAdapter(denominationAdapter);
     }
 
     private void resetPreferences() {
@@ -342,7 +335,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         mShortCodeText .setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key),    ""));
         mSerialText    .setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
         mCommentText   .setText(mSharedPreferences.getString(getString(R.string.pref_comment_key),       ""));
-        mSpinner.setSelection(getIndexOfDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), "5 €")));
+        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), "5 €"));
 
         String additionalComment = mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
         if (mCommentText.getText().toString().endsWith(additionalComment))
@@ -354,11 +347,39 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         setLocationValues(((ThisApp) mContext).getLocationValues());
     }
 
-    private int getIndexOfDenomination(final String denomination) {
-        for (int i = 0; i < mSpinner.getAdapter().getCount(); ++i)
-            if (mSpinner.getItemAtPosition(i).equals(denomination))
-                return i;
-        return -1;
+    private String getDenomination() {
+        if (((RadioButton)findViewById(R.id.radio_5)).isChecked())
+            return "5 €";
+        if (((RadioButton)findViewById(R.id.radio_10)).isChecked())
+            return "10 €";
+        if (((RadioButton)findViewById(R.id.radio_20)).isChecked())
+            return "20 €";
+        if (((RadioButton)findViewById(R.id.radio_50)).isChecked())
+            return "50 €";
+        if (((RadioButton)findViewById(R.id.radio_100)).isChecked())
+            return "100 €";
+        if (((RadioButton)findViewById(R.id.radio_200)).isChecked())
+            return "200 €";
+        if (((RadioButton)findViewById(R.id.radio_500)).isChecked())
+            return "500 €";
+        return "";
+    }
+
+    private void setDenomination(String denomination) {
+        if (denomination.equals("5 €"))
+            ((RadioButton)findViewById(R.id.radio_5)).setChecked(true);
+        if (denomination.equals("10 €"))
+            ((RadioButton)findViewById(R.id.radio_10)).setChecked(true);
+        if (denomination.equals("20 €"))
+            ((RadioButton)findViewById(R.id.radio_20)).setChecked(true);
+        if (denomination.equals("50 €"))
+            ((RadioButton)findViewById(R.id.radio_50)).setChecked(true);
+        if (denomination.equals("100 €"))
+            ((RadioButton)findViewById(R.id.radio_100)).setChecked(true);
+        if (denomination.equals("200 €"))
+            ((RadioButton)findViewById(R.id.radio_200)).setChecked(true);
+        if (denomination.equals("500 €"))
+            ((RadioButton)findViewById(R.id.radio_500)).setChecked(true);
     }
 
     private void acquireNumberFromPhoto() {

@@ -68,15 +68,6 @@
     <string name="postal_code">Postal Code</string>
     <string name="get_location">Get Current Location</string>
     <string name="value">Denomination</string>
-    <string-array name="values">
-        <item>5 €</item>
-        <item>10 €</item>
-        <item>20 €</item>
-        <item>50 €</item>
-        <item>100 €</item>
-        <item>200 €</item>
-        <item>500 €</item>
-    </string-array>
     <string name="short_code">Short Code</string>
     <string name="serial_number">Serial Number</string>
     <string name="comment">Comment</string>

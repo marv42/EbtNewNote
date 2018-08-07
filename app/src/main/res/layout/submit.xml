@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
 xmlns:android="http://schemas.android.com/apk/res/android"
-android:id="@+id/submit_layout"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/submit_layout"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:scrollbars="none">
@@ -69,10 +70,65 @@ android:scrollbars="none">
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
          android:text="@string/value" />
-         <Spinner
-         android:id="@+id/spinner"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content" />
+
+          <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1" >
+              <RadioButton
+                  android:id="@+id/radio_5"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="5 €" />
+
+              <RadioButton
+                  android:id="@+id/radio_10"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="10 €" />
+
+              <RadioButton
+                  android:id="@+id/radio_20"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="20 €" />
+
+              <RadioButton
+                  android:id="@+id/radio_50"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="50 €" />
+
+              </LinearLayout>
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1" >
+
+              <RadioButton
+                  android:id="@+id/radio_100"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="100 €" />
+
+              <RadioButton
+                  android:id="@+id/radio_200"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="200 €" />
+
+              <RadioButton
+                  android:id="@+id/radio_500"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="500 €" />
+              </LinearLayout>
+          </RadioGroup>
       </LinearLayout>
       <TableLayout
       android:layout_width="fill_parent"
