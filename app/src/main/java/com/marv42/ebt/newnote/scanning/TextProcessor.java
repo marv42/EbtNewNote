@@ -22,8 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class TextProcessor {
     public static final String EMPTY = "<empty>";
@@ -127,9 +130,11 @@ public class TextProcessor {
 
         List<Integer> letterIndices = new ArrayList<>();
         letterIndices.add(0);
-        if (s.length() > 9)
+        Pattern pattern = Pattern.compile("\\w\\d{3}\\w\\d", CASE_INSENSITIVE);
+        if (s.length() > 9) {
             letterIndices.add(1); // probably a serial number
-        else
+            pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
+        } else
             letterIndices.add(4); // probably a short code
 
         for (int i = 0; i < s.length(); ++i) {
@@ -142,6 +147,11 @@ public class TextProcessor {
                     s = s.substring(0, i) + correctCharacter(s.charAt(i), char2digit) + s.substring(i+1);
         }
 
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()) {
+            s = s.substring(matcher.start(), matcher.end());
+            Log.d(LOG_TAG, "cutting out " + s);
+        }
         return s;
     }
 
