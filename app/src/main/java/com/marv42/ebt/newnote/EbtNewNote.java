@@ -79,6 +79,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
 
     public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
     static final int EBT_NOTIFICATION_ID = 1;
+    static final float VERTICAL_FLING_VELOCITY_THRESHOLD = 200;
 
     private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
@@ -191,6 +192,9 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(LOG_TAG, "velocityY: " + velocityY);
+            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
+                return false;
             startActivity(new Intent(EbtNewNote.this, ResultRepresentation.class));
             return true;
         }

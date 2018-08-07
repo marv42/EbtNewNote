@@ -43,6 +43,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.view.View.GONE;
+import static com.marv42.ebt.newnote.EbtNewNote.VERTICAL_FLING_VELOCITY_THRESHOLD;
 
 public class ResultRepresentation extends ExpandableListActivity {
     private static final String EBT_HOST = "http://en.eurobilltracker.com/";
@@ -158,6 +159,8 @@ public class ResultRepresentation extends ExpandableListActivity {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
+                return false;
             startActivity(new Intent(ResultRepresentation.this, EbtNewNote.class));
             return true;
         }
