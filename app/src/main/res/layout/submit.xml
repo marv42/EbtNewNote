@@ -1,192 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/submit_layout"
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-android:scrollbars="none">
-   <LinearLayout
-   android:orientation="vertical"
-   android:scrollbars="vertical"
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content">
-      <TextView
-      android:text="@string/location"
-      android:textAllCaps="true"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center" />
-      <TableLayout
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:stretchColumns="1">
-         <TableRow>
-            <TextView
-            android:text="@string/country" />
-            <!-- AutoCompleteTextView  -->
-            <EditText
-            android:id="@+id/edit_text_country"
-            android:singleLine="true"
-            android:nextFocusDown="@+id/edit_text_city" />
-         </TableRow>
-         <TableRow>
-            <TextView
-            android:text="@string/city" />
-            <!-- AutoCompleteTextView  -->
-            <EditText
-            android:id="@+id/edit_text_city"
-            android:singleLine="true"
-            android:nextFocusDown="@+id/edit_text_zip" />
-         </TableRow>
-         <TableRow>
-            <TextView
-            android:text="@string/postal_code" />
-            <!-- AutoCompleteTextView  -->
-            <EditText
-            android:id="@+id/edit_text_zip"
-            android:singleLine="true"
-            android:inputType="textPostalAddress"
-            android:nextFocusDown="@+id/edit_text_printer" />
-         </TableRow>
-      </TableLayout>
-      <ImageButton
-      android:id="@+id/location_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:src="@drawable/ic_menu_mylocation" />
-      <TextView
-      android:text="@string/note"
-      android:textAllCaps="true"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center" />
-      <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content">
-         <TextView
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="@string/value" />
-
-          <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
-
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_weight="1" >
-              <RadioButton
-                  android:id="@+id/radio_5"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="5 €" />
-
-              <RadioButton
-                  android:id="@+id/radio_10"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="10 €" />
-
-              <RadioButton
-                  android:id="@+id/radio_20"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="20 €" />
-
-              <RadioButton
-                  android:id="@+id/radio_50"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="50 €" />
-
-              </LinearLayout>
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_weight="1" >
-
-              <RadioButton
-                  android:id="@+id/radio_100"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="100 €" />
-
-              <RadioButton
-                  android:id="@+id/radio_200"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="200 €" />
-
-              <RadioButton
-                  android:id="@+id/radio_500"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="500 €" />
-              </LinearLayout>
-          </RadioGroup>
-      </LinearLayout>
-      <TableLayout
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
-         <TableRow>
-            <TextView
-            android:text="@string/short_code" />
-            <EditText
-            android:id="@+id/edit_text_printer"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:width="@dimen/short_code_text_size"
-            android:nextFocusDown="@+id/edit_text_serial" /><!-- width has no effect because of table -->
-         </TableRow>
-         <TableRow>
-            <TextView
-            android:text="@string/serial_number" />
-            <EditText
-            android:id="@+id/edit_text_serial"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:width="@dimen/serial_text_size"
-            android:nextFocusDown="@+id/edit_text_comment" />
-         </TableRow>
-      </TableLayout>
-      <ImageButton
-      android:id="@+id/photo_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:src="@drawable/ic_menu_camera" />
-      <TableLayout
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:stretchColumns="1">
-         <TableRow>
-            <TextView
-            android:text="@string/comment" />
-            <AutoCompleteTextView
-            android:id="@+id/edit_text_comment"
-            android:singleLine="true"
-            android:imeOptions="actionDone"
-            android:completionThreshold="1" />
-         </TableRow>
-      </TableLayout>
-      <TableLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:layout_gravity="center">
-         <TableRow>
-            <Button
-            android:id="@+id/submit_button"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none">
+    <LinearLayout
+        android:orientation="vertical"
+        android:scrollbars="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="@string/location"
+            android:textAllCaps="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:stretchColumns="1">
+            <TableRow>
+                <TextView
+                    android:text="@string/country" />
+                <!-- AutoCompleteTextView  -->
+                <EditText
+                    android:id="@+id/edit_text_country"
+                    android:singleLine="true"
+                    android:nextFocusDown="@+id/edit_text_city" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="@string/city" />
+                <!-- AutoCompleteTextView  -->
+                <EditText
+                    android:id="@+id/edit_text_city"
+                    android:singleLine="true"
+                    android:nextFocusDown="@+id/edit_text_zip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="@string/postal_code" />
+                <!-- AutoCompleteTextView  -->
+                <EditText
+                    android:id="@+id/edit_text_zip"
+                    android:singleLine="true"
+                    android:inputType="textPostalAddress"
+                    android:nextFocusDown="@+id/edit_text_printer" />
+            </TableRow>
+        </TableLayout>
+        <ImageButton
+            android:id="@+id/location_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/submit" />
-         </TableRow>
-      </TableLayout>
-   </LinearLayout>
+            android:src="@drawable/ic_menu_mylocation" />
+        <TextView
+            android:text="@string/note"
+            android:textAllCaps="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/value" />
+            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <RadioButton
+                    android:id="@+id/radio_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5 €" />
+                <RadioButton
+                    android:id="@+id/radio_10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10 €" />
+                <RadioButton
+                    android:id="@+id/radio_20"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="20 €" />
+                <RadioButton
+                    android:id="@+id/radio_50"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="50 €" />
+                <RadioButton
+                    android:id="@+id/radio_100"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100 €" />
+                <RadioButton
+                    android:id="@+id/radio_200"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="200 €" />
+                <RadioButton
+                    android:id="@+id/radio_500"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="500 €" />
+            </RadioGroup>
+        </LinearLayout>
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TableRow>
+                <TextView
+                    android:text="@string/short_code" />
+                <EditText
+                    android:id="@+id/edit_text_printer"
+                    android:singleLine="true"
+                    android:inputType="textCapCharacters"
+                    android:width="@dimen/short_code_text_size"
+                    android:nextFocusDown="@+id/edit_text_serial" /><!-- width has no effect because of table -->
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="@string/serial_number" />
+                <EditText
+                    android:id="@+id/edit_text_serial"
+                    android:singleLine="true"
+                    android:inputType="textCapCharacters"
+                    android:width="@dimen/serial_text_size"
+                    android:nextFocusDown="@+id/edit_text_comment" />
+            </TableRow>
+        </TableLayout>
+        <ImageButton
+            android:id="@+id/photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_camera" />
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:stretchColumns="1">
+            <TableRow>
+                <TextView
+                    android:text="@string/comment" />
+                <AutoCompleteTextView
+                    android:id="@+id/edit_text_comment"
+                    android:singleLine="true"
+                    android:imeOptions="actionDone"
+                    android:completionThreshold="1" />
+            </TableRow>
+        </TableLayout>
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+            <TableRow>
+                <Button
+                    android:id="@+id/submit_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/submit" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
 </ScrollView>
