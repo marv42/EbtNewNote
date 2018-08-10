@@ -111,8 +111,8 @@
     <string name="label_done_key">Done</string>
 
     <!-- permissions -->
-    <string name="no_permission">permissions have not been granted</string>
-    <string name="permission">permissions have been granted. Please try again.</string>
+    <string name="no_permission">Permissions have not been granted</string>
+    <string name="permission">Permissions have been granted</string>
 
     <!-- photo -->
     <string name="camera">Camera</string>
