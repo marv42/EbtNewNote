@@ -13,10 +13,12 @@ package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
@@ -45,7 +47,7 @@ public class Settings extends AppCompatActivity {
         }
 
         @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        public void onCreatePreferencesFix(@Nullable Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.settings);
         }
 
