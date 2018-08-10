@@ -258,18 +258,15 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        String permissionObject = "";
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            permissionObject = getString(R.string.location);
-        } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            permissionObject = getString(R.string.camera);
+        if (grantResults.length == 0 || grantResults[0] != PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.no_permission), LENGTH_LONG).show();
+            return;
         }
-        if (!TextUtils.isEmpty(permissionObject)) {
-            if (grantResults.length <= 0 || grantResults[0] != PERMISSION_GRANTED) {
-                Toast.makeText(this, permissionObject + " " + getString(R.string.no_permission), LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, permissionObject + " " + getString(R.string.permission), LENGTH_LONG).show();
-            }
+        Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            requestLocation();
+        } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            acquireNumberFromPhoto();
         }
     }
 
@@ -364,8 +361,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
             return "100 €";
         if (((RadioButton)findViewById(R.id.radio_200)).isChecked())
             return "200 €";
-        if (((RadioButton)findViewById(R.id.radio_500)).isChecked())
-            return "500 €";
+//        if (((RadioButton)findViewById(R.id.radio_500)).isChecked())
+//            return "500 €";
         return "";
     }
 
@@ -382,8 +379,8 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
             ((RadioButton)findViewById(R.id.radio_100)).setChecked(true);
         if (denomination.equals("200 €"))
             ((RadioButton)findViewById(R.id.radio_200)).setChecked(true);
-        if (denomination.equals("500 €"))
-            ((RadioButton)findViewById(R.id.radio_500)).setChecked(true);
+//        if (denomination.equals("500 €"))
+//            ((RadioButton)findViewById(R.id.radio_500)).setChecked(true);
     }
 
     private void acquireNumberFromPhoto() {
