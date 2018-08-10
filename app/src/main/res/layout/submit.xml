@@ -54,7 +54,7 @@
             android:id="@+id/location_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_mylocation" />
+            android:src="@android:drawable/ic_menu_mylocation" />
         <TextView
             android:text="@string/note"
             android:textAllCaps="true"
@@ -139,7 +139,7 @@
             android:id="@+id/photo_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_camera" />
+            android:src="@android:drawable/ic_menu_camera" />
         <TableLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
