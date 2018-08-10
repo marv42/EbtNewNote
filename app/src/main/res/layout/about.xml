@@ -14,11 +14,11 @@ android:theme="@android:style/Theme.Dialog"
       <TableRow>
          <TextView
          android:id="@+id/about_version"
-         android:paddingLeft="15dp"
+         android:paddingStart="15dp"
          />
          <ImageView
          android:id="@+id/about_image"
-         android:gravity="right"
+         android:gravity="end"
          />
       </TableRow>
    </TableLayout>

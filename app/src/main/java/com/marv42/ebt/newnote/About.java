@@ -42,10 +42,10 @@ public class About implements OnMenuItemClickListener {
          Log.e(LOG_TAG, "Package info not found", e);
       }
 
-      ((TextView)dialog.findViewById(R.id.about_version)).setText(mContext.getString(R.string.version) + " " + versionNumber);
+      ((TextView)dialog.findViewById(R.id.about_version)).setText(String.format(mContext.getString(R.string.version), versionNumber));
       ((ImageView)dialog.findViewById(R.id.about_image)).setImageResource(R.drawable.ic_ebt);
       ((TextView)dialog.findViewById(R.id.about_text)).setText(
-            mContext.getString(R.string.app_name) + " " + mContext.getString(R.string.about_text));
+              String.format("%1$s %2$s", mContext.getString(R.string.app_name), mContext.getString(R.string.about_text)));
       dialog.show();
       return true;
    }
