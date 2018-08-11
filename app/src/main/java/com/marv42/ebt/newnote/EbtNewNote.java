@@ -206,7 +206,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements OcrHandler.Ca
         menu.findItem(R.id.settings).setIntent(new Intent(this, Settings.class));
         menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
         menu.findItem(R.id.submitted).setIntent(new Intent(this, ResultRepresentation.class));
-        menu.findItem(R.id.new_note).setEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -5,9 +5,6 @@
        android:id="@+id/submitted"
        android:title="@string/show_submitted" />
    <item
-       android:id="@+id/new_note"
-       android:title="@string/show_new_note" />
-   <item
        android:id="@+id/settings"
        android:title="@string/settings" />
    <item

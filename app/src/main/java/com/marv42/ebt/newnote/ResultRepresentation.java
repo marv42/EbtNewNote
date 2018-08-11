@@ -49,7 +49,7 @@ public class ResultRepresentation extends ExpandableListActivity {
     private static final String EBT_HOST = "http://en.eurobilltracker.com/";
 
     private static final String BUTTON_PLACEHOLDER = "place holder";
-    //   private static final String DENOMINATION_IMAGE = "denomination_image";
+//   private static final String DENOMINATION_IMAGE = "denomination_image";
     private static final String DENOMINATION       = "denomination";
     private static final String SERIAL_NUMBER      = "serial number";
     private static final String RESULT             = "result";
@@ -247,16 +247,6 @@ public class ResultRepresentation extends ExpandableListActivity {
         startActivity(new Intent(ACTION_VIEW, Uri.parse(
                 EBT_HOST + "notes/?id=" + Integer.toString(
                         mResults.get(groupPos).getBillId()))));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        menu.findItem(R.id.settings).setIntent(new Intent(this, Settings.class));
-        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
-        menu.findItem(R.id.submitted).setEnabled(false);
-        menu.findItem(R.id.new_note).setIntent(new Intent(this, EbtNewNote.class));
-        return super.onCreateOptionsMenu(menu);
     }
 
     public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
