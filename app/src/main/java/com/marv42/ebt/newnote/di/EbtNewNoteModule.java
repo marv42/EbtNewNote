@@ -1,24 +1,35 @@
 package com.marv42.ebt.newnote.di;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.SubmittedFragment;
+import com.marv42.ebt.newnote.SubmitFragment;
+
+import javax.inject.Named;
+
 import dagger.Module;
-import dagger.android.AndroidInjectionModule;
-import dagger.android.support.AndroidSupportInjectionModule;
+import dagger.Provides;
+import dagger.android.ContributesAndroidInjector;
 
-@Module(includes = {AndroidInjectionModule.class, AndroidSupportInjectionModule.class}/*,
-        subcomponents = {WebViewFragmentComponent.class}*/)
+@Module(subcomponents = {SubmitFragmentComponent.class, ResultFragmentComponent.class})
 abstract class EbtNewNoteModule {
-//    @FragmentScope
-//    @ContributesAndroidInjector(modules = WebViewFragmentModule.class)
-//    abstract WebViewFragment contributeWebViewFragmentInjector();
+    @FragmentScope
+    @ContributesAndroidInjector(modules = SubmitFragmentModule.class)
+    abstract SubmitFragment contributeSubmitFragmentInjector();
 
-    //    @Binds
-//    abstract Context bindContext(Activity activity);
+    @FragmentScope
+    @ContributesAndroidInjector(modules = ResultFragmentModule.class)
+    abstract SubmittedFragment contributeResultFragmentInjector();
+
+//    @Binds
+//    abstract Context bindContext(EbtNewNote activity);
     // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
-//    @Provides
-//    @ActivityScope
-//    @Named("Activity")
-//    //@Contract(pure = true)
-//    static Context provideContext(@NonNull EbtNewNote activity) {
-//        return activity;
-//    }
+    @Provides
+    @ActivityScope
+    @Named("Activity")
+    static Context provideContext(@NonNull EbtNewNote activity) {
+        return activity;
+    }
 }

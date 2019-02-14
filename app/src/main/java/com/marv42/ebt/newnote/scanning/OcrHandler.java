@@ -35,22 +35,21 @@ import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
 public class OcrHandler extends AsyncTask<Void, Void, String> {
     public interface Callback {
         void onOcrResult(String result);
+        String getPhotoPath();
     }
 
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
     private Callback mCallback;
-    private String mPhotoPath;
     private String mBase64Image;
 
-    public OcrHandler(Callback callback, String photoPath) {
+    public OcrHandler(Callback callback) {
         mCallback = callback;
-        mPhotoPath = photoPath;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
-        mBase64Image = convert(mPhotoPath);
+        mBase64Image = convert(mCallback.getPhotoPath());
         Log.d(LOG_TAG, "base64 image: " + mBase64Image);
         return doOcr();
     }

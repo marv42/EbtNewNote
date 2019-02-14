@@ -28,8 +28,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
@@ -37,6 +35,7 @@ import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
 import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
+import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
@@ -45,7 +44,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
     private WeakReference<Context> mContext;
     private ApiCaller mApiCaller;
 
-    @Inject
+    // TODO @Inject
     NoteDataHandler(final Context context, ApiCaller apiCaller) {
         mContext = new WeakReference<>(context);
         mApiCaller = apiCaller;
@@ -64,7 +63,8 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         final int n = app.getNumberOfResults();
         String contentTitle = String.format(mContext.get().getResources().getQuantityString(R.plurals.xNotes, n) + " " + mContext.get().getString(R.string.sent), n);
 
-        Intent intent = new Intent(app, ResultRepresentation.class);
+        Intent intent = new Intent(app, EbtNewNote.class);
+        intent.putExtra(FRAGMENT_TYPE, SubmittedFragment.class.getSimpleName());
         PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -109,8 +109,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "insertbills"));
         params.add(new Pair<>("v", "1"));
-        params.add(new Pair<>("PHPSESSID",
-                mApiCaller.getResult().optString("sessionid")));
+        params.add(new Pair<>("PHPSESSID", mApiCaller.getResult().optString("sessionid")));
         params.add(new Pair<>("city",       noteData.getCity())        );
         params.add(new Pair<>("zip",        noteData.getPostalCode())  );
         params.add(new Pair<>("country",    noteData.getCountry())     );

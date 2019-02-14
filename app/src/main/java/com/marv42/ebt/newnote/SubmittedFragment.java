@@ -11,12 +11,11 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -24,7 +23,6 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
@@ -38,14 +36,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import dagger.android.support.DaggerFragment;
+
 import static android.content.Intent.ACTION_VIEW;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.view.View.GONE;
-import static com.marv42.ebt.newnote.EbtNewNote.VERTICAL_FLING_VELOCITY_THRESHOLD;
 
-public class ResultRepresentation extends ExpandableListActivity {
+public class SubmittedFragment extends DaggerFragment {
+
+    @Inject
+    Context mAppContext;
+//    @Inject
+//    @Named("Activity")
+//    Context mActivityContext;
+
     private static final String EBT_HOST = "http://en.eurobilltracker.com/";
 
     private static final String BUTTON_PLACEHOLDER = "place holder";
@@ -64,20 +72,21 @@ public class ResultRepresentation extends ExpandableListActivity {
 
     private GestureDetector mDetector;
 
+    private ExpandableListView mListView;
     private ArrayList<SubmissionResult> mResults;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.results);
-        mResults = ((ThisApp) getApplicationContext()).getResults();
-        mDetector = new GestureDetector(this, new MyGestureListener());
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.results, container, false);
+        mListView = rootView.findViewById(R.id.list);
+        mResults = ((ThisApp) mAppContext).getResults();
+        prepareListData();
+
+//        mDetector = new GestureDetector(this, new MyGestureListener());
+        return rootView;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+    private void prepareListData() {
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
         Map<String, String> groupMap;
@@ -125,8 +134,8 @@ public class ResultRepresentation extends ExpandableListActivity {
         String[] groupFrom =
                 new String[] {BUTTON_PLACEHOLDER, /*DENOMINATION_IMAGE,*/ DENOMINATION, SERIAL_NUMBER, RESULT};
 
-        setListAdapter(new MyExpandableListAdapter(
-                this,
+        mListView.setAdapter(new MyExpandableListAdapter(
+                getContext(),
                 groupData,
                 R.layout.list_parents,
                 groupFrom,
@@ -143,34 +152,34 @@ public class ResultRepresentation extends ExpandableListActivity {
                         R.id.list_comment,
                         R.id.list_location }));
 
-        TableLayout layout = getLayoutInflater()
-                .inflate(R.layout.list_parents, null).findViewById(R.id.list_parent);
+        TableLayout layout = getLayoutInflater() .inflate(R.layout.list_parents, null)
+                .findViewById(R.id.list_parent);
         if (layout != null)
             for (int i = 0; i < groupFrom.length; ++i)
                 layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
-        registerForContextMenu(getExpandableListView());
+        registerForContextMenu(mListView);
     }
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDown(MotionEvent event) {
-            return true;
-        }
+//    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+//        @Override
+//        public boolean onDown(MotionEvent event) {
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
+//                return false;
+//            startActivity(new Intent(SubmittedFragment.this, EbtNewNote.class));
+//            return true;
+//        }
+//    }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
-                return false;
-            startActivity(new Intent(ResultRepresentation.this, EbtNewNote.class));
-            return true;
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        mDetector.onTouchEvent(event);
+//        return super.onTouchEvent(event);
+//    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -231,16 +240,15 @@ public class ResultRepresentation extends ExpandableListActivity {
 
     private void startNewNote(int groupPos) {
         NoteData noteData = mResults.get(groupPos).getNoteData();
-        SharedPreferences.Editor editor = getDefaultSharedPreferences(getApplicationContext()).edit();
-        editor.putString(getString(R.string.pref_country_key      ), noteData.getCountry()     );
-        editor.putString(getString(R.string.pref_city_key         ), noteData.getCity()        );
-        editor.putString(getString(R.string.pref_postal_code_key  ), noteData.getPostalCode()  );
-        editor.putString(getString(R.string.pref_denomination_key ), noteData.getDenomination());
-        editor.putString(getString(R.string.pref_short_code_key   ), noteData.getShortCode()   );
-        editor.putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber());
-        editor.putString(getString(R.string.pref_comment_key      ), noteData.getComment()     );
-        editor.apply();
-        startActivity(new Intent(this, EbtNewNote.class));
+        getDefaultSharedPreferences(getContext()).edit()
+                .putString(getString(R.string.pref_country_key      ), noteData.getCountry())
+                .putString(getString(R.string.pref_city_key         ), noteData.getCity())
+                .putString(getString(R.string.pref_postal_code_key  ), noteData.getPostalCode())
+                .putString(getString(R.string.pref_denomination_key ), noteData.getDenomination())
+                .putString(getString(R.string.pref_short_code_key   ), noteData.getShortCode())
+                .putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber())
+                .putString(getString(R.string.pref_comment_key      ), noteData.getComment()).apply();
+        startActivity(new Intent(getContext(), EbtNewNote.class));
     }
 
     private void showInBrowser(int groupPos) {
@@ -278,10 +286,8 @@ public class ResultRepresentation extends ExpandableListActivity {
         }
 
         @Override
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-                                 ViewGroup parent) {
-            View v = ((LayoutInflater) getApplicationContext().getSystemService
-                    (LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_parents, null);
+        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_parents, null);
             bindView(v, mGroupData.get(groupPosition), mGroupFrom, mGroupTo);
             return v;
         }
@@ -289,10 +295,8 @@ public class ResultRepresentation extends ExpandableListActivity {
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                      View convertView, ViewGroup parent) {
-            View v = ((LayoutInflater) getApplicationContext().getSystemService
-                    (LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_children, null);
-            bindView(v, mChildData.get(groupPosition).get(childPosition),
-                    mChildFrom, mChildTo);
+            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_children, null);
+            bindView(v, mChildData.get(groupPosition).get(childPosition), mChildFrom, mChildTo);
             return v;
         }
 

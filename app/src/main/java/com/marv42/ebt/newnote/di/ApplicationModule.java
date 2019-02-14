@@ -7,22 +7,25 @@ import android.support.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.LoginChecker;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.android.AndroidInjectionModule;
 import dagger.android.ContributesAndroidInjector;
-import dagger.android.support.AndroidSupportInjectionModule;
 
-@Module(includes = {AndroidInjectionModule.class, AndroidSupportInjectionModule.class},
-        subcomponents = {EbtNewNoteComponent.class})
+@Module(subcomponents = EbtNewNoteComponent.class)
 abstract class ApplicationModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = EbtNewNoteModule.class)
     abstract EbtNewNote contributeEbtNewNoteInjector();
+
+//    @Provides
+//    static Application provideApplication(@NonNull ThisApp application) {
+//        return application;
+//    }
 
 //    @Singleton
 //    abstract Context bindContext(AndroidApplication application);
@@ -43,5 +46,11 @@ abstract class ApplicationModule {
     @Singleton
     static ApiCaller provideApiCaller(@NonNull Context context, @NonNull SharedPreferences sharedPreferences) {
         return new ApiCaller(context, sharedPreferences);
+    }
+
+    @Provides
+    @Singleton
+    static LoginChecker provideLoginChecker(Context context, ApiCaller apiCaller) {
+        return new LoginChecker(context, apiCaller);
     }
 }
