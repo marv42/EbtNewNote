@@ -44,11 +44,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements
     LoginChecker mLoginChecker;
 
     public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
+    static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
     static final int EBT_NOTIFICATION_ID = 1;
     static final float VERTICAL_FLING_VELOCITY_THRESHOLD = 200;
     static final String FRAGMENT_TYPE = "result";
 
-    private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -71,6 +71,7 @@ import static android.support.v4.content.FileProvider.getUriForFile;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
@@ -93,7 +94,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public static final String LOG_TAG = SubmitFragment.class.getSimpleName();
     static final float VERTICAL_FLING_VELOCITY_THRESHOLD = 200;
 
-    private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
     private static final int NUMBER_ADDRESSES = 5;
@@ -433,7 +433,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         Uri photoURI = getUriForFile(mActivityContext, mActivityContext.getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
-        startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
+        getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
 
     private File createImageFile() throws IOException {
@@ -473,7 +473,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .show();
         else if (mOcrResult.startsWith("Error: "))
             new AlertDialog.Builder(mActivityContext).setTitle(R.string.ocr_dialog_title)
-                    .setMessage(mOcrResult.substring(7, mOcrResult.length()))
+                    .setMessage(mOcrResult.substring(7))
                     .show();
         else {
             if (mOcrResult.length() < 9)
