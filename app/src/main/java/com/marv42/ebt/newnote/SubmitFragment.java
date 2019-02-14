@@ -13,6 +13,8 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -23,6 +25,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -76,6 +79,9 @@ import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         CommentSuggestion.Callback /*, LifecycleOwner*/ {
+
+    private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
+    private static final long TOAST_DELAY_MS = 3000;
 
     public interface Callback {
         void onSwitchToSubmitted();
@@ -476,14 +482,37 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .setMessage(mOcrResult.substring(7))
                     .show();
         else {
-            if (mOcrResult.length() < 9)
+            if (mOcrResult.length() < 9) {
+                putToClipboard(mShortCodeText.getText());
                 mShortCodeText.setText(mOcrResult);
-            else
+            } else {
+                putToClipboard(mSerialText.getText());
                 mSerialText.setText(mOcrResult);
+            }
             Toast.makeText(mActivityContext, getString(R.string.ocr_return), LENGTH_LONG).show();
-            Toast.makeText(mActivityContext, getString(R.string.ocr_paste), LENGTH_LONG).show();
+            toastAfterToast(mActivityContext, getString(R.string.ocr_paste), TOAST_DELAY_MS);
+            toastAfterToast(mActivityContext, getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
         }
         mOcrResult = "";
+    }
+
+    private void toastAfterToast(final Context context, final CharSequence text, long delay) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, LENGTH_LONG).show();
+            }
+        }, delay);
+    }
+
+    private void putToClipboard(Editable text) {
+        ClipboardManager manager = (ClipboardManager)
+                mAppContext.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (manager != null) {
+            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text.toString());
+            manager.setPrimaryClip(data);
+        }
     }
 
     private class LocationTextWatcher implements TextWatcher {
