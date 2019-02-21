@@ -2,9 +2,6 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
    <item
-       android:id="@+id/submitted"
-       android:title="@string/show_submitted" />
-   <item
        android:id="@+id/settings"
        android:title="@string/settings" />
    <item

@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,9 +44,9 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.view.View.GONE;
+import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
-
     @Inject
     Context mAppContext;
 //    @Inject
@@ -70,8 +69,6 @@ public class SubmittedFragment extends DaggerFragment {
     private static final int MENU_ITEM_EDIT = 0;
     private static final int MENU_ITEM_SHOW = 1;
 
-    private GestureDetector mDetector;
-
     private ExpandableListView mListView;
     private ArrayList<SubmissionResult> mResults;
 
@@ -82,7 +79,6 @@ public class SubmittedFragment extends DaggerFragment {
         mResults = ((ThisApp) mAppContext).getResults();
         prepareListData();
 
-//        mDetector = new GestureDetector(this, new MyGestureListener());
         return rootView;
     }
 
@@ -160,27 +156,6 @@ public class SubmittedFragment extends DaggerFragment {
         registerForContextMenu(mListView);
     }
 
-//    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-//        @Override
-//        public boolean onDown(MotionEvent event) {
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
-//                return false;
-//            startActivity(new Intent(SubmittedFragment.this, EbtNewNote.class));
-//            return true;
-//        }
-//    }
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        mDetector.onTouchEvent(event);
-//        return super.onTouchEvent(event);
-//    }
-
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -248,7 +223,7 @@ public class SubmittedFragment extends DaggerFragment {
                 .putString(getString(R.string.pref_short_code_key   ), noteData.getShortCode())
                 .putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber())
                 .putString(getString(R.string.pref_comment_key      ), noteData.getComment()).apply();
-        startActivity(new Intent(getContext(), EbtNewNote.class));
+        ((EbtNewNote) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void showInBrowser(int groupPos) {

@@ -5,8 +5,6 @@
     <string name="ime_name">EBT keyboard</string>
 
     <!-- general -->
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="info">Information</string>
@@ -26,11 +24,9 @@
     </plurals>
 
     <!-- results activity -->
-    <string name="show_submitted">Submitted Notes</string>
     <string name="edit_data">edit note data</string>
     <string name="show_in_browser">show on EBT web site</string>
     <string name="no_data">No note data has been submitted to the EBT server yet.</string>
-    <string name="show_new_note">New Note</string>
 
     <string name="insertion">Insertion</string>
     <string name="submission">submission</string>
@@ -62,12 +58,19 @@
     <string name="already_entered">"You have already entered this note."</string>
     <string name="different_short_code">"This note has already been entered with a different short code."</string>
 
-    <!-- main activity -->
+    <!-- new note -->
     <string name="city">City</string>
     <string name="country">Country</string>
     <string name="postal_code">Postal Code</string>
     <string name="get_location">Get Current Location</string>
     <string name="value">Denomination</string>
+    <string name="eur5">5 €</string>
+    <string name="eur10">10 €</string>
+    <string name="eur20">20 €</string>
+    <string name="eur50">50 €</string>
+    <string name="eur100">100 €</string>
+    <string name="eur200">200 €</string>
+    <string name="eur500">500 €</string>
     <string name="short_code">Short Code</string>
     <string name="serial_number">Serial Number</string>
     <string name="comment">Comment</string>
@@ -153,4 +156,6 @@
     <!--   <string name="unknown_ocr_error">"Unspecified text recognition server error"</string>-->
 
     <string name="crash_toast_text">The app EbtNewNote just crashed. A report has been sent to the developer to help him fix the problem.</string>
+    <string name="submit_fragment_title">New Note</string>
+    <string name="submitted_fragment_title">Submitted</string>
 </resources>

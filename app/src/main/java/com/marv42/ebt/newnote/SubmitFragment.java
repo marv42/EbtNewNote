@@ -36,9 +36,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -79,14 +77,6 @@ import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         CommentSuggestion.Callback /*, LifecycleOwner*/ {
-
-    private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
-    private static final long TOAST_DELAY_MS = 3000;
-
-    public interface Callback {
-        void onSwitchToSubmitted();
-    }
-
     @Inject
     Context mAppContext;
     @Inject
@@ -98,17 +88,16 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     ApiCaller mApiCaller;
 
     public static final String LOG_TAG = SubmitFragment.class.getSimpleName();
-    static final float VERTICAL_FLING_VELOCITY_THRESHOLD = 200;
+    static final long TOAST_DELAY_MS = 3000;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
     private static final int NUMBER_ADDRESSES = 5;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
-
-    private GestureDetector mDetector;
 
     private EditText mCountryText;
     private EditText mCityText;
@@ -138,8 +127,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.submit, parent, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.submit, container, false);
     }
 
     @Override
@@ -148,13 +137,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         findAllViewsById(view);
 
-        (view.findViewById(R.id.submit_layout)).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.performClick();
-                return mDetector.onTouchEvent(event);
-            }
-        });
         (view.findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 requestLocation();
@@ -170,8 +152,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 acquireNumberFromPhoto();
             }
         });
-        if (!view.findViewById(R.id.edit_text_printer).requestFocus())
-            Log.e(LOG_TAG, "Button didn't take focus. -> Why?");
     }
 
     @Override
@@ -179,8 +159,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         super.onActivityCreated(savedInstanceState);
 
         mFusedLocationClient = getFusedLocationProviderClient(mActivityContext);
-
-        mDetector = new GestureDetector(mActivityContext, new MyGestureListener());
 
         resetPreferences();
     }
@@ -211,26 +189,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
         mLocationTextWatcher = null;
         super.onPause();
-    }
-
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDown(MotionEvent event) {
-            return true;
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.d(LOG_TAG, "velocityY: " + velocityY);
-            if (Math.abs(velocityY) > VERTICAL_FLING_VELOCITY_THRESHOLD)
-                return false;
-            switchToResults();
-            return true;
-        }
-    }
-
-    private void switchToResults() {
-        ((Callback) mActivityContext).onSwitchToSubmitted();
     }
 
     private void submitValues() {
@@ -351,23 +309,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void resetPreferences() {
-        String callingLoginKey      = getString(R.string.pref_calling_login_key      );
+        String callingLoginKey = getString(R.string.pref_calling_login_key);
         String callingMyCommentsKey = getString(R.string.pref_calling_my_comments_key);
-        String gettingLocationKey   = getString(R.string.pref_getting_location_key);
+        String gettingLocationKey = getString(R.string.pref_getting_location_key);
         mSharedPreferences.edit().putBoolean(callingLoginKey, false)
                 .putBoolean(callingMyCommentsKey, false)
                 .putBoolean(gettingLocationKey, false).apply();
         Log.d(LOG_TAG, callingLoginKey + ": " + mSharedPreferences.getBoolean(callingLoginKey, false));
     }
 
-    private void loadPreferences() {
-        mCountryText   .setText(mSharedPreferences.getString(getString(R.string.pref_country_key),       ""));
-        mCityText      .setText(mSharedPreferences.getString(getString(R.string.pref_city_key),          ""));
-        mPostalCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_postal_code_key),   ""));
-        mShortCodeText .setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key),    ""));
-        mSerialText    .setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
-        mCommentText   .setText(mSharedPreferences.getString(getString(R.string.pref_comment_key),       ""));
-        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), "5 €"));
+    void loadPreferences() {
+        mCountryText.setText(mSharedPreferences.getString(getString(R.string.pref_country_key), ""));
+        mCityText.setText(mSharedPreferences.getString(getString(R.string.pref_city_key), ""));
+        mPostalCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_postal_code_key), ""));
+        mShortCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key), ""));
+        mSerialText.setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
+        mCommentText.setText(mSharedPreferences.getString(getString(R.string.pref_comment_key), ""));
+        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), getString(R.string.eur5)));
 
         String additionalComment = mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
         if (mCommentText.getText().toString().endsWith(additionalComment))
@@ -381,36 +339,36 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private String getDenomination() {
         if (m5EurRadio.isChecked())
-            return "5 €";
+            return getString(R.string.eur5);
         if (m10EurRadio.isChecked())
-            return "10 €";
+            return getString(R.string.eur10);
         if (m20EurRadio.isChecked())
-            return "20 €";
+            return getString(R.string.eur20);
         if (m50EurRadio.isChecked())
-            return "50 €";
+            return getString(R.string.eur50);
         if (m100EurRadio.isChecked())
-            return "100 €";
+            return getString(R.string.eur100);
         if (m200EurRadio.isChecked())
-            return "200 €";
+            return getString(R.string.eur200);
         if (m500EurRadio.isChecked())
-            return "500 €";
+            return getString(R.string.eur500);
         return "";
     }
 
     private void setDenomination(String denomination) {
-        if (denomination.equals("5 €"))
+        if (denomination.equals(getString(R.string.eur5)))
             m5EurRadio.setChecked(true);
-        if (denomination.equals("10 €"))
+        if (denomination.equals(getString(R.string.eur10)))
             m10EurRadio.setChecked(true);
-        if (denomination.equals("20 €"))
+        if (denomination.equals(getString(R.string.eur20)))
             m20EurRadio.setChecked(true);
-        if (denomination.equals("50 €"))
+        if (denomination.equals(getString(R.string.eur50)))
             m50EurRadio.setChecked(true);
-        if (denomination.equals("100 €"))
+        if (denomination.equals(getString(R.string.eur100)))
             m100EurRadio.setChecked(true);
-        if (denomination.equals("200 €"))
+        if (denomination.equals(getString(R.string.eur200)))
             m200EurRadio.setChecked(true);
-        if (denomination.equals("500 €"))
+        if (denomination.equals(getString(R.string.eur500)))
             m500EurRadio.setChecked(true);
     }
 
