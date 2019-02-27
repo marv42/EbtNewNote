@@ -20,7 +20,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Pair;
-import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -34,9 +33,9 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
     private static final String CHANNEL_ID = "default";
@@ -69,10 +68,8 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager notificationManager = (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager == null) {
-            Log.e(LOG_TAG, "could not get notification manager");
+        if (notificationManager == null)
             return;
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "EBT Notification Channel", IMPORTANCE_DEFAULT);
 //            notificationChannel.setDescription("Channel description");
@@ -103,28 +100,29 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                         getDefaultSharedPreferences(mContext.get()).getString(
                                 mContext.get().getString(R.string.pref_settings_comment_key), ""));
 
-        if (! mApiCaller.callLogin())
-            return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
+        JSONObject json = mApiCaller.callLogin();
+        if (json.has(ERROR))
+            return new SubmissionResult(submittedNoteData, false, json.optString(ERROR));
 
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "insertbills"));
         params.add(new Pair<>("v", "1"));
-        params.add(new Pair<>("PHPSESSID", mApiCaller.getResult().optString("sessionid")));
-        params.add(new Pair<>("city",       noteData.getCity())        );
-        params.add(new Pair<>("zip",        noteData.getPostalCode())  );
-        params.add(new Pair<>("country",    noteData.getCountry())     );
-        params.add(new Pair<>("serial0",    noteData.getSerialNumber()));
+        params.add(new Pair<>("PHPSESSID", json.optString("sessionid")));
+        params.add(new Pair<>("city", noteData.getCity()));
+        params.add(new Pair<>("zip", noteData.getPostalCode()));
+        params.add(new Pair<>("country", noteData.getCountry()));
+        params.add(new Pair<>("serial0", noteData.getSerialNumber()));
         params.add(new Pair<>("denomination0",
                 noteData.getDenomination().substring(0, noteData.getDenomination().length() - 2)));
-        params.add(new Pair<>("shortcode0", noteData.getShortCode())   );
-        params.add(new Pair<>("comment0",   submittedNoteData.getComment()));
+        params.add(new Pair<>("shortcode0", noteData.getShortCode()));
+        params.add(new Pair<>("comment0", submittedNoteData.getComment()));
 
-        if (! mApiCaller.callInsertBills(params))
-            return new SubmissionResult(submittedNoteData, false, mApiCaller.getError());
+        json = mApiCaller.callInsertBills(params);
+        if (json.has(ERROR))
+            return new SubmissionResult(submittedNoteData, false, json.optString(ERROR));
 
-        JSONObject result = mApiCaller.getResult();
-        int billId = result.optInt("billId");
-        int status = result.optInt("status");
+        int billId = json.optInt("billId");
+        int status = json.optInt("status");
 
         if (status == 0)
             return new SubmissionResult(submittedNoteData, true,

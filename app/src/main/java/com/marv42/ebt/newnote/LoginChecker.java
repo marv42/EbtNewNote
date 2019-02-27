@@ -11,15 +11,9 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -28,83 +22,60 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+import static android.widget.Toast.LENGTH_LONG;
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
 public class LoginChecker extends AsyncTask<Void, Void, Boolean> {
-    private WeakReference<Context> mContext;
+    public interface Callback {
+        void onLoginFailed();
+    }
+
+    private WeakReference<EbtNewNote> mEbtNewNote;
     private ApiCaller mApiCaller;
+    private JSONObject mResponse;
 
     @Inject
-    LoginChecker(final Context context, ApiCaller apiCaller) {
-        mContext = new WeakReference<>(context);
+    LoginChecker(final EbtNewNote ebtNewNote, ApiCaller apiCaller) {
+        mEbtNewNote = new WeakReference<>(ebtNewNote);
         mApiCaller = apiCaller;
     }
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(mContext.get(), mContext.get().getString(R.string.trying_login), Toast.LENGTH_LONG).show();
+        Toast.makeText(mEbtNewNote.get(), mEbtNewNote.get().getString(R.string.trying_login), LENGTH_LONG).show();
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Log.d(LOG_TAG, "checking login");
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext.get()).edit();
-        String loginValuesOkKey = mContext.get().getString(R.string.pref_login_values_ok_key);
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(mEbtNewNote.get()).edit();
+        String loginValuesOkKey = mEbtNewNote.get().getString(R.string.pref_login_values_ok_key);
 
-        if (mApiCaller.callLogin()) {
-            if (! editor.putBoolean(loginValuesOkKey, true).commit())
-                Log.e(LOG_TAG, "editor's commit failed");
+        mResponse = mApiCaller.callLogin();
+        if (!mResponse.has(ERROR)) {
+            editor.putBoolean(loginValuesOkKey, true).apply();
             return true;
         }
-        if (! editor.putBoolean(loginValuesOkKey, false).commit())
-            Log.e(LOG_TAG, "editor's commit failed");
+        editor.putBoolean(loginValuesOkKey, false).apply();
         return false;
     }
 
     @Override
     protected void onPostExecute(Boolean loginSuccessful) {
         if (loginSuccessful) {
-            Log.d(LOG_TAG, "successful");
-            JSONObject result = mApiCaller.getResult();
-            Toast.makeText(mContext.get(), mContext.get().getString(R.string.hello) + " " +
-                            result.optString("username") + ". " + mContext.get().getString(R.string.logged_in),
-                    Toast.LENGTH_LONG).show();
-            new LocationValues(result.optString("my_country"),
-                    result.optString("my_city"   ),
-                    result.optString("my_zip"    ), false, mContext.get());
+            Toast.makeText(mEbtNewNote.get(), mEbtNewNote.get().getString(R.string.hello) + " " +
+                            mResponse.optString("username") + ". " + mEbtNewNote.get().getString(R.string.logged_in),
+                    LENGTH_LONG).show();
+            new LocationValues(mResponse.optString("my_country"),
+                    mResponse.optString("my_city"),
+                    mResponse.optString("my_zip"), false, mEbtNewNote.get());
         } else {
-            Log.d(LOG_TAG, "not successful");
-            String error = mApiCaller.getError();
-            if (error.equals(mContext.get().getString(R.string.wrong_password)))
-                showWrongLoginDialog();
+            String error = mResponse.optString(ERROR);
+            if (error.equals(mEbtNewNote.get().getString(R.string.wrong_password)))
+                ((Callback) mEbtNewNote.get()).onLoginFailed();
             else
-                Toast.makeText(mContext.get(), error, Toast.LENGTH_LONG).show();
+                Toast.makeText(mEbtNewNote.get(), error, LENGTH_LONG).show();
         }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext.get());
-        String callingLoginKey = mContext.get().getString(R.string.pref_calling_login_key);
-        if (! prefs.edit().putBoolean(callingLoginKey, false).commit())
-            Log.e(LOG_TAG, "editor's commit failed");
-        Log.d(LOG_TAG, callingLoginKey + ": " + prefs.getBoolean(callingLoginKey, false));
-    }
-
-    private void showWrongLoginDialog() {
-        new AlertDialog.Builder(mContext.get()).setTitle(mContext.get().getString(R.string.info))
-                .setMessage(mContext.get().getString(R.string.wrong_login_info))
-                .setPositiveButton(mContext.get().getString(R.string.yes),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                mContext.get().startActivity(new Intent(mContext.get(), Settings.class));
-                                dialog.dismiss();
-                            }
-                        }
-                )
-                .setNegativeButton(mContext.get().getString(R.string.no), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }
-                )
-                .show();
+        PreferenceManager.getDefaultSharedPreferences(mEbtNewNote.get()).edit()
+                .putBoolean(mEbtNewNote.get().getString(R.string.pref_calling_login_key), false).apply();
     }
 }

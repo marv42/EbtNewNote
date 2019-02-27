@@ -16,19 +16,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
-
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 public class Settings extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
-                .commit();
+                .replace(android.R.id.content, new SettingsFragment()).commit();
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat
@@ -37,6 +33,8 @@ public class Settings extends AppCompatActivity {
         public void onResume() {
             super.onResume();
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+            getPreferenceScreen().getSharedPreferences().edit()
+                    .putBoolean(getString(R.string.pref_login_changed_key), false).apply();
             setSummary();
         }
 
@@ -57,11 +55,9 @@ public class Settings extends AppCompatActivity {
                 String emailKey = getString(R.string.pref_settings_email_key);
                 if (key.equals(emailKey))
                     setSummary();
-                if (key.equals(emailKey) || key.equals(getString(R.string.pref_settings_password_key))) {
-                    String loginChangedKey = getString(R.string.pref_login_changed_key);
-                    Log.d(LOG_TAG, loginChangedKey + ": " + sharedPreferences.getBoolean(loginChangedKey, true));
-                    getPreferenceScreen().getSharedPreferences().edit().putBoolean(loginChangedKey, true).apply();
-                }
+                if (key.equals(emailKey) || key.equals(getString(R.string.pref_settings_password_key)))
+                    getPreferenceScreen().getSharedPreferences().edit()
+                            .putBoolean(getString(R.string.pref_login_changed_key), true).apply();
             }
         }
 

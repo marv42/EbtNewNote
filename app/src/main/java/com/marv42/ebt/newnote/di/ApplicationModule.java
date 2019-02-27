@@ -1,13 +1,11 @@
 package com.marv42.ebt.newnote.di;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
-import com.marv42.ebt.newnote.LoginChecker;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
@@ -23,34 +21,29 @@ abstract class ApplicationModule {
     abstract EbtNewNote contributeEbtNewNoteInjector();
 
 //    @Provides
-//    static Application provideApplication(@NonNull ThisApp application) {
-//        return application;
+//    @Singleton
+//    static Application provideApplication(@NonNull ThisApp app) {
+//        return app;
 //    }
 
 //    @Singleton
-//    abstract Context bindContext(AndroidApplication application);
+//    abstract Context bindContext(ThisApp app);
     // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
+//    @Provides
+//    @Singleton
+//    static Context provideContext(@NonNull ThisApp app) {
+//        return app.getApplicationContext();
+//    }
+
     @Provides
     @Singleton
-    static Context provideContext(@NonNull ThisApp application) {
-        return application.getApplicationContext();
+    static SharedPreferences provideSharedPreferences(@NonNull ThisApp app) {
+        return PreferenceManager.getDefaultSharedPreferences(app);
     }
 
     @Provides
     @Singleton
-    static SharedPreferences provideSharedPreferences(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    @Provides
-    @Singleton
-    static ApiCaller provideApiCaller(@NonNull Context context, @NonNull SharedPreferences sharedPreferences) {
-        return new ApiCaller(context, sharedPreferences);
-    }
-
-    @Provides
-    @Singleton
-    static LoginChecker provideLoginChecker(Context context, ApiCaller apiCaller) {
-        return new LoginChecker(context, apiCaller);
+    static ApiCaller provideApiCaller(@NonNull ThisApp app) {
+        return new ApiCaller(app);
     }
 }

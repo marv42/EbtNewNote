@@ -11,6 +11,8 @@
 
 package com.marv42.ebt.newnote;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,7 +25,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.marv42.ebt.newnote.scanning.OcrHandler;
@@ -38,25 +41,18 @@ import dagger.android.support.DaggerFragment;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements
-        SharedPreferences.OnSharedPreferenceChangeListener/*, LifecycleOwner*/ {
-    @Inject
-    SharedPreferences mSharedPreferences;
+public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback
+        /*, LifecycleOwner*/ {
     @Inject
     ApiCaller mApiCaller;
-    @Inject
-    LoginChecker mLoginChecker;
-//    @Inject
-//    SubmitFragment mSubmitFragment;
-//    @Inject
-//    SubmittedFragment mSubmittedFragment;
 
-    public static final String LOG_TAG = EbtNewNote.class.getSimpleName();
-    static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
+    static final int CHECK_LOCATION_SETTINGS_REQUEST_CODE = 1;
+    static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
     static final int EBT_NOTIFICATION_ID = 1;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
+
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
-    static final String FRAGMENT_TYPE = "result";
+    static final String FRAGMENT_TYPE = "fragment_type";
 
     private FragmentWithTitlePagerAdapter mPagerAdapter;
 
@@ -94,9 +90,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements
 
     @Override
     protected void onResume() {
-        Log.d(LOG_TAG, "onResume");
         super.onResume();
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             final String fragmentType = extras.getString(FRAGMENT_TYPE);
@@ -107,19 +101,15 @@ public class EbtNewNote extends DaggerAppCompatActivity implements
     }
 
     @Override
-    protected void onPause() {
-        Log.d(LOG_TAG, "onPause");
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onPause();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
                 new OcrHandler((OcrHandler.Callback) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).execute();
+            }
+            if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
+                ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();
             }
         }
     }
@@ -132,25 +122,33 @@ public class EbtNewNote extends DaggerAppCompatActivity implements
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == mSharedPreferences) {
-            String loginChangedKey = getString(R.string.pref_login_changed_key);
-            if (key.equals(loginChangedKey)) {
-                CallManager.weAreCalling(R.string.pref_calling_login_key, this);
-                sharedPreferences.edit().putBoolean(loginChangedKey, false).apply();
-                Log.d(LOG_TAG, loginChangedKey + ": " + sharedPreferences.getBoolean(loginChangedKey, false));
-                mLoginChecker.execute();
-            }
-        }
-    }
-
     void switchFragment(int index) {
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setCurrentItem(index);
     }
 
-    /*public*/ class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void onLoginFailed() {
+        new AlertDialog.Builder(this).setTitle(getString(R.string.info))
+                .setMessage(getString(R.string.wrong_login_info))
+                .setPositiveButton(getString(R.string.yes),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(getApplicationContext(), Settings.class));
+                                dialog.dismiss();
+                            }
+                        }
+                )
+                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }
+                )
+                .show();
+    }
+
+    private static class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
         private final List<DaggerFragment> mFragments = new ArrayList<>();
         private final List<String> mFragmentTitles = new ArrayList<>();
 

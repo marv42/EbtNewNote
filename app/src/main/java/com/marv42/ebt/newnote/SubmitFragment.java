@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * Copyright (c) 2010 marvin.
  * All rights reserved. This program and the accompanying materials
@@ -12,7 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -43,12 +42,22 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
 
@@ -60,7 +69,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import dagger.android.support.DaggerFragment;
 
@@ -72,16 +80,14 @@ import static android.support.v4.content.FileProvider.getUriForFile;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
-    Context mAppContext;
-    @Inject
-    @Named("Activity")
-    Context mActivityContext;
+    ThisApp mApp;
     @Inject
     SharedPreferences mSharedPreferences;
     @Inject
@@ -90,11 +96,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public static final String LOG_TAG = SubmitFragment.class.getSimpleName();
     static final long TOAST_DELAY_MS = 3000;
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 3;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     private static final int NUMBER_ADDRESSES = 5;
-    private static final int REQUEST_CHECK_SETTINGS = 0x1;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
+    private static final long LOCATION_MAX_WAIT_TIME_MS = 30 * 1000;
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
@@ -102,6 +108,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private EditText mCountryText;
     private EditText mCityText;
     private EditText mPostalCodeText;
+    private RadioGroup mRadioGroup1;
+    private RadioGroup mRadioGroup2;
+    private boolean mRadioChangingDone;
     private RadioButton m5EurRadio;
     private RadioButton m10EurRadio;
     private RadioButton m20EurRadio;
@@ -115,6 +124,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private LocationTextWatcher mLocationTextWatcher;
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+    private LocationRequest mLocationRequest;
 
 //    @Override
 //    public void onAttach(Context context) {
@@ -124,6 +135,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkLogin();
     }
 
     @Override
@@ -134,12 +146,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         findAllViewsById(view);
-
         (view.findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                requestLocation();
+                checkLocationSetting();
             }
         });
         (view.findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener() {
@@ -152,30 +162,46 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 acquireNumberFromPhoto();
             }
         });
+        mRadioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId != -1 && mRadioChangingDone) {
+                    mRadioChangingDone = false;
+                    mRadioGroup2.clearCheck();
+                }
+                mRadioChangingDone = true;
+            }
+        });
+        mRadioGroup2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId != -1 && mRadioChangingDone) {
+                    mRadioChangingDone = false;
+                    mRadioGroup1.clearCheck();
+                }
+                mRadioChangingDone = true;
+            }
+        });
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        mFusedLocationClient = getFusedLocationProviderClient(mActivityContext);
-
         resetPreferences();
     }
 
     @Override
     public void onResume() {
-        Log.d(LOG_TAG, "onResume");
         super.onResume();
-
         loadPreferences();
         loadLocationValues();
         mLocationTextWatcher = new LocationTextWatcher();
         mCountryText.addTextChangedListener(mLocationTextWatcher);
         mCityText.addTextChangedListener(mLocationTextWatcher);
         mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
-
         executeCommentSuggestion();
+        if (mSharedPreferences.getBoolean(getString(R.string.pref_login_changed_key), false))
+            checkLogin();
     }
 
     @Override
@@ -188,12 +214,14 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
                 .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
         mLocationTextWatcher = null;
+//        if (mFusedLocationClient != null)
+//            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         super.onPause();
     }
 
     private void submitValues() {
-        Toast.makeText(mActivityContext, getString(R.string.submitting), LENGTH_LONG).show();
-        new NoteDataHandler(mActivityContext, mApiCaller).execute(new NoteData(
+        Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
+        new NoteDataHandler(mApp, mApiCaller).execute(new NoteData(
                 mCountryText.getText().toString(),
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
@@ -205,33 +233,74 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mSerialText.setText("");
     }
 
-    private void requestLocation() {
-        if (ContextCompat.checkSelfPermission(mActivityContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(mActivityContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+    private void checkLocationSetting() {
+        if (ContextCompat.checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
-        Toast.makeText(mActivityContext, getString(R.string.location_getting), LENGTH_LONG).show();
+        Toast.makeText(getActivity(), getString(R.string.location_getting), LENGTH_LONG).show();
+
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setNumUpdates(1)
+                .setMaxWaitTime(LOCATION_MAX_WAIT_TIME_MS)
+                .setExpirationDuration(LOCATION_MAX_WAIT_TIME_MS);
+
+        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
+        LocationSettingsRequest locationSettingsRequest =
+                new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest).build();
+        Task<LocationSettingsResponse> response =
+                LocationServices.getSettingsClient(getActivity()).checkLocationSettings(locationSettingsRequest);
+        response.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<LocationSettingsResponse> task) {
+                try {
+                    /*LocationSettingsResponse response =*/ task.getResult(ApiException.class);
+                    requestLocation();
+                } catch (ApiException exception) {
+                    switch (exception.getStatusCode()) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                ResolvableApiException resolvable = (ResolvableApiException) exception;
+                                resolvable.startResolutionForResult(
+                                        getActivity(), CHECK_LOCATION_SETTINGS_REQUEST_CODE);
+                            } catch (IntentSender.SendIntentException e) {
+                                // ignore
+                            } catch (ClassCastException e) {
+                                // ignore
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    @SuppressLint("MissingPermission")
+    void requestLocation() {
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null)
+                    return;
+                for (Location location : locationResult.getLocations())
+                    if (location != null)
+                        setLocation(location);
+            }
+        };
+        if (mFusedLocationClient == null)
+            mFusedLocationClient = getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (location != null) {
-                    setLocationValues(location);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof ResolvableApiException) {
-                    try {
-                        ResolvableApiException resolvable = (ResolvableApiException) e;
-                        resolvable.startResolutionForResult((Activity) mActivityContext, REQUEST_CHECK_SETTINGS);
-                    } catch (IntentSender.SendIntentException ex) {
-                        // ignore this
-                    }
-                }
+                if (location != null)
+                    setLocation(location);
             }
         });
     }
@@ -241,26 +310,25 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length == 0 || grantResults[0] != PERMISSION_GRANTED) {
-            Toast.makeText(mActivityContext, getString(R.string.no_permission), LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.no_permission), LENGTH_LONG).show();
             return;
         }
-        Toast.makeText(mActivityContext, getString(R.string.permission), LENGTH_LONG).show();
+        Toast.makeText(getActivity(), getString(R.string.permission), LENGTH_LONG).show();
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            requestLocation();
+            checkLocationSetting();
         } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             acquireNumberFromPhoto();
         }
     }
 
-    void setLocationValues(Location l) {
-        Log.d(LOG_TAG, "location: " + l.getLatitude() + ", " + l.getLongitude());
+    void setLocation(Location l) {
         try {
-            final Geocoder gc = new Geocoder(mActivityContext, Locale.US);
+            final Geocoder gc = new Geocoder(getActivity(), Locale.US);
             List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
             Log.d(LOG_TAG, "Geocoder got " + addresses.size() + " address(es)");
 
             if (addresses.size() == 0)
-                Toast.makeText(mActivityContext, mActivityContext.getString(R.string.location_no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
+                Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
 
             for (Address a : addresses) {
                 if (a == null)
@@ -270,7 +338,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             }
         } catch (IOException e) {
             Log.e(LOG_TAG, "Geocoder IOException: " + e);
-            Toast.makeText(mActivityContext, mActivityContext.getString(R.string.location_geocoder_exception) + ": " + e.getMessage() + ".", LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception) + ": " + e.getMessage() + ".", LENGTH_LONG).show();
         }
     }
 
@@ -292,9 +360,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void findAllViewsById(View view) {
-        mCountryText    = view.findViewById(R.id.edit_text_country);
-        mCityText       = view.findViewById(R.id.edit_text_city);
+        mCountryText = view.findViewById(R.id.edit_text_country);
+        mCityText = view.findViewById(R.id.edit_text_city);
         mPostalCodeText = view.findViewById(R.id.edit_text_zip);
+        mRadioGroup1 = view.findViewById(R.id.radio_group_1);
+        mRadioGroup2 = view.findViewById(R.id.radio_group_2);
         m5EurRadio = view.findViewById(R.id.radio_5);
         m10EurRadio = view.findViewById(R.id.radio_10);
         m20EurRadio = view.findViewById(R.id.radio_20);
@@ -303,8 +373,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         m200EurRadio = view.findViewById(R.id.radio_200);
         m500EurRadio = view.findViewById(R.id.radio_500);
         mShortCodeText  = view.findViewById(R.id.edit_text_printer);
-        mSerialText     = view.findViewById(R.id.edit_text_serial);
-        mCommentText    = view.findViewById(R.id.edit_text_comment);
+        mSerialText = view.findViewById(R.id.edit_text_serial);
+        mCommentText = view.findViewById(R.id.edit_text_comment);
         mCommentText.setThreshold(0);
     }
 
@@ -334,7 +404,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     public void loadLocationValues() {
-        setLocationValues(((ThisApp) mAppContext).getLocationValues());
+        setLocationValues(((ThisApp) mApp).getLocationValues());
     }
 
     private String getDenomination() {
@@ -374,11 +444,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void acquireNumberFromPhoto() {
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(mActivityContext.getPackageManager()) == null) {
-            Toast.makeText(mActivityContext, getString(R.string.no_camera_activity), LENGTH_LONG).show();
+        if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
+            Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
             return;
         }
-        if (ContextCompat.checkSelfPermission(mActivityContext, CAMERA) != PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{CAMERA},
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
@@ -391,10 +461,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             // photoFile will be null
         }
         if (photoFile == null) {
-            Toast.makeText(mActivityContext, getString(R.string.error_creating_file), LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_creating_file), LENGTH_LONG).show();
             return;
         }
-        Uri photoURI = getUriForFile(mActivityContext, mActivityContext.getPackageName(), photoFile);
+        Uri photoURI = getUriForFile(getActivity(), getActivity().getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
         getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
@@ -403,7 +473,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY).format(new Date());
         File image = createTempFile("EBT_" + timeStamp + "_", ".png",
-                mActivityContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+                getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES));
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -425,18 +495,20 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public void onSuggestions(String[] suggestions) {
-        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(mActivityContext,
+        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_dropdown_item_1line, suggestions);
         mCommentText.setAdapter(commentAdapter);
     }
 
     private void showOcrDialog() {
         if (mOcrResult.equals(TextProcessor.EMPTY))
-            new AlertDialog.Builder(mActivityContext).setTitle(R.string.ocr_dialog_title)
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.ocr_dialog_title)
                     .setMessage(getString(R.string.ocr_dialog_empty))
                     .show();
         else if (mOcrResult.startsWith("Error: "))
-            new AlertDialog.Builder(mActivityContext).setTitle(R.string.ocr_dialog_title)
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.ocr_dialog_title)
                     .setMessage(mOcrResult.substring(7))
                     .show();
         else {
@@ -447,9 +519,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 putToClipboard(mSerialText.getText());
                 mSerialText.setText(mOcrResult);
             }
-            Toast.makeText(mActivityContext, getString(R.string.ocr_return), LENGTH_LONG).show();
-            toastAfterToast(mActivityContext, getString(R.string.ocr_paste), TOAST_DELAY_MS);
-            toastAfterToast(mActivityContext, getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
+            Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
+            toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
+            toastAfterToast(getActivity(), getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
         }
         mOcrResult = "";
     }
@@ -466,17 +538,21 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void putToClipboard(Editable text) {
         ClipboardManager manager = (ClipboardManager)
-                mAppContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                mApp.getSystemService(Context.CLIPBOARD_SERVICE);
         if (manager != null) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text.toString());
             manager.setPrimaryClip(data);
         }
     }
 
+    public void checkLogin() {
+        new LoginChecker((EbtNewNote) getActivity(), mApiCaller).execute();
+    }
+
     private class LocationTextWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
-            executeCommentSuggestion();
             mCommentText.setText("");
+            executeCommentSuggestion();
         }
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -487,11 +563,16 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void executeCommentSuggestion() {
-        if (! CallManager.weAreCalling(R.string.pref_calling_my_comments_key, mActivityContext.getApplicationContext()))
-            new CommentSuggestion(this, mActivityContext.getApplicationContext(), mApiCaller, mSharedPreferences)
-                    .execute(new LocationValues(
-                            mCountryText.getText().toString(),
-                            mCityText.getText().toString(),
-                            mPostalCodeText.getText().toString()));
+        if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
+            return;
+        if (CallManager.weAreCalling(R.string.pref_calling_my_comments_key, mApp))
+            return;
+        new CommentSuggestion(this, mApiCaller, mSharedPreferences,
+                mApp.getString(R.string.pref_calling_my_comments_key),
+                mApp.getString(R.string.pref_settings_comment_key))
+                .execute(new LocationValues(
+                        mCountryText.getText().toString(),
+                        mCityText.getText().toString(),
+                        mPostalCodeText.getText().toString()));
     }
 }

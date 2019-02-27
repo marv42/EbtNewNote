@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,10 +47,7 @@ import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
     @Inject
-    Context mAppContext;
-//    @Inject
-//    @Named("Activity")
-//    Context mActivityContext;
+    ThisApp mApp;
 
     private static final String EBT_HOST = "http://en.eurobilltracker.com/";
 
@@ -76,7 +72,7 @@ public class SubmittedFragment extends DaggerFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.results, container, false);
         mListView = rootView.findViewById(R.id.list);
-        mResults = ((ThisApp) mAppContext).getResults();
+        mResults = mApp.getResults();
         prepareListData();
 
         return rootView;
@@ -148,11 +144,11 @@ public class SubmittedFragment extends DaggerFragment {
                         R.id.list_comment,
                         R.id.list_location }));
 
-        TableLayout layout = getLayoutInflater() .inflate(R.layout.list_parents, null)
-                .findViewById(R.id.list_parent);
-        if (layout != null)
-            for (int i = 0; i < groupFrom.length; ++i)
-                layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
+//        TableLayout layout = getLayoutInflater().inflate(R.layout.list_parents, null)
+//                .findViewById(R.id.list_parent);
+//        if (layout != null)
+//            for (int i = 0; i < groupFrom.length; ++i)
+//                layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
         registerForContextMenu(mListView);
     }
 

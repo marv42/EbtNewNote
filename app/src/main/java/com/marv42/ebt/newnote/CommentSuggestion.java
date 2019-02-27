@@ -11,23 +11,20 @@
 
 package com.marv42.ebt.newnote;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.util.Pair;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
 public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
     interface Callback {
@@ -37,16 +34,19 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
     private static final int MAX_NUMBER_SUGGESTIONS = 50;
 
     private Callback mCallback;
-    private WeakReference<Context> mContext;
     private ApiCaller mApiCaller;
     private SharedPreferences mSharedPreferences;
+    private String mPreferenceCallingKey;
+    private String mPreferenceCommentKey;
 
-    //@Inject
-    CommentSuggestion(Callback callback, Context context, ApiCaller apiCaller, SharedPreferences sharedPreferences) {
+    // TODO @Inject
+    CommentSuggestion(Callback callback, ApiCaller apiCaller, SharedPreferences sharedPreferences,
+                      String preferenceCallingKey, String preferenceCommentKey) {
         mCallback = callback;
-        mContext = new WeakReference<>(context);
         mApiCaller = apiCaller;
         mSharedPreferences = sharedPreferences;
+        mPreferenceCallingKey = preferenceCallingKey;
+        mPreferenceCommentKey = preferenceCommentKey;
     }
 
     @Override
@@ -56,32 +56,29 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
     @Override
     protected void onPostExecute(String[] s) {
-        if (s != null && s.length > 0)
-            mCallback.onSuggestions(s);
-        if (! mSharedPreferences.edit()
-                .putBoolean(mContext.get().getString(R.string.pref_calling_my_comments_key), false)
-                .commit())
-            Log.e(LOG_TAG, "editor's commit failed");
+        mSharedPreferences.edit().putBoolean(mPreferenceCallingKey, false).apply();
+        if (s == null || s.length < 1 || s[0].equals(ERROR))
+            return;
+        mCallback.onSuggestions(s);
     }
 
     private String[] getSuggestion(LocationValues l) {
-        if (! mApiCaller.callLogin()) {
-            mApiCaller.getError();
-            return null;
-        }
+        JSONObject json = mApiCaller.callLogin();
+        if (json.has(ERROR))
+            return new String[]{ ERROR, json.optString(ERROR) };
+
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "mycomments"));
         params.add(new Pair<>("v", "1"));
-        params.add(new Pair<>("PHPSESSID", mApiCaller.getResult().optString("sessionid")));
-        params.add(new Pair<>("city",    l.getCity()      ));
-        params.add(new Pair<>("country", l.getCountry()   ));
-        params.add(new Pair<>("zip",     l.getPostalCode()));
-        if (! mApiCaller.callMyComments(params)) {
-            mApiCaller.getError();
-            return null;
-        }
+        params.add(new Pair<>("PHPSESSID", json.optString("sessionid")));
+        params.add(new Pair<>("city", l.getCity()));
+        params.add(new Pair<>("country", l.getCountry()));
+        params.add(new Pair<>("zip", l.getPostalCode()));
+        json = mApiCaller.callMyComments(params);
+        if (json.has(ERROR))
+            return new String[]{ ERROR, json.optString(ERROR) };
 
-        JSONArray allComments = mApiCaller.getResult().optJSONArray("data");
+        JSONArray allComments = json.optJSONArray("data");
         List<JSONObject> list = new ArrayList<>();
         for (int i = 0; i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
@@ -92,13 +89,13 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
             }
         });
 
-        String additionalComment = mSharedPreferences.getString(mContext.get().getString(R.string.pref_settings_comment_key), "").replace("\u00a0", " ");
+        String additionalComment = mSharedPreferences.getString(mPreferenceCommentKey, "")
+                .replace("\u00a0", " ");
 
         // unique wrt additionalComment
         List<String> uniqueList = new ArrayList<>();
         for (int i = 0; i < list.size(); ++i) {
             String value = list.get(i).optString("comment").replace("\u00a0", " ");
-            //Log.d(LOG_TAG, value + " (" + list.get(i).optString("amount") + ")");
             if (value.endsWith(additionalComment))
                 value = value.substring(0, value.length() - additionalComment.length());
             if (value.length() > 0 && ! uniqueList.contains(value))
@@ -107,12 +104,10 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         uniqueList = new ArrayList<>(new LinkedHashSet<>(uniqueList));
 
         int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
-        Log.d(LOG_TAG, numSuggestions + " suggestion(s)");
 
         String[] s = new String[numSuggestions];
         for (int i = 0; i < numSuggestions; ++i) {
             s[i] = uniqueList.get(i);
-            //Log.d(LOG_TAG, i + 1 + ".: " + s[i].replace(" ", "_"));
         }
         return s;
     }
