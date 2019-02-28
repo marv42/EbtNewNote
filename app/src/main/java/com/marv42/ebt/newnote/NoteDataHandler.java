@@ -14,7 +14,6 @@ package com.marv42.ebt.newnote;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -26,6 +25,8 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -40,12 +41,12 @@ import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
     private static final String CHANNEL_ID = "default";
 
-    private WeakReference<Context> mContext;
+    private ThisApp mApp;
     private ApiCaller mApiCaller;
 
-    // TODO @Inject
-    NoteDataHandler(final Context context, ApiCaller apiCaller) {
-        mContext = new WeakReference<>(context);
+    @Inject
+    NoteDataHandler(final ThisApp app, ApiCaller apiCaller) {
+        mApp = app;
         mApiCaller = apiCaller;
     }
 
@@ -56,18 +57,18 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
 
     @Override
     protected void onPostExecute(final SubmissionResult result) {
-        ThisApp app = (ThisApp) mContext.get().getApplicationContext();
-        app.addResult(result);
+        mApp.addResult(result);
 
-        final int n = app.getNumberOfResults();
-        String contentTitle = String.format(mContext.get().getResources().getQuantityString(R.plurals.xNotes, n) + " " + mContext.get().getString(R.string.sent), n);
+        final int n = mApp.getNumberOfResults();
+        String contentTitle = String.format(mApp.getResources().getQuantityString(
+                R.plurals.xNotes, n) + " " + mApp.getString(R.string.sent), n);
 
-        Intent intent = new Intent(app, EbtNewNote.class);
+        Intent intent = new Intent(mApp, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, SubmittedFragment.class.getSimpleName());
-        PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
+        PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationManager notificationManager = (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(NOTIFICATION_SERVICE);
         if (notificationManager == null)
             return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -79,10 +80,10 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
 //            notificationChannel.enableVibration(true);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(app, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
                 .setContentTitle(contentTitle)
-                .setContentText(getSummary(app.getSummary()))
+                .setContentText(getSummary(mApp.getSummary()))
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
         notificationManager.notify(EBT_NOTIFICATION_ID, builder.build());
@@ -96,9 +97,8 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
                 noteData.getDenomination(),
                 noteData.getShortCode(),
                 noteData.getSerialNumber(),
-                noteData.getComment() +
-                        getDefaultSharedPreferences(mContext.get()).getString(
-                                mContext.get().getString(R.string.pref_settings_comment_key), ""));
+                noteData.getComment() + getDefaultSharedPreferences(mApp).getString(
+                        mApp.getString(R.string.pref_settings_comment_key), ""));
 
         JSONObject json = mApiCaller.callLogin();
         if (json.has(ERROR))
@@ -126,27 +126,27 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
 
         if (status == 0)
             return new SubmissionResult(submittedNoteData, true,
-                    mContext.get().getString(R.string.has_been_entered), billId);
+                    mApp.getString(R.string.has_been_entered), billId);
 
         if (status == 1)
             return new SubmissionResult(submittedNoteData, true,
-                    mContext.get().getString(R.string.got_hit), billId, true);
+                    mApp.getString(R.string.got_hit), billId, true);
 
         String reply = "";
         if ((status &  64) != 0)
-            reply += mContext.get().getString(R.string.already_entered      ) + "<br>";
+            reply += mApp.getString(R.string.already_entered      ) + "<br>";
         if ((status & 128) != 0)
-            reply += mContext.get().getString(R.string.different_short_code ) + "<br>";
+            reply += mApp.getString(R.string.different_short_code ) + "<br>";
         if ((status &   4) != 0)
-            reply += mContext.get().getString(R.string.invalid_country      ) + "<br>";
+            reply += mApp.getString(R.string.invalid_country      ) + "<br>";
         if ((status &  32) != 0)
-            reply += mContext.get().getString(R.string.city_missing         ) + "<br>";
+            reply += mApp.getString(R.string.city_missing         ) + "<br>";
         if ((status &   2) != 0)
-            reply += mContext.get().getString(R.string.invalid_denomination ) + "<br>"; // ;-)
+            reply += mApp.getString(R.string.invalid_denomination ) + "<br>"; // ;-)
         if ((status &  16) != 0)
-            reply += mContext.get().getString(R.string.invalid_short_code   ) + "<br>";
+            reply += mApp.getString(R.string.invalid_short_code   ) + "<br>";
         if ((status &   8) != 0)
-            reply += mContext.get().getString(R.string.invalid_serial_number) + "<br>";
+            reply += mApp.getString(R.string.invalid_serial_number) + "<br>";
         if (reply.endsWith("<br>"))
             reply = reply.substring(0, reply.length() - 4);
         if (isEmpty(reply))
@@ -159,7 +159,7 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
         String s = "";
         int numHits = summary.getHits();
         if (numHits > 0) {
-            s = "<font color=\"green\">" + String.format(mContext.get().getResources().getQuantityString(
+            s = "<font color=\"green\">" + String.format(mApp.getResources().getQuantityString(
                     R.plurals.xHits, numHits), numHits) + "</font>";
         }
         int numFailed = summary.getFailed();
@@ -167,14 +167,14 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
             if (s.length() > 0)
                 s += ", ";
             s += "<font color=\"red\">" + Integer.toString(numFailed) + " " +
-                    mContext.get().getString(R.string.failed) + "</font>";
+                    mApp.getString(R.string.failed) + "</font>";
         }
         int numSuccessful = summary.getSuccessful();
         if (numSuccessful > 0) {
             if (s.length() > 0)
                 s += ", ";
             s += Integer.toString(numSuccessful) + " " +
-                    mContext.get().getString(R.string.successful);
+                    mApp.getString(R.string.successful);
         }
         return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }
