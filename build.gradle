@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.3.1'
     }
 }
 
@@ -14,10 +14,6 @@ allprojects {
         google()
         // maven { url "https://jitpack.io" }
         // maven { url "https://dl.bintray.com/acra/maven" }
-        maven { url "https://dl.bintray.com/gericop/maven" }
+        // maven { url "https://dl.bintray.com/gericop/maven" }
     }
-}
-
-task wrapper(type: Wrapper) {
-   gradleVersion = '4.5'
 }
