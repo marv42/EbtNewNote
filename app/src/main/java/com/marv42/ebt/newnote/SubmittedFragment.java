@@ -72,10 +72,13 @@ public class SubmittedFragment extends DaggerFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.results, container, false);
         mListView = rootView.findViewById(R.id.list);
+//        refreshResults();
+        return rootView;
+    }
+
+    public void refreshResults() {
         mResults = mApp.getResults();
         prepareListData();
-
-        return rootView;
     }
 
     private void prepareListData() {
@@ -182,13 +185,9 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private String getLocation(SubmissionResult result) {
-        String city    = result.getNoteData().getCity();
-        String country = result.getNoteData().getCountry();
-
-        String pc = result.getNoteData().getPostalCode();
-        String postalCode = pc.length() > 0 ? " (" + pc + ") " : " ";
-
-        return city + postalCode + country;
+        String postalCode = result.getNoteData().getPostalCode();
+        return result.getNoteData().getCity() + (postalCode.length() > 0 ? " (" + postalCode + ") " : " ")
+                + result.getNoteData().getCountry();
     }
 
     private String getResult(SubmissionResult result) {
@@ -211,14 +210,14 @@ public class SubmittedFragment extends DaggerFragment {
 
     private void startNewNote(int groupPos) {
         NoteData noteData = mResults.get(groupPos).getNoteData();
-        getDefaultSharedPreferences(getContext()).edit()
-                .putString(getString(R.string.pref_country_key      ), noteData.getCountry())
-                .putString(getString(R.string.pref_city_key         ), noteData.getCity())
-                .putString(getString(R.string.pref_postal_code_key  ), noteData.getPostalCode())
-                .putString(getString(R.string.pref_denomination_key ), noteData.getDenomination())
-                .putString(getString(R.string.pref_short_code_key   ), noteData.getShortCode())
+        getDefaultSharedPreferences(mApp).edit()
+                .putString(getString(R.string.pref_country_key), noteData.getCountry())
+                .putString(getString(R.string.pref_city_key), noteData.getCity())
+                .putString(getString(R.string.pref_postal_code_key), noteData.getPostalCode())
+                .putString(getString(R.string.pref_denomination_key), noteData.getDenomination())
+                .putString(getString(R.string.pref_short_code_key), noteData.getShortCode())
                 .putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber())
-                .putString(getString(R.string.pref_comment_key      ), noteData.getComment()).apply();
+                .putString(getString(R.string.pref_comment_key), noteData.getComment()).apply();
         ((EbtNewNote) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 

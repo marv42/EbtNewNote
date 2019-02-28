@@ -70,6 +70,10 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import dagger.android.support.DaggerFragment;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -93,7 +97,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     ApiCaller mApiCaller;
 
-    public static final String LOG_TAG = SubmitFragment.class.getSimpleName();
     static final long TOAST_DELAY_MS = 3000;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
@@ -105,22 +108,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
 
-    private EditText mCountryText;
-    private EditText mCityText;
-    private EditText mPostalCodeText;
-    private RadioGroup mRadioGroup1;
-    private RadioGroup mRadioGroup2;
+    private Unbinder mUnbinder;
+    @BindView(R.id.edit_text_country) EditText mCountryText;
+    @BindView(R.id.edit_text_city) EditText mCityText;
+    @BindView(R.id.edit_text_zip) EditText mPostalCodeText;
+    @BindView(R.id.radio_group_1) RadioGroup mRadioGroup1;
+    @BindView(R.id.radio_group_2) RadioGroup mRadioGroup2;
     private boolean mRadioChangingDone;
-    private RadioButton m5EurRadio;
-    private RadioButton m10EurRadio;
-    private RadioButton m20EurRadio;
-    private RadioButton m50EurRadio;
-    private RadioButton m100EurRadio;
-    private RadioButton m200EurRadio;
-    private RadioButton m500EurRadio;
-    private EditText mShortCodeText;
-    private EditText mSerialText;
-    private AutoCompleteTextView mCommentText;
+    @BindView(R.id.radio_5) RadioButton m5EurRadio;
+    @BindView(R.id.radio_10) RadioButton m10EurRadio;
+    @BindView(R.id.radio_20) RadioButton m20EurRadio;
+    @BindView(R.id.radio_50) RadioButton m50EurRadio;
+    @BindView(R.id.radio_100) RadioButton m100EurRadio;
+    @BindView(R.id.radio_200) RadioButton m200EurRadio;
+    @BindView(R.id.radio_500) RadioButton m500EurRadio;
+    @BindView(R.id.edit_text_printer) EditText mShortCodeText;
+    @BindView(R.id.edit_text_serial) EditText mSerialText;
+    @BindView(R.id.edit_text_comment) AutoCompleteTextView mCommentText;
 
     private LocationTextWatcher mLocationTextWatcher;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -140,26 +144,28 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.submit, container, false);
+        View view = inflater.inflate(R.layout.submit, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findAllViewsById(view);
         (view.findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 checkLocationSetting();
             }
         });
-        (view.findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                submitValues();
-            }
-        });
         (view.findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 acquireNumberFromPhoto();
+            }
+        });
+        // TODO @OnClick ?
+        (view.findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                submitValues();
             }
         });
         mRadioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -206,17 +212,17 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public void onPause() {
-        mSharedPreferences.edit().putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
-                .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
-                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString())
-                .putString(getString(R.string.pref_denomination_key), getDenomination())
-                .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
-                .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
-                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
+        savePreferences();
         mLocationTextWatcher = null;
 //        if (mFusedLocationClient != null)
 //            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
     }
 
     private void submitValues() {
@@ -231,6 +237,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
+        mSharedPreferences.edit() // TODO do this onPageSelected
+                .putString(getString(R.string.pref_short_code_key), "")
+                .putString(getString(R.string.pref_serial_number_key), "")
+                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
     }
 
     private void checkLocationSetting() {
@@ -325,7 +335,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         try {
             final Geocoder gc = new Geocoder(getActivity(), Locale.US);
             List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
-            Log.d(LOG_TAG, "Geocoder got " + addresses.size() + " address(es)");
 
             if (addresses.size() == 0)
                 Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
@@ -337,7 +346,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                         new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode(), true));
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Geocoder IOException: " + e);
             Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception) + ": " + e.getMessage() + ".", LENGTH_LONG).show();
         }
     }
@@ -350,42 +358,31 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             return;
         if (! l.canOverwrite() && (
                 mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null ||
-                ! TextUtils.isEmpty(mCountryText   .getText().toString()) ||
-                ! TextUtils.isEmpty(mCityText      .getText().toString()) ||
+                ! TextUtils.isEmpty(mCountryText.getText().toString()) ||
+                ! TextUtils.isEmpty(mCityText.getText().toString()) ||
                 ! TextUtils.isEmpty(mPostalCodeText.getText().toString())))
             return;
-        mCountryText   .setText(l.getCountry()   );
-        mCityText      .setText(l.getCity()      );
+        mCountryText.setText(l.getCountry());
+        mCityText.setText(l.getCity());
         mPostalCodeText.setText(l.getPostalCode());
     }
 
-    private void findAllViewsById(View view) {
-        mCountryText = view.findViewById(R.id.edit_text_country);
-        mCityText = view.findViewById(R.id.edit_text_city);
-        mPostalCodeText = view.findViewById(R.id.edit_text_zip);
-        mRadioGroup1 = view.findViewById(R.id.radio_group_1);
-        mRadioGroup2 = view.findViewById(R.id.radio_group_2);
-        m5EurRadio = view.findViewById(R.id.radio_5);
-        m10EurRadio = view.findViewById(R.id.radio_10);
-        m20EurRadio = view.findViewById(R.id.radio_20);
-        m50EurRadio = view.findViewById(R.id.radio_50);
-        m100EurRadio = view.findViewById(R.id.radio_100);
-        m200EurRadio = view.findViewById(R.id.radio_200);
-        m500EurRadio = view.findViewById(R.id.radio_500);
-        mShortCodeText  = view.findViewById(R.id.edit_text_printer);
-        mSerialText = view.findViewById(R.id.edit_text_serial);
-        mCommentText = view.findViewById(R.id.edit_text_comment);
-        mCommentText.setThreshold(0);
+    private void resetPreferences() {
+        mSharedPreferences.edit()
+                .putBoolean(getString(R.string.pref_calling_login_key), false)
+                .putBoolean(getString(R.string.pref_calling_my_comments_key), false)
+                .putBoolean(getString(R.string.pref_getting_location_key), false).apply();
     }
 
-    private void resetPreferences() {
-        String callingLoginKey = getString(R.string.pref_calling_login_key);
-        String callingMyCommentsKey = getString(R.string.pref_calling_my_comments_key);
-        String gettingLocationKey = getString(R.string.pref_getting_location_key);
-        mSharedPreferences.edit().putBoolean(callingLoginKey, false)
-                .putBoolean(callingMyCommentsKey, false)
-                .putBoolean(gettingLocationKey, false).apply();
-        Log.d(LOG_TAG, callingLoginKey + ": " + mSharedPreferences.getBoolean(callingLoginKey, false));
+    void savePreferences() {
+        mSharedPreferences.edit()
+                .putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
+                .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
+                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString())
+                .putString(getString(R.string.pref_denomination_key), getDenomination())
+                .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
+                .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
+                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
     }
 
     void loadPreferences() {
@@ -404,7 +401,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     public void loadLocationValues() {
-        setLocationValues(((ThisApp) mApp).getLocationValues());
+        setLocationValues(mApp.getLocationValues());
     }
 
     private String getDenomination() {
@@ -480,12 +477,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public void onOcrResult(String result) {
-        Log.d(LOG_TAG, "set mOcrResult: " + result);
         mOcrResult = result;
         showOcrDialog();
-        if (! new File(mCurrentPhotoPath).delete()) {
-            Log.e(LOG_TAG, "Error deleting image file");
-        }
+        new File(mCurrentPhotoPath).delete();
     }
 
     @Override
@@ -539,8 +533,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void putToClipboard(Editable text) {
         ClipboardManager manager = (ClipboardManager)
                 mApp.getSystemService(Context.CLIPBOARD_SERVICE);
-        if (manager != null) {
-            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text.toString());
+        if (manager == null)
+            return;
+        String s = text.toString();
+        if (! s.isEmpty()) {
+            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, s);
             manager.setPrimaryClip(data);
         }
     }

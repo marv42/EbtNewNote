@@ -43,7 +43,7 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app) {
-        return new ApiCaller(app);
+    static ApiCaller provideApiCaller(@NonNull ThisApp app, SharedPreferences sharedPreferences) {
+        return new ApiCaller(app, sharedPreferences);
     }
 }

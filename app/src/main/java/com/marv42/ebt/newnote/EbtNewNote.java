@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -69,8 +70,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position == SUBMIT_FRAGMENT_INDEX) {
+                if (position == SUBMIT_FRAGMENT_INDEX)
                     ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).loadPreferences();
+                else {
+                    // TODO ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
+                    ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX)).refreshResults();
                 }
             }
         }); // TODO do we need to removeOnPageChangeListener?
