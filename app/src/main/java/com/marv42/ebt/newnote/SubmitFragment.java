@@ -136,11 +136,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 //        super.onAttach(context);
 //    }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        checkLogin();
-    }
+//    @Override
+//    public void onCreate(@Nullable Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -207,7 +206,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
         executeCommentSuggestion();
         if (mSharedPreferences.getBoolean(getString(R.string.pref_login_changed_key), false))
-            checkLogin();
+            new LoginChecker((EbtNewNote) getActivity(), mApiCaller).execute();
     }
 
     @Override
@@ -540,10 +539,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, s);
             manager.setPrimaryClip(data);
         }
-    }
-
-    public void checkLogin() {
-        new LoginChecker((EbtNewNote) getActivity(), mApiCaller).execute();
     }
 
     private class LocationTextWatcher implements TextWatcher {
