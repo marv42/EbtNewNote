@@ -46,6 +46,10 @@ import static android.view.View.GONE;
 import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
+    public interface Callback {
+        void onStarted();
+    }
+
     @Inject
     ThisApp mApp;
 
@@ -67,6 +71,13 @@ public class SubmittedFragment extends DaggerFragment {
 
     private ExpandableListView mListView;
     private ArrayList<SubmissionResult> mResults;
+    private Callback mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (Callback) context;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +85,12 @@ public class SubmittedFragment extends DaggerFragment {
         mListView = rootView.findViewById(R.id.list);
 //        refreshResults();
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mCallback.onStarted();
     }
 
     public void refreshResults() {

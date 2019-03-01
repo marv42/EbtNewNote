@@ -14,20 +14,15 @@ package com.marv42.ebt.newnote;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.marv42.ebt.newnote.scanning.OcrHandler;
@@ -42,8 +37,8 @@ import dagger.android.support.DaggerFragment;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback
-        /*, LifecycleOwner*/ {
+public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback,
+        SubmittedFragment.Callback /*, LifecycleOwner*/ {
     @Inject
     ApiCaller mApiCaller;
 
@@ -56,6 +51,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
     static final String FRAGMENT_TYPE = "fragment_type";
 
     private FragmentWithTitlePagerAdapter mPagerAdapter;
+    private boolean mSwitchToResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +69,19 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
                 if (position == SUBMIT_FRAGMENT_INDEX)
                     ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).loadPreferences();
                 else {
-                    // TODO ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
+                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
                     ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX)).refreshResults();
                 }
             }
         }); // TODO do we need to removeOnPageChangeListener?
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
+
+        mSwitchToResults = false;
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && SubmittedFragment.class.getSimpleName().equals(
+                extras.getString(FRAGMENT_TYPE)))
+            mSwitchToResults = true;
     }
 
     @Override
@@ -92,17 +94,10 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            final String fragmentType = extras.getString(FRAGMENT_TYPE);
-            if (SubmittedFragment.class.getSimpleName().equals(fragmentType)) {
-                switchFragment(SUBMITTED_FRAGMENT_INDEX);
-            }
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -150,6 +145,12 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
                         }
                 )
                 .show();
+    }
+
+    @Override
+    public void onStarted() {
+        if (mSwitchToResults)
+            switchFragment(SUBMITTED_FRAGMENT_INDEX);
     }
 
     private static class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
