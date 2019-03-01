@@ -149,8 +149,10 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
 
     @Override
     public void onStarted() {
-        if (mSwitchToResults)
+        if (mSwitchToResults) {
             switchFragment(SUBMITTED_FRAGMENT_INDEX);
+            mSwitchToResults = false;
+        }
     }
 
     private static class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
