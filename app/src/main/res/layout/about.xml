@@ -1,32 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-android:orientation="vertical"
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-android:theme="@android:style/Theme.Dialog"
->
-   <TableLayout
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
-   android:stretchColumns="*"
-   >
-      <TableRow>
-         <TextView
-         android:id="@+id/about_version"
-         android:paddingStart="15dp"
-         />
-         <ImageView
-         android:id="@+id/about_image"
-         android:gravity="end"
-         />
-      </TableRow>
-   </TableLayout>
-   <TextView
-   android:id="@+id/about_text"
-   android:layout_width="wrap_content"
-   android:layout_height="wrap_content"
-   android:autoLink="web|email"
-   android:padding="15dp"
-   />
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:theme="@android:style/Theme.Dialog">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*">
+        <TableRow>
+            <TextView
+                android:id="@+id/about_version"
+                android:padding="15dp" />
+            <ImageView
+                android:src="@drawable/ic_ebt"
+                android:layout_margin="5dp"
+                android:gravity="end" />
+        </TableRow>
+    </TableLayout>
+    <TextView
+        android:id="@+id/about_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoLink="web|email" />
 </LinearLayout>
