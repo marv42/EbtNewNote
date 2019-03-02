@@ -67,9 +67,9 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (position == SUBMIT_FRAGMENT_INDEX)
-                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).loadPreferences();
+                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).setViewValuesfromPreferences();
                 else {
-                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
+                    // TODO ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
                     ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX)).refreshResults();
                 }
             }

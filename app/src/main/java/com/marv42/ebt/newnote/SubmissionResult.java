@@ -11,87 +11,27 @@
 
 package com.marv42.ebt.newnote;
 
+class SubmissionResult {
+   final NoteData mNoteData;
+   final boolean  mSuccessful;
+   final String   mReason;
+   final int      mBillId;
+   final boolean  mHit;
 
-
-public class SubmissionResult
-{
-   private final NoteData mNoteData;
-   private final boolean  mSuccessful;
-   private final String   mReason;
-   private final int      mBillId;
-   private final boolean  mHit;
-   
-   
-   
-   public SubmissionResult(final NoteData noteData,
-                           final boolean  successful,
-                           final String   reason)
-   {
+   SubmissionResult(final NoteData noteData, final boolean successful, final String reason) {
       this(noteData, successful, reason, -1, false);
    }
-   
-   
-   
-   public SubmissionResult(final NoteData noteData,
-                           final boolean  successful,
-                           final String   reason,
-                           final int      billId)
-   {
+
+   SubmissionResult(final NoteData noteData, final boolean successful, final String reason, final int billId) {
       this(noteData, successful, reason, billId, false);
    }
-   
-   
-   
-   public SubmissionResult(final NoteData noteData,
-                           final boolean  successful,
-                           final String   reason,
-                           final int      billId,
-                           final boolean  hit)
-   {
-      mNoteData   = noteData;
+
+   SubmissionResult(final NoteData noteData, final boolean successful, final String reason,
+                    final int billId, final boolean hit) {
+      mNoteData = noteData;
       mSuccessful = successful;
-      mReason     = reason;
-      mBillId     = billId;
-      mHit        = hit;
-   }
-   
-   
-   
-   public NoteData
-   getNoteData()
-   {
-      return mNoteData;
-   }
-   
-   
-   
-   public boolean
-   wasSuccessful()
-   {
-      return mSuccessful;
-   }
-   
-   
-   
-   public String
-   getReason()
-   {
-      return mReason;
-   }
-   
-   
-   
-   public int
-   getBillId()
-   {
-      return mBillId;
-   }
-   
-   
-   
-   public boolean
-   wasHit()
-   {
-      return mHit;
+      mReason = reason;
+      mBillId = billId;
+      mHit = hit;
    }
 }

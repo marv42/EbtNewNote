@@ -21,13 +21,8 @@ import dagger.android.support.DaggerApplication;
 //@AcraCore(buildConfigClass = BuildConfig.class)
 //@AcraMailSender(mailTo = "marv42+acra@gmail.com")
 //@AcraToast(resText = R.string.crash_toast_text)
-//@ReportsCrashes(//formKey      = "dDRCTmUtdWxjcnhQdWNpT3A0WEhZaHc6MQ",
-//        mailTo = "marv42+acra@gmail.com",
-//        mode         = ReportingInteractionMode.TOAST,
-//        resToastText = R.string.crash_toast_text)
 public class ThisApp extends DaggerApplication {
    private ArrayList<SubmissionResult> mResults = new ArrayList<>();
-   private LocationValues mLocationValues = new LocationValues();
 
    @Override
    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -36,11 +31,15 @@ public class ThisApp extends DaggerApplication {
 
 //   @Override
 //   protected void attachBaseContext(Context base) {
-//      super.attachBaseContext(base);
-//      ACRA.init(this);
+//       super.attachBaseContext(base);
+////       CoreConfigurationBuilder builder = new CoreConfigurationBuilder(this);
+////       builder.setBuildConfigClass(BuildConfig.class).setReportFormat(StringFormat.JSON);
+////       builder.getPluginConfigurationBuilder(ToastConfigurationBuilder.class).setResText(R.string.crash_toast_text);
+//       ACRA.init(this); // , builder);
 //   }
 
-   public class ResultSummary {
+   // TODO shouldn't this be somwhere else?
+   class ResultSummary {
       private final int mHits;
       private final int mSuccessful;
       private final int mFailed;
@@ -51,34 +50,28 @@ public class ThisApp extends DaggerApplication {
          mFailed     = failed;
       }
 
-      int getSuccessful()
-      {
+      int getSuccessful() {
          return mSuccessful;
       }
 
-      public int getFailed()
-      {
+      int getFailed() {
          return mFailed;
       }
 
-      int getHits()
-      {
+      int getHits() {
          return mHits;
       }
    }
 
-   public boolean addResult(final SubmissionResult result)
-   {
+   public boolean addResult(final SubmissionResult result) {
       return mResults.add(result);
    }
 
-   public ArrayList<SubmissionResult> getResults()
-   {
+   public ArrayList<SubmissionResult> getResults() {
       return mResults;
    }
 
-   public int getNumberOfResults()
-   {
+   public int getNumberOfResults() {
       return mResults.size();
    }
 
@@ -88,24 +81,13 @@ public class ThisApp extends DaggerApplication {
       int numberOfFailed      = 0;
 
       for (SubmissionResult result : mResults) {
-         if (result.wasSuccessful())
+         if (result.mSuccessful)
             numberOfSuccessfull++;
          else
             numberOfFailed++;
-         if (result.wasHit())
+         if (result.mHit)
             numberOfHits++;
       }
       return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);
-   }
-
-   public void setLocationValues(LocationValues lv)
-   {
-      mLocationValues = lv;
-   }
-
-   public LocationValues getLocationValues() {
-      LocationValues lv = mLocationValues;
-      mLocationValues = new LocationValues();
-      return lv;
    }
 }

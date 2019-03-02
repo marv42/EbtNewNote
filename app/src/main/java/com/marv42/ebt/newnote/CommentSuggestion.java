@@ -71,9 +71,9 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         params.add(new Pair<>("m", "mycomments"));
         params.add(new Pair<>("v", "1"));
         params.add(new Pair<>("PHPSESSID", json.optString("sessionid")));
-        params.add(new Pair<>("city", l.getCity()));
-        params.add(new Pair<>("country", l.getCountry()));
-        params.add(new Pair<>("zip", l.getPostalCode()));
+        params.add(new Pair<>("city", l.mCity));
+        params.add(new Pair<>("country", l.mCountry));
+        params.add(new Pair<>("zip", l.mPostalCode));
         json = mApiCaller.callMyComments(params);
         if (json.has(ERROR))
             return new String[]{ ERROR, json.optString(ERROR) };

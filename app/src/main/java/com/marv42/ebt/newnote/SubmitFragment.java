@@ -27,14 +27,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +70,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import dagger.android.support.DaggerFragment;
 
@@ -173,6 +170,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 if (checkedId != -1 && mRadioChangingDone) {
                     mRadioChangingDone = false;
                     mRadioGroup2.clearCheck();
+                    mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
+                            getDenomination()).apply();
                 }
                 mRadioChangingDone = true;
             }
@@ -183,6 +182,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 if (checkedId != -1 && mRadioChangingDone) {
                     mRadioChangingDone = false;
                     mRadioGroup1.clearCheck();
+                    mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
+                            getDenomination()).apply();
                 }
                 mRadioChangingDone = true;
             }
@@ -198,8 +199,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onResume() {
         super.onResume();
-        loadPreferences();
-        loadLocationValues();
+        setViewValuesfromPreferences();
         mLocationTextWatcher = new LocationTextWatcher();
         mCountryText.addTextChangedListener(mLocationTextWatcher);
         mCityText.addTextChangedListener(mLocationTextWatcher);
@@ -334,36 +334,29 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         try {
             final Geocoder gc = new Geocoder(getActivity(), Locale.US);
             List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
-
             if (addresses.size() == 0)
-                Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address) + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
-
+                Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address)
+                        + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
             for (Address a : addresses) {
                 if (a == null)
                     continue;
                 setLocationValues(
-                        new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode(), true));
+                        new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode()));
             }
         } catch (IOException e) {
-            Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception) + ": " + e.getMessage() + ".", LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception)
+                    + ": " + e.getMessage() + ".", LENGTH_LONG).show();
         }
     }
 
-    public void setLocationValues(LocationValues l) {
+    private void setLocationValues(LocationValues l) {
         // only set complete locations
-        if (TextUtils.isEmpty(l.getCountry()) ||
-                TextUtils.isEmpty(l.getCity()   ) ||
-                TextUtils.isEmpty(l.getPostalCode()))
+        if (TextUtils.isEmpty(l.mCountry) || TextUtils.isEmpty(l.mCity) || TextUtils.isEmpty(l.mPostalCode))
             return;
-        if (! l.canOverwrite() && (
-                mCountryText.getText() == null || mCityText.getText() == null || mPostalCodeText.getText() == null ||
-                ! TextUtils.isEmpty(mCountryText.getText().toString()) ||
-                ! TextUtils.isEmpty(mCityText.getText().toString()) ||
-                ! TextUtils.isEmpty(mPostalCodeText.getText().toString())))
-            return;
-        mCountryText.setText(l.getCountry());
-        mCityText.setText(l.getCity());
-        mPostalCodeText.setText(l.getPostalCode());
+        mCountryText.setText(l.mCountry);
+        mCityText.setText(l.mCity);
+        mPostalCodeText.setText(l.mPostalCode);
+        saveLocation();
     }
 
     private void resetPreferences() {
@@ -373,36 +366,38 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 .putBoolean(getString(R.string.pref_getting_location_key), false).apply();
     }
 
-    void savePreferences() {
+    private void saveLocation() {
         mSharedPreferences.edit()
                 .putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
                 .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
-                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString())
-                .putString(getString(R.string.pref_denomination_key), getDenomination())
+                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString()).apply();
+    }
+
+    void savePreferences() {
+        if (mSharedPreferences == null)
+            return;
+        mSharedPreferences.edit()
                 .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
                 .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
                 .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
     }
 
-    void loadPreferences() {
+    void setViewValuesfromPreferences() {
         mCountryText.setText(mSharedPreferences.getString(getString(R.string.pref_country_key), ""));
         mCityText.setText(mSharedPreferences.getString(getString(R.string.pref_city_key), ""));
         mPostalCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_postal_code_key), ""));
+        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key),
+                getString(R.string.eur5)));
         mShortCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key), ""));
         mSerialText.setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
         mCommentText.setText(mSharedPreferences.getString(getString(R.string.pref_comment_key), ""));
-        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key), getString(R.string.eur5)));
-
         String additionalComment = mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
         if (mCommentText.getText().toString().endsWith(additionalComment))
             mCommentText.setText(mCommentText.getText().toString().substring(0,
                     mCommentText.getText().toString().length() - additionalComment.length()));
     }
 
-    public void loadLocationValues() {
-        setLocationValues(mApp.getLocationValues());
-    }
-
+    @NonNull
     private String getDenomination() {
         if (m5EurRadio.isChecked())
             return getString(R.string.eur5);
@@ -545,6 +540,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         public void afterTextChanged(Editable s) {
             mCommentText.setText("");
             executeCommentSuggestion();
+            saveLocation();
         }
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {

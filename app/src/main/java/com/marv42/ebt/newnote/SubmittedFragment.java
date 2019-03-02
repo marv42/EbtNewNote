@@ -53,19 +53,16 @@ public class SubmittedFragment extends DaggerFragment {
     @Inject
     ThisApp mApp;
 
-    private static final String EBT_HOST = "http://en.eurobilltracker.com/";
-
+    private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
 //   private static final String DENOMINATION_IMAGE = "denomination_image";
     private static final String DENOMINATION       = "denomination";
     private static final String SERIAL_NUMBER      = "serial number";
     private static final String RESULT             = "result";
-
     private static final String REASON             = "reason";
     private static final String NOTE               = "note";
     private static final String LOCATION           = "location";
     private static final String COMMENT            = "comment";
-
     private static final int MENU_ITEM_EDIT = 0;
     private static final int MENU_ITEM_SHOW = 1;
 
@@ -83,7 +80,7 @@ public class SubmittedFragment extends DaggerFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.results, container, false);
         mListView = rootView.findViewById(R.id.list);
-//        refreshResults();
+        // TODO save the newest notes
         return rootView;
     }
 
@@ -105,37 +102,32 @@ public class SubmittedFragment extends DaggerFragment {
         Map<String, String> childMap;
 
         for (SubmissionResult sr : mResults) {
-            groupMap = new HashMap<>();
-            childMap = new HashMap<>();
-
-            String denomination      = sr.getNoteData().getDenomination();
+            String denomination = sr.mNoteData.getDenomination();
 //         String denominationImage = EBT_HOST + "img/bills/ebt" +
 //                                    denomination.replace(" €", "") + "b.gif";
-            String result = getResult(sr);
-
-            String sn = sr.getNoteData().getSerialNumber();
+            String sn = sr.mNoteData.getSerialNumber();
             String serialNumber = sn.length() > 0 ? ", " + sn : "";
-
-            String sc = sr.getNoteData().getShortCode();
+            String sc = sr.mNoteData.getShortCode();
             String shortCode = sc.length() > 0 ? ", " + sc : "";
 
-            String reason   = getReason(sr);
-            String note     = getString(R.string.note)     + ": " + denomination +
-                    serialNumber + shortCode;
-
-            String comment  = getString(R.string.comment)  + ": " + sr.getNoteData().getComment();
+            String result = getResult(sr);
+            String reason = getReason(sr);
+            String note = getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
+            String comment = getString(R.string.comment) + ": " + sr.mNoteData.getComment();
             String location = getString(R.string.location) + ": " + getLocation(sr);
 
-            groupMap.put(BUTTON_PLACEHOLDER,              " ");
+            groupMap = new HashMap<>();
+            groupMap.put(BUTTON_PLACEHOLDER, " ");
 //         groupMap.put(DENOMINATION_IMAGE, denominationImage);
-            groupMap.put(DENOMINATION,       denomination    );
-            groupMap.put(SERIAL_NUMBER,      sn              );
-            groupMap.put(RESULT,             result          );
+            groupMap.put(DENOMINATION, denomination);
+            groupMap.put(SERIAL_NUMBER, sn);
+            groupMap.put(RESULT, result);
             groupData.add(groupMap);
 
-            childMap.put(REASON,   reason  );
-            childMap.put(NOTE,     note    );
-            childMap.put(COMMENT,  comment );
+            childMap = new HashMap<>();
+            childMap.put(REASON, reason);
+            childMap.put(NOTE, note);
+            childMap.put(COMMENT, comment);
             childMap.put(LOCATION, location);
 
             List<Map<String, String>> children = new ArrayList<>();
@@ -180,15 +172,13 @@ public class SubmittedFragment extends DaggerFragment {
         int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
 
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        if (mResults.get(group).getBillId() > 0)
+        if (mResults.get(group).mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        ExpandableListContextMenuInfo info =
-                (ExpandableListContextMenuInfo) item.getMenuInfo();
-
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case MENU_ITEM_EDIT:
                 startNewNote(ExpandableListView.getPackedPositionGroup(info.packedPosition));
@@ -202,23 +192,22 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private String getLocation(SubmissionResult result) {
-        String postalCode = result.getNoteData().getPostalCode();
-        return result.getNoteData().getCity() + (postalCode.length() > 0 ? " (" + postalCode + ") " : " ")
-                + result.getNoteData().getCountry();
+        String postalCode = result.mNoteData.getPostalCode();
+        return result.mNoteData.getCity() + (postalCode.length() > 0 ? " (" + postalCode + ") " : " ")
+                + result.mNoteData.getCountry();
     }
 
     private String getResult(SubmissionResult result) {
-        return result.wasSuccessful() ?
-                getColoredString(result.wasHit() ? getString(R.string.hit) :
+        return result.mSuccessful ?
+                getColoredString(result.mHit ? getString(R.string.hit) :
                         getString(R.string.successful), "green") :
                 getColoredString(getString(R.string.failed), "red");
     }
 
     private String getReason(SubmissionResult result) {
-        return result.wasSuccessful() ?
-                getColoredString(getString(R.string.insertion) + " " +
+        return result.mSuccessful ? getColoredString(getString(R.string.insertion) + " " +
                         getString(R.string.successful), "green") :
-                getColoredString(result.getReason(), "red");
+                getColoredString(result.mReason, "red");
     }
 
     private String getColoredString(String s, String color) {
@@ -226,7 +215,7 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private void startNewNote(int groupPos) {
-        NoteData noteData = mResults.get(groupPos).getNoteData();
+        NoteData noteData = mResults.get(groupPos).mNoteData;
         getDefaultSharedPreferences(mApp).edit()
                 .putString(getString(R.string.pref_country_key), noteData.getCountry())
                 .putString(getString(R.string.pref_city_key), noteData.getCity())
@@ -239,16 +228,14 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private void showInBrowser(int groupPos) {
-        startActivity(new Intent(ACTION_VIEW, Uri.parse(
-                EBT_HOST + "notes/?id=" + Integer.toString(
-                        mResults.get(groupPos).getBillId()))));
+        startActivity(new Intent(ACTION_VIEW, Uri.parse(EBT_HOST + "notes/?id=" + Integer.toString(
+                mResults.get(groupPos).mBillId))));
     }
 
     public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
         private List<? extends                Map<String, ?> > mGroupData;
         private String[] mGroupFrom;
         private int[]    mGroupTo;
-
         private List<? extends List<? extends Map<String, ?>>> mChildData;
         private String[] mChildFrom;
         private int[]    mChildTo;
