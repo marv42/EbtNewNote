@@ -123,7 +123,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.edit_text_serial) EditText mSerialText;
     @BindView(R.id.edit_text_comment) AutoCompleteTextView mCommentText;
 
-    private LocationTextWatcher mLocationTextWatcher;
+//    private LocationTextWatcher mLocationTextWatcher;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private LocationRequest mLocationRequest;
@@ -200,23 +200,28 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public void onResume() {
         super.onResume();
         setViewValuesfromPreferences();
-        mLocationTextWatcher = new LocationTextWatcher();
-        mCountryText.addTextChangedListener(mLocationTextWatcher);
-        mCityText.addTextChangedListener(mLocationTextWatcher);
-        mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
+        TextWatcher locationTextWatcher = new LocationTextWatcher();
+        mCountryText.addTextChangedListener(locationTextWatcher);
+        mCityText.addTextChangedListener(locationTextWatcher);
+        mPostalCodeText.addTextChangedListener(locationTextWatcher);
+        TextWatcher shortCodeTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_short_code_key));
+        mShortCodeText.addTextChangedListener(shortCodeTextWatcher);
+        TextWatcher serialNumberTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key));
+        mSerialText.addTextChangedListener(serialNumberTextWatcher);
+        TextWatcher commentTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_comment_key));
+        mCommentText.addTextChangedListener(commentTextWatcher);
         executeCommentSuggestion();
         if (mSharedPreferences.getBoolean(getString(R.string.pref_login_changed_key), false))
             new LoginChecker((EbtNewNote) getActivity(), mApiCaller).execute();
     }
 
-    @Override
-    public void onPause() {
-        savePreferences();
-        mLocationTextWatcher = null;
+//    @Override
+//    public void onPause() {
+//        mLocationTextWatcher = null;
 //        if (mFusedLocationClient != null)
 //            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        super.onPause();
-    }
+//        super.onPause();
+//    }
 
     @Override
     public void onDestroyView() {
@@ -236,10 +241,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
-        mSharedPreferences.edit() // TODO do this onPageSelected
-                .putString(getString(R.string.pref_short_code_key), "")
-                .putString(getString(R.string.pref_serial_number_key), "")
-                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
     }
 
     private void checkLocationSetting() {
@@ -356,7 +357,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mCountryText.setText(l.mCountry);
         mCityText.setText(l.mCity);
         mPostalCodeText.setText(l.mPostalCode);
-        saveLocation();
+        savePreferencesLocation();
     }
 
     private void resetPreferences() {
@@ -366,20 +367,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 .putBoolean(getString(R.string.pref_getting_location_key), false).apply();
     }
 
-    private void saveLocation() {
+    private void savePreferencesLocation() {
         mSharedPreferences.edit()
                 .putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
                 .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
                 .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString()).apply();
-    }
-
-    void savePreferences() {
-        if (mSharedPreferences == null)
-            return;
-        mSharedPreferences.edit()
-                .putString(getString(R.string.pref_short_code_key), mShortCodeText.getText().toString())
-                .putString(getString(R.string.pref_serial_number_key), mSerialText.getText().toString())
-                .putString(getString(R.string.pref_comment_key), mCommentText.getText().toString()).apply();
     }
 
     void setViewValuesfromPreferences() {
@@ -536,17 +528,41 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
     }
 
-    private class LocationTextWatcher implements TextWatcher {
-        public void afterTextChanged(Editable s) {
-            mCommentText.setText("");
-            executeCommentSuggestion();
-            saveLocation();
+    private class SavePreferencesTextWatcher implements TextWatcher {
+        private String mPreferenceKey;
+
+        SavePreferencesTextWatcher(String preference) {
+            mPreferenceKey = preference;
         }
 
+        @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
 
+        @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            mSharedPreferences.edit().putString(mPreferenceKey, s.toString()).apply();
+        }
+    }
+
+    private class LocationTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+//            mCommentText.setText("");
+            executeCommentSuggestion();
+            savePreferencesLocation();
         }
     }
 
