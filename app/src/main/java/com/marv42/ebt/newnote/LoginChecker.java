@@ -49,15 +49,17 @@ public class LoginChecker extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(mEbtNewNote.get()).edit();
-        String loginValuesOkKey = mEbtNewNote.get().getString(R.string.pref_login_values_ok_key);
-
+        EbtNewNote context = mEbtNewNote.get();
+        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        String loginValuesOkKey = context.getString(R.string.pref_login_values_ok_key);
         mResponse = mApiCaller.callLogin();
         if (!mResponse.has(ERROR)) {
             editor.putBoolean(loginValuesOkKey, true).apply();
             return true;
         }
-        editor.putBoolean(loginValuesOkKey, false).apply();
+        if (mResponse.has(ERROR) &&
+                mResponse.optString(ERROR).equals(context.getString(R.string.wrong_password)))
+            editor.putBoolean(loginValuesOkKey, false).apply();
         return false;
     }
 

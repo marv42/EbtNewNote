@@ -37,7 +37,6 @@ public class ApiCaller {
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
     private SharedPreferences mSharedPreferences;
-    private String mPrefLoginValuesOkKey;
     private String mPrefSettingsEmailKey;
     private String mPrefSettingsPasswordKey;
     private String mCouldntConnect;
@@ -48,7 +47,6 @@ public class ApiCaller {
     @Inject
     public ApiCaller(ThisApp app, SharedPreferences sharedPreferences) {
         mSharedPreferences = sharedPreferences;
-        mPrefLoginValuesOkKey = app.getString(R.string.pref_login_values_ok_key);
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mCouldntConnect = app.getString(R.string.couldnt_connect);
@@ -79,9 +77,6 @@ public class ApiCaller {
     }
 
     JSONObject callLogin() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(mPrefLoginValuesOkKey, false).apply();
-
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
@@ -93,8 +88,6 @@ public class ApiCaller {
             return getJsonObject(ERROR, mCouldntConnect);
         if (jsonObject.has(ERROR) || !jsonObject.has("sessionid"))
             return getJsonObject(ERROR, mWrongPassword);
-
-        editor.putBoolean(mPrefLoginValuesOkKey, true).apply();
         return jsonObject;
     }
 
