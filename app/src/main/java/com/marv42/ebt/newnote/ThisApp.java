@@ -11,6 +11,11 @@
 
 package com.marv42.ebt.newnote;
 
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
 
 import java.util.ArrayList;
@@ -18,17 +23,32 @@ import java.util.ArrayList;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 //@AcraCore(buildConfigClass = BuildConfig.class)
 //@AcraMailSender(mailTo = "marv42+acra@gmail.com")
 //@AcraToast(resText = R.string.crash_toast_text)
 public class ThisApp extends DaggerApplication {
-   private ArrayList<SubmissionResult> mResults = new ArrayList<>();
+    private static final int MAX_SAVE_NUM = 10;
 
-   @Override
-   protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-      return DaggerApplicationComponent.builder().create(this);
-   }
+    private ArrayList<SubmissionResult> mResults = new ArrayList<>();
 
+    @Override
+    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+        return DaggerApplicationComponent.builder().create(this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        String results = getDefaultSharedPreferences(this).getString(
+                getString(R.string.pref_results), "");
+        if (!TextUtils.isEmpty(results)) {
+            JsonArray array = new JsonParser().parse(results).getAsJsonArray();
+            for (int i = 0; i < array.size() && i < MAX_SAVE_NUM; ++i)
+                mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
+        }
+    }
 //   @Override
 //   protected void attachBaseContext(Context base) {
 //       super.attachBaseContext(base);
@@ -38,56 +58,47 @@ public class ThisApp extends DaggerApplication {
 //       ACRA.init(this); // , builder);
 //   }
 
-   // TODO shouldn't this be somwhere else?
-   class ResultSummary {
-      private final int mHits;
-      private final int mSuccessful;
-      private final int mFailed;
+    // TODO shouldn't this be somwhere else?
+    class ResultSummary {
+        final int mHits;
+        final int mSuccessful;
+        final int mFailed;
 
-      ResultSummary(final int hits, final int successful, final int failed) {
-         mHits       = hits;
-         mSuccessful = successful;
-         mFailed     = failed;
-      }
+        ResultSummary(final int hits, final int successful, final int failed) {
+            mHits = hits;
+            mSuccessful = successful;
+            mFailed = failed;
+        }
+    }
 
-      int getSuccessful() {
-         return mSuccessful;
-      }
+    public boolean addResult(final SubmissionResult result) {
+        boolean b = mResults.add(result);
+        getDefaultSharedPreferences(this).edit()
+                .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
+        return b;
+    }
 
-      int getFailed() {
-         return mFailed;
-      }
+    public ArrayList<SubmissionResult> getResults() {
+        return mResults;
+    }
 
-      int getHits() {
-         return mHits;
-      }
-   }
+    public int getNumberOfResults() {
+        return mResults.size();
+    }
 
-   public boolean addResult(final SubmissionResult result) {
-      return mResults.add(result);
-   }
+    public ResultSummary getSummary() {
+        int numberOfHits = 0;
+        int numberOfSuccessfull = 0;
+        int numberOfFailed = 0;
 
-   public ArrayList<SubmissionResult> getResults() {
-      return mResults;
-   }
-
-   public int getNumberOfResults() {
-      return mResults.size();
-   }
-
-   public ResultSummary getSummary() {
-      int numberOfHits        = 0;
-      int numberOfSuccessfull = 0;
-      int numberOfFailed      = 0;
-
-      for (SubmissionResult result : mResults) {
-         if (result.mSuccessful)
-            numberOfSuccessfull++;
-         else
-            numberOfFailed++;
-         if (result.mHit)
-            numberOfHits++;
-      }
-      return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);
-   }
+        for (SubmissionResult result : mResults) {
+            if (result.mSuccessful)
+                numberOfSuccessfull++;
+            else
+                numberOfFailed++;
+            if (result.mHit)
+                numberOfHits++;
+        }
+        return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);
+    }
 }

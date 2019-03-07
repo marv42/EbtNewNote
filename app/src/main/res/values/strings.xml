@@ -8,7 +8,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="info">Information</string>
-    <string name="error">Error</string>
     <string name="hello">Hello</string>
 
     <!-- notes -->
@@ -43,7 +42,7 @@
 
     <!-- server responses -->
     <string name="couldnt_connect">"Couldn\'t connect to the EBT server"</string>
-    <string name="wrong_password">"Password or email address incorrect. Please edit your EBT login information in the settings menu."</string>
+    <string name="wrong_password">"Password or email address incorrect. Please edit your EBT login information in the settings."</string>
     <string name="error_interpreting">"Error interpreting the reply of the EBT server"</string>
     <string name="server_error">"Unusable response from the EBT server"</string>
 
@@ -90,7 +89,7 @@
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="logged_in">You have successfully been logged in to EBT.</string>
     <string name="trying_login">Trying to log in to EBT&#8230;</string>
-    <string name="wrong_login_info">You haven\'t provided valid EBT login information (email address and password).\n\nDo you want to do this now?</string>
+    <string name="wrong_login_info">You haven\'t provided valid EBT login information (email address and password).\n\nDo you want to do this now?\n\n(You can do this later in the settings.)</string>
 
     <!-- preferences -->
     <string name="pref_settings_email_key">pref_settings_email</string>
@@ -108,6 +107,7 @@
     <string name="pref_calling_login_key">pref_calling_login</string>
     <string name="pref_calling_my_comments_key">pref_calling_my_comments</string>
     <string name="pref_getting_location_key">pref_getting_location</string>
+    <string name="pref_results">pref_results</string>
 
     <!-- keyboard -->
     <string name="label_next_key">Next</string>

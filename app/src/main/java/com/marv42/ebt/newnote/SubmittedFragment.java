@@ -67,7 +67,6 @@ public class SubmittedFragment extends DaggerFragment {
     private static final int MENU_ITEM_SHOW = 1;
 
     private ExpandableListView mListView;
-    private ArrayList<SubmissionResult> mResults;
     private Callback mCallback;
 
     @Override
@@ -80,7 +79,6 @@ public class SubmittedFragment extends DaggerFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.results, container, false);
         mListView = rootView.findViewById(R.id.list);
-        // TODO save the newest notes
         return rootView;
     }
 
@@ -91,29 +89,26 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     public void refreshResults() {
-        mResults = mApp.getResults();
-        prepareListData();
-    }
+        ArrayList<SubmissionResult> results = mApp.getResults();
 
-    private void prepareListData() {
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
         Map<String, String> groupMap;
         Map<String, String> childMap;
 
-        for (SubmissionResult sr : mResults) {
-            String denomination = sr.mNoteData.getDenomination();
+        for (SubmissionResult sr : results) {
+            String denomination = sr.mNoteData.mDenomination;
 //         String denominationImage = EBT_HOST + "img/bills/ebt" +
 //                                    denomination.replace(" €", "") + "b.gif";
-            String sn = sr.mNoteData.getSerialNumber();
+            String sn = sr.mNoteData.mSerialNumber;
             String serialNumber = sn.length() > 0 ? ", " + sn : "";
-            String sc = sr.mNoteData.getShortCode();
+            String sc = sr.mNoteData.mShortCode;
             String shortCode = sc.length() > 0 ? ", " + sc : "";
 
             String result = getResult(sr);
             String reason = getReason(sr);
             String note = getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
-            String comment = getString(R.string.comment) + ": " + sr.mNoteData.getComment();
+            String comment = getString(R.string.comment) + ": " + sr.mNoteData.mComment;
             String location = getString(R.string.location) + ": " + getLocation(sr);
 
             groupMap = new HashMap<>();
@@ -172,7 +167,7 @@ public class SubmittedFragment extends DaggerFragment {
         int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
 
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        if (mResults.get(group).mBillId > 0)
+        if (mApp.getResults().get(group).mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
 
@@ -192,9 +187,9 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private String getLocation(SubmissionResult result) {
-        String postalCode = result.mNoteData.getPostalCode();
-        return result.mNoteData.getCity() + (postalCode.length() > 0 ? " (" + postalCode + ") " : " ")
-                + result.mNoteData.getCountry();
+        String postalCode = result.mNoteData.mPostalCode;
+        return result.mNoteData.mCity + (postalCode.length() > 0 ? " (" + postalCode + ") " : " ")
+                + result.mNoteData.mCountry;
     }
 
     private String getResult(SubmissionResult result) {
@@ -215,21 +210,21 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private void startNewNote(int groupPos) {
-        NoteData noteData = mResults.get(groupPos).mNoteData;
+        NoteData noteData = mApp.getResults().get(groupPos).mNoteData;
         getDefaultSharedPreferences(mApp).edit()
-                .putString(getString(R.string.pref_country_key), noteData.getCountry())
-                .putString(getString(R.string.pref_city_key), noteData.getCity())
-                .putString(getString(R.string.pref_postal_code_key), noteData.getPostalCode())
-                .putString(getString(R.string.pref_denomination_key), noteData.getDenomination())
-                .putString(getString(R.string.pref_short_code_key), noteData.getShortCode())
-                .putString(getString(R.string.pref_serial_number_key), noteData.getSerialNumber())
-                .putString(getString(R.string.pref_comment_key), noteData.getComment()).apply();
+                .putString(getString(R.string.pref_country_key), noteData.mCountry)
+                .putString(getString(R.string.pref_city_key), noteData.mCity)
+                .putString(getString(R.string.pref_postal_code_key), noteData.mPostalCode)
+                .putString(getString(R.string.pref_denomination_key), noteData.mDenomination)
+                .putString(getString(R.string.pref_short_code_key), noteData.mShortCode)
+                .putString(getString(R.string.pref_serial_number_key), noteData.mSerialNumber)
+                .putString(getString(R.string.pref_comment_key), noteData.mComment).apply();
         ((EbtNewNote) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void showInBrowser(int groupPos) {
         startActivity(new Intent(ACTION_VIEW, Uri.parse(EBT_HOST + "notes/?id=" + Integer.toString(
-                mResults.get(groupPos).mBillId))));
+                mApp.getResults().get(groupPos).mBillId))));
     }
 
     public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
