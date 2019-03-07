@@ -55,6 +55,7 @@ dependencies {
     // TODO implementation "com.squareup.retrofit:retrofit:1.9.0"
     implementation "com.jakewharton:butterknife:$butterknifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterknifeVersion"
+    implementation "com.google.code.gson:gson:2.8.5"
 //    implementation "com.google.dagger:dagger:$daggerVersion"
     implementation "com.google.dagger:dagger-android:$daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$daggerVersion"
