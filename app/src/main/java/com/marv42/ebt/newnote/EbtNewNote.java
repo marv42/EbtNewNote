@@ -37,8 +37,8 @@ import dagger.android.support.DaggerFragment;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback,
-        SubmittedFragment.Callback /*, LifecycleOwner*/ {
+public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback
+        /*, LifecycleOwner*/ {
     @Inject
     ApiCaller mApiCaller;
 
@@ -69,7 +69,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
                 if (position == SUBMIT_FRAGMENT_INDEX)
                     ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).setViewValuesfromPreferences();
                 else {
-                    // TODO ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).savePreferences();
                     ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX)).refreshResults();
                 }
             }
@@ -147,8 +146,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
                 .show();
     }
 
-    @Override
-    public void onStarted() {
+    void SubmittedFragmentStarted() {
         if (mSwitchToResults) {
             switchFragment(SUBMITTED_FRAGMENT_INDEX);
             mSwitchToResults = false;

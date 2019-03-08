@@ -46,34 +46,25 @@ import static android.view.View.GONE;
 import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
-    public interface Callback {
-        void onStarted();
-    }
-
     @Inject
     ThisApp mApp;
+    @Inject
+    EbtNewNote mEbtNewNote;
 
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
 //   private static final String DENOMINATION_IMAGE = "denomination_image";
-    private static final String DENOMINATION       = "denomination";
-    private static final String SERIAL_NUMBER      = "serial number";
-    private static final String RESULT             = "result";
-    private static final String REASON             = "reason";
-    private static final String NOTE               = "note";
-    private static final String LOCATION           = "location";
-    private static final String COMMENT            = "comment";
+    private static final String DENOMINATION = "denomination";
+    private static final String SERIAL_NUMBER = "serial number";
+    private static final String RESULT = "result";
+    private static final String REASON = "reason";
+    private static final String NOTE = "note";
+    private static final String LOCATION = "location";
+    private static final String COMMENT = "comment";
     private static final int MENU_ITEM_EDIT = 0;
     private static final int MENU_ITEM_SHOW = 1;
 
     private ExpandableListView mListView;
-    private Callback mCallback;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mCallback = (Callback) context;
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,7 +76,7 @@ public class SubmittedFragment extends DaggerFragment {
     @Override
     public void onStart() {
         super.onStart();
-        mCallback.onStarted();
+        mEbtNewNote.SubmittedFragmentStarted();
     }
 
     public void refreshResults() {
@@ -219,7 +210,7 @@ public class SubmittedFragment extends DaggerFragment {
                 .putString(getString(R.string.pref_short_code_key), noteData.mShortCode)
                 .putString(getString(R.string.pref_serial_number_key), noteData.mSerialNumber)
                 .putString(getString(R.string.pref_comment_key), noteData.mComment).apply();
-        ((EbtNewNote) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
+        mEbtNewNote.switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void showInBrowser(int groupPos) {

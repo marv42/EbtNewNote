@@ -45,8 +45,14 @@ public class ThisApp extends DaggerApplication {
                 getString(R.string.pref_results), "");
         if (!TextUtils.isEmpty(results)) {
             JsonArray array = new JsonParser().parse(results).getAsJsonArray();
-            for (int i = 0; i < array.size() && i < MAX_SAVE_NUM; ++i)
-                mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
+            int inserted = 0;
+            for (int i = 0; i < array.size() && inserted < MAX_SAVE_NUM; ++i) {
+                SubmissionResult result = new Gson().fromJson(array.get(i), SubmissionResult.class);
+                if (result.mSuccessful) {
+                    mResults.add(inserted, result);
+                    inserted++;
+                }
+            }
         }
     }
 //   @Override
@@ -71,11 +77,11 @@ public class ThisApp extends DaggerApplication {
         }
     }
 
-    public boolean addResult(final SubmissionResult result) {
-        boolean b = mResults.add(result);
-        getDefaultSharedPreferences(this).edit()
-                .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
-        return b;
+    public void addResult(final SubmissionResult result) {
+        mResults.add(result);
+        if (result.mSuccessful)
+            getDefaultSharedPreferences(this).edit()
+                    .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
     }
 
     public ArrayList<SubmissionResult> getResults() {
