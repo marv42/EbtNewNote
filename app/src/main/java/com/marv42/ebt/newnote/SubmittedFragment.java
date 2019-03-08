@@ -106,7 +106,7 @@ public class SubmittedFragment extends DaggerFragment {
             groupMap.put(BUTTON_PLACEHOLDER, " ");
 //         groupMap.put(DENOMINATION_IMAGE, denominationImage);
             groupMap.put(DENOMINATION, denomination);
-            groupMap.put(SERIAL_NUMBER, sn);
+            groupMap.put(SERIAL_NUMBER, sn.length() > 0 ? sn : "-");
             groupMap.put(RESULT, result);
             groupData.add(groupMap);
 
@@ -121,8 +121,8 @@ public class SubmittedFragment extends DaggerFragment {
             childData.add(children);
         }
 
-        String[] groupFrom =
-                new String[] {BUTTON_PLACEHOLDER, /*DENOMINATION_IMAGE,*/ DENOMINATION, SERIAL_NUMBER, RESULT};
+        String[] groupFrom = new String[] {BUTTON_PLACEHOLDER, /*DENOMINATION_IMAGE,*/
+                DENOMINATION, SERIAL_NUMBER, RESULT};
 
         mListView.setAdapter(new MyExpandableListAdapter(
                 getContext(),
