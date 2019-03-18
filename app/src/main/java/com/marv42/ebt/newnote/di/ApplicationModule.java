@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
@@ -14,11 +15,15 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = EbtNewNoteComponent.class)
+@Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = EbtNewNoteModule.class)
     abstract EbtNewNote contributeEbtNewNoteInjector();
+
+    @SettingsScope
+    @ContributesAndroidInjector(modules = SettingsModule.class)
+    abstract SettingsActivity contributeSettingsActivityInjector();
 
 //    @Provides
 //    @Singleton

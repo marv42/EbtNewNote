@@ -20,73 +20,53 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
-
-import javax.inject.Inject;
-
 import static android.widget.Toast.LENGTH_LONG;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
-public class LoginChecker extends AsyncTask<Void, Void, Boolean> {
-    public interface Callback {
-        void onLoginFailed();
-    }
-
-    private WeakReference<EbtNewNote> mEbtNewNote;
+public class LoginChecker extends AsyncTask<Void, Void, String> {
+    private ThisApp mApp;
     private ApiCaller mApiCaller;
-    private JSONObject mResponse;
 
-    @Inject
-    LoginChecker(final EbtNewNote ebtNewNote, ApiCaller apiCaller) {
-        mEbtNewNote = new WeakReference<>(ebtNewNote);
+    LoginChecker(final ThisApp app, ApiCaller apiCaller) {
+        mApp = app;
         mApiCaller = apiCaller;
     }
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(mEbtNewNote.get(), mEbtNewNote.get().getString(R.string.trying_login), LENGTH_LONG).show();
+        Toast.makeText(mApp, mApp.getString(R.string.trying_login), LENGTH_LONG).show();
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
-        EbtNewNote context = mEbtNewNote.get();
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        String loginValuesOkKey = context.getString(R.string.pref_login_values_ok_key);
-        mResponse = mApiCaller.callLogin();
-        if (!mResponse.has(ERROR)) {
-            editor.putBoolean(loginValuesOkKey, true).apply();
-            return true;
+    protected String doInBackground(Void... params) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mApp);
+        Editor editor = preferences.edit();
+        String loginValuesOkKey = mApp.getString(R.string.pref_login_values_ok_key);
+        JSONObject response = mApiCaller.callLogin();
+        if (response.has(ERROR)) {
+            String wrongLogin = mApp.getString(R.string.wrong_login_info);
+            if (response.optString(ERROR).equals(wrongLogin)) {
+                editor.putBoolean(loginValuesOkKey, false).apply();
+                return wrongLogin;
+            }
+            return response.optString(ERROR);
         }
-        if (mResponse.has(ERROR) &&
-                mResponse.optString(ERROR).equals(context.getString(R.string.wrong_password)))
-            editor.putBoolean(loginValuesOkKey, false).apply();
-        return false;
+        editor.putBoolean(loginValuesOkKey, true).apply();
+        String countryKey = mApp.getString(R.string.pref_country_key);
+        String cityKey = mApp.getString(R.string.pref_city_key);
+        String postalCodeKey = mApp.getString(R.string.pref_postal_code_key);
+        if (TextUtils.isEmpty(preferences.getString(countryKey, "")) &&
+                TextUtils.isEmpty(preferences.getString(cityKey, "")) &&
+                TextUtils.isEmpty(preferences.getString(postalCodeKey, "")))
+            editor.putString(countryKey, response.optString("my_country"))
+                    .putString(cityKey, response.optString("my_city"))
+                    .putString(postalCodeKey, response.optString("my_zip")).apply();
+        return mApp.getString(R.string.hello) + " " +
+                response.optString("username") + ". " + mApp.getString(R.string.logged_in);
     }
 
     @Override
-    protected void onPostExecute(Boolean loginSuccessful) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mEbtNewNote.get());
-        if (loginSuccessful) {
-            Toast.makeText(mEbtNewNote.get(), mEbtNewNote.get().getString(R.string.hello) + " " +
-                            mResponse.optString("username") + ". " + mEbtNewNote.get().getString(R.string.logged_in),
-                    LENGTH_LONG).show();
-            String countryKey = mEbtNewNote.get().getString(R.string.pref_country_key);
-            String cityKey = mEbtNewNote.get().getString(R.string.pref_city_key);
-            String postalCodeKey = mEbtNewNote.get().getString(R.string.pref_postal_code_key);
-            if (TextUtils.isEmpty(preferences.getString(countryKey, "")) &&
-                    TextUtils.isEmpty(preferences.getString(cityKey, "")) &&
-                    TextUtils.isEmpty(preferences.getString(postalCodeKey, "")))
-                preferences.edit()
-                        .putString(countryKey, mResponse.optString("my_country"))
-                        .putString(cityKey, mResponse.optString("my_city"))
-                        .putString(postalCodeKey, mResponse.optString("my_zip")).apply();
-        } else {
-            String error = mResponse.optString(ERROR);
-            if (error.equals(mEbtNewNote.get().getString(R.string.wrong_password)))
-                ((Callback) mEbtNewNote.get()).onLoginFailed();
-            else
-                Toast.makeText(mEbtNewNote.get(), error, LENGTH_LONG).show();
-        }
-        preferences.edit().putBoolean(mEbtNewNote.get().getString(R.string.pref_calling_login_key), false).apply();
+    protected void onPostExecute(String string) {
+        Toast.makeText(mApp, string, LENGTH_LONG).show();
     }
 }

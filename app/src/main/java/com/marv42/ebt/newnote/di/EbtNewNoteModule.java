@@ -6,15 +6,16 @@ import com.marv42.ebt.newnote.SubmittedFragment;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = {SubmitFragmentComponent.class, ResultFragmentComponent.class})
+@Module(subcomponents = {SubmitFragmentComponent.class, SubmittedFragmentComponent.class,
+        SettingsComponent.class})
 abstract class EbtNewNoteModule {
     @FragmentScope
     @ContributesAndroidInjector(modules = SubmitFragmentModule.class)
     abstract SubmitFragment contributeSubmitFragmentInjector();
 
     @FragmentScope
-    @ContributesAndroidInjector(modules = ResultFragmentModule.class)
-    abstract SubmittedFragment contributeResultFragmentInjector();
+    @ContributesAndroidInjector(modules = SubmittedFragmentModule.class)
+    abstract SubmittedFragment contributeSubmittedFragmentInjector();
 
 //    @Binds
 //    abstract Context bindContext(EbtNewNote activity);

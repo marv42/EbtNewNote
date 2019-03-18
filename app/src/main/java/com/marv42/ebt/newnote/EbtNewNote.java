@@ -11,8 +11,6 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,18 +28,12 @@ import com.marv42.ebt.newnote.scanning.OcrHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.android.support.DaggerAppCompatActivity;
 import dagger.android.support.DaggerFragment;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.Callback
-        /*, LifecycleOwner*/ {
-    @Inject
-    ApiCaller mApiCaller;
-
+public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOwner*/ {
     static final int CHECK_LOCATION_SETTINGS_REQUEST_CODE = 1;
     static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
     static final int EBT_NOTIFICATION_ID = 1;
@@ -67,9 +59,11 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (position == SUBMIT_FRAGMENT_INDEX)
-                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).setViewValuesfromPreferences();
+                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX))
+                            .setViewValuesfromPreferences();
                 else {
-                    ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX)).refreshResults();
+                    ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
+                            .refreshResults();
                 }
             }
         }); // TODO do we need to removeOnPageChangeListener?
@@ -87,7 +81,7 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        menu.findItem(R.id.settings).setIntent(new Intent(this, Settings.class));
+        menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
         menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
         super.onCreateOptionsMenu(menu);
         return true;
@@ -123,27 +117,6 @@ public class EbtNewNote extends DaggerAppCompatActivity implements LoginChecker.
     void switchFragment(int index) {
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setCurrentItem(index);
-    }
-
-    @Override
-    public void onLoginFailed() {
-        new AlertDialog.Builder(this).setTitle(getString(R.string.info))
-                .setMessage(getString(R.string.wrong_login_info))
-                .setPositiveButton(getString(R.string.yes),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(getApplicationContext(), Settings.class));
-                                dialog.dismiss();
-                            }
-                        }
-                )
-                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }
-                )
-                .show();
     }
 
     void SubmittedFragmentStarted() {

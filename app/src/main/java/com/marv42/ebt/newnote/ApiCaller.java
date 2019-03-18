@@ -12,14 +12,11 @@
 package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.util.Pair;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +28,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
+
 public class ApiCaller {
-    static final String ERROR = "ERROR";
+    public static final String ERROR = "ERROR";
 
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
@@ -40,7 +39,7 @@ public class ApiCaller {
     private String mPrefSettingsEmailKey;
     private String mPrefSettingsPasswordKey;
     private String mCouldntConnect;
-    private String mWrongPassword;
+    private String mWrongLogin;
     private String mServerError;
     private String mErrorInterpreting;
 
@@ -50,7 +49,7 @@ public class ApiCaller {
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mCouldntConnect = app.getString(R.string.couldnt_connect);
-        mWrongPassword = app.getString(R.string.wrong_password);
+        mWrongLogin = app.getString(R.string.wrong_login_info);
         mServerError = app.getString(R.string.server_error);
         mErrorInterpreting = app.getString(R.string.error_interpreting);
     }
@@ -60,7 +59,6 @@ public class ApiCaller {
         for (Pair<String, String> pair : params)
             formBodyBuilder.add(pair.first, pair.second);
         FormBody formBody = formBodyBuilder.build();
-
         Request request = new Request.Builder().url(EBT_API).post(formBody).build();
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
@@ -82,12 +80,11 @@ public class ApiCaller {
         params.add(new Pair<>("v", "2"));
         params.add(new Pair<>("my_email", mSharedPreferences.getString(mPrefSettingsEmailKey, "").trim()));
         params.add(new Pair<>("my_password", mSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
-
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return getJsonObject(ERROR, mCouldntConnect);
         if (jsonObject.has(ERROR) || !jsonObject.has("sessionid"))
-            return getJsonObject(ERROR, mWrongPassword);
+            return getJsonObject(ERROR, mWrongLogin);
         return jsonObject;
     }
 
@@ -103,8 +100,6 @@ public class ApiCaller {
             return getJsonObject(ERROR, mErrorInterpreting);
         if (!note0.has("status"))
             return getJsonObject(ERROR, mServerError);
-
-        //Log.d(LOG_TAG, "note0 status: " + note0.get("status"));
         return note0;
     }
 
@@ -114,19 +109,6 @@ public class ApiCaller {
             return getJsonObject(ERROR, mCouldntConnect);
         if (!jsonObject.has("rows") || !jsonObject.has("data"))
             return getJsonObject(ERROR, mServerError);
-        return jsonObject;
-    }
-
-    private JSONObject getJsonObject(String key, String value) {
-        return getJsonObject("{\"" + key + "\":\"" + value + "\"}");
-    }
-
-    private JSONObject getJsonObject(String s) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(s);
-        } catch (JSONException ignored) {
-        }
         return jsonObject;
     }
 }

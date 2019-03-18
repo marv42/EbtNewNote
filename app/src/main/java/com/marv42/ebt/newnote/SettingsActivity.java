@@ -11,15 +11,20 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
-public class Settings extends AppCompatActivity {
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
+import dagger.android.support.DaggerAppCompatActivity;
+
+public class SettingsActivity extends DaggerAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,13 +34,22 @@ public class Settings extends AppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
+        @Inject
+        ApiCaller mApiCaller;
+
+        @Override
+        public void onAttach(Context context) {
+            AndroidSupportInjection.inject(this);
+            super.onAttach(context);
+        }
+
         @Override
         public void onResume() {
             super.onResume();
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-            getPreferenceScreen().getSharedPreferences().edit()
-                    .putBoolean(getString(R.string.pref_login_changed_key), false).apply();
-            setSummary();
+            setEmailSummary();
+            setPasswordSummary();
+            setCommentSummary();
         }
 
         @Override
@@ -53,21 +67,45 @@ public class Settings extends AppCompatActivity {
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (sharedPreferences == getPreferenceScreen().getSharedPreferences()) {
                 String emailKey = getString(R.string.pref_settings_email_key);
+                String passwordKey = getString(R.string.pref_settings_password_key);
                 if (key.equals(emailKey))
-                    setSummary();
-                if (key.equals(emailKey) || key.equals(getString(R.string.pref_settings_password_key)))
-                    getPreferenceScreen().getSharedPreferences().edit()
-                            .putBoolean(getString(R.string.pref_login_changed_key), true).apply();
+                    setEmailSummary();
+                if (key.equals(passwordKey))
+                    setPasswordSummary();
+                if (key.equals(getString(R.string.pref_settings_comment_key)))
+                    setCommentSummary();
+                if ((key.equals(emailKey) || key.equals(passwordKey)) &&
+                        ! TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
+                        ! TextUtils.isEmpty(sharedPreferences.getString(passwordKey, "")))
+                    new LoginChecker((ThisApp) getActivity().getApplicationContext(), mApiCaller).execute();
             }
         }
 
-        private void setSummary() {
+        private void setEmailSummary() {
             String emailKey = getString(R.string.pref_settings_email_key);
             String email = getPreferenceScreen().getSharedPreferences().getString(emailKey, "").trim();
             String summary = getString(R.string.settings_email_summary);
             if (! TextUtils.isEmpty(email))
-                summary += getString(R.string.settings_summary_currently) + " " + email;
+                summary += getString(R.string.settings_currently) + " " + email;
             (findPreference(emailKey)).setSummary(summary);
+        }
+
+        private void setPasswordSummary() {
+            String passwordKey = getString(R.string.pref_settings_password_key);
+            String summary = getString(R.string.settings_password_summary);
+            if (TextUtils.isEmpty(getPreferenceScreen().getSharedPreferences().getString(
+                    passwordKey, "")))
+                summary += getString(R.string.settings_currently_not_set);
+            (findPreference(passwordKey)).setSummary(summary);
+        }
+
+        private void setCommentSummary() {
+            String commentKey = getString(R.string.pref_settings_comment_key);
+            String comment = getPreferenceScreen().getSharedPreferences().getString(commentKey, "");
+            String summary = getString(R.string.settings_comment_summary);
+            if (! TextUtils.isEmpty(comment))
+                summary += getString(R.string.settings_currently) + " " + comment;
+            (findPreference(commentKey)).setSummary(summary);
         }
     }
 }

@@ -15,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -123,7 +124,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.edit_text_serial) EditText mSerialText;
     @BindView(R.id.edit_text_comment) AutoCompleteTextView mCommentText;
 
-//    private LocationTextWatcher mLocationTextWatcher;
+    private LocationTextWatcher mLocationTextWatcher;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private LocationRequest mLocationRequest;
@@ -200,10 +201,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public void onResume() {
         super.onResume();
         setViewValuesfromPreferences();
-        TextWatcher locationTextWatcher = new LocationTextWatcher();
-        mCountryText.addTextChangedListener(locationTextWatcher);
-        mCityText.addTextChangedListener(locationTextWatcher);
-        mPostalCodeText.addTextChangedListener(locationTextWatcher);
+        mLocationTextWatcher = new LocationTextWatcher();
+        mCountryText.addTextChangedListener(mLocationTextWatcher);
+        mCityText.addTextChangedListener(mLocationTextWatcher);
+        mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
         TextWatcher shortCodeTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_short_code_key));
         mShortCodeText.addTextChangedListener(shortCodeTextWatcher);
         TextWatcher serialNumberTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key));
@@ -211,17 +212,33 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         TextWatcher commentTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_comment_key));
         mCommentText.addTextChangedListener(commentTextWatcher);
         executeCommentSuggestion();
-        if (mSharedPreferences.getBoolean(getString(R.string.pref_login_changed_key), false))
-            new LoginChecker((EbtNewNote) getActivity(), mApiCaller).execute();
+        if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
+            new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
+                    .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
+                    .setPositiveButton(getString(R.string.yes),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startActivity(new Intent(getActivity().getApplicationContext(),
+                                            SettingsActivity.class));
+                                    dialog.dismiss();
+                                }})
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }})
+                    .show();
     }
 
-//    @Override
-//    public void onPause() {
-//        mLocationTextWatcher = null;
+    @Override
+    public void onPause() {
+        mCountryText.removeTextChangedListener(mLocationTextWatcher);
+        mCityText.removeTextChangedListener(mLocationTextWatcher);
+        mPostalCodeText.removeTextChangedListener(mLocationTextWatcher);
+        mLocationTextWatcher = null;
 //        if (mFusedLocationClient != null)
 //            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-//        super.onPause();
-//    }
+        super.onPause();
+    }
 
     @Override
     public void onDestroyView() {
@@ -357,17 +374,16 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mCountryText.setText(l.mCountry);
         mCityText.setText(l.mCity);
         mPostalCodeText.setText(l.mPostalCode);
-        savePreferencesLocation();
+        saveLocationPreferences();
     }
 
     private void resetPreferences() {
         mSharedPreferences.edit()
-                .putBoolean(getString(R.string.pref_calling_login_key), false)
                 .putBoolean(getString(R.string.pref_calling_my_comments_key), false)
                 .putBoolean(getString(R.string.pref_getting_location_key), false).apply();
     }
 
-    private void savePreferencesLocation() {
+    private void saveLocationPreferences() {
         mSharedPreferences.edit()
                 .putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
                 .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
@@ -560,9 +576,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         @Override
         public void afterTextChanged(Editable s) {
-//            mCommentText.setText("");
+            mCommentText.setText("");
             executeCommentSuggestion();
-            savePreferencesLocation();
+            saveLocationPreferences();
         }
     }
 

@@ -42,7 +42,6 @@
 
     <!-- server responses -->
     <string name="couldnt_connect">"Couldn\'t connect to the EBT server"</string>
-    <string name="wrong_password">"Password or email address incorrect. Please edit your EBT login information in the settings."</string>
     <string name="error_interpreting">"Error interpreting the reply of the EBT server"</string>
     <string name="server_error">"Unusable response from the EBT server"</string>
 
@@ -81,7 +80,8 @@
     <string name="settings_ebt_account">EBT account settings</string>
     <string name="settings_email_title">Email address</string>
     <string name="settings_email_summary">Email address to log in to your EBT account</string>
-    <string name="settings_summary_currently">, currently:</string>
+    <string name="settings_currently">, currently:</string>
+    <string name="settings_currently_not_set">, currently not set</string>
     <string name="settings_password_title">Password</string>
     <string name="settings_password_summary">Password of your EBT account</string>
     <string name="settings_misc">Miscellaneous settings</string>
@@ -89,7 +89,8 @@
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="logged_in">You have successfully been logged in to EBT.</string>
     <string name="trying_login">Trying to log in to EBT&#8230;</string>
-    <string name="wrong_login_info">You haven\'t provided valid EBT login information (email address and password).\n\nDo you want to do this now?\n\n(You can do this later in the settings.)</string>
+    <string name="wrong_login_info">You haven\'t provided valid EBT login information: email address and password.</string>
+    <string name="change_login_info">\n\nDo you want to do this now?\n\n(You can do this later in the settings.)</string>
 
     <!-- preferences -->
     <string name="pref_settings_email_key">pref_settings_email</string>
@@ -103,8 +104,6 @@
     <string name="pref_serial_number_key">pref_serial_number</string>
     <string name="pref_comment_key">pref_comment</string>
     <string name="pref_login_values_ok_key">pref_login_values_ok</string>
-    <string name="pref_login_changed_key">pref_login_changed</string>
-    <string name="pref_calling_login_key">pref_calling_login</string>
     <string name="pref_calling_my_comments_key">pref_calling_my_comments</string>
     <string name="pref_getting_location_key">pref_getting_location</string>
     <string name="pref_results">pref_results</string>
