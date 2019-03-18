@@ -12,7 +12,6 @@
 package com.marv42.ebt.newnote.scanning;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class TextProcessor {
@@ -35,7 +33,6 @@ public class TextProcessor {
         if (s.startsWith("Error"))
             return s;
         String serialNumber = extractEssentials(s);
-        Log.d(LOG_TAG, "serialNumber: " + serialNumber);
         if (serialNumber.equals(EMPTY) || serialNumber.startsWith("Error"))
             return serialNumber;
         return correct(serialNumber.replaceAll("\\s+", "").trim());
@@ -53,7 +50,6 @@ public class TextProcessor {
         try {
             JSONObject json = new JSONObject(s);
             int exitCode = json.getInt("OCRExitCode");
-            Log.d(LOG_TAG, "OCR exit code: " + exitCode + " (1: Parsed Successfully, 2: Parsed Partially. 3: Failed Parsing, 4: Error, https://ocr.space/ocrapi)");
             if (exitCode == 3 || exitCode == 4) {
                 String errorMessage = json.getString("ErrorMessage");
                 String errorDetails = json.getString("ErrorDetails");
@@ -61,20 +57,15 @@ public class TextProcessor {
             } else if (exitCode == 1 || exitCode == 2) {
                 JSONArray parsedResults = json.getJSONArray("ParsedResults");
                 for (int i = 0; i < parsedResults.length(); i++) {
-                    Log.d(LOG_TAG, "parsed OCR result number " + i);
                     JSONObject aResult = parsedResults.getJSONObject(i);
                     int fileParseExitCode = aResult.getInt("FileParseExitCode");
-                    Log.d(LOG_TAG, "file parse exit code: " + fileParseExitCode + " (0: File not found, 1: Success, -10: OCR Engine Parse Error, -20: Timeout, -30: Validation Error, -99: Unknown Error)");
                     if (fileParseExitCode == 1) {
                         String parsedText = aResult.getString("ParsedText");
                         result = result.append(parsedText);
                     }
                 }
-            } else {
-                Log.w(LOG_TAG, "unexpected OCR exit code");
             }
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "error parsing JSON: " + e);
+        } catch (JSONException ignored) {
         }
         return result.toString();
     }
@@ -148,21 +139,15 @@ public class TextProcessor {
         }
 
         Matcher matcher = pattern.matcher(s);
-        if (matcher.find()) {
+        if (matcher.find())
             s = s.substring(matcher.start(), matcher.end());
-            Log.d(LOG_TAG, "cutting out " + s);
-        }
         return s;
     }
 
     private static String correctCharacter(char c, Map<String, String> char2char) {
         String sC = Character.toString(c);
-        if (char2char.containsKey(sC)) {
-            String replacement = char2char.get(sC);
-            Log.d(LOG_TAG, "replacing " + c + " with " + replacement);
-            return replacement;
-        }
-        Log.d(LOG_TAG, "didn't replace " + c);
+        if (char2char.containsKey(sC))
+            return char2char.get(sC);
         return sC;
     }
 }

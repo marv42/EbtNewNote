@@ -14,9 +14,6 @@ package com.marv42.ebt.newnote;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
-
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
 
 class CallManager {
    static synchronized boolean weAreCalling(int key, Context context) {
@@ -24,7 +21,6 @@ class CallManager {
       String callingKey = context.getString(key);
       if (! prefs.getBoolean(callingKey, false)) {
          prefs.edit().putBoolean(callingKey, true).apply();
-         Log.d(LOG_TAG, callingKey + ": " + prefs.getBoolean(callingKey, false));
          return false;
       }
       return true;
