@@ -12,23 +12,20 @@
 package com.marv42.ebt.newnote.scanning;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import org.json.JSONException;
+import com.marv42.ebt.newnote.ApiCaller;
+
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Iterator;
+import java.io.IOException;
 
-import javax.net.ssl.HttpsURLConnection;
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-import static com.marv42.ebt.newnote.EbtNewNote.LOG_TAG;
+import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
 
@@ -41,7 +38,6 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
     private Callback mCallback;
-    private String mBase64Image;
 
     public OcrHandler(Callback callback) {
         mCallback = callback;
@@ -49,81 +45,29 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
 
     @Override
     protected String doInBackground(Void... voids) {
-        mBase64Image = convert(mCallback.getPhotoPath());
-        Log.d(LOG_TAG, "base64 image: " + mBase64Image);
-        return doOcr();
+        String base64Image = convert(mCallback.getPhotoPath());
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        formBodyBuilder.add("apikey", OCR_SERVICE);
+        formBodyBuilder.add("base64Image", "data:image/jpeg;base64," + base64Image);
+        FormBody formBody = formBodyBuilder.build();
+
+        Request request = new Request.Builder().url(OCR_HOST).post(formBody).build();
+        Call call = new OkHttpClient().newCall(request);
+        try (Response response = call.execute()) {
+            if (! response.isSuccessful())
+                return null;
+            String body = response.body().string();
+            JSONObject json = getJsonObject(body);
+            if (json == null || json.has("error"))
+                return getJsonObject(ApiCaller.ERROR, body).toString();
+            return json.toString();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
     protected void onPostExecute(String result) {
         mCallback.onOcrResult(TextProcessor.getOcrResult(result));
-    }
-
-    private String doOcr() {
-        try {
-            URL url = new URL(OCR_HOST);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            //connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-            //connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-            //connection.setRequestProperty("Content-Language", "en-US");
-
-            JSONObject postDataParams = new JSONObject();
-            postDataParams.put("apikey", OCR_SERVICE);
-            //postDataParams.put("url", );
-            //postDataParams.put("filetype", "JPG");
-            postDataParams.put("base64Image", "data:image/jpeg;base64," + mBase64Image);
-
-            Log.d(LOG_TAG, "new DataOutputStream");
-            DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
-            dataOutputStream.writeBytes(getPostDataString(postDataParams));
-            dataOutputStream.flush();
-            dataOutputStream.close();
-
-            int responseCode = connection.getResponseCode();
-            Log.d(LOG_TAG, "response code: " + responseCode);
-            boolean error = responseCode >= 400;
-            InputStream inputStream = error ? connection.getErrorStream() : connection.getInputStream();
-
-            Log.d(LOG_TAG, "new InputStreamReader");
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            if (error)
-                response.append("Error: ");
-            while ((inputLine = bufferedReader.readLine()) != null) {
-                response.append(inputLine);
-            }
-            bufferedReader.close();
-            return String.valueOf(response);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "error creating/sending OCR http request: " + e);
-        }
-        return null;
-    }
-
-    private String getPostDataString(JSONObject params) throws JSONException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        Iterator<String> it = params.keys();
-        while (it.hasNext()) {
-            String key = it.next();
-            Object value = params.get(key);
-            if (first)
-                first = false;
-            else
-                result.append("&");
-            try {
-                result.append(URLEncoder.encode(key, "UTF-8"));
-                result.append("=");
-                result.append(URLEncoder.encode(value.toString(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                // utf-8 is not unsupported
-                e.printStackTrace();
-            }
-        }
-        Log.d(LOG_TAG, "POST data string: " + result.toString());
-        return result.toString();
     }
 }
