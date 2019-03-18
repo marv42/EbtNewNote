@@ -11,9 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
-import java.io.Serializable;
-
-class NoteData implements Serializable {
+class NoteData {
     final String mCountry;
     final String mCity;
     final String mPostalCode;
