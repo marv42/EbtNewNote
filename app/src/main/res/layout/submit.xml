@@ -40,6 +40,12 @@
                     android:singleLine="true"
                     android:nextFocusDown="@+id/edit_text_zip"
                     android:autofillHints="e.g. Berlin" />
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/location_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_mylocation"
+                    android:contentDescription="@string/location" />
             </TableRow>
             <TableRow>
                 <android.support.v7.widget.AppCompatTextView
@@ -53,12 +59,6 @@
                     android:autofillHints="e.g. 10557" />
             </TableRow>
         </TableLayout>
-        <android.support.v7.widget.AppCompatImageButton
-            android:id="@+id/location_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_mylocation"
-            android:contentDescription="@string/location" />
         <android.support.v7.widget.AppCompatTextView
             android:text="@string/note"
             android:textAllCaps="true"
@@ -124,7 +124,8 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:stretchColumns="1">
             <TableRow>
                 <android.support.v7.widget.AppCompatTextView
                     android:text="@string/short_code" />
@@ -132,7 +133,6 @@
                     android:id="@+id/edit_text_printer"
                     android:singleLine="true"
                     android:inputType="textCapCharacters"
-                    android:width="@dimen/short_code_text_size"
                     android:nextFocusDown="@+id/edit_text_serial"
                     android:autofillHints="@string/short_code" /><!-- width has no effect because of table -->
             </TableRow>
@@ -143,16 +143,15 @@
                     android:id="@+id/edit_text_serial"
                     android:singleLine="true"
                     android:inputType="textCapCharacters"
-                    android:width="@dimen/serial_text_size"
                     android:nextFocusDown="@+id/edit_text_comment"
                     android:autofillHints="@string/serial_number" />
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/photo_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_camera" />
             </TableRow>
         </TableLayout>
-        <android.support.v7.widget.AppCompatImageButton
-            android:id="@+id/photo_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_camera" />
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

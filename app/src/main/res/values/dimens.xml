@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
    <dimen name="key_height">50dp</dimen>
-   <dimen name="short_code_text_size">70sp</dimen>
-   <dimen name="serial_text_size">148sp</dimen>
-   <dimen name="ok_button_width">100px</dimen>
 </resources>
