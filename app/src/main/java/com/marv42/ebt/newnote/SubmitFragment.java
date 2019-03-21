@@ -252,11 +252,20 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
                 getDenomination(),
-                mShortCodeText.getText().toString().replaceAll("\\s+", ""),
+                getFixedShortCode(),
                 mSerialText.getText().toString().replaceAll("\\s+", ""),
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
+    }
+
+    private String getFixedShortCode() {
+        String fixedShortCode = mShortCodeText.getText().toString().replaceAll("\\s+", "");
+        if (fixedShortCode.length() == 4)
+            return fixedShortCode.substring(0, 1) + "00" + fixedShortCode.substring(1);
+        else if (fixedShortCode.length() == 5)
+            return fixedShortCode.substring(0, 1) + "0" + fixedShortCode.substring(1);
+        return fixedShortCode;
     }
 
     private void checkLocationSetting() {
@@ -569,8 +578,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         @Override
         public void afterTextChanged(Editable s) {
-            mCommentText.setText("");
-            executeCommentSuggestion();
+            if (! TextUtils.isEmpty(mCommentText.getText())) {
+                mCommentText.setText("");
+                executeCommentSuggestion();
+            }
         }
     }
 
