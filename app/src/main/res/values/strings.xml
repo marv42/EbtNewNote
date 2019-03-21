@@ -104,8 +104,6 @@
     <string name="pref_serial_number_key">pref_serial_number</string>
     <string name="pref_comment_key">pref_comment</string>
     <string name="pref_login_values_ok_key">pref_login_values_ok</string>
-    <string name="pref_calling_my_comments_key">pref_calling_my_comments</string>
-    <string name="pref_getting_location_key">pref_getting_location</string>
     <string name="pref_results">pref_results</string>
 
     <!-- keyboard -->

@@ -60,7 +60,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
                 super.onPageSelected(position);
                 if (position == SUBMIT_FRAGMENT_INDEX)
                     ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX))
-                            .setViewValuesfromPreferences();
+                            .setViewValuesFromPreferences();
                 else {
                     ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
                             .refreshResults();

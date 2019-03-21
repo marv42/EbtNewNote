@@ -191,26 +191,25 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         });
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        resetPreferences();
-    }
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//    }
 
     @Override
     public void onResume() {
         super.onResume();
-        setViewValuesfromPreferences();
+        setViewValuesFromPreferences();
         mLocationTextWatcher = new LocationTextWatcher();
         mCountryText.addTextChangedListener(mLocationTextWatcher);
         mCityText.addTextChangedListener(mLocationTextWatcher);
         mPostalCodeText.addTextChangedListener(mLocationTextWatcher);
-        TextWatcher shortCodeTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_short_code_key));
-        mShortCodeText.addTextChangedListener(shortCodeTextWatcher);
-        TextWatcher serialNumberTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key));
-        mSerialText.addTextChangedListener(serialNumberTextWatcher);
-        TextWatcher commentTextWatcher = new SavePreferencesTextWatcher(getString(R.string.pref_comment_key));
-        mCommentText.addTextChangedListener(commentTextWatcher);
+        mCountryText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_country_key)));
+        mCityText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_city_key)));
+        mPostalCodeText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_postal_code_key)));
+        mShortCodeText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_short_code_key)));
+        mSerialText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key)));
+        mCommentText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_comment_key)));
         executeCommentSuggestion();
         if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
             new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
@@ -374,35 +373,29 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mCountryText.setText(l.mCountry);
         mCityText.setText(l.mCity);
         mPostalCodeText.setText(l.mPostalCode);
-        saveLocationPreferences();
     }
 
-    private void resetPreferences() {
-        mSharedPreferences.edit()
-                .putBoolean(getString(R.string.pref_calling_my_comments_key), false)
-                .putBoolean(getString(R.string.pref_getting_location_key), false).apply();
-    }
-
-    private void saveLocationPreferences() {
-        mSharedPreferences.edit()
-                .putString(getString(R.string.pref_country_key), mCountryText.getText().toString())
-                .putString(getString(R.string.pref_city_key), mCityText.getText().toString())
-                .putString(getString(R.string.pref_postal_code_key), mPostalCodeText.getText().toString()).apply();
-    }
-
-    void setViewValuesfromPreferences() {
-        mCountryText.setText(mSharedPreferences.getString(getString(R.string.pref_country_key), ""));
-        mCityText.setText(mSharedPreferences.getString(getString(R.string.pref_city_key), ""));
-        mPostalCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_postal_code_key), ""));
+    void setViewValuesFromPreferences() {
+        String country = mSharedPreferences.getString(getString(R.string.pref_country_key), "");
+        if (! TextUtils.equals(country, mCountryText.getText()))
+            mCountryText.setText(country);
+        String city = mSharedPreferences.getString(getString(R.string.pref_city_key), "");
+        if (! TextUtils.equals(city, mCityText.getText()))
+            mCityText.setText(city);
+        String postalCode = mSharedPreferences.getString(getString(R.string.pref_postal_code_key), "");
+        if (! TextUtils.equals(postalCode, mPostalCodeText.getText()))
+            mPostalCodeText.setText(postalCode);
         setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key),
                 getString(R.string.eur5)));
         mShortCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key), ""));
         mSerialText.setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
-        mCommentText.setText(mSharedPreferences.getString(getString(R.string.pref_comment_key), ""));
-        String additionalComment = mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
-        if (mCommentText.getText().toString().endsWith(additionalComment))
-            mCommentText.setText(mCommentText.getText().toString().substring(0,
-                    mCommentText.getText().toString().length() - additionalComment.length()));
+        String comment = mSharedPreferences.getString(getString(R.string.pref_comment_key), "");
+        String additionalComment =
+                mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
+        if (comment.endsWith(additionalComment))
+            mCommentText.setText(comment.substring(0, comment.length() - additionalComment.length()));
+        else
+            mCommentText.setText(comment);
     }
 
     @NonNull
@@ -578,17 +571,13 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         public void afterTextChanged(Editable s) {
             mCommentText.setText("");
             executeCommentSuggestion();
-            saveLocationPreferences();
         }
     }
 
     private void executeCommentSuggestion() {
         if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
             return;
-        if (CallManager.weAreCalling(R.string.pref_calling_my_comments_key, mApp))
-            return;
         new CommentSuggestion(this, mApiCaller, mSharedPreferences,
-                mApp.getString(R.string.pref_calling_my_comments_key),
                 mApp.getString(R.string.pref_settings_comment_key))
                 .execute(new LocationValues(
                         mCountryText.getText().toString(),

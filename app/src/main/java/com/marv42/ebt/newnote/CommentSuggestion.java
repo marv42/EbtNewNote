@@ -36,16 +36,14 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
     private Callback mCallback;
     private ApiCaller mApiCaller;
     private SharedPreferences mSharedPreferences;
-    private String mPreferenceCallingKey;
     private String mPreferenceCommentKey;
 
     // TODO @Inject
     CommentSuggestion(Callback callback, ApiCaller apiCaller, SharedPreferences sharedPreferences,
-                      String preferenceCallingKey, String preferenceCommentKey) {
+                      String preferenceCommentKey) {
         mCallback = callback;
         mApiCaller = apiCaller;
         mSharedPreferences = sharedPreferences;
-        mPreferenceCallingKey = preferenceCallingKey;
         mPreferenceCommentKey = preferenceCommentKey;
     }
 
@@ -56,7 +54,6 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
     @Override
     protected void onPostExecute(String[] s) {
-        mSharedPreferences.edit().putBoolean(mPreferenceCallingKey, false).apply();
         if (s == null || s.length < 1 || s[0].equals(ERROR))
             return;
         mCallback.onSuggestions(s);
