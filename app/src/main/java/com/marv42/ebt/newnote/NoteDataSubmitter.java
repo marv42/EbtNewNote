@@ -22,11 +22,8 @@ import android.support.v4.util.Pair;
 
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -44,8 +41,8 @@ public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult>
     private ThisApp mApp;
     private ApiCaller mApiCaller;
 
-    @Inject
-    NoteDataHandler(final ThisApp app, ApiCaller apiCaller) {
+    // @Inject
+    /*public*/ NoteDataHandler(final ThisApp app, ApiCaller apiCaller) {
         mApp = app;
         mApiCaller = apiCaller;
     }

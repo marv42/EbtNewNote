@@ -19,6 +19,7 @@ import com.google.gson.JsonParser;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
@@ -31,6 +32,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 public class ThisApp extends DaggerApplication {
     private static final int MAX_SAVE_NUM = 10;
 
+    // TODO shouldn't this be somewhere else?
     private ArrayList<SubmissionResult> mResults = new ArrayList<>();
 
     @Override
@@ -43,18 +45,13 @@ public class ThisApp extends DaggerApplication {
         super.onCreate();
         String results = getDefaultSharedPreferences(this).getString(
                 getString(R.string.pref_results), "");
-        if (!TextUtils.isEmpty(results)) {
+        if (! TextUtils.isEmpty(results)) {
             JsonArray array = new JsonParser().parse(results).getAsJsonArray();
-            int inserted = 0;
-            for (int i = 0; i < array.size() && inserted < MAX_SAVE_NUM; ++i) {
-                SubmissionResult result = new Gson().fromJson(array.get(i), SubmissionResult.class);
-                if (result.mSuccessful) {
-                    mResults.add(inserted, result);
-                    inserted++;
-                }
-            }
+            for (int i = 0; i < array.size(); ++i)
+                mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
         }
     }
+
 //   @Override
 //   protected void attachBaseContext(Context base) {
 //       super.attachBaseContext(base);
@@ -64,7 +61,6 @@ public class ThisApp extends DaggerApplication {
 //       ACRA.init(this); // , builder);
 //   }
 
-    // TODO shouldn't this be somwhere else?
     class ResultSummary {
         final int mHits;
         final int mSuccessful;
@@ -79,9 +75,12 @@ public class ThisApp extends DaggerApplication {
 
     public void addResult(final SubmissionResult result) {
         mResults.add(result);
-        if (result.mSuccessful)
+        if (result.mSuccessful) {
+            Collections.sort(mResults, new SubmissionResult.TimeComparator(true));
             getDefaultSharedPreferences(this).edit()
-                    .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
+                    .putString(getString(R.string.pref_results), new Gson().toJson(
+                            mResults.subList(0, Math.min(MAX_SAVE_NUM, mResults.size())))).apply();
+        }
     }
 
     public ArrayList<SubmissionResult> getResults() {

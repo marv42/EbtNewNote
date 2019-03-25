@@ -30,6 +30,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,7 @@ public class SubmittedFragment extends DaggerFragment {
 
     public void refreshResults() {
         ArrayList<SubmissionResult> results = mApp.getResults();
+        Collections.sort(results, new SubmissionResult.TimeComparator(false));
 
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
