@@ -37,10 +37,6 @@
                     android:autofillHints="e.g. Berlin"
                     android:nextFocusDown="@+id/edit_text_zip"
                     android:singleLine="true" />
-                <android.support.v7.widget.AppCompatImageButton
-                    android:id="@+id/location_button"
-                    android:contentDescription="@string/location"
-                    android:src="@android:drawable/ic_menu_mylocation" />
             </TableRow>
             <TableRow>
                 <android.support.v7.widget.AppCompatTextView android:text="@string/postal_code" />
@@ -51,6 +47,10 @@
                     android:inputType="textPostalAddress"
                     android:nextFocusDown="@+id/edit_text_printer"
                     android:singleLine="true" />
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/location_button"
+                    android:contentDescription="@string/location"
+                    android:src="@android:drawable/ic_menu_mylocation" />
             </TableRow>
         </TableLayout>
         <android.support.v7.widget.AppCompatTextView
