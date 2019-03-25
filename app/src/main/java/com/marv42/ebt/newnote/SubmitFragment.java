@@ -247,7 +247,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void submitValues() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
-        new NoteDataHandler(mApp, mApiCaller).execute(new NoteData(
+        new NoteDataSubmitter(mApp, mApiCaller).execute(new NoteData(
                 mCountryText.getText().toString(),
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),

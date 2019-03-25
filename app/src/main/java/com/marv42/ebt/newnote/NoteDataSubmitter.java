@@ -35,14 +35,14 @@ import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
-public class NoteDataHandler extends AsyncTask<NoteData, Void, SubmissionResult> {
+public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResult> {
     private static final String CHANNEL_ID = "default";
 
     private ThisApp mApp;
     private ApiCaller mApiCaller;
 
     // @Inject
-    /*public*/ NoteDataHandler(final ThisApp app, ApiCaller apiCaller) {
+    /*public*/ NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller) {
         mApp = app;
         mApiCaller = apiCaller;
     }
