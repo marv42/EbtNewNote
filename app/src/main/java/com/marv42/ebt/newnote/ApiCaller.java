@@ -54,7 +54,7 @@ public class ApiCaller {
         mErrorInterpreting = app.getString(R.string.error_interpreting);
     }
 
-    private JSONObject doBasicCall(List<Pair<String, String>> params) {
+    private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         for (Pair<String, String> pair : params)
             formBodyBuilder.add(pair.first, pair.second);
