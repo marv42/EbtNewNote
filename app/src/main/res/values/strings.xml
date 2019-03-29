@@ -3,6 +3,7 @@
     <!-- app -->
     <string name="app_name">EBT New Note</string>
     <string name="ime_name">EBT keyboard</string>
+    <string name="crash_text">The app EbtNewNote just crashed. A report has been sent to the developer to help fix the problem.</string>
 
     <!-- general -->
     <string name="yes">Yes</string>
@@ -150,9 +151,8 @@
     <string name="ocr_failed_conversion_explanation">(-> Maybe the quality of the photo was not good enough&#8230;)</string>
     <string name="ocr_failed_no_funds">We have used up the amount of free OCRs for this month. OCR server response:</string>
     <string name="ocr_failed_internal">Internal OCR server error. OCR server response:</string>
-    <!--   <string name="unknown_ocr_error">"Unspecified text recognition server error"</string>-->
+    <!--<string name="unknown_ocr_error">"Unspecified text recognition server error"</string>-->
 
-    <string name="crash_toast_text">The app EbtNewNote just crashed. A report has been sent to the developer to help him fix the problem.</string>
     <string name="submit_fragment_title">New Note</string>
     <string name="submitted_fragment_title">Submitted</string>
 </resources>

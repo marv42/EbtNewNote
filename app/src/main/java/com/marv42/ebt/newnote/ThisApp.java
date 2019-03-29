@@ -11,12 +11,18 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
+
+import org.acra.ACRA;
+import org.acra.annotation.AcraCore;
+import org.acra.annotation.AcraMailSender;
+import org.acra.annotation.AcraToast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +32,9 @@ import dagger.android.support.DaggerApplication;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
-//@AcraCore(buildConfigClass = BuildConfig.class)
-//@AcraMailSender(mailTo = "marv42+acra@gmail.com")
-//@AcraToast(resText = R.string.crash_toast_text)
+@AcraCore(buildConfigClass = BuildConfig.class)
+@AcraMailSender(mailTo = "marv42+acra@gmail.com")
+@AcraToast(resText = R.string.crash_text)
 public class ThisApp extends DaggerApplication {
     private static final int MAX_SHOW_NUM = 10;
 
@@ -56,14 +62,11 @@ public class ThisApp extends DaggerApplication {
         }
     }
 
-//   @Override
-//   protected void attachBaseContext(Context base) {
-//       super.attachBaseContext(base);
-////       CoreConfigurationBuilder builder = new CoreConfigurationBuilder(this);
-////       builder.setBuildConfigClass(BuildConfig.class).setReportFormat(StringFormat.JSON);
-////       builder.getPluginConfigurationBuilder(ToastConfigurationBuilder.class).setResText(R.string.crash_toast_text);
-//       ACRA.init(this); // , builder);
-//   }
+   @Override
+   protected void attachBaseContext(Context base) {
+       super.attachBaseContext(base);
+       ACRA.init(this);
+   }
 
     class ResultSummary {
         final int mHits;
