@@ -11,9 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 
 class SubmissionResult {
     final NoteData mNoteData;
@@ -21,7 +19,6 @@ class SubmissionResult {
     final String mReason;
     final int mBillId;
     final boolean mHit;
-    final Date mTime;
 
     SubmissionResult(final NoteData noteData, final boolean successful, final String reason) {
         this(noteData, successful, reason, -1, false);
@@ -38,23 +35,12 @@ class SubmissionResult {
         mReason = reason;
         mBillId = billId;
         mHit = hit;
-        mTime = Calendar.getInstance().getTime();
     }
 
-    static class TimeComparator implements Comparator<SubmissionResult> {
-        private boolean mConsiderSuccessful;
-
-        TimeComparator(boolean considerSuccessful) {
-            mConsiderSuccessful = considerSuccessful;
-        }
-
+    static class SubmissionComparator implements Comparator<SubmissionResult> {
         @Override
         public int compare(SubmissionResult sr1, SubmissionResult sr2) {
-            if (mConsiderSuccessful && (sr1.mSuccessful ^ sr2.mSuccessful))
-                return sr1.mSuccessful ? 1 : -1;
-            if (sr1.mTime == sr2.mTime)
-                return 0;
-            return sr1.mTime.after(sr2.mTime) ? 1 : -1;
+            return sr1.mBillId - sr2.mBillId;
         }
     }
 }

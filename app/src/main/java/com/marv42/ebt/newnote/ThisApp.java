@@ -30,7 +30,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 //@AcraMailSender(mailTo = "marv42+acra@gmail.com")
 //@AcraToast(resText = R.string.crash_toast_text)
 public class ThisApp extends DaggerApplication {
-    private static final int MAX_SAVE_NUM = 10;
+    private static final int MAX_SHOW_NUM = 10;
 
     // TODO shouldn't this be somewhere else?
     private ArrayList<SubmissionResult> mResults = new ArrayList<>();
@@ -49,6 +49,10 @@ public class ThisApp extends DaggerApplication {
             JsonArray array = new JsonParser().parse(results).getAsJsonArray();
             for (int i = 0; i < array.size(); ++i)
                 mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
+            Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
+            int howMany = Math.min(MAX_SHOW_NUM, mResults.size());
+            int startIndex = mResults.size() < MAX_SHOW_NUM ? 0 : mResults.size() - MAX_SHOW_NUM;
+            mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));
         }
     }
 
@@ -76,19 +80,13 @@ public class ThisApp extends DaggerApplication {
     public void addResult(final SubmissionResult result) {
         mResults.add(result);
         if (result.mSuccessful) {
-            Collections.sort(mResults, new SubmissionResult.TimeComparator(true));
             getDefaultSharedPreferences(this).edit()
-                    .putString(getString(R.string.pref_results), new Gson().toJson(
-                            mResults.subList(0, Math.min(MAX_SAVE_NUM, mResults.size())))).apply();
+                    .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
         }
     }
 
     public ArrayList<SubmissionResult> getResults() {
         return mResults;
-    }
-
-    public int getNumberOfResults() {
-        return mResults.size();
     }
 
     public ResultSummary getSummary() {

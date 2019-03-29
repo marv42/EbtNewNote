@@ -82,7 +82,6 @@ public class SubmittedFragment extends DaggerFragment {
 
     public void refreshResults() {
         ArrayList<SubmissionResult> results = mApp.getResults();
-        Collections.sort(results, new SubmissionResult.TimeComparator(false));
 
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
