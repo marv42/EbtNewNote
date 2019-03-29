@@ -73,9 +73,9 @@ public class TextProcessor {
     private static String correct(String s) {
         // when we don't know whether the result must be a letter or a digit
         Map<String, String> char2unambiguous = new HashMap<>();
-        // char2unambiguous.put("$", "S");
-        // char2unambiguous.put("$", "5");
-        char2unambiguous.put("W", "U");
+//        char2unambiguous.put("$", "S");
+//        char2unambiguous.put("$", "5");
+//        char2unambiguous.put("W", "U");
         char2unambiguous.put("K", "X");
         char2unambiguous.put("%", "X");
         char2unambiguous.put("@", "0");
