@@ -41,8 +41,8 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     private ThisApp mApp;
     private ApiCaller mApiCaller;
 
-    // @Inject
-    /*public*/ NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller) {
+    /* @Inject
+    public*/ NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller) {
         mApp = app;
         mApiCaller = apiCaller;
     }
@@ -55,9 +55,8 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     @Override
     protected void onPostExecute(final SubmissionResult result) {
         mApp.addResult(result);
-        final int n = mApp.getNumberOfResults();
         String contentTitle = String.format(mApp.getResources().getQuantityString(
-                R.plurals.xNotes, n) + " " + mApp.getString(R.string.sent), n);
+                R.plurals.xNotes, 1) + " " + mApp.getString(R.string.sent), 1);
         Intent intent = new Intent(mApp, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, SubmittedFragment.class.getSimpleName());
         PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
