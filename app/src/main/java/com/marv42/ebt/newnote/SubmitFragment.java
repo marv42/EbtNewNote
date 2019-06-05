@@ -15,7 +15,6 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -26,6 +25,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -55,15 +56,12 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -149,45 +147,27 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        (view.findViewById(R.id.location_button)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                checkLocationSetting();
-            }
-        });
-        (view.findViewById(R.id.photo_button)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                acquireNumberFromPhoto();
-            }
-        });
+        (view.findViewById(R.id.location_button)).setOnClickListener(v -> checkLocationSetting());
+        (view.findViewById(R.id.photo_button)).setOnClickListener(v -> takePhoto());
         // TODO @OnClick ?
-        (view.findViewById(R.id.submit_button)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                submitValues();
+        (view.findViewById(R.id.submit_button)).setOnClickListener(v -> submitValues());
+        mRadioGroup1.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId != -1 && mRadioChangingDone) {
+                mRadioChangingDone = false;
+                mRadioGroup2.clearCheck();
+                mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
+                        getDenomination()).apply();
             }
+            mRadioChangingDone = true;
         });
-        mRadioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId != -1 && mRadioChangingDone) {
-                    mRadioChangingDone = false;
-                    mRadioGroup2.clearCheck();
-                    mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
-                            getDenomination()).apply();
-                }
-                mRadioChangingDone = true;
+        mRadioGroup2.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId != -1 && mRadioChangingDone) {
+                mRadioChangingDone = false;
+                mRadioGroup1.clearCheck();
+                mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
+                        getDenomination()).apply();
             }
-        });
-        mRadioGroup2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId != -1 && mRadioChangingDone) {
-                    mRadioChangingDone = false;
-                    mRadioGroup1.clearCheck();
-                    mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
-                            getDenomination()).apply();
-                }
-                mRadioChangingDone = true;
-            }
+            mRadioChangingDone = true;
         });
     }
 
@@ -215,16 +195,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
                     .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
                     .setPositiveButton(getString(R.string.yes),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startActivity(new Intent(getActivity().getApplicationContext(),
-                                            SettingsActivity.class));
-                                    dialog.dismiss();
-                                }})
-                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }})
+                            (dialog, which) -> {
+                                startActivity(new Intent(getActivity().getApplicationContext(),
+                                        SettingsActivity.class));
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
     }
 
@@ -331,12 +307,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (mFusedLocationClient == null)
             mFusedLocationClient = getFusedLocationProviderClient(getActivity());
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null)
-                    setLocation(location);
-            }
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null)
+                setLocation(location);
         });
     }
 
@@ -352,7 +325,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             checkLocationSetting();
         } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            acquireNumberFromPhoto();
+            takePhoto();
         }
     }
 
@@ -443,7 +416,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             m500EurRadio.setChecked(true);
     }
 
-    private void acquireNumberFromPhoto() {
+    private void takePhoto() {
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
@@ -454,7 +427,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
-
         File photoFile = null;
         try {
             photoFile = createImageFile();
@@ -465,16 +437,15 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             Toast.makeText(getActivity(), getString(R.string.error_creating_file), LENGTH_LONG).show();
             return;
         }
-        Uri photoURI = getUriForFile(getActivity(), getActivity().getPackageName(), photoFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
+        Uri photoUri = getUriForFile(getActivity(), getActivity().getPackageName(), photoFile);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
         getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY).format(new Date());
-        File image = createTempFile("EBT_" + timeStamp + "_", ".png",
+        File image = createTempFile("bill_", ".png",
                 getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+        image.deleteOnExit();
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -483,7 +454,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public void onOcrResult(String result) {
         mOcrResult = result;
         showOcrDialog();
-        new File(mCurrentPhotoPath).delete();
     }
 
     @Override
@@ -516,6 +486,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             } else {
                 putToClipboard(mSerialText.getText());
                 mSerialText.setText(mOcrResult);
+            }
+            Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
+            if (v != null) {
+                v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
             toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
