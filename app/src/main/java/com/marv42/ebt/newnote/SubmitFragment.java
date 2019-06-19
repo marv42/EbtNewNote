@@ -28,10 +28,6 @@ import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -45,6 +41,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -55,7 +56,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
@@ -76,9 +76,9 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
-import static android.support.v4.content.FileProvider.getUriForFile;
-import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
+import static androidx.core.content.FileProvider.getUriForFile;
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
@@ -92,6 +92,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     SharedPreferences mSharedPreferences;
     @Inject
     ApiCaller mApiCaller;
+    @Inject
+    SubmissionResults mSubmissionResults;
 
     static final long TOAST_DELAY_MS = 3000;
 
@@ -223,13 +225,13 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void submitValues() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
-        new NoteDataSubmitter(mApp, mApiCaller).execute(new NoteData(
+        new NoteDataSubmitter(mApp, mApiCaller, mSubmissionResults).execute(new NoteData(
                 mCountryText.getText().toString(),
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
                 getDenomination(),
-                getFixedShortCode(),
-                mSerialText.getText().toString().replaceAll("\\s+", ""),
+                getFixedShortCode().toUpperCase(),
+                mSerialText.getText().toString().replaceAll("\\s+", "").toUpperCase(),
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
@@ -265,28 +267,25 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest).build();
         Task<LocationSettingsResponse> response =
                 LocationServices.getSettingsClient(getActivity()).checkLocationSettings(locationSettingsRequest);
-        response.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<LocationSettingsResponse> task) {
-                try {
-                    /*LocationSettingsResponse response =*/ task.getResult(ApiException.class);
-                    requestLocation();
-                } catch (ApiException exception) {
-                    switch (exception.getStatusCode()) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                ResolvableApiException resolvable = (ResolvableApiException) exception;
-                                resolvable.startResolutionForResult(
-                                        getActivity(), CHECK_LOCATION_SETTINGS_REQUEST_CODE);
-                            } catch (IntentSender.SendIntentException e) {
-                                // ignore
-                            } catch (ClassCastException e) {
-                                // ignore
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            break;
-                    }
+        response.addOnCompleteListener(task -> {
+            try {
+                /*LocationSettingsResponse response =*/ task.getResult(ApiException.class);
+                requestLocation();
+            } catch (ApiException exception) {
+                switch (exception.getStatusCode()) {
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            ResolvableApiException resolvable = (ResolvableApiException) exception;
+                            resolvable.startResolutionForResult(
+                                    getActivity(), CHECK_LOCATION_SETTINGS_REQUEST_CODE);
+                        } catch (IntentSender.SendIntentException e) {
+                            // ignore
+                        } catch (ClassCastException e) {
+                            // ignore
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        break;
                 }
             }
         });
@@ -469,6 +468,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void showOcrDialog() {
+        Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
+        if (v != null) {
+            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+        }
         if (mOcrResult.equals(TextProcessor.EMPTY))
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.ocr_dialog_title)
@@ -487,10 +490,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 putToClipboard(mSerialText.getText());
                 mSerialText.setText(mOcrResult);
             }
-            Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
-            if (v != null) {
-                v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
-            }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
             toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
             toastAfterToast(getActivity(), getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
@@ -500,17 +499,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void toastAfterToast(final Context context, final CharSequence text, long delay) {
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, text, LENGTH_LONG).show();
-            }
-        }, delay);
+        handler.postDelayed(() -> Toast.makeText(context, text, LENGTH_LONG).show(), delay);
     }
 
     private void putToClipboard(Editable text) {
-        ClipboardManager manager = (ClipboardManager)
-                mApp.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager manager = (ClipboardManager) mApp.getSystemService(Context.CLIPBOARD_SERVICE);
         if (manager == null)
             return;
         String s = text.toString();

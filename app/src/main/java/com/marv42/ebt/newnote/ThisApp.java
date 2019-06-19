@@ -12,11 +12,7 @@
 package com.marv42.ebt.newnote;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
 
 import org.acra.ACRA;
@@ -24,87 +20,27 @@ import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraMailSender;
 import org.acra.annotation.AcraToast;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
-
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 @AcraCore(buildConfigClass = BuildConfig.class)
 @AcraMailSender(mailTo = "marv42+acra@gmail.com")
 @AcraToast(resText = R.string.crash_text)
 public class ThisApp extends DaggerApplication {
-    private static final int MAX_SHOW_NUM = 10;
-
-    // TODO shouldn't this be somewhere else?
-    private ArrayList<SubmissionResult> mResults = new ArrayList<>();
-
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-        return DaggerApplicationComponent.builder().create(this);
+        return DaggerApplicationComponent.factory().create(this);
     }
+
+//    @Override
+//    public void onCreate() {
+//        super.onCreate();
+//    }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        String results = getDefaultSharedPreferences(this).getString(
-                getString(R.string.pref_results), "");
-        if (! TextUtils.isEmpty(results)) {
-            JsonArray array = new JsonParser().parse(results).getAsJsonArray();
-            for (int i = 0; i < array.size(); ++i)
-                mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
-            Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
-            int howMany = Math.min(MAX_SHOW_NUM, mResults.size());
-            int startIndex = mResults.size() < MAX_SHOW_NUM ? 0 : mResults.size() - MAX_SHOW_NUM;
-            mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));
-        }
-    }
-
-   @Override
-   protected void attachBaseContext(Context base) {
-       super.attachBaseContext(base);
-       ACRA.init(this);
-   }
-
-    class ResultSummary {
-        final int mHits;
-        final int mSuccessful;
-        final int mFailed;
-
-        ResultSummary(final int hits, final int successful, final int failed) {
-            mHits = hits;
-            mSuccessful = successful;
-            mFailed = failed;
-        }
-    }
-
-    public void addResult(final SubmissionResult result) {
-        mResults.add(result);
-        if (result.mSuccessful) {
-            getDefaultSharedPreferences(this).edit()
-                    .putString(getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
-        }
-    }
-
-    public ArrayList<SubmissionResult> getResults() {
-        return mResults;
-    }
-
-    public ResultSummary getSummary() {
-        int numberOfHits = 0;
-        int numberOfSuccessfull = 0;
-        int numberOfFailed = 0;
-
-        for (SubmissionResult result : mResults) {
-            if (result.mSuccessful)
-                numberOfSuccessfull++;
-            else
-                numberOfFailed++;
-            if (result.mHit)
-                numberOfHits++;
-        }
-        return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+//        MultiDex.install(this);
+        ACRA.init(this);
     }
 }

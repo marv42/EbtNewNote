@@ -17,13 +17,16 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.util.Pair;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.util.Pair;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -40,11 +43,13 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
 
     private ThisApp mApp;
     private ApiCaller mApiCaller;
+    private SubmissionResults mSubmissionResults;
 
-    /* @Inject
-    public*/ NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller) {
+    @Inject
+    public NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller, SubmissionResults submissionResults) {
         mApp = app;
         mApiCaller = apiCaller;
+        mSubmissionResults = submissionResults;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
 
     @Override
     protected void onPostExecute(final SubmissionResult result) {
-        mApp.addResult(result);
+        mSubmissionResults.addResult(result);
         String contentTitle = String.format(mApp.getResources().getQuantityString(
                 R.plurals.xNotes, 1) + " " + mApp.getString(R.string.sent), 1);
         Intent intent = new Intent(mApp, EbtNewNote.class);
@@ -65,7 +70,8 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         if (notificationManager == null)
             return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "EBT Notification Channel", IMPORTANCE_DEFAULT);
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
+                    "EBT Notification Channel", IMPORTANCE_DEFAULT);
 //            notificationChannel.setDescription("Channel description");
 //            notificationChannel.enableLights(true);
 //            notificationChannel.setLightColor(Color.RED);
@@ -76,7 +82,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
                 .setContentTitle(contentTitle)
-                .setContentText(getSummary(mApp.getSummary()))
+                .setContentText(getSummary(mSubmissionResults.getSummary()))
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
         notificationManager.notify(EBT_NOTIFICATION_ID, builder.build());
@@ -140,7 +146,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         return new SubmissionResult(submittedNoteData, false, reply, billId);
     }
 
-    private CharSequence getSummary(final ThisApp.ResultSummary summary) {
+    private CharSequence getSummary(final SubmissionResults.ResultSummary summary) {
         String s = "";
         if (summary.mHits > 0)
             s = "<font color=\"green\">" + String.format(mApp.getResources().getQuantityString(
@@ -148,14 +154,13 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         if (summary.mFailed > 0) {
             if (s.length() > 0)
                 s += ", ";
-            s += "<font color=\"red\">" + Integer.toString(summary.mFailed) + " " +
+            s += "<font color=\"red\">" + summary.mFailed + " " +
                     mApp.getString(R.string.failed) + "</font>";
         }
         if (summary.mSuccessful > 0) {
             if (s.length() > 0)
                 s += ", ";
-            s += Integer.toString(summary.mSuccessful) + " " +
-                    mApp.getString(R.string.successful);
+            s += summary.mSuccessful + " " + mApp.getString(R.string.successful);
         }
         return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }

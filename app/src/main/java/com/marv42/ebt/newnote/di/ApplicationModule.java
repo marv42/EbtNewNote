@@ -1,12 +1,14 @@
 package com.marv42.ebt.newnote.di;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
+import com.marv42.ebt.newnote.SubmissionResults;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
@@ -14,6 +16,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
+
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 @Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
@@ -43,12 +47,25 @@ abstract class ApplicationModule {
     @Provides
     @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull ThisApp app) {
-        return PreferenceManager.getDefaultSharedPreferences(app);
+        return getDefaultSharedPreferences(app);
     }
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app, SharedPreferences sharedPreferences) {
-        return new ApiCaller(app, sharedPreferences);
+    static ApiCaller provideApiCaller(@NonNull ThisApp app) {
+        return new ApiCaller(app);
+    }
+
+    @Provides
+    @Singleton
+    static SubmissionResults provideSubmissionResults(@NonNull ThisApp app) {
+        return new SubmissionResults(app);
+    }
+
+    @Provides
+    @Singleton
+    static NoteDataSubmitter provideNoteDataSubmitter(
+            @NonNull ThisApp app, @NonNull ApiCaller apiCaller, @NonNull SubmissionResults submissionResults) {
+        return new NoteDataSubmitter(app, apiCaller, submissionResults);
     }
 }
