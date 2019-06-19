@@ -13,7 +13,7 @@ abstract class SubmitFragmentModule {
 @FragmentScope
 @Subcomponent(modules = {SubmitFragmentModule.class})
 public interface SubmitFragmentComponent extends AndroidInjector<SubmitFragment> {
-    @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<SubmitFragment> {
+    @Subcomponent.Factory
+    abstract class Factory implements AndroidInjector.Factory<SubmitFragment> {
     }
 }

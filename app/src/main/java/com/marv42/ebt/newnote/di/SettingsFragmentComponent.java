@@ -13,7 +13,7 @@ abstract class SettingsFragmentModule {
 @SettingsFragmentScope
 @Subcomponent(modules = {SettingsFragmentModule.class})
 public interface SettingsFragmentComponent extends AndroidInjector<SettingsActivity.SettingsFragment> {
-    @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<SettingsActivity.SettingsFragment> {
+    @Subcomponent.Factory
+    abstract class Factory implements AndroidInjector.Factory<SettingsActivity.SettingsFragment> {
     }
 }

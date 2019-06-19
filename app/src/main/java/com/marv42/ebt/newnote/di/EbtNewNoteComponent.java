@@ -8,7 +8,7 @@ import dagger.android.AndroidInjector;
 @ActivityScope
 @Subcomponent(modules = {EbtNewNoteModule.class})
 public interface EbtNewNoteComponent extends AndroidInjector<EbtNewNote> {
-    @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<EbtNewNote> {
+    @Subcomponent.Factory
+    abstract class Factory implements AndroidInjector.Factory<EbtNewNote> {
     }
 }

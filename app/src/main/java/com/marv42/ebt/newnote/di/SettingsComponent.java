@@ -8,7 +8,7 @@ import dagger.android.AndroidInjector;
 @SettingsScope
 @Subcomponent(modules = {SettingsModule.class})
 public interface SettingsComponent extends AndroidInjector<SettingsActivity> {
-    @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<SettingsActivity> {
+    @Subcomponent.Factory
+    abstract class Factory implements AndroidInjector.Factory<SettingsActivity> {
     }
 }
