@@ -43,6 +43,8 @@
 
     <!-- server responses -->
     <string name="couldnt_connect">"Couldn\'t connect to the EBT server"</string>
+    <string name="http_error">"Error communicating to the EBT server"</string>
+    <string name="io_error">"Internal error"</string>
     <string name="error_interpreting">"Error interpreting the reply of the EBT server"</string>
     <string name="server_error">"Unusable response from the EBT server"</string>
 

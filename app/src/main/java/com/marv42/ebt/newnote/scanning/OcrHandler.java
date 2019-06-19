@@ -14,6 +14,8 @@ package com.marv42.ebt.newnote.scanning;
 import android.os.AsyncTask;
 
 import com.marv42.ebt.newnote.ApiCaller;
+import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.ThisApp;
 
 import org.json.JSONObject;
 
@@ -38,9 +40,13 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
     private Callback mCallback;
+    private String mHttpError;
+    private String mIoError;
 
-    public OcrHandler(Callback callback) {
+    public OcrHandler(Callback callback, ThisApp app) {
         mCallback = callback;
+        mHttpError = app.getString(R.string.server_error);
+        mIoError = app.getString(R.string.io_error);
     }
 
     @Override
@@ -55,14 +61,14 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
-                return null;
+                return getJsonObject(ApiCaller.ERROR, mHttpError).toString();
             String body = response.body().string();
             JSONObject json = getJsonObject(body);
             if (json == null || json.has("error"))
                 return getJsonObject(ApiCaller.ERROR, body).toString();
             return json.toString();
         } catch (IOException e) {
-            return null;
+            return getJsonObject(ApiCaller.ERROR, mIoError).toString();
         }
     }
 
