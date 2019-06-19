@@ -13,9 +13,9 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -29,8 +29,9 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,17 +41,21 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerFragment;
 
 import static android.content.Intent.ACTION_VIEW;
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.view.View.GONE;
 import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
+    public interface Callback {
+        void submittedFragmentStarted();
+        void switchFragment(int index);
+    }
+
     @Inject
-    ThisApp mApp;
+    SharedPreferences mSharedPreferences;
     @Inject
-    EbtNewNote mEbtNewNote;
+    SubmissionResults mSubmissionResults;
 
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
@@ -75,13 +80,13 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mEbtNewNote.SubmittedFragmentStarted();
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((Callback) getActivity()).submittedFragmentStarted();
     }
 
     public void refreshResults() {
-        ArrayList<SubmissionResult> results = mApp.getResults();
+        ArrayList<SubmissionResult> results = mSubmissionResults.getResults();
 
         List<     Map<String, String> > groupData = new ArrayList<>();
         List<List<Map<String, String>>> childData = new ArrayList<>();
@@ -159,7 +164,7 @@ public class SubmittedFragment extends DaggerFragment {
         int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
 
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        if (mApp.getResults().get(group).mBillId > 0)
+        if (mSubmissionResults.getResults().get(group).mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
 
@@ -202,8 +207,8 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private void startNewNote(int groupPos) {
-        NoteData noteData = mApp.getResults().get(groupPos).mNoteData;
-        getDefaultSharedPreferences(mApp).edit()
+        NoteData noteData = mSubmissionResults.getResults().get(groupPos).mNoteData;
+        mSharedPreferences.edit()
                 .putString(getString(R.string.pref_country_key), noteData.mCountry)
                 .putString(getString(R.string.pref_city_key), noteData.mCity)
                 .putString(getString(R.string.pref_postal_code_key), noteData.mPostalCode)
@@ -211,12 +216,12 @@ public class SubmittedFragment extends DaggerFragment {
                 .putString(getString(R.string.pref_short_code_key), noteData.mShortCode)
                 .putString(getString(R.string.pref_serial_number_key), noteData.mSerialNumber)
                 .putString(getString(R.string.pref_comment_key), noteData.mComment).apply();
-        mEbtNewNote.switchFragment(SUBMIT_FRAGMENT_INDEX);
+        ((Callback) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void showInBrowser(int groupPos) {
-        startActivity(new Intent(ACTION_VIEW, Uri.parse(EBT_HOST + "notes/?id=" + Integer.toString(
-                mApp.getResults().get(groupPos).mBillId))));
+        startActivity(new Intent(ACTION_VIEW, Uri.parse(EBT_HOST + "notes/?id=" +
+                mSubmissionResults.getResults().get(groupPos).mBillId)));
     }
 
     public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
