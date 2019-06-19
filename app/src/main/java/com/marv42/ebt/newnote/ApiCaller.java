@@ -12,7 +12,8 @@
 package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
-import android.support.v4.util.Pair;
+
+import androidx.core.util.Pair;
 
 import org.json.JSONObject;
 
@@ -28,6 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
 public class ApiCaller {
@@ -44,8 +46,8 @@ public class ApiCaller {
     private String mErrorInterpreting;
 
     @Inject
-    public ApiCaller(ThisApp app, SharedPreferences sharedPreferences) {
-        mSharedPreferences = sharedPreferences;
+    public ApiCaller(ThisApp app) {
+        mSharedPreferences = getDefaultSharedPreferences(app);
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mCouldntConnect = app.getString(R.string.couldnt_connect);

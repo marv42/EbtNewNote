@@ -14,12 +14,12 @@ package com.marv42.ebt.newnote;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.widget.Toast.LENGTH_LONG;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
@@ -39,7 +39,7 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
 
     @Override
     protected String doInBackground(Void... params) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mApp);
+        SharedPreferences preferences = getDefaultSharedPreferences(mApp);
         Editor editor = preferences.edit();
         String loginValuesOkKey = mApp.getString(R.string.pref_login_values_ok_key);
         JSONObject response = mApiCaller.callLogin();

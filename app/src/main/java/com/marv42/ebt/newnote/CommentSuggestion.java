@@ -13,7 +13,8 @@ package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.v4.util.Pair;
+
+import androidx.core.util.Pair;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

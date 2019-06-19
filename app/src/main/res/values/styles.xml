@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="@style/PreferenceFixTheme">
+    <style name="AppTheme" parent="Theme.AppCompat">
     <!--<style name="AppTheme" parent="Theme.AppCompat">-->
         <item name="colorAccent">@android:color/holo_orange_light</item>
         <!--<item name="colorAccent">?attr/colorAccent</item>-->

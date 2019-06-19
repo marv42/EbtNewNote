@@ -13,11 +13,12 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 class CallManager {
    static synchronized boolean weAreCalling(int key, Context context) {
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+      SharedPreferences prefs = getDefaultSharedPreferences(context);
       String callingKey = context.getString(key);
       if (! prefs.getBoolean(callingKey, false)) {
          prefs.edit().putBoolean(callingKey, true).apply();
