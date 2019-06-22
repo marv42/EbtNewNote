@@ -12,6 +12,7 @@
 package com.marv42.ebt.newnote;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -45,6 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -95,13 +97,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     SubmissionResults mSubmissionResults;
 
-    static final long TOAST_DELAY_MS = 3000;
-
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     private static final int NUMBER_ADDRESSES = 5;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final long LOCATION_MAX_WAIT_TIME_MS = 30 * 1000;
+    private static final long TOAST_DELAY_MS = 3 * 1000;
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
@@ -128,16 +129,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private LocationRequest mLocationRequest;
-
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//    }
-
-//    @Override
-//    public void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -328,7 +319,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
     }
 
-    void setLocation(Location l) {
+    private void setLocation(Location l) {
         try {
             final Geocoder gc = new Geocoder(getActivity(), Locale.US);
             List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
@@ -462,9 +453,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public void onSuggestions(String[] suggestions) {
-        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, suggestions);
-        mCommentText.setAdapter(commentAdapter);
+        Activity activity = getActivity();
+        if (activity != null) { // TODO wait for activity
+            ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_dropdown_item_1line, suggestions);
+            mCommentText.setAdapter(commentAdapter);
+        }
     }
 
     private void showOcrDialog() {
