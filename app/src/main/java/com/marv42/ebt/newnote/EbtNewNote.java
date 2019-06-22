@@ -15,11 +15,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -44,42 +44,45 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
     static final String FRAGMENT_TYPE = "fragment_type";
 
-    private FragmentWithTitlePagerAdapter mPagerAdapter;
+    private FragmentWithTitlePagerAdapter mAdapter;
+    private SubmitFragment mSubmitFragment = null;
+    private SubmittedFragment mSubmittedFragment = null;
     private boolean mSwitchToResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        mPagerAdapter = new FragmentWithTitlePagerAdapter(getSupportFragmentManager());
+        mAdapter = new FragmentWithTitlePagerAdapter();
+        ViewPager pager = findViewById(R.id.view_pager);
+        pager.setAdapter(mAdapter);
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(pager);
+
+        mAdapter.startUpdate(pager);
+        mSubmitFragment = (SubmitFragment) mAdapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
+        mSubmittedFragment = (SubmittedFragment) mAdapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+        mAdapter.finishUpdate(pager);
+
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position == SUBMIT_FRAGMENT_INDEX)
+                    ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX))
+                            .setViewValuesFromPreferences();
+                else if (position == SUBMITTED_FRAGMENT_INDEX) {
+                    ((SubmittedFragment) mAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
+                            .refreshResults();
+                }
+            }
+        }); // TODO do we need to removeOnPageChangeListener?
 
         mSwitchToResults = false;
         Bundle extras = getIntent().getExtras();
         if (extras != null && SubmittedFragment.class.getSimpleName().equals(
                 extras.getString(FRAGMENT_TYPE)))
             mSwitchToResults = true;
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(mPagerAdapter);
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                if (position == SUBMIT_FRAGMENT_INDEX)
-                    ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX))
-                            .setViewValuesFromPreferences();
-                else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                    ((SubmittedFragment) mPagerAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
-                            .refreshResults();
-                }
-            }
-        }); // TODO do we need to removeOnPageChangeListener?
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
@@ -92,22 +95,17 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
         return true;
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler((OcrHandler.Callback) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX),
+                new OcrHandler((OcrHandler.Callback) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX),
                         (ThisApp) getApplication()).execute();
             }
             if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
-                ((SubmitFragment) mPagerAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();
+                ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();
             }
         }
     }
@@ -136,29 +134,35 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
-        //private final FragmentManager mFragmentManager;
-        private final List<DaggerFragment> mFragments = new ArrayList<>();
         private final List<String> mFragmentTitles = new ArrayList<>();
 
-        FragmentWithTitlePagerAdapter(FragmentManager fragmentManager) {
-            super(fragmentManager);
-            //mFragmentManager = fragmentManager;
-            createFragments();
+        FragmentWithTitlePagerAdapter() {
+            super(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+            addTitles();
         }
 
         @Override
         public int getCount() {
-            return mFragments.size();
+            return mFragmentTitles.size();
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
-            if (mFragments.isEmpty()) {
-                createFragments();
+            Fragment fragment;
+            if (position == SUBMIT_FRAGMENT_INDEX) {
+                fragment = mSubmitFragment;
+                if (fragment == null) {
+                    fragment = new SubmitFragment();
+                }
+            } else if (position == SUBMITTED_FRAGMENT_INDEX) {
+                fragment = mSubmittedFragment;
+                if (fragment == null) {
+                    fragment = new SubmittedFragment();
+                }
+            } else {
+                throw new IllegalArgumentException("position");
             }
-            Fragment fragment = mFragments.get(position);
-            //mFragmentManager.beginTransaction().replace(R.id.view_pager, fragment).commit();
-            //notifyDataSetChanged();
             return fragment;
         }
 
@@ -167,17 +171,8 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
             return mFragmentTitles.get(position);
         }
 
-        private void createFragments() {
-            DaggerFragment newSubmitFragment = new SubmitFragment();
-            mFragments.add(newSubmitFragment);
-//            mFragmentManager.beginTransaction().add(newSubmitFragment,
-//                    SubmitFragment.class.getName()).commit();
+        private void addTitles() {
             mFragmentTitles.add(getString(R.string.submit_fragment_title));
-
-            DaggerFragment newSubmittedFragment = new SubmittedFragment();
-            mFragments.add(newSubmittedFragment);
-//            mFragmentManager.beginTransaction().add(newSubmittedFragment,
-//                    SubmittedFragment.class.getName()).commit();
             mFragmentTitles.add(getString(R.string.submitted_fragment_title));
         }
     }
