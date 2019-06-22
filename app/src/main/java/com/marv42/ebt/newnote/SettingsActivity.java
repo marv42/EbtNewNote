@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.preference.PreferenceFragmentCompat;
 
 import javax.inject.Inject;
@@ -29,6 +30,16 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment()).commit();
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat
