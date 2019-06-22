@@ -3,7 +3,7 @@
     <!-- app -->
     <string name="app_name">EBT New Note</string>
     <string name="ime_name">EBT keyboard</string>
-    <string name="crash_text">The app EbtNewNote just crashed. A report has been sent to the developer to help fix the problem.</string>
+    <string name="crash_text">The app EbtNewNote just crashed. You can send a report to the developer to help fix the problem.</string>
 
     <!-- general -->
     <string name="yes">Yes</string>
@@ -61,8 +61,11 @@
 
     <!-- new note -->
     <string name="city">City</string>
+    <string name="city_hint">e.g. Berlin</string>
     <string name="country">Country</string>
+    <string name="country_hint">e.g. Germany</string>
     <string name="postal_code">Postal Code</string>
+    <string name="postal_code_hint">e.g. 10557</string>
     <string name="get_location">Get Current Location</string>
     <string name="value">Denomination</string>
     <string name="eur5">5 €</string>
@@ -73,8 +76,11 @@
     <string name="eur200">200 €</string>
     <string name="eur500">500 €</string>
     <string name="short_code">Short Code</string>
+    <string name="short_code_hint">e.g. A123B4</string>
     <string name="serial_number">Serial Number</string>
+    <string name="serial_number_hint">e.g. AB1234567890</string>
     <string name="comment">Comment</string>
+    <string name="comment_hint">e.g.: Where did you get the note from? …</string>
     <string name="submit">Submit Data to EBT</string>
     <string name="acquire">Acquire Values from Photo</string>
 

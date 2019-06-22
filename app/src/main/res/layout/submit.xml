@@ -25,25 +25,30 @@
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_country"
-                    android:autofillHints="e.g. Germany"
+                    android:autofillHints="@string/country_hint"
+                    android:hint="@string/country_hint"
                     android:nextFocusDown="@+id/edit_text_city"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:inputType="textAutoComplete"/>
             </TableRow>
             <TableRow>
                 <TextView android:text="@string/city" />
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_city"
-                    android:autofillHints="e.g. Berlin"
+                    android:autofillHints="@string/city_hint"
+                    android:hint="@string/city_hint"
                     android:nextFocusDown="@+id/edit_text_zip"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:inputType="textAutoComplete" />
             </TableRow>
             <TableRow>
                 <TextView android:text="@string/postal_code" />
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_zip"
-                    android:autofillHints="e.g. 10557"
+                    android:autofillHints="@string/postal_code_hint"
+                    android:hint="@string/postal_code_hint"
                     android:inputType="textPostalAddress"
                     android:nextFocusDown="@+id/edit_text_printer"
                     android:singleLine="true" />
@@ -124,7 +129,8 @@
                 <TextView android:text="@string/short_code" />
                 <EditText
                     android:id="@+id/edit_text_printer"
-                    android:autofillHints="@string/short_code"
+                    android:autofillHints="@string/short_code_hint"
+                    android:hint="@string/short_code_hint"
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_serial"
                     android:singleLine="true" />
@@ -133,13 +139,15 @@
                 <TextView android:text="@string/serial_number" />
                 <EditText
                     android:id="@+id/edit_text_serial"
-                    android:autofillHints="@string/serial_number"
+                    android:autofillHints="@string/serial_number_hint"
+                    android:hint="@string/serial_number_hint"
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_comment"
                     android:singleLine="true" />
                 <ImageButton
                     android:id="@+id/photo_button"
-                    android:src="@android:drawable/ic_menu_camera" />
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:contentDescription="@string/acquire" />
             </TableRow>
         </TableLayout>
         <LinearLayout
@@ -154,6 +162,7 @@
                 android:id="@+id/edit_text_comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/comment_hint"
                 android:completionThreshold="1"
                 android:imeOptions="actionDone"
                 android:singleLine="true" />
