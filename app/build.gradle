@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.0'
 
     defaultConfig {
         applicationId "com.marv42.ebt.newnote"
         minSdkVersion 26
-        targetSdkVersion 28
+        targetSdkVersion 29
         multiDexEnabled true
 
         testApplicationId "com.marv42.ebt.newnote.test"
@@ -40,7 +40,7 @@ android {
 //    }
 }
 
-def buildToolsVersion = '28.0.0'
+def buildToolsVersion = '29.0.0'
 def acraVersion = '5.1.3'
 def daggerVersion = '2.23.1'
 def googlePlayVersion = '16.0.0'
