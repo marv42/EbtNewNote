@@ -85,7 +85,7 @@ public class SubmittedFragment extends DaggerFragment {
         ((Callback) getActivity()).submittedFragmentStarted();
     }
 
-    public void refreshResults() {
+    void refreshResults() {
         ArrayList<SubmissionResult> results = mSubmissionResults.getResults();
 
         List<     Map<String, String> > groupData = new ArrayList<>();
@@ -154,10 +154,11 @@ public class SubmittedFragment extends DaggerFragment {
 //            for (int i = 0; i < groupFrom.length; ++i)
 //                layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
         registerForContextMenu(mListView);
+        mListView.setSelection(results.size());
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
@@ -169,7 +170,7 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case MENU_ITEM_EDIT:
@@ -253,7 +254,7 @@ public class SubmittedFragment extends DaggerFragment {
 
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_parents, null);
+            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_parents, parent, false);
             bindView(v, mGroupData.get(groupPosition), mGroupFrom, mGroupTo);
             return v;
         }
@@ -261,7 +262,7 @@ public class SubmittedFragment extends DaggerFragment {
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                      View convertView, ViewGroup parent) {
-            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_children, null);
+            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_children, parent, false);
             bindView(v, mChildData.get(groupPosition).get(childPosition), mChildFrom, mChildTo);
             return v;
         }
