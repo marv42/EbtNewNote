@@ -43,6 +43,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -164,11 +165,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         });
     }
 
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -184,7 +180,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mSerialText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key)));
         mCommentText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_comment_key)));
         executeCommentSuggestion();
-        if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (!mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false)) {
             new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
                     .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
                     .setPositiveButton(getString(R.string.yes),
@@ -195,6 +196,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                             })
                     .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
+        }
     }
 
     @Override
@@ -466,16 +468,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (v != null) {
             v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
         }
-        if (mOcrResult.equals(TextProcessor.EMPTY))
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.ocr_dialog_title)
-                    .setMessage(getString(R.string.ocr_dialog_empty))
-                    .show();
-        else if (mOcrResult.startsWith("Error: "))
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.ocr_dialog_title)
-                    .setMessage(mOcrResult.substring(7))
-                    .show();
+        Activity activity = getActivity();
+        if (mOcrResult.equals(TextProcessor.EMPTY)) {
+            if (activity != null) {
+                new AlertDialog.Builder(activity)
+                        .setTitle(R.string.ocr_dialog_title)
+                        .setMessage(getString(R.string.ocr_dialog_empty))
+                        .show();
+            }
+        }
+        else if (mOcrResult.startsWith("Error: ")) {
+            if (activity != null) {
+                new AlertDialog.Builder(activity)
+                        .setTitle(R.string.ocr_dialog_title)
+                        .setMessage(mOcrResult.substring(7))
+                        .show();
+            }
+        }
         else {
             if (mOcrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
