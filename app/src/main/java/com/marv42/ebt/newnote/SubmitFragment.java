@@ -47,7 +47,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -104,6 +103,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final long LOCATION_MAX_WAIT_TIME_MS = 30 * 1000;
     private static final long TOAST_DELAY_MS = 3 * 1000;
+    private static final int DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS = 2 * 1000;
 
     private String mCurrentPhotoPath;
     private static String mOcrResult = "";
@@ -328,11 +328,19 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             if (addresses.size() == 0)
                 Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address)
                         + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
+            String[] previousLocation = new String[3];
             for (Address a : addresses) {
                 if (a == null)
                     continue;
-                setLocationValues(
-                        new LocationValues(a.getCountryName(), a.getLocality(), a.getPostalCode()));
+                String countryName = a.getCountryName();
+                String locality = a.getLocality();
+                String postalCode = a.getPostalCode();
+                if (!countryName.equals(previousLocation[0]) ||
+                        !locality.equals(previousLocation[1]) ||
+                        !postalCode.equals(previousLocation[2])) {
+                    previousLocation = new String[]{countryName, locality, postalCode};
+                    setLocationValues(new LocationValues(countryName, locality, postalCode));
+                }
             }
         } catch (IOException e) {
             Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception)
@@ -456,11 +464,14 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onSuggestions(String[] suggestions) {
         Activity activity = getActivity();
-        if (activity != null) { // TODO wait for activity
-            ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(activity,
-                    android.R.layout.simple_dropdown_item_1line, suggestions);
-            mCommentText.setAdapter(commentAdapter);
+        if (activity == null) {
+            // TODO können wir nicht aufrufen, weil das Fragment nicht attached ist
+            // new Handler().postDelayed(this::executeCommentSuggestion, DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS);
+            return;
         }
+        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(activity,
+                android.R.layout.simple_dropdown_item_1line, suggestions);
+        mCommentText.setAdapter(commentAdapter);
     }
 
     private void showOcrDialog() {
@@ -548,21 +559,19 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         @Override
         public void afterTextChanged(Editable s) {
-            if (! TextUtils.isEmpty(mCommentText.getText())) {
-                mCommentText.setText("");
-                executeCommentSuggestion();
-            }
+            mCommentText.setText("");
+            executeCommentSuggestion();
         }
     }
 
     private void executeCommentSuggestion() {
         if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
             return;
-        new CommentSuggestion(this, mApiCaller, mSharedPreferences,
-                mApp.getString(R.string.pref_settings_comment_key))
-                .execute(new LocationValues(
-                        mCountryText.getText().toString(),
-                        mCityText.getText().toString(),
-                        mPostalCodeText.getText().toString()));
+        CommentSuggestion suggestion = new CommentSuggestion(mApiCaller, mSharedPreferences);
+        suggestion.init(this, mApp.getString(R.string.pref_settings_comment_key));
+        suggestion.execute(new LocationValues(
+                mCountryText.getText().toString(),
+                mCityText.getText().toString(),
+                mPostalCodeText.getText().toString()));
     }
 }

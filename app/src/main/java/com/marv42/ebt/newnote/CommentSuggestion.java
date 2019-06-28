@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
 public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
@@ -39,12 +41,14 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
     private SharedPreferences mSharedPreferences;
     private String mPreferenceCommentKey;
 
-    // TODO @Inject
-    CommentSuggestion(Callback callback, ApiCaller apiCaller, SharedPreferences sharedPreferences,
-                      String preferenceCommentKey) {
-        mCallback = callback;
+    @Inject
+    CommentSuggestion(ApiCaller apiCaller, SharedPreferences sharedPreferences) {
         mApiCaller = apiCaller;
         mSharedPreferences = sharedPreferences;
+    }
+
+    void init(Callback callback, String preferenceCommentKey) {
+        mCallback = callback;
         mPreferenceCommentKey = preferenceCommentKey;
     }
 
@@ -81,11 +85,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         for (int i = 0; i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
 
-        Collections.sort(list, new Comparator<JSONObject>() {
-            public int compare(JSONObject j1, JSONObject j2) {
-                return j2.optInt("amount") - j1.optInt("amount");
-            }
-        });
+        Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
 
         String additionalComment = mSharedPreferences.getString(mPreferenceCommentKey, "")
                 .replace("\u00a0", " ");
