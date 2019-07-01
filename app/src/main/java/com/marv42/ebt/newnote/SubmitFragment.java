@@ -335,9 +335,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 String countryName = a.getCountryName();
                 String locality = a.getLocality();
                 String postalCode = a.getPostalCode();
-                if (!countryName.equals(previousLocation[0]) ||
-                        !locality.equals(previousLocation[1]) ||
-                        !postalCode.equals(previousLocation[2])) {
+                if ((!TextUtils.isEmpty(countryName) && !countryName.equals(previousLocation[0])) ||
+                        (!TextUtils.isEmpty(locality) && !locality.equals(previousLocation[1])) ||
+                        (!TextUtils.isEmpty(postalCode) && !postalCode.equals(previousLocation[2]))) {
                     previousLocation = new String[]{countryName, locality, postalCode};
                     setLocationValues(new LocationValues(countryName, locality, postalCode));
                 }
@@ -443,9 +443,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private File createImageFile() throws IOException {
-        File image = createTempFile("bill_", ".png",
-                getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES));
-        image.deleteOnExit();
+        File tempFolder = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        for (File file: tempFolder.listFiles())
+            file.delete();
+        File image = createTempFile("bill_", ".png", tempFolder);
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
