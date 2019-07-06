@@ -43,7 +43,7 @@ android {
 def buildToolsVersion = '29.0.0'
 def acraVersion = '5.1.3'
 def daggerVersion = '2.23.1'
-def googlePlayVersion = '16.0.0'
+def googlePlayVersion = '17.0.0'
 def butterknifeVersion = '10.1.0'
 def androidXVersion = '1.0.0'
 
@@ -53,17 +53,17 @@ dependencies {
 //    implementation "com.splunk:mint-android-sdk:5.1.0"
     implementation "androidx.exifinterface:exifinterface:$androidXVersion"
     implementation "androidx.legacy:legacy-support-v4:$androidXVersion"
-    implementation "androidx.fragment:fragment:1.1.0-beta01" // $androidXVersion"
+    implementation "androidx.fragment:fragment:1.2.0-alpha01" // $androidXVersion"
     implementation "androidx.appcompat:appcompat:1.0.2" // $androidXVersion"
-    implementation "androidx.preference:preference:1.1.0-beta01" // $androidXVersion"
+    implementation "androidx.preference:preference:1.1.0-rc01" // $androidXVersion"
     implementation "com.takisoft.preferencex:preferencex:1.1.0-alpha05" // $androidXVersion"
     implementation "com.android.support:design:$buildToolsVersion"
 //    implementation "com.google.android.material:material:$buildToolsVersion"
 //    implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3" // $androidXVersion"
     implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
+    // TODO implementation 'com.mapzen.android:lost:3.0.2'
     implementation "com.squareup.okhttp3:okhttp:3.10.0"
-    // TODO implementation "com.squareup.retrofit:retrofit:1.9.0"
     implementation "com.jakewharton:butterknife:$butterknifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterknifeVersion"
     implementation "com.google.code.gson:gson:2.8.5"
