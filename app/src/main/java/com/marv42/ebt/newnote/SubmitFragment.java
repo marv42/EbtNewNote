@@ -71,6 +71,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import dagger.android.support.DaggerFragment;
 
@@ -141,10 +142,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        (view.findViewById(R.id.location_button)).setOnClickListener(v -> checkLocationSetting());
-        (view.findViewById(R.id.photo_button)).setOnClickListener(v -> takePhoto());
-        // TODO @OnClick ?
-        (view.findViewById(R.id.submit_button)).setOnClickListener(v -> submitValues());
         mRadioGroup1.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId != -1 && mRadioChangingDone) {
                 mRadioChangingDone = false;
@@ -216,7 +213,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         super.onDestroyView();
     }
 
-    private void submitValues() {
+    @OnClick(R.id.submit_button)
+    void submitValues() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
         new NoteDataSubmitter(mApp, mApiCaller, mSubmissionResults).execute(new NoteData(
                 mCountryText.getText().toString(),
@@ -239,7 +237,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return fixedShortCode;
     }
 
-    private void checkLocationSetting() {
+    @OnClick(R.id.location_button)
+    void checkLocationSetting() {
         if (ContextCompat.checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
@@ -416,7 +415,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             m500EurRadio.setChecked(true);
     }
 
-    private void takePhoto() {
+    @OnClick(R.id.photo_button)
+    void takePhoto() {
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
