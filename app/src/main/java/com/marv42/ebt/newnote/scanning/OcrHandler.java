@@ -11,10 +11,18 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.AsyncTask;
 
+import androidx.core.app.NotificationCompat;
+
 import com.marv42.ebt.newnote.ApiCaller;
+import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.ThisApp;
 
 import org.json.JSONObject;
@@ -27,31 +35,31 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
+import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
+import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
 
 public class OcrHandler extends AsyncTask<Void, Void, String> {
-    public interface Callback {
-        void onOcrResult(String result);
-        String getPhotoPath();
-    }
-
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
-    private Callback mCallback;
-    private String mHttpError;
-    private String mIoError;
+    private ThisApp mApp;
+    private String mPhotoPath;
 
-    public OcrHandler(Callback callback, ThisApp app) {
-        mCallback = callback;
-        mHttpError = app.getString(R.string.server_error);
-        mIoError = app.getString(R.string.io_error);
+    // TODO @Inject ?
+    public OcrHandler(ThisApp app, String photoPath) {
+        mApp = app;
+        mPhotoPath = photoPath;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
-        String base64Image = convert(mCallback.getPhotoPath());
+        String base64Image = convert(mPhotoPath);
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         formBodyBuilder.add("apikey", OCR_SERVICE);
         formBodyBuilder.add("base64Image", "data:image/jpeg;base64," + base64Image);
@@ -61,19 +69,43 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
-                return getJsonObject(ApiCaller.ERROR, mHttpError).toString();
+                return getJsonObject(ApiCaller.ERROR, mApp.getString(R.string.server_error)
+                        + ", server response code: " + response.code()).toString();
             String body = response.body().string();
             JSONObject json = getJsonObject(body);
             if (json == null || json.has("error"))
                 return getJsonObject(ApiCaller.ERROR, body).toString();
             return json.toString();
         } catch (IOException e) {
-            return getJsonObject(ApiCaller.ERROR, mIoError).toString();
+            return getJsonObject(ApiCaller.ERROR, mApp.getString(R.string.io_error)).toString();
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
-        mCallback.onOcrResult(TextProcessor.getOcrResult(result));
+        getDefaultSharedPreferences(mApp).edit().putString(
+                mApp.getString(R.string.pref_ocr_result), TextProcessor.getOcrResult(result)).apply();
+        Intent intent = new Intent(mApp, EbtNewNote.class);
+        intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
+        PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager == null)
+            return;
+        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_OCR_CHANNEL_ID,
+                "OCR Result Notification Channel", IMPORTANCE_DEFAULT);
+//            notificationChannel.setDescription("Channel description");
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.RED);
+//            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+//            notificationChannel.enableVibration(true);
+        notificationManager.createNotificationChannel(notificationChannel);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, NOTIFICATION_OCR_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_ebt)
+                .setContentTitle(mApp.getString(R.string.ocr_result))
+                .setContentText(mApp.getString(R.string.ocr_result_description))
+                .setAutoCancel(true)
+                .setContentIntent(contentIntent);
+        notificationManager.notify(OCR_NOTIFICATION_ID, builder.build());
     }
 }

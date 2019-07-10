@@ -59,7 +59,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.Task;
-import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
@@ -87,8 +86,7 @@ import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static java.io.File.createTempFile;
 
-public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
-        CommentSuggestion.Callback /*, LifecycleOwner*/ {
+public class SubmitFragment extends DaggerFragment implements CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
     ThisApp mApp;
     @Inject
@@ -107,7 +105,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private static final int DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS = 2 * 1000;
 
     private String mCurrentPhotoPath;
-    private static String mOcrResult = "";
 
     private Unbinder mUnbinder;
     @BindView(R.id.edit_text_country) EditText mCountryText;
@@ -193,6 +190,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                             })
                     .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
+        }
+        String ocrResult = mSharedPreferences.getString(getString(R.string.pref_ocr_result), "");
+        if (!TextUtils.isEmpty(ocrResult)) {
+            showOcrDialog(ocrResult);
         }
     }
 
@@ -451,14 +452,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return image;
     }
 
-    @Override
-    public void onOcrResult(String result) {
-        mOcrResult = result;
-        showOcrDialog();
-    }
-
-    @Override
-    public String getPhotoPath() {
+    String getPhotoPath() {
         return mCurrentPhotoPath;
     }
 
@@ -475,41 +469,37 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mCommentText.setAdapter(commentAdapter);
     }
 
-    private void showOcrDialog() {
+    private void showOcrDialog(String ocrResult) {
         Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
         if (v != null) {
             v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
         }
         Activity activity = getActivity();
-        if (mOcrResult.equals(TextProcessor.EMPTY)) {
-            if (activity != null) {
-                new AlertDialog.Builder(activity)
-                        .setTitle(R.string.ocr_dialog_title)
-                        .setMessage(getString(R.string.ocr_dialog_empty))
-                        .show();
-            }
+        if (ocrResult.equals(TextProcessor.EMPTY)) {
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.ocr_dialog_title)
+                    .setMessage(getString(R.string.ocr_dialog_empty))
+                    .show();
         }
-        else if (mOcrResult.startsWith("Error: ")) {
-            if (activity != null) {
-                new AlertDialog.Builder(activity)
-                        .setTitle(R.string.ocr_dialog_title)
-                        .setMessage(mOcrResult.substring(7))
-                        .show();
-            }
+        else if (ocrResult.startsWith("Error: ")) {
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.ocr_dialog_title)
+                    .setMessage(ocrResult.substring(7))
+                    .show();
         }
         else {
-            if (mOcrResult.length() < 9) {
+            if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
-                mShortCodeText.setText(mOcrResult);
+                mShortCodeText.setText(ocrResult);
             } else {
                 putToClipboard(mSerialText.getText());
-                mSerialText.setText(mOcrResult);
+                mSerialText.setText(ocrResult);
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
             toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
             toastAfterToast(getActivity(), getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
         }
-        mOcrResult = "";
+        mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), "").apply();
     }
 
     private void toastAfterToast(final Context context, final CharSequence text, long delay) {

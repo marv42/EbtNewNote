@@ -16,7 +16,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.util.Pair;
@@ -35,12 +34,11 @@ import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
-import static com.marv42.ebt.newnote.EbtNewNote.EBT_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
+import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
+import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_NOTE_CHANNEL_ID;
 
 public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResult> {
-    private static final String CHANNEL_ID = "default";
-
     private ThisApp mApp;
     private ApiCaller mApiCaller;
     private SubmissionResults mSubmissionResults;
@@ -69,23 +67,21 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(NOTIFICATION_SERVICE);
         if (notificationManager == null)
             return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
-                    "EBT Notification Channel", IMPORTANCE_DEFAULT);
+        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_NOTE_CHANNEL_ID,
+                "Note Submission Result Notification Channel", IMPORTANCE_DEFAULT);
 //            notificationChannel.setDescription("Channel description");
 //            notificationChannel.enableLights(true);
 //            notificationChannel.setLightColor(Color.RED);
 //            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
 //            notificationChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, CHANNEL_ID)
+        notificationManager.createNotificationChannel(notificationChannel);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, NOTIFICATION_NOTE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
                 .setContentTitle(contentTitle)
                 .setContentText(getSummary(mSubmissionResults.getSummary()))
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
-        notificationManager.notify(EBT_NOTIFICATION_ID, builder.build());
+        notificationManager.notify(NOTE_NOTIFICATION_ID, builder.build());
     }
 
     private SubmissionResult submit(NoteData noteData) {

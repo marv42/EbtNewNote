@@ -31,7 +31,7 @@
     <string name="insertion">Insertion</string>
     <string name="submission">submission</string>
     <string name="submission_result">Submission Result</string>
-    <string name="submitting">The data is being submitted to the EBT server. You will be notified&#8230;</string>
+    <string name="submitting">The data is being submitted to the EBT server…</string>
     <string name="submitted">submitted</string>
     <string name="failed">failed</string>
     <string name="successful">successful</string>
@@ -45,14 +45,15 @@
     <string name="couldnt_connect">"Couldn\'t connect to the EBT server"</string>
     <string name="http_error">"Error communicating to the EBT server"</string>
     <string name="io_error">"Internal error"</string>
-    <string name="error_interpreting">"Error interpreting the reply of the EBT server"</string>
-    <string name="server_error">"Unusable response from the EBT server"</string>
+    <string name="server_error">"Unusable response from the server"</string>
+    <string name="internal_error">Internal error</string>
 
     <!-- note status -->
     <string name="has_been_entered">"Note has been entered into the system."</string>
     <string name="got_hit">"CONGRATULATIONS! You have got a hit. This note has already been entered into the system."</string>
     <string name="invalid_denomination">"You have attempted to enter an invalid denomination."</string>
     <string name="invalid_country">"You have attempted to enter an invalid country."</string>
+    <string name="no_serial_number">"You have not provided a serial number."</string>
     <string name="invalid_serial_number">"You have attempted to enter an invalid serial number."</string>
     <string name="invalid_short_code">"You have attempted to enter an invalid short code."</string>
     <string name="city_missing">"The city or postal code is missing."</string>
@@ -76,7 +77,7 @@
     <string name="eur200">200 €</string>
     <string name="eur500">500 €</string>
     <string name="short_code">Short Code</string>
-    <string name="short_code_hint">e.g. A123B4</string>
+    <string name="short_code_hint">e.g. A123B4 (omit leading zeros)</string>
     <string name="serial_number">Serial Number</string>
     <string name="serial_number_hint">e.g. AB1234567890</string>
     <string name="comment">Comment</string>
@@ -114,6 +115,7 @@
     <string name="pref_comment_key">pref_comment</string>
     <string name="pref_login_values_ok_key">pref_login_values_ok</string>
     <string name="pref_results">pref_results</string>
+    <string name="pref_ocr_result">pref_ocr_result</string>
 
     <!-- keyboard -->
     <string name="label_next_key">Next</string>
@@ -159,7 +161,8 @@
     <string name="ocr_failed_conversion_explanation">(-> Maybe the quality of the photo was not good enough&#8230;)</string>
     <string name="ocr_failed_no_funds">We have used up the amount of free OCRs for this month. OCR server response:</string>
     <string name="ocr_failed_internal">Internal OCR server error. OCR server response:</string>
-    <!--<string name="unknown_ocr_error">"Unspecified text recognition server error"</string>-->
+    <string name="ocr_result">OCR result</string>
+    <string name="ocr_result_description">OCR (optical character recognition) has finished. See the result.</string>
 
     <string name="submit_fragment_title">New Note</string>
     <string name="submitted_fragment_title">Submitted</string>

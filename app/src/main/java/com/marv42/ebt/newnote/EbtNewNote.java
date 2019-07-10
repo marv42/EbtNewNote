@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,19 +29,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dagger.android.support.DaggerAppCompatActivity;
-import dagger.android.support.DaggerFragment;
 
 import static android.widget.Toast.LENGTH_LONG;
 
 public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOwner*/
         implements SubmittedFragment.Callback {
+    public static final String FRAGMENT_TYPE = "fragment_type";
+    public static final String NOTIFICATION_NOTE_CHANNEL_ID = "default";
+    public static final String NOTIFICATION_OCR_CHANNEL_ID = "ebt_ocr_channel";
+    public static final int OCR_NOTIFICATION_ID = 2;
+
+    static final int NOTE_NOTIFICATION_ID = 1;
     static final int CHECK_LOCATION_SETTINGS_REQUEST_CODE = 1;
     static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
-    static final int EBT_NOTIFICATION_ID = 1;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
 
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
-    static final String FRAGMENT_TYPE = "fragment_type";
 
     private FragmentWithTitlePagerAdapter mAdapter;
     private SubmitFragment mSubmitFragment = null;
@@ -76,7 +78,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
                             .refreshResults();
                 }
             }
-        }); // TODO do we need to removeOnPageChangeListener?
+        });
 
         mSwitchToResults = false;
         Bundle extras = getIntent().getExtras();
@@ -101,8 +103,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler((OcrHandler.Callback) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX),
-                        (ThisApp) getApplication()).execute();
+                new OcrHandler((ThisApp) getApplication(), mSubmitFragment.getPhotoPath()).execute();
             }
             if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
                 ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();
