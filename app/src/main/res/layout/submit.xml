@@ -129,6 +129,8 @@
                 <TextView android:text="@string/short_code" />
                 <EditText
                     android:id="@+id/edit_text_printer"
+                    android:layout_width="match_parent"
+                    android:maxLength="6"
                     android:autofillHints="@string/short_code_hint"
                     android:hint="@string/short_code_hint"
                     android:inputType="textCapCharacters"
@@ -140,6 +142,7 @@
                 <EditText
                     android:id="@+id/edit_text_serial"
                     android:autofillHints="@string/serial_number_hint"
+                    android:maxLength="14"
                     android:hint="@string/serial_number_hint"
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_comment"
