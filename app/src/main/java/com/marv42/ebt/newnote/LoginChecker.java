@@ -45,7 +45,7 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
         JSONObject response = mApiCaller.callLogin();
         if (response.has(ERROR)) {
             String wrongLogin = mApp.getString(R.string.wrong_login_info);
-            if (response.optString(ERROR).equals("false")) {
+            if (response.optString(ERROR).equals(wrongLogin)) {
                 editor.putBoolean(loginValuesOkKey, false).apply();
                 return wrongLogin;
             }

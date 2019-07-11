@@ -43,7 +43,8 @@ public class ApiCaller {
     private String mCouldntConnect;
     private String mWrongLogin;
     private String mServerError;
-    private String mErrorInterpreting;
+    private String mNoSerialNumber;
+    private String mInternalError;
 
     @Inject
     public ApiCaller(ThisApp app) {
@@ -53,7 +54,8 @@ public class ApiCaller {
         mCouldntConnect = app.getString(R.string.couldnt_connect);
         mWrongLogin = app.getString(R.string.wrong_login_info);
         mServerError = app.getString(R.string.server_error);
-        mErrorInterpreting = app.getString(R.string.error_interpreting);
+        mNoSerialNumber = app.getString(R.string.no_serial_number);
+        mInternalError = app.getString(R.string.internal_error);
     }
 
     private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
@@ -65,14 +67,14 @@ public class ApiCaller {
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
-                return null;
+                return getJsonObject(ERROR, mCouldntConnect + ", server response code: " + response.code());
             String body = response.body().string();
             JSONObject json = getJsonObject(body);
             if (json == null)
                 return getJsonObject(ERROR, body);
             return json;
         } catch (IOException e) {
-            return null;
+            return getJsonObject(ERROR, mCouldntConnect + ": " + e.getMessage());
         }
     }
 
@@ -84,8 +86,8 @@ public class ApiCaller {
         params.add(new Pair<>("my_password", mSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mCouldntConnect);
-        if (jsonObject.has(ERROR) || !jsonObject.has("sessionid"))
+            return getJsonObject(ERROR, mInternalError);
+        if (jsonObject.optString(ERROR).equals("false") || !jsonObject.has("sessionid"))
             return getJsonObject(ERROR, mWrongLogin);
         return jsonObject;
     }
@@ -93,24 +95,30 @@ public class ApiCaller {
     JSONObject callInsertBills(List<Pair<String, String>> params) {
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mCouldntConnect);
+            return getJsonObject(ERROR, mInternalError);
+        if (jsonObject.has(ERROR))
+            return jsonObject;
         if (!jsonObject.has("note0"))
-            return getJsonObject(ERROR, mServerError);
+            return getJsonObject(ERROR, mServerError + ": no 'note0' element. No serial number.");
 
         JSONObject note0 = getJsonObject(jsonObject.optString("note0"));
         if (note0 == null)
-            return getJsonObject(ERROR, mErrorInterpreting);
+            return getJsonObject(ERROR, mNoSerialNumber);
         if (!note0.has("status"))
-            return getJsonObject(ERROR, mServerError);
+            return getJsonObject(ERROR, mServerError + ": no 'status' element in the 'note0' element");
         return note0;
     }
 
     JSONObject callMyComments(List<Pair<String, String>> params) {
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mCouldntConnect);
-        if (!jsonObject.has("rows") || !jsonObject.has("data"))
-            return getJsonObject(ERROR, mServerError);
+            return getJsonObject(ERROR, mInternalError);
+        if (jsonObject.has(ERROR))
+            return jsonObject;
+        if (!jsonObject.has("rows"))
+            return getJsonObject(ERROR, mServerError + ": no 'rows' element");
+        if (!jsonObject.has("data"))
+            return getJsonObject(ERROR, mServerError + ": no 'data' element");
         return jsonObject;
     }
 }
