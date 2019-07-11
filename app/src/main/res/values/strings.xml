@@ -97,6 +97,11 @@
     <string name="settings_misc">Miscellaneous settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
+    <string name="settings_ocr_title">OCR service key</string>
+    <string name="settings_ocr_summary">In order to analyze the photos, an online OCR service is used.</string>
+    <string name="get_ocr_key">Would you like to go to the settings and enter/get an OCR service key?</string>
+    <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
+    <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
     <string name="logged_in">You have successfully been logged in to EBT.</string>
     <string name="trying_login">Trying to log in to EBT&#8230;</string>
     <string name="wrong_login_info">You haven\'t provided valid EBT login information: email address and password.</string>
@@ -106,6 +111,7 @@
     <string name="pref_settings_email_key">pref_settings_email</string>
     <string name="pref_settings_password_key">pref_settings_password</string>
     <string name="pref_settings_comment_key">pref_settings_comment</string>
+    <string name="pref_settings_ocr_key">pref_settings_ocr</string>
     <string name="pref_country_key">pref_country</string>
     <string name="pref_city_key">pref_city</string>
     <string name="pref_postal_code_key">pref_postal_code</string>
@@ -161,6 +167,7 @@
     <string name="ocr_failed_conversion_explanation">(-> Maybe the quality of the photo was not good enough&#8230;)</string>
     <string name="ocr_failed_no_funds">We have used up the amount of free OCRs for this month. OCR server response:</string>
     <string name="ocr_failed_internal">Internal OCR server error. OCR server response:</string>
+    <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>
     <string name="ocr_result_description">OCR (optical character recognition) has finished. See the result.</string>
 

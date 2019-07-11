@@ -42,7 +42,6 @@ import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
-import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
 
 public class OcrHandler extends AsyncTask<Void, Void, String> {
@@ -61,7 +60,8 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... voids) {
         String base64Image = convert(mPhotoPath);
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        formBodyBuilder.add("apikey", OCR_SERVICE);
+        formBodyBuilder.add("apikey", getDefaultSharedPreferences(mApp).getString(
+                mApp.getString(R.string.pref_settings_ocr_key), ""));
         formBodyBuilder.add("base64Image", "data:image/jpeg;base64," + base64Image);
         FormBody formBody = formBodyBuilder.build();
 

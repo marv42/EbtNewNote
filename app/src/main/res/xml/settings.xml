@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
+<androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
-   <PreferenceCategory
+   <androidx.preference.PreferenceCategory
        android:title="@string/settings_ebt_account">
       <EditTextPreference
           android:key="@string/pref_settings_email_key"
@@ -13,13 +13,18 @@
           android:title="@string/settings_password_title"
           android:summary="@string/settings_password_summary"
           android:inputType="textPassword"/>
-   </PreferenceCategory>
-   <PreferenceCategory
+   </androidx.preference.PreferenceCategory>
+   <androidx.preference.PreferenceCategory
        android:title="@string/settings_misc">
       <EditTextPreference
           android:key="@string/pref_settings_comment_key"
           android:title="@string/settings_comment_title"
           android:summary="@string/settings_comment_summary"
           android:inputType="text"/>
-   </PreferenceCategory>
-</PreferenceScreen>
+      <EditTextPreference
+          android:key="@string/pref_settings_ocr_key"
+          android:title="@string/settings_ocr_title"
+          android:summary="@string/settings_ocr_summary"
+          android:inputType="text"/>
+   </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

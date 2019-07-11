@@ -84,6 +84,7 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
+import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements CommentSuggestion.Callback /*, LifecycleOwner*/ {
@@ -133,6 +134,8 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.submit, container, false);
         mUnbinder = ButterKnife.bind(this, view);
+        mSharedPreferences.edit().putString(getString(R.string.pref_settings_ocr_key),
+                OCR_SERVICE).apply();
         return view;
     }
 
@@ -418,6 +421,21 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
 
     @OnClick(R.id.photo_button)
     void takePhoto() {
+        if (TextUtils.isEmpty(mSharedPreferences.getString(getString(R.string.pref_settings_ocr_key), ""))) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.ocr_no_service_key)
+                    .setMessage(R.string.settings_ocr_summary + R.string.get_ocr_key)
+                    .setPositiveButton(getString(R.string.yes),
+                            (dialog, which) -> {
+                                startActivity(new Intent(getActivity().getApplicationContext(),
+                                        SettingsActivity.class));
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
+                    .show();
+            return;
+        }
+
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();

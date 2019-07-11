@@ -12,10 +12,13 @@
 package com.marv42.ebt.newnote;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -48,7 +51,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         ApiCaller mApiCaller;
 
         @Override
-        public void onAttach(Context context) {
+        public void onAttach(@NonNull Context context) {
             AndroidSupportInjection.inject(this);
             super.onAttach(context);
         }
@@ -71,6 +74,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.settings);
+            setOcrSummary();
         }
 
         @Override
@@ -84,6 +88,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                     setPasswordSummary();
                 if (key.equals(getString(R.string.pref_settings_comment_key)))
                     setCommentSummary();
+                if (key.equals(getString(R.string.pref_settings_ocr_key)))
+                    setOcrSummary();
                 if ((key.equals(emailKey) || key.equals(passwordKey)) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(passwordKey, "")))
@@ -116,6 +122,19 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (! TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
             (findPreference(commentKey)).setSummary(summary);
+        }
+
+        private void setOcrSummary() {
+            String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
+            String ocrServiceKey = getPreferenceScreen().getSharedPreferences().getString(ocrKeyKey, "");
+            String summary = getString(R.string.settings_ocr_summary);
+            String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
+            if (TextUtils.isEmpty(ocrServiceKey))
+                summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
+            (findPreference(ocrKeyKey)).setSummary(summary);
+            if (TextUtils.isEmpty(ocrServiceKey))
+                (findPreference(ocrKeyKey)).setIntent(new Intent().setAction(Intent.ACTION_VIEW)
+                        .setData(Uri.parse(ocrServiceUrl)));
         }
     }
 }
