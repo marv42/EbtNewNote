@@ -424,7 +424,8 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
         if (TextUtils.isEmpty(mSharedPreferences.getString(getString(R.string.pref_settings_ocr_key), ""))) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.ocr_no_service_key)
-                    .setMessage(R.string.settings_ocr_summary + R.string.get_ocr_key)
+                    .setMessage(mApp.getString(R.string.settings_ocr_summary) + " " +
+                            mApp.getString(R.string.get_ocr_key))
                     .setPositiveButton(getString(R.string.yes),
                             (dialog, which) -> {
                                 startActivity(new Intent(getActivity().getApplicationContext(),
@@ -446,13 +447,10 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
-        File photoFile = null;
+        File photoFile;
         try {
             photoFile = createImageFile();
         } catch (IOException ex) {
-            // photoFile will be null
-        }
-        if (photoFile == null) {
             Toast.makeText(getActivity(), getString(R.string.error_creating_file), LENGTH_LONG).show();
             return;
         }
