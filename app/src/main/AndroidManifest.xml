@@ -22,8 +22,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".EbtNewNote">
-            <!--      android:launchMode="singleTask"-->
-            <!--      singleInstance does not allow a valid onActivityResult to be returned -->
             <intent-filter>
                 <action   android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -35,7 +33,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.marv42.ebt.newnote"
+            android:authorities="${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

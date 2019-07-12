@@ -30,7 +30,6 @@ android {
     productFlavors {
         withKey {
             dimension "ocrServiceKey"
-            applicationIdSuffix ".withKey"
             versionNameSuffix "-withKey"
         }
         withoutKey {
