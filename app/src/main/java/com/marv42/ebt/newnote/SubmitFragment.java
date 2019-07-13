@@ -506,10 +506,10 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
         else {
             if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
-                mShortCodeText.setText(ocrResult);
+                mSharedPreferences.edit().putString(getString(R.string.pref_short_code_key), ocrResult).apply();
             } else {
                 putToClipboard(mSerialText.getText());
-                mSerialText.setText(ocrResult);
+                mSharedPreferences.edit().putString(getString(R.string.pref_serial_number_key), ocrResult).apply();
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
             toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
