@@ -83,7 +83,7 @@ public class TextProcessor {
         char2unambiguous.put("I", "1");
         char2unambiguous.put("t", "1");
         char2unambiguous.put("#", "4");
-        char2unambiguous.put("s", "5");
+//        char2unambiguous.put("s", "5");
         char2unambiguous.put("*", "5");
         char2unambiguous.put("?", "7");
         char2unambiguous.put("f", "7");
