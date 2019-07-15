@@ -13,6 +13,9 @@ package com.marv42.ebt.newnote.scanning;
 
 import android.text.TextUtils;
 
+import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.ThisApp;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,50 +27,51 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class TextProcessor {
     public static final String EMPTY = "<empty>";
 
-    static String getOcrResult(String s) {
-        if (s.startsWith("Error"))
-            return s;
-        String serialNumber = extractEssentials(s);
-        if (serialNumber.equals(EMPTY) || serialNumber.startsWith("Error"))
-            return serialNumber;
-        return correct(serialNumber.replaceAll("\\s+", "").trim());
-    }
-
-    private static String extractEssentials(String s) {
-        s = getResult(s);
-        if (TextUtils.isEmpty(s))
-            s = EMPTY;
-        return s;
-    }
-
-    private static String getResult(String s) {
-        StringBuilder result = new StringBuilder();
+    static String getOcrResult(String s, ThisApp app) {
         try {
             JSONObject json = new JSONObject(s);
-            int exitCode = json.getInt("OCRExitCode");
-            if (exitCode == 3 || exitCode == 4) {
-                String errorMessage = json.getString("ErrorMessage");
-                String errorDetails = json.getString("ErrorDetails");
-                result = result.append("Error: ").append(errorMessage).append(" ").append(errorDetails);
-            } else if (exitCode == 1 || exitCode == 2) {
-                JSONArray parsedResults = json.getJSONArray("ParsedResults");
-                for (int i = 0; i < parsedResults.length(); i++) {
-                    JSONObject aResult = parsedResults.getJSONObject(i);
-                    int fileParseExitCode = aResult.getInt("FileParseExitCode");
-                    if (fileParseExitCode == 1) {
-                        String parsedText = aResult.getString("ParsedText");
-                        result = result.append(parsedText);
-                    }
+            String error = json.optString(ERROR);
+            if (!TextUtils.isEmpty(error))
+                return ERROR + error;
+            JSONObject resultJson = getResult(json, app);
+            error = resultJson.optString(ERROR);
+            if (!TextUtils.isEmpty(error))
+                return ERROR + error;
+            String result = resultJson.getString("ParsedText").replaceAll("\\s+", "").trim();
+            if (TextUtils.isEmpty(result))
+                return EMPTY;
+            return correct(result);
+        } catch (JSONException e) {
+            return app.getString(R.string.internal_error);
+        }
+    }
+
+    // cf. https://ocr.space/ocrapi#Response
+    private static JSONObject getResult(JSONObject json, ThisApp app) throws JSONException {
+        int exitCode = json.getInt("OCRExitCode");
+        if (exitCode == 3 || exitCode == 4) {
+            String errorMessage = json.getString("ErrorMessage");
+            String errorDetails = json.getString("ErrorDetails");
+            return getJsonObject(ERROR, errorMessage + " " + errorDetails);
+        } else if (exitCode == 1 || exitCode == 2) {
+            JSONArray parsedResults = json.getJSONArray("ParsedResults");
+            for (int i = 0; i < parsedResults.length(); i++) {
+                JSONObject aResult = parsedResults.getJSONObject(i);
+                int fileParseExitCode = aResult.getInt("FileParseExitCode");
+                if (fileParseExitCode == 1) {
+                    return aResult;
                 }
             }
-        } catch (JSONException ignored) {
         }
-        return result.toString();
+        return getJsonObject(ERROR, app.getString(R.string.ocr_failed_internal) + ": "
+                + app.getString(R.string.ocr_failed_undefined_exit_code));
     }
 
     private static String correct(String s) {

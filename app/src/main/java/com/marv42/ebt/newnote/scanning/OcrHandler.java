@@ -17,9 +17,9 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.SubmitFragment;
@@ -28,6 +28,7 @@ import com.marv42.ebt.newnote.ThisApp;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -38,6 +39,7 @@ import okhttp3.Response;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
@@ -51,7 +53,7 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     private String mPhotoPath;
 
     // TODO @Inject ?
-    public OcrHandler(ThisApp app, String photoPath) {
+    public OcrHandler(@NonNull ThisApp app, @NonNull String photoPath) {
         mApp = app;
         mPhotoPath = photoPath;
     }
@@ -68,23 +70,25 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
         Request request = new Request.Builder().url(OCR_HOST).post(formBody).build();
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
-            if (! response.isSuccessful())
-                return getJsonObject(ApiCaller.ERROR, mApp.getString(R.string.server_error)
-                        + ", server response code: " + response.code()).toString();
+            if (!response.isSuccessful())
+                return getJsonObject(ERROR, mApp.getString(R.string.http_error)
+                        + " " + response.code()).toString();
             String body = response.body().string();
             JSONObject json = getJsonObject(body);
             if (json == null || json.has("error"))
-                return getJsonObject(ApiCaller.ERROR, body).toString();
+                return getJsonObject(ERROR, body).toString();
             return json.toString();
+        } catch (SocketTimeoutException e) {
+            return getJsonObject(ERROR, mApp.getString(R.string.error_no_connection)).toString();
         } catch (IOException e) {
-            return getJsonObject(ApiCaller.ERROR, mApp.getString(R.string.io_error)).toString();
+            return getJsonObject(ERROR, mApp.getString(R.string.internal_error)).toString();
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
         getDefaultSharedPreferences(mApp).edit().putString(
-                mApp.getString(R.string.pref_ocr_result), TextProcessor.getOcrResult(result)).apply();
+                mApp.getString(R.string.pref_ocr_result), TextProcessor.getOcrResult(result, mApp)).apply();
         Intent intent = new Intent(mApp, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
         PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,

@@ -82,6 +82,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
@@ -261,8 +262,8 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
         // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
         LocationSettingsRequest locationSettingsRequest =
                 new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest).build();
-        Task<LocationSettingsResponse> response =
-                LocationServices.getSettingsClient(getActivity()).checkLocationSettings(locationSettingsRequest);
+        Task<LocationSettingsResponse> response = LocationServices.getSettingsClient(getActivity())
+                .checkLocationSettings(locationSettingsRequest);
         response.addOnCompleteListener(task -> {
             try {
                 /*LocationSettingsResponse response =*/ task.getResult(ApiException.class);
@@ -326,6 +327,7 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
 
     private void setLocation(Location l) {
         try {
+            // TODO don't call this on the UI thread
             final Geocoder gc = new Geocoder(getActivity(), Locale.US);
             List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
             if (addresses.size() == 0)
@@ -436,7 +438,6 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
                     .show();
             return;
         }
-
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
@@ -468,7 +469,7 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
         return image;
     }
 
-    String getPhotoPath() {
+    @NonNull String getPhotoPath() {
         return mCurrentPhotoPath;
     }
 
@@ -497,10 +498,10 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
                     .setMessage(getString(R.string.ocr_dialog_empty))
                     .show();
         }
-        else if (ocrResult.startsWith("Error: ")) {
+        else if (ocrResult.startsWith(ERROR)) {
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.ocr_dialog_title)
-                    .setMessage(ocrResult.substring(7))
+                    .setMessage(ocrResult.substring(5))
                     .show();
         }
         else {
