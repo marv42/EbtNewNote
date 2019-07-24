@@ -57,7 +57,8 @@
     <string name="invalid_short_code">"You have attempted to enter an invalid short code."</string>
     <string name="city_missing">"The city or postal code is missing."</string>
     <string name="already_entered">"You have already entered this note."</string>
-    <string name="different_short_code">"This note has already been entered with a different short code."</string>
+    <string name="already_entered_serial_number">"You have already entered this serial number."</string>
+    <string name="inconsistent">Inconsistent note data: For this denomination, the serial number or the printer code is invalid.</string>
 
     <!-- new note -->
     <string name="city">City</string>
@@ -139,6 +140,7 @@
     <string name="ocr_clipboard">The former content of the field is in the clipboard now.</string>
     <string name="ocr_dialog_title">Character Recognition Result</string>
     <string name="ocr_dialog_empty">Nothing found</string>
+    <string name="ocr_executing">The previous OCR request is still running</string>
 
     <!-- location -->
     <string name="location">Location</string>

@@ -103,7 +103,9 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler((ThisApp) getApplication(), mSubmitFragment.getPhotoPath()).execute();
+                new OcrHandler((ThisApp) getApplication(),
+                        (OcrHandler.Callback) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX),
+                        mSubmitFragment.getPhotoPath()).execute();
             }
             if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
                 ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();

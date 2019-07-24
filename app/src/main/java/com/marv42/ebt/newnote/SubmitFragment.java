@@ -13,6 +13,9 @@ package com.marv42.ebt.newnote;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -46,6 +49,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.common.api.ApiException;
@@ -59,10 +63,12 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.Task;
+import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,6 +83,8 @@ import dagger.android.support.DaggerFragment;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
+import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
@@ -84,11 +92,15 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
+import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
+import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
+import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static java.io.File.createTempFile;
 
-public class SubmitFragment extends DaggerFragment implements CommentSuggestion.Callback /*, LifecycleOwner*/ {
+public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
+        CommentSuggestion.Callback /*, LifecycleOwner*/ {
     @Inject
     ThisApp mApp;
     @Inject
@@ -227,7 +239,7 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
                 mPostalCodeText.getText().toString(),
                 getDenomination(),
                 getFixedShortCode().toUpperCase(),
-                mSerialText.getText().toString().replaceAll("\\s+", "").toUpperCase(),
+                mSerialText.getText().toString().replaceAll("\\W+", "").toUpperCase(),
                 mCommentText.getText().toString()));
         mShortCodeText.setText("");
         mSerialText.setText("");
@@ -423,6 +435,11 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
 
     @OnClick(R.id.photo_button)
     void takePhoto() {
+        if (!TextUtils.isEmpty(mCurrentPhotoPath)) {
+            // TODO enable multiple OCR runs at the same time
+            Toast.makeText(getActivity(), getString(R.string.ocr_executing), LENGTH_LONG).show();
+            return;
+        }
         if (TextUtils.isEmpty(mSharedPreferences.getString(getString(R.string.pref_settings_ocr_key), ""))) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.ocr_no_service_key)
@@ -455,6 +472,7 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
             Toast.makeText(getActivity(), getString(R.string.error_creating_file), LENGTH_LONG).show();
             return;
         }
+        mCurrentPhotoPath = photoFile.getAbsolutePath();
         Uri photoUri = getUriForFile(getActivity(), getActivity().getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
         getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
@@ -463,13 +481,46 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
     private File createImageFile() throws IOException {
         File tempFolder = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         for (File file: tempFolder.listFiles())
-            file.delete();
-        File image = createTempFile("bill_", ".png", tempFolder);
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
+            if (Calendar.getInstance().getTimeInMillis() - file.lastModified() > 1000 * 60 * 60 * 24)
+                file.delete();
+        return createTempFile("bill_", ".png", tempFolder);
     }
 
-    @NonNull String getPhotoPath() {
+    @Override
+    public void onOcrResult(String result) {
+        mCurrentPhotoPath = "";
+        if (isVisible()) { // TODO des is immer visible
+            showOcrDialog(result);
+        } else {
+            mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), result).apply();
+            Intent intent = new Intent(mApp, EbtNewNote.class);
+            intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
+            PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationManager notificationManager =
+                    (NotificationManager) mApp.getSystemService(NOTIFICATION_SERVICE);
+            if (notificationManager == null)
+                return;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_OCR_CHANNEL_ID,
+                    "OCR Result Notification Channel", IMPORTANCE_DEFAULT);
+//            notificationChannel.setDescription("Channel description");
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.RED);
+//            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+//            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, NOTIFICATION_OCR_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_stat_ebt)
+                    .setContentTitle(mApp.getString(R.string.ocr_result))
+                    .setContentText(mApp.getString(R.string.ocr_result_description))
+                    .setAutoCancel(true)
+                    .setContentIntent(contentIntent);
+            notificationManager.notify(OCR_NOTIFICATION_ID, builder.build());
+        }
+    }
+
+    @NonNull
+    String getPhotoPath() {
         return mCurrentPhotoPath;
     }
 
@@ -507,10 +558,10 @@ public class SubmitFragment extends DaggerFragment implements CommentSuggestion.
         else {
             if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
-                mSharedPreferences.edit().putString(getString(R.string.pref_short_code_key), ocrResult).apply();
+                mShortCodeText.setText(ocrResult);
             } else {
                 putToClipboard(mSerialText.getText());
-                mSharedPreferences.edit().putString(getString(R.string.pref_serial_number_key), ocrResult).apply();
+                mSerialText.setText(ocrResult);
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
             toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);

@@ -11,18 +11,11 @@
 
 package com.marv42.ebt.newnote.scanning;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 
-import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.R;
-import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.ThisApp;
 
 import org.json.JSONObject;
@@ -36,25 +29,26 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
-import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
-import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
-import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
-import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
 
 public class OcrHandler extends AsyncTask<Void, Void, String> {
+    public interface Callback {
+        void onOcrResult(String result);
+    }
+
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
     private ThisApp mApp;
+    private Callback mCallback;
     private String mPhotoPath;
 
     // TODO @Inject ?
-    public OcrHandler(@NonNull ThisApp app, @NonNull String photoPath) {
+    public OcrHandler(@NonNull ThisApp app, @NonNull Callback callback, @NonNull String photoPath) {
         mApp = app;
+        mCallback = callback;
         mPhotoPath = photoPath;
     }
 
@@ -87,29 +81,6 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        getDefaultSharedPreferences(mApp).edit().putString(
-                mApp.getString(R.string.pref_ocr_result), TextProcessor.getOcrResult(result, mApp)).apply();
-        Intent intent = new Intent(mApp, EbtNewNote.class);
-        intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
-        PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationManager notificationManager = (NotificationManager) mApp.getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager == null)
-            return;
-        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_OCR_CHANNEL_ID,
-                "OCR Result Notification Channel", IMPORTANCE_DEFAULT);
-//            notificationChannel.setDescription("Channel description");
-//            notificationChannel.enableLights(true);
-//            notificationChannel.setLightColor(Color.RED);
-//            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-//            notificationChannel.enableVibration(true);
-        notificationManager.createNotificationChannel(notificationChannel);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, NOTIFICATION_OCR_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_stat_ebt)
-                .setContentTitle(mApp.getString(R.string.ocr_result))
-                .setContentText(mApp.getString(R.string.ocr_result_description))
-                .setAutoCancel(true)
-                .setContentIntent(contentIntent);
-        notificationManager.notify(OCR_NOTIFICATION_ID, builder.build());
+        mCallback.onOcrResult(TextProcessor.getOcrResult(result, mApp));
     }
 }
