@@ -122,19 +122,21 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
                     mApp.getString(R.string.got_hit), billId, true);
         String reply = "";
         if ((status &  64) != 0)
-            reply += mApp.getString(R.string.already_entered      ) + "<br>";
+            reply += mApp.getString(R.string.already_entered) + "<br>";
         if ((status & 128) != 0)
-            reply += mApp.getString(R.string.different_short_code ) + "<br>";
+            reply += mApp.getString(R.string.already_entered_serial_number) + "<br>";
         if ((status &   4) != 0)
-            reply += mApp.getString(R.string.invalid_country      ) + "<br>";
+            reply += mApp.getString(R.string.invalid_country) + "<br>";
         if ((status &  32) != 0)
-            reply += mApp.getString(R.string.city_missing         ) + "<br>";
+            reply += mApp.getString(R.string.city_missing) + "<br>";
         if ((status &   2) != 0)
-            reply += mApp.getString(R.string.invalid_denomination ) + "<br>"; // ;-)
+            reply += mApp.getString(R.string.invalid_denomination) + "<br>"; // ;-)
         if ((status &  16) != 0)
-            reply += mApp.getString(R.string.invalid_short_code   ) + "<br>";
+            reply += mApp.getString(R.string.invalid_short_code) + "<br>";
         if ((status &   8) != 0)
             reply += mApp.getString(R.string.invalid_serial_number) + "<br>";
+        if ((status & 32768) != 0)
+            reply += mApp.getString(R.string.inconsistent) + "<br>";
         if (reply.endsWith("<br>"))
             reply = reply.substring(0, reply.length() - 4);
         if (isEmpty(reply))
