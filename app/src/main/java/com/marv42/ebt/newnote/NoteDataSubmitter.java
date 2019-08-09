@@ -16,6 +16,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.text.Spanned;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.util.Pair;
@@ -58,8 +59,8 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     @Override
     protected void onPostExecute(final SubmissionResult result) {
         mSubmissionResults.addResult(result);
-        String contentTitle = String.format(mApp.getResources().getQuantityString(
-                R.plurals.xNotes, 1) + " " + mApp.getString(R.string.sent), 1);
+        Spanned contentTitle = fromHtml(mApp.getString(R.string.note) + " " +
+                mApp.getString(R.string.sent) + ": " + result.getResult(mApp), FROM_HTML_MODE_COMPACT);
         Intent intent = new Intent(mApp, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, SubmittedFragment.class.getSimpleName());
         PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
@@ -75,10 +76,11 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
 //            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
 //            notificationChannel.enableVibration(true);
         notificationManager.createNotificationChannel(notificationChannel);
+        String content = mApp.getString(R.string.total) + ": " + getSummary(mSubmissionResults.getSummary());
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mApp, NOTIFICATION_NOTE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
                 .setContentTitle(contentTitle)
-                .setContentText(getSummary(mSubmissionResults.getSummary()))
+                .setContentText(content)
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
         notificationManager.notify(NOTE_NOTIFICATION_ID, builder.build());
@@ -119,7 +121,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
                     mApp.getString(R.string.has_been_entered), billId);
         if (status == 1)
             return new SubmissionResult(submittedNoteData, true,
-                    mApp.getString(R.string.got_hit), billId, true);
+                    mApp.getString(R.string.got_hit), billId);
         String reply = "";
         if ((status &  64) != 0)
             reply += mApp.getString(R.string.already_entered) + "<br>";
@@ -149,16 +151,16 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         if (summary.mHits > 0)
             s = "<font color=\"green\">" + String.format(mApp.getResources().getQuantityString(
                     R.plurals.xHits, summary.mHits), summary.mHits) + "</font>";
+        if (summary.mSuccessful > 0) {
+            if (s.length() > 0)
+                s += ", ";
+            s += summary.mSuccessful + " " + mApp.getString(R.string.successful);
+        }
         if (summary.mFailed > 0) {
             if (s.length() > 0)
                 s += ", ";
             s += "<font color=\"red\">" + summary.mFailed + " " +
                     mApp.getString(R.string.failed) + "</font>";
-        }
-        if (summary.mSuccessful > 0) {
-            if (s.length() > 0)
-                s += ", ";
-            s += summary.mSuccessful + " " + mApp.getString(R.string.successful);
         }
         return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }
