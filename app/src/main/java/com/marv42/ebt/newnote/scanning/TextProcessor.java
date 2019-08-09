@@ -44,7 +44,7 @@ public class TextProcessor {
             error = resultJson.optString(ERROR);
             if (!TextUtils.isEmpty(error))
                 return ERROR + error;
-            String result = resultJson.getString("ParsedText").replaceAll("\\s+", "").trim();
+            String result = resultJson.getString("ParsedText").replaceAll("\\W+", "").trim();
             if (TextUtils.isEmpty(result))
                 return EMPTY;
             return correct(result);
