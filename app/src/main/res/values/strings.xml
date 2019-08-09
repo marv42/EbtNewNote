@@ -40,6 +40,7 @@
     <string name="missing">missing</string>
     <string name="invalid">invalid</string>
     <string name="result">result</string>
+    <string name="total">Total</string>
 
     <!-- server responses -->
     <string name="error_no_connection">No or insufficient internet connection</string>
@@ -145,15 +146,13 @@
     <!-- location -->
     <string name="location">Location</string>
     <string name="location_none">No location</string>
-    <string name="location_getting">Getting location information&#8230;</string>
-    <string name="location_executing">The previous location information request is still running</string>
-    <string name="location_accurate">Got an accurate location</string>
-    <string name="location_no_accurate">Couldn\'t get an accurate location. For a more accurate location, make sure GPS is activated and usable.</string>
-    <string name="location_up_to_date">Got an up-to-date location</string>
-    <string name="location_no_up_to_date">No up-to-date location</string>
-    <string name="location_got_one">Got a location</string>
-    <string name="location_no_address">Geocoder (Google Maps API service) didn\'t get an address for this location</string>
-    <string name="location_geocoder_exception">Geocoder (Google Maps API service) couldn\'t get location information</string>
+    <string name="location_not_enabled">Location is not enabled. Please enable location in the setting.</string>
+    <string name="location_no_last_known">No recent location information available. Activating the location provider and waiting for location information updates.</string>
+    <string name="location_last_known">Location was set to the last known location</string>
+    <string name="location_done">Location information gathering finished</string>
+    <string name="location_no_geocoder">No Geocoder backend service on this platform to transform latitude/longitude location values into postal addresses</string>
+    <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
+    <string name="location_geocoder_exception">Geocoder couldn\'t get location information</string>
 
     <!-- about -->
     <string name="about">About</string>

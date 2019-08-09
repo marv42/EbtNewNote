@@ -108,7 +108,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
                         mSubmitFragment.getPhotoPath()).execute();
             }
             if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
-                ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX)).requestLocation();
+                ((ThisApp) getApplication()).startLocationTask();
             }
         }
     }

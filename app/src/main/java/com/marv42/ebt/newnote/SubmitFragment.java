@@ -11,7 +11,6 @@
 
 package com.marv42.ebt.newnote;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -20,11 +19,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -52,25 +48,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.Task;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -89,9 +72,7 @@ import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
-import static com.marv42.ebt.newnote.EbtNewNote.CHECK_LOCATION_SETTINGS_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
@@ -100,7 +81,7 @@ import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
-        CommentSuggestion.Callback /*, LifecycleOwner*/ {
+        CommentSuggestion.Callback, SharedPreferences.OnSharedPreferenceChangeListener /*, LifecycleOwner*/ {
     @Inject
     ThisApp mApp;
     @Inject
@@ -112,9 +93,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
-    private static final int NUMBER_ADDRESSES = 5;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
-    private static final long LOCATION_MAX_WAIT_TIME_MS = 30 * 1000;
     private static final long TOAST_DELAY_MS = 3 * 1000;
     private static final int DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS = 2 * 1000;
 
@@ -139,9 +118,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.edit_text_comment) AutoCompleteTextView mCommentText;
 
     private LocationTextWatcher mLocationTextWatcher;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private LocationCallback mLocationCallback;
-    private LocationRequest mLocationRequest;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -178,6 +154,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onResume() {
         super.onResume();
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         setViewValuesFromPreferences();
         mLocationTextWatcher = new LocationTextWatcher();
         mCountryText.addTextChangedListener(mLocationTextWatcher);
@@ -219,8 +196,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mCityText.removeTextChangedListener(mLocationTextWatcher);
         mPostalCodeText.removeTextChangedListener(mLocationTextWatcher);
         mLocationTextWatcher = null;
-//        if (mFusedLocationClient != null)
-//            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
     }
 
@@ -263,62 +239,32 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
-        Toast.makeText(getActivity(), getString(R.string.location_getting), LENGTH_LONG).show();
-
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setNumUpdates(1)
-                .setMaxWaitTime(LOCATION_MAX_WAIT_TIME_MS)
-                .setExpirationDuration(LOCATION_MAX_WAIT_TIME_MS);
-
-        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
-        LocationSettingsRequest locationSettingsRequest =
-                new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest).build();
-        Task<LocationSettingsResponse> response = LocationServices.getSettingsClient(getActivity())
-                .checkLocationSettings(locationSettingsRequest);
-        response.addOnCompleteListener(task -> {
-            try {
-                /*LocationSettingsResponse response =*/ task.getResult(ApiException.class);
-                requestLocation();
-            } catch (ApiException exception) {
-                switch (exception.getStatusCode()) {
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            ResolvableApiException resolvable = (ResolvableApiException) exception;
-                            resolvable.startResolutionForResult(
-                                    getActivity(), CHECK_LOCATION_SETTINGS_REQUEST_CODE);
-                        } catch (IntentSender.SendIntentException e) {
-                            // ignore
-                        } catch (ClassCastException e) {
-                            // ignore
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        break;
-                }
-            }
-        });
+        LocationManager locationManager = (LocationManager)
+                getActivity().getSystemService(Context.LOCATION_SERVICE);
+        ThisApp app = (ThisApp) getActivity().getApplication();
+        if (!locationManager.isLocationEnabled()) {
+            Toast.makeText(getActivity(), getString(R.string.location_not_enabled), LENGTH_LONG).show();
+            app.startLocationProviderChangedReceiver();
+            return;
+        }
+        app.startLocationTask();
     }
 
-    @SuppressLint("MissingPermission")
-    void requestLocation() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null)
-                    return;
-                for (Location location : locationResult.getLocations())
-                    if (location != null)
-                        setLocation(location);
-            }
-        };
-        if (mFusedLocationClient == null)
-            mFusedLocationClient = getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            if (location != null)
-                setLocation(location);
-        });
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (sharedPreferences == mSharedPreferences) {
+            setEditTextFromSharedPreferences(s, getString(R.string.pref_country_key), mCountryText);
+            setEditTextFromSharedPreferences(s, getString(R.string.pref_city_key), mCityText);
+            setEditTextFromSharedPreferences(s, getString(R.string.pref_postal_code_key), mPostalCodeText);
+        }
+    }
+
+    private void setEditTextFromSharedPreferences(String s, String key, EditText editText) {
+        if (s.equals(key)) {
+            String newValue = mSharedPreferences.getString(key, "");
+            if (!TextUtils.isEmpty(newValue) && !newValue.equals(editText.getText().toString()))
+                editText.setText(newValue);
+        }
     }
 
     @Override
@@ -335,43 +281,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             takePhoto();
         }
-    }
-
-    private void setLocation(Location l) {
-        try {
-            // TODO don't call this on the UI thread
-            final Geocoder gc = new Geocoder(getActivity(), Locale.US);
-            List<Address> addresses = gc.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
-            if (addresses.size() == 0)
-                Toast.makeText(getActivity(), getActivity().getString(R.string.location_no_address)
-                        + ": " + l.getLatitude() + ", " + l.getLongitude() + ".", LENGTH_LONG).show();
-            String[] previousLocation = new String[3];
-            for (Address a : addresses) {
-                if (a == null)
-                    continue;
-                String countryName = a.getCountryName();
-                String locality = a.getLocality();
-                String postalCode = a.getPostalCode();
-                if ((!TextUtils.isEmpty(countryName) && !countryName.equals(previousLocation[0])) ||
-                        (!TextUtils.isEmpty(locality) && !locality.equals(previousLocation[1])) ||
-                        (!TextUtils.isEmpty(postalCode) && !postalCode.equals(previousLocation[2]))) {
-                    previousLocation = new String[]{countryName, locality, postalCode};
-                    setLocationValues(new LocationValues(countryName, locality, postalCode));
-                }
-            }
-        } catch (IOException e) {
-            Toast.makeText(getActivity(), getActivity().getString(R.string.location_geocoder_exception)
-                    + ": " + e.getMessage() + ".", LENGTH_LONG).show();
-        }
-    }
-
-    private void setLocationValues(LocationValues l) {
-        // only set complete locations
-        if (TextUtils.isEmpty(l.mCountry) || TextUtils.isEmpty(l.mCity) || TextUtils.isEmpty(l.mPostalCode))
-            return;
-        mCountryText.setText(l.mCountry);
-        mCityText.setText(l.mCity);
-        mPostalCodeText.setText(l.mPostalCode);
     }
 
     void setViewValuesFromPreferences() {
