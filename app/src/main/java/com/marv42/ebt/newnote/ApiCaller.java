@@ -18,6 +18,7 @@ import androidx.core.util.Pair;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
 public class ApiCaller {
@@ -38,20 +39,22 @@ public class ApiCaller {
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
     private SharedPreferences mSharedPreferences;
-    private String mPrefSettingsEmailKey;
-    private String mPrefSettingsPasswordKey;
-    private String mCouldntConnect;
-    private String mWrongLogin;
-    private String mServerError;
-    private String mNoSerialNumber;
-    private String mInternalError;
+    private final String mPrefSettingsEmailKey;
+    private final String mPrefSettingsPasswordKey;
+    private final String mNoConnection;
+    private final String mHttpError;
+    private final String mWrongLogin;
+    private final String mServerError;
+    private final String mNoSerialNumber;
+    private final String mInternalError;
 
     @Inject
     public ApiCaller(ThisApp app) {
         mSharedPreferences = getDefaultSharedPreferences(app);
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
-        mCouldntConnect = app.getString(R.string.couldnt_connect);
+        mNoConnection = app.getString(R.string.error_no_connection);
+        mHttpError = app.getString(R.string.http_error);
         mWrongLogin = app.getString(R.string.wrong_login_info);
         mServerError = app.getString(R.string.server_error);
         mNoSerialNumber = app.getString(R.string.no_serial_number);
@@ -67,14 +70,16 @@ public class ApiCaller {
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
-                return getJsonObject(ERROR, mCouldntConnect + ", server response code: " + response.code());
+                return getJsonObject(ERROR, mHttpError + " " + response.code());
             String body = response.body().string();
             JSONObject json = getJsonObject(body);
             if (json == null)
                 return getJsonObject(ERROR, body);
             return json;
+        } catch (SocketTimeoutException e) {
+            return getJsonObject(ERROR, mNoConnection);
         } catch (IOException e) {
-            return getJsonObject(ERROR, mCouldntConnect + ": " + e.getMessage());
+            return getJsonObject(ERROR, mInternalError + ": " + e.getMessage());
         }
     }
 
@@ -99,8 +104,7 @@ public class ApiCaller {
         if (jsonObject.has(ERROR))
             return jsonObject;
         if (!jsonObject.has("note0"))
-            return getJsonObject(ERROR, mServerError + ": no 'note0' element. No serial number.");
-
+            return getJsonObject(ERROR, mNoSerialNumber);
         JSONObject note0 = getJsonObject(jsonObject.optString("note0"));
         if (note0 == null)
             return getJsonObject(ERROR, mNoSerialNumber);
