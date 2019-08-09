@@ -11,30 +11,42 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
+
 import java.util.Comparator;
+
+import static com.marv42.ebt.newnote.SubmittedFragment.getColoredString;
 
 class SubmissionResult {
     final NoteData mNoteData;
-    final boolean mSuccessful;
     final String mReason;
     final int mBillId;
-    final boolean mHit;
 
-    SubmissionResult(final NoteData noteData, final boolean successful, final String reason) {
-        this(noteData, successful, reason, -1, false);
+    SubmissionResult(final NoteData noteData, final String reason) {
+        this(noteData, reason, -1);
     }
 
-    SubmissionResult(final NoteData noteData, final boolean successful, final String reason, final int billId) {
-        this(noteData, successful, reason, billId, false);
-    }
-
-    SubmissionResult(final NoteData noteData, final boolean successful, final String reason,
-                     final int billId, final boolean hit) {
+    SubmissionResult(final NoteData noteData, final String reason, final int billId) {
         mNoteData = noteData;
-        mSuccessful = successful;
         mReason = reason;
         mBillId = billId;
-        mHit = hit;
+    }
+
+    boolean isAHit(Context context) {
+        return mReason.equals(context.getString(R.string.got_hit));
+    }
+
+    boolean isSuccessful(Context context) {
+        return mReason.equals(context.getString(R.string.has_been_entered)) ||
+                mReason.equals(context.getString(R.string.got_hit));
+    }
+
+    String getResult(Context context) {
+        return isSuccessful(context) ?
+                getColoredString(isAHit(context) ?
+                        context.getString(R.string.hit) : context.getString(R.string.successful),
+                        "green") :
+                getColoredString(context.getString(R.string.failed), "red");
     }
 
     static class SubmissionComparator implements Comparator<SubmissionResult> {

@@ -1,6 +1,5 @@
 package com.marv42.ebt.newnote;
 
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -12,20 +11,18 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class SubmissionResults {
     private static final int MAX_SHOW_NUM = 100;
 
+    private ThisApp mApp;
     private ArrayList<SubmissionResult> mResults = new ArrayList<>();
-    private SharedPreferences mSharedPreferences;
-    private String mPrefResults;
 
     @Inject
     public SubmissionResults(ThisApp app) {
-        mSharedPreferences = getDefaultSharedPreferences(app);
-        mPrefResults = app.getString(R.string.pref_results);
-        String results = mSharedPreferences.getString(app.getString(R.string.pref_results), "");
+        mApp = app;
+        String results = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
         if (! TextUtils.isEmpty(results)) {
             JsonArray array = new JsonParser().parse(results).getAsJsonArray();
             for (int i = 0; i < array.size(); ++i)
@@ -51,8 +48,8 @@ public class SubmissionResults {
 
     void addResult(final SubmissionResult result) {
         mResults.add(result);
-        if (result.mSuccessful) {
-            mSharedPreferences.edit().putString(mPrefResults, new Gson().toJson(mResults)).apply();
+        if (result.isSuccessful(mApp)) {
+            getDefaultSharedPreferences(mApp).edit().putString(mApp.getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
         }
     }
 
@@ -64,13 +61,12 @@ public class SubmissionResults {
         int numberOfHits = 0;
         int numberOfSuccessfull = 0;
         int numberOfFailed = 0;
-
         for (SubmissionResult result : mResults) {
-            if (result.mSuccessful)
+            if (result.isSuccessful(mApp))
                 numberOfSuccessfull++;
             else
                 numberOfFailed++;
-            if (result.mHit)
+            if (result.isAHit(mApp))
                 numberOfHits++;
         }
         return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);

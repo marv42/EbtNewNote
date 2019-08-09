@@ -102,7 +102,7 @@ public class SubmittedFragment extends DaggerFragment {
             String sc = sr.mNoteData.mShortCode;
             String shortCode = sc.length() > 0 ? ", " + sc : "";
 
-            String result = getResult(sr);
+            String result = sr.getResult(getActivity());
             String reason = getReason(sr);
             String note = getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
             String comment = getString(R.string.comment) + ": " + sr.mNoteData.mComment;
@@ -190,20 +190,14 @@ public class SubmittedFragment extends DaggerFragment {
                 + result.mNoteData.mCountry;
     }
 
-    private String getResult(SubmissionResult result) {
-        return result.mSuccessful ?
-                getColoredString(result.mHit ? getString(R.string.hit) :
-                        getString(R.string.successful), "green") :
-                getColoredString(getString(R.string.failed), "red");
-    }
-
     private String getReason(SubmissionResult result) {
-        return result.mSuccessful ? getColoredString(getString(R.string.insertion) + " " +
-                        getString(R.string.successful), "green") :
+        return result.isSuccessful(getActivity()) ?
+                getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
+                        "green") :
                 getColoredString(result.mReason, "red");
     }
 
-    private String getColoredString(String s, String color) {
+    static String getColoredString(String s, String color) {
         return "<font color=\"" + color + "\">" + s + "</font>";
     }
 

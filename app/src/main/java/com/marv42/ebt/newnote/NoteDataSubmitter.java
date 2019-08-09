@@ -30,10 +30,10 @@ import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
@@ -98,7 +98,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
                         mApp.getString(R.string.pref_settings_comment_key), ""));
         JSONObject json = mApiCaller.callLogin();
         if (json.has(ERROR))
-            return new SubmissionResult(submittedNoteData, false, json.optString(ERROR));
+            return new SubmissionResult(submittedNoteData, json.optString(ERROR));
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "insertbills"));
         params.add(new Pair<>("v", "1"));
@@ -113,15 +113,14 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         params.add(new Pair<>("comment0", submittedNoteData.mComment));
         json = mApiCaller.callInsertBills(params);
         if (json.has(ERROR))
-            return new SubmissionResult(submittedNoteData, false, json.optString(ERROR));
+            return new SubmissionResult(submittedNoteData, json.optString(ERROR));
         int billId = json.optInt("billId");
         int status = json.optInt("status");
         if (status == 0)
-            return new SubmissionResult(submittedNoteData, true,
+            return new SubmissionResult(submittedNoteData,
                     mApp.getString(R.string.has_been_entered), billId);
         if (status == 1)
-            return new SubmissionResult(submittedNoteData, true,
-                    mApp.getString(R.string.got_hit), billId);
+            return new SubmissionResult(submittedNoteData, mApp.getString(R.string.got_hit), billId);
         String reply = "";
         if ((status &  64) != 0)
             reply += mApp.getString(R.string.already_entered) + "<br>";
@@ -143,7 +142,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
             reply = reply.substring(0, reply.length() - 4);
         if (isEmpty(reply))
             reply = "Someone seems to have to debug something here...";
-        return new SubmissionResult(submittedNoteData, false, reply, billId);
+        return new SubmissionResult(submittedNoteData, reply, billId);
     }
 
     private CharSequence getSummary(final SubmissionResults.ResultSummary summary) {
