@@ -24,7 +24,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -42,7 +41,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -73,15 +71,22 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
+import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
-        CommentSuggestion.Callback, SharedPreferences.OnSharedPreferenceChangeListener /*, LifecycleOwner*/ {
+        SharedPreferences.OnSharedPreferenceChangeListener /*, LifecycleOwner*/ {
+
+    public interface Callback {
+        void onSubmitFragmentAdded();
+    }
+
     @Inject
     ThisApp mApp;
     @Inject
@@ -91,11 +96,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     SubmissionResults mSubmissionResults;
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
+    private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = 1000 * 60 * 60 * 24; // one day
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
-    private static final long TOAST_DELAY_MS = 3 * 1000;
-    private static final int DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS = 2 * 1000;
 
     private String mCurrentPhotoPath;
 
@@ -126,6 +128,27 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mSharedPreferences.edit().putString(getString(R.string.pref_settings_ocr_key),
                 OCR_SERVICE).apply();
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (!mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false)) {
+            new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
+                    .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
+                    .setPositiveButton(getString(R.string.yes),
+                            (dialog, which) -> {
+                                startActivity(new Intent(getActivity().getApplicationContext(),
+                                        SettingsActivity.class));
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
+        String ocrResult = mSharedPreferences.getString(getString(R.string.pref_ocr_result), "");
+        if (!TextUtils.isEmpty(ocrResult))
+            presentOcrResult(ocrResult);
+        ((Callback) getActivity()).onSubmitFragmentAdded();
     }
 
     @Override
@@ -167,27 +190,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mSerialText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key)));
         mCommentText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_comment_key)));
         executeCommentSuggestion();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (!mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false)) {
-            new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
-                    .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
-                    .setPositiveButton(getString(R.string.yes),
-                            (dialog, which) -> {
-                                startActivity(new Intent(getActivity().getApplicationContext(),
-                                        SettingsActivity.class));
-                                dialog.dismiss();
-                            })
-                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
-        String ocrResult = mSharedPreferences.getString(getString(R.string.pref_ocr_result), "");
-        if (!TextUtils.isEmpty(ocrResult)) {
-            showOcrDialog(ocrResult);
-        }
     }
 
     @Override
@@ -235,18 +237,20 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (ContextCompat.checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
+                    new String[] { ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION },
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
         LocationManager locationManager = (LocationManager)
                 getActivity().getSystemService(Context.LOCATION_SERVICE);
         ThisApp app = (ThisApp) getActivity().getApplication();
-        if (!locationManager.isLocationEnabled()) {
+        if (locationManager != null && !locationManager.isLocationEnabled()) {
             Toast.makeText(getActivity(), getString(R.string.location_not_enabled), LENGTH_LONG).show();
             app.startLocationProviderChangedReceiver();
             return;
         }
+        if (ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
+            Toast.makeText(getActivity(), getString(R.string.location_no_gps), LENGTH_LONG).show();
         app.startLocationTask();
     }
 
@@ -264,22 +268,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             String newValue = mSharedPreferences.getString(key, "");
             if (!TextUtils.isEmpty(newValue) && !newValue.equals(editText.getText().toString()))
                 editText.setText(newValue);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length == 0 || grantResults[0] != PERMISSION_GRANTED) {
-            Toast.makeText(getActivity(), getString(R.string.no_permission), LENGTH_LONG).show();
-            return;
-        }
-        Toast.makeText(getActivity(), getString(R.string.permission), LENGTH_LONG).show();
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            checkLocationSetting();
-        } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            takePhoto();
         }
     }
 
@@ -370,7 +358,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             return;
         }
         if (ContextCompat.checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{CAMERA},
+            ActivityCompat.requestPermissions(getActivity(), new String[] { CAMERA },
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
@@ -390,7 +378,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private File createImageFile() throws IOException {
         File tempFolder = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         for (File file: tempFolder.listFiles())
-            if (Calendar.getInstance().getTimeInMillis() - file.lastModified() > 1000 * 60 * 60 * 24)
+            if (Calendar.getInstance().getTimeInMillis() - file.lastModified() > TIME_THRESHOLD_DELETE_OLD_PICS_MS)
                 file.delete();
         return createTempFile("bill_", ".png", tempFolder);
     }
@@ -398,9 +386,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onOcrResult(String result) {
         mCurrentPhotoPath = "";
-        if (isVisible()) { // TODO des is immer visible
-            showOcrDialog(result);
-        } else {
+        if (isVisible()) // des is immer visible, mir soll's recht sei
+            presentOcrResult(result);
+        else {
             mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), result).apply();
             Intent intent = new Intent(mApp, EbtNewNote.class);
             intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
@@ -433,37 +421,26 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return mCurrentPhotoPath;
     }
 
-    @Override
-    public void onSuggestions(String[] suggestions) {
-        Activity activity = getActivity();
-        if (activity == null) {
-            // TODO können wir nicht aufrufen, weil das Fragment nicht attached ist
-            // new Handler().postDelayed(this::executeCommentSuggestion, DELAY_NO_ACTIVITY_ON_COMMENT_SUGGESTIONS_MS);
-            return;
-        }
-        ArrayAdapter<String> commentAdapter = new ArrayAdapter<>(activity,
-                android.R.layout.simple_dropdown_item_1line, suggestions);
-        mCommentText.setAdapter(commentAdapter);
+    void setCommentsAdapter(String[] suggestions) {
+        mCommentText.setAdapter(new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_dropdown_item_1line, suggestions));
     }
 
-    private void showOcrDialog(String ocrResult) {
+    private void presentOcrResult(String ocrResult) {
         Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
-        if (v != null) {
+        if (v != null)
             v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
-        }
         Activity activity = getActivity();
-        if (ocrResult.equals(TextProcessor.EMPTY)) {
+        if (ocrResult.equals(TextProcessor.EMPTY))
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.ocr_dialog_title)
                     .setMessage(getString(R.string.ocr_dialog_empty))
                     .show();
-        }
-        else if (ocrResult.startsWith(ERROR)) {
+        else if (ocrResult.startsWith(ERROR))
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.ocr_dialog_title)
                     .setMessage(ocrResult.substring(5))
                     .show();
-        }
         else {
             if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
@@ -473,15 +450,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 mSerialText.setText(ocrResult);
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
-            toastAfterToast(getActivity(), getString(R.string.ocr_paste), TOAST_DELAY_MS);
-            toastAfterToast(getActivity(), getString(R.string.ocr_clipboard), 2 * TOAST_DELAY_MS);
         }
         mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), "").apply();
-    }
-
-    private void toastAfterToast(final Context context, final CharSequence text, long delay) {
-        Handler handler = new Handler();
-        handler.postDelayed(() -> Toast.makeText(context, text, LENGTH_LONG).show(), delay);
     }
 
     private void putToClipboard(Editable text) {
@@ -503,12 +473,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -518,12 +486,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private class LocationTextWatcher implements TextWatcher {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -535,11 +501,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void executeCommentSuggestion() {
         if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
             return;
-        CommentSuggestion suggestion = new CommentSuggestion(mApiCaller, mSharedPreferences);
-        suggestion.init(this, mApp.getString(R.string.pref_settings_comment_key));
-        suggestion.execute(new LocationValues(
-                mCountryText.getText().toString(),
-                mCityText.getText().toString(),
-                mPostalCodeText.getText().toString()));
+        new CommentSuggestion(mApiCaller, mSharedPreferences, (EbtNewNote) getActivity(),
+                mApp.getString(R.string.pref_settings_comment_key))
+                .execute(new LocationValues(
+                        mCountryText.getText().toString(),
+                        mCityText.getText().toString(),
+                        mPostalCodeText.getText().toString()));
     }
 }

@@ -21,11 +21,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
@@ -41,13 +38,10 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
     private SharedPreferences mSharedPreferences;
     private String mPreferenceCommentKey;
 
-    @Inject
-    CommentSuggestion(ApiCaller apiCaller, SharedPreferences sharedPreferences) {
+    CommentSuggestion(ApiCaller apiCaller, SharedPreferences sharedPreferences, Callback callback,
+                      String preferenceCommentKey) {
         mApiCaller = apiCaller;
         mSharedPreferences = sharedPreferences;
-    }
-
-    void init(Callback callback, String preferenceCommentKey) {
         mCallback = callback;
         mPreferenceCommentKey = preferenceCommentKey;
     }
@@ -82,7 +76,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
         JSONArray allComments = json.optJSONArray("data");
         List<JSONObject> list = new ArrayList<>();
-        for (int i = 0; i < allComments.length(); ++i)
+        for (int i = 0; allComments != null && i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
 
         Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
@@ -104,9 +98,8 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
 
         String[] s = new String[numSuggestions];
-        for (int i = 0; i < numSuggestions; ++i) {
+        for (int i = 0; i < numSuggestions; ++i)
             s[i] = uniqueList.get(i);
-        }
         return s;
     }
 }

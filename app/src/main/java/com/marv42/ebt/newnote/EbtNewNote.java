@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -31,17 +32,20 @@ import java.util.List;
 import dagger.android.support.DaggerAppCompatActivity;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
-public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOwner*/
-        implements SubmittedFragment.Callback {
+public class EbtNewNote extends DaggerAppCompatActivity
+        implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
+        ActivityCompat.OnRequestPermissionsResultCallback /*, LifecycleOwner*/ {
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final String NOTIFICATION_NOTE_CHANNEL_ID = "default";
     public static final String NOTIFICATION_OCR_CHANNEL_ID = "ebt_ocr_channel";
     public static final int OCR_NOTIFICATION_ID = 2;
 
     static final int NOTE_NOTIFICATION_ID = 1;
-    static final int CHECK_LOCATION_SETTINGS_REQUEST_CODE = 1;
     static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
+    static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
+    static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
 
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
@@ -50,6 +54,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
     private SubmitFragment mSubmitFragment = null;
     private SubmittedFragment mSubmittedFragment = null;
     private boolean mSwitchToResults;
+    private String[] mCommentSuggestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +76,7 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (position == SUBMIT_FRAGMENT_INDEX)
-                    ((SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX))
-                            .setViewValuesFromPreferences();
+                    getSubmitFragment().setViewValuesFromPreferences();
                 else if (position == SUBMITTED_FRAGMENT_INDEX) {
                     ((SubmittedFragment) mAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
                             .refreshResults();
@@ -85,6 +89,10 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
         if (extras != null && SubmittedFragment.class.getSimpleName().equals(
                 extras.getString(FRAGMENT_TYPE)))
             mSwitchToResults = true;
+    }
+
+    private SubmitFragment getSubmitFragment() {
+        return (SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX);
     }
 
     @Override
@@ -103,12 +111,8 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler((ThisApp) getApplication(),
-                        (OcrHandler.Callback) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX),
+                new OcrHandler((ThisApp) getApplication(), getSubmitFragment(),
                         mSubmitFragment.getPhotoPath()).execute();
-            }
-            if (requestCode == CHECK_LOCATION_SETTINGS_REQUEST_CODE) {
-                ((ThisApp) getApplication()).startLocationTask();
             }
         }
     }
@@ -117,8 +121,30 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length == 0 || grantResults[0] != PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.no_permission), LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
+            getSubmitFragment().checkLocationSetting();
+        else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
+            getSubmitFragment().takePhoto();
+    }
+
+    @Override
+    public void onSubmitFragmentAdded() {
+        if (mCommentSuggestions != null && mCommentSuggestions.length > 0) {
+            getSubmitFragment().setCommentsAdapter(mCommentSuggestions);
+            mCommentSuggestions = null;
+        }
+    }
+
+    @Override
+    public void onSubmittedFragmentAdded() {
+        if (mSwitchToResults) {
+            switchFragment(SUBMITTED_FRAGMENT_INDEX);
+            mSwitchToResults = false;
         }
     }
 
@@ -129,11 +155,12 @@ public class EbtNewNote extends DaggerAppCompatActivity /*implements LifecycleOw
     }
 
     @Override
-    public void submittedFragmentStarted() {
-        if (mSwitchToResults) {
-            switchFragment(SUBMITTED_FRAGMENT_INDEX);
-            mSwitchToResults = false;
-        }
+    public void onSuggestions(String[] suggestions) {
+        SubmitFragment submitFragment = getSubmitFragment();
+        if (submitFragment.isAdded())
+            submitFragment.setCommentsAdapter(suggestions);
+        else
+            mCommentSuggestions = suggestions;
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
