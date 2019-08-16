@@ -53,7 +53,6 @@ public class ThisApp extends DaggerApplication {
             IntentFilter filter = new IntentFilter(PROVIDERS_CHANGED_ACTION);
             filter.addAction(ACTION_PROVIDER_CHANGED);
             registerReceiver(mReceiver, filter);
-            // TODO start timer and stopLocationProviderChangedReceiver
         }
     }
 

@@ -20,10 +20,10 @@ public class LocationProviderChangedReceiver extends BroadcastReceiver {
             boolean gpsProviderEnabled = locationManager.isProviderEnabled(GPS_PROVIDER);
             boolean networkProviderEnabled = locationManager.isProviderEnabled(NETWORK_PROVIDER);
             ThisApp app = (ThisApp) context;
-            if (gpsProviderEnabled || networkProviderEnabled)
+            if (gpsProviderEnabled || networkProviderEnabled) {
                 app.startLocationTask();
-            if (gpsProviderEnabled && networkProviderEnabled)
                 app.stopLocationProviderChangedReceiver();
+            }
         }
     }
 }
