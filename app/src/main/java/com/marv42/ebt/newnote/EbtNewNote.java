@@ -108,12 +108,13 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
+        if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
                 new OcrHandler((ThisApp) getApplication(), getSubmitFragment(),
                         mSubmitFragment.getPhotoPath()).execute();
-            }
+            } else
+                getSubmitFragment().setPhotoPath("");
         }
     }
 

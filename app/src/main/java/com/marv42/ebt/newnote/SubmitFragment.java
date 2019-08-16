@@ -44,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
@@ -70,6 +69,7 @@ import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
@@ -234,8 +234,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.location_button)
     void checkLocationSetting() {
-        if (ContextCompat.checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+        if (checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
+                checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[] { ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION },
                     LOCATION_PERMISSION_REQUEST_CODE);
@@ -249,7 +249,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             app.startLocationProviderChangedReceiver();
             return;
         }
-        if (ContextCompat.checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
+        if (checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
             Toast.makeText(getActivity(), getString(R.string.location_no_gps), LENGTH_LONG).show();
         app.startLocationTask();
     }
@@ -357,7 +357,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
             return;
         }
-        if (ContextCompat.checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
+        if (checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[] { CAMERA },
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
@@ -419,6 +419,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @NonNull
     String getPhotoPath() {
         return mCurrentPhotoPath;
+    }
+
+    void setPhotoPath(String path) {
+        mCurrentPhotoPath = path;
     }
 
     void setCommentsAdapter(String[] suggestions) {
