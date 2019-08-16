@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
@@ -19,9 +20,10 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
-public class LocationTask extends AsyncTask<Void, Void, Void> {
+public class LocationTask extends AsyncTask<Void, Void, Integer> {
     private static final long LOCATION_MAX_WAIT_TIME_MS = 30 * 1000;
     private static final float MIN_LOCATION_DISTANCE_M = 500;
     private static final long MIN_LOCATION_TIME_MS = 10 * 1000;
@@ -31,6 +33,7 @@ public class LocationTask extends AsyncTask<Void, Void, Void> {
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private Location mPreviousLocation;
+    private Integer mResult;
 
     public LocationTask(ThisApp app) {
         mApp = app;
@@ -39,19 +42,25 @@ public class LocationTask extends AsyncTask<Void, Void, Void> {
 
     @SuppressLint("MissingPermission")
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Integer doInBackground(Void... voids) {
+        if (! Geocoder.isPresent())
+            return R.string.location_no_geocoder;
+        mResult = null;
         Location lastKnownLocation = getLastKnownLocation();
         if (lastKnownLocation != null) {
             if (mPreviousLocation == null ||
                     lastKnownLocation.getTime() - mPreviousLocation.getTime() > LOCATION_MAX_WAIT_TIME_MS) {
-                setLocation(lastKnownLocation);
-                return null;
+                Integer result = setLocation(lastKnownLocation);
+                if (result != null)
+                    return result;
+                else
+                    return R.string.location_last_known;
             }
         }
         mLocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-                setLocation(location);
                 mLocationManager.removeUpdates(this);
+                mResult = setLocation(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -64,7 +73,7 @@ public class LocationTask extends AsyncTask<Void, Void, Void> {
                 MIN_LOCATION_DISTANCE_M, mLocationListener, Looper.getMainLooper());
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_LOCATION_TIME_MS,
                 MIN_LOCATION_DISTANCE_M, mLocationListener, Looper.getMainLooper());
-        return null;
+        return mResult;
     }
 
     @SuppressLint("MissingPermission")
@@ -80,13 +89,13 @@ public class LocationTask extends AsyncTask<Void, Void, Void> {
         return lastKnownGpsLocation != null ? lastKnownGpsLocation : lastKnownNetworkLocation;
     }
 
-    private void setLocation(Location l) {
+    private Integer setLocation(Location l) {
         try {
-            if (! Geocoder.isPresent())
-                return;
             Geocoder geocoder = new Geocoder(mApp, Locale.US);
             List<Address> addresses = geocoder.getFromLocation(l.getLatitude(), l.getLongitude(),
                     NUMBER_ADDRESSES);
+            if (addresses.size() == 0)
+                return R.string.location_no_address;
             String[] previousLocation = new String[3];
             for (Address a : addresses) {
                 if (a == null)
@@ -106,6 +115,14 @@ public class LocationTask extends AsyncTask<Void, Void, Void> {
                 }
             }
         } catch (IOException ignored) {
+            return R.string.location_geocoder_exception;
         }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Integer result) {
+        if (result != null)
+            Toast.makeText(mApp, mApp.getString(result), LENGTH_LONG).show();
     }
 }
