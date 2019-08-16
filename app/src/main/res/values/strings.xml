@@ -69,7 +69,7 @@
     <string name="postal_code">Postal Code</string>
     <string name="postal_code_hint">e.g. 10557</string>
     <string name="get_location">Get Current Location</string>
-    <string name="value">Denomination</string>
+    <string name="denomination">Denomination</string>
     <string name="eur5">5 €</string>
     <string name="eur10">10 €</string>
     <string name="eur20">20 €</string>
@@ -136,9 +136,7 @@
     <string name="camera">Camera</string>
     <string name="no_camera_activity">No activity for taking pictures</string>
     <string name="processing">The photo is being processed&#8230;</string>
-    <string name="ocr_return">Photo processing finished successfully.</string>
-    <string name="ocr_paste">The result was put into the respective field.</string>
-    <string name="ocr_clipboard">The former content of the field is in the clipboard now.</string>
+    <string name="ocr_return">Photo processing finished successfully. The result was put into the respective field. The former content of the field is in the clipboard now.</string>
     <string name="ocr_dialog_title">Character Recognition Result</string>
     <string name="ocr_dialog_empty">Nothing found</string>
     <string name="ocr_executing">The previous OCR request is still running</string>
@@ -146,7 +144,8 @@
     <!-- location -->
     <string name="location">Location</string>
     <string name="location_none">No location</string>
-    <string name="location_not_enabled">Location is not enabled. Please enable location in the setting.</string>
+    <string name="location_not_enabled">Location is not enabled. Please enable location in the system setting.</string>
+    <string name="location_no_gps">Fine location is not enabled. Consider activating GPS in the system setting to obtain better location results.</string>
     <string name="location_no_last_known">No recent location information available. Activating the location provider and waiting for location information updates.</string>
     <string name="location_last_known">Location was set to the last known location</string>
     <string name="location_done">Location information gathering finished</string>

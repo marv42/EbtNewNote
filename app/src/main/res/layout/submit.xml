@@ -71,7 +71,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/value" />
+                android:text="@string/denomination" />
             <RadioGroup
                 android:id="@+id/radio_group_1"
                 android:layout_width="wrap_content"
@@ -129,7 +129,6 @@
                 <TextView android:text="@string/short_code" />
                 <EditText
                     android:id="@+id/edit_text_printer"
-                    android:layout_width="match_parent"
                     android:maxLength="6"
                     android:autofillHints="@string/short_code_hint"
                     android:hint="@string/short_code_hint"

@@ -26,10 +26,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
+import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +51,7 @@ import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 
 public class SubmittedFragment extends DaggerFragment {
     public interface Callback {
-        void submittedFragmentStarted();
+        void onSubmittedFragmentAdded();
         void switchFragment(int index);
     }
 
@@ -59,7 +62,7 @@ public class SubmittedFragment extends DaggerFragment {
 
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
-//   private static final String DENOMINATION_IMAGE = "denomination_image";
+    private static final String DENOMINATION_IMAGE = "denomination image";
     private static final String DENOMINATION = "denomination";
     private static final String SERIAL_NUMBER = "serial number";
     private static final String RESULT = "result";
@@ -82,21 +85,19 @@ public class SubmittedFragment extends DaggerFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((Callback) getActivity()).submittedFragmentStarted();
+        ((Callback) getActivity()).onSubmittedFragmentAdded();
     }
 
     void refreshResults() {
         ArrayList<SubmissionResult> results = mSubmissionResults.getResults();
-
-        List<     Map<String, String> > groupData = new ArrayList<>();
-        List<List<Map<String, String>>> childData = new ArrayList<>();
         Map<String, String> groupMap;
+        List<Map<String, String>> groupData = new ArrayList<>();
         Map<String, String> childMap;
-
+        List<List<Map<String, String>>> childData = new ArrayList<>();
         for (SubmissionResult sr : results) {
             String denomination = sr.mNoteData.mDenomination;
-//         String denominationImage = EBT_HOST + "img/bills/ebt" +
-//                                    denomination.replace(" €", "") + "b.gif";
+            String denominationUrl = EBT_HOST + "img/bills/ebt" +
+                    denomination.replace(" €", "") + "b.gif";
             String sn = sr.mNoteData.mSerialNumber;
             String serialNumber = sn.length() > 0 ? ", " + sn : "";
             String sc = sr.mNoteData.mShortCode;
@@ -110,7 +111,7 @@ public class SubmittedFragment extends DaggerFragment {
 
             groupMap = new HashMap<>();
             groupMap.put(BUTTON_PLACEHOLDER, " ");
-//         groupMap.put(DENOMINATION_IMAGE, denominationImage);
+            groupMap.put(DENOMINATION_IMAGE, denominationUrl);
             groupMap.put(DENOMINATION, denomination);
             groupMap.put(SERIAL_NUMBER, sn.length() > 0 ? sn : "-");
             groupMap.put(RESULT, result);
@@ -123,20 +124,18 @@ public class SubmittedFragment extends DaggerFragment {
             childMap.put(LOCATION, location);
 
             List<Map<String, String>> children = new ArrayList<>();
-            children. add(childMap);
+            children.add(childMap);
             childData.add(children);
         }
-
-        String[] groupFrom = new String[] {BUTTON_PLACEHOLDER, /*DENOMINATION_IMAGE,*/
-                DENOMINATION, SERIAL_NUMBER, RESULT};
-
+        String[] groupFrom = new String[] { BUTTON_PLACEHOLDER, DENOMINATION_IMAGE,
+                DENOMINATION, SERIAL_NUMBER, RESULT };
         mListView.setAdapter(new MyExpandableListAdapter(
                 getContext(),
                 groupData,
                 R.layout.list_parents,
                 groupFrom,
                 new int[] { R.id.list_place_holder,
-//                     R.id.list_denomination_image,
+                        R.id.list_denomination_image,
                         R.id.list_denomination,
                         R.id.list_serial,
                         R.id.list_result },
@@ -147,12 +146,6 @@ public class SubmittedFragment extends DaggerFragment {
                         R.id.list_note,
                         R.id.list_comment,
                         R.id.list_location }));
-
-//        TableLayout layout = getLayoutInflater().inflate(R.layout.list_parents, null)
-//                .findViewById(R.id.list_parent);
-//        if (layout != null)
-//            for (int i = 0; i < groupFrom.length; ++i)
-//                layout.setColumnStretchable(i, groupFrom[i].equals(SERIAL_NUMBER));
         registerForContextMenu(mListView);
         mListView.setSelection(results.size());
     }
@@ -160,10 +153,8 @@ public class SubmittedFragment extends DaggerFragment {
     @Override
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
         int group = ExpandableListView.getPackedPositionGroup(info.packedPosition);
-
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
         if (mSubmissionResults.getResults().get(group).mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
@@ -220,15 +211,15 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
-        private List<? extends                Map<String, ?> > mGroupData;
+        private List<? extends Map<String, ?> > mGroupData;
         private String[] mGroupFrom;
-        private int[]    mGroupTo;
+        private int[] mGroupTo;
         private List<? extends List<? extends Map<String, ?>>> mChildData;
         private String[] mChildFrom;
-        private int[]    mChildTo;
+        private int[] mChildTo;
 
         MyExpandableListAdapter(Context context,
-                                List<? extends                Map<String, ?> > groupData,
+                                List<? extends Map<String, ?> > groupData,
                                 int groupLayout,
                                 String[] groupFrom,
                                 int[] groupTo,
@@ -240,10 +231,10 @@ public class SubmittedFragment extends DaggerFragment {
                     childData, childLayout, childFrom, childTo);
             mGroupData = groupData;
             mGroupFrom = groupFrom;
-            mGroupTo   = groupTo;
+            mGroupTo = groupTo;
             mChildData = childData;
             mChildFrom = childFrom;
-            mChildTo   = childTo;
+            mChildTo = childTo;
         }
 
         @Override
@@ -264,20 +255,18 @@ public class SubmittedFragment extends DaggerFragment {
         private void bindView(View view, Map<String, ?> data, String[] from, int[] to) {
             for (int i = 0; i < to.length; ++i) {
                 String s = (String) data.get(from[i]);
-//            if (from[i].equals(DENOMINATION_IMAGE)) {
-//               WebView v = (WebView) view.findViewById(to[i]);
-//               if (v != null)
-////                  v.loadUrl(s);
-//                  v.setVisibility(View.GONE);
-//            } else {
-                TextView v = view.findViewById(to[i]);
-                if (v != null) {
-                    v.setText(fromHtml(s, FROM_HTML_MODE_COMPACT));
-                    v.setTextColor(0xffffffff);
-                    if (TextUtils.isEmpty(s))
-                        v.setVisibility(GONE);
+                if (from[i].equals(DENOMINATION_IMAGE)) {
+                   ImageView v = view.findViewById(to[i]);
+                   if (v != null)
+                       Picasso.with(getActivity()).load(s).into(v);
+                } else {
+                    TextView v = view.findViewById(to[i]);
+                    if (v != null) {
+                        v.setText(fromHtml(s, FROM_HTML_MODE_COMPACT));
+                        if (TextUtils.isEmpty(s))
+                            v.setVisibility(GONE);
+                    }
                 }
-//            }
             }
         }
     }
