@@ -29,7 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
@@ -45,7 +45,6 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     private Callback mCallback;
     private String mPhotoPath;
 
-    // TODO @Inject ?
     public OcrHandler(@NonNull ThisApp app, @NonNull Callback callback, @NonNull String photoPath) {
         mApp = app;
         mCallback = callback;
