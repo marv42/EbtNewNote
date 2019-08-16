@@ -64,14 +64,15 @@ public class ApiCaller {
     private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         for (Pair<String, String> pair : params)
-            formBodyBuilder.add(pair.first, pair.second);
+            if (pair.first != null && pair.second != null)
+                formBodyBuilder.add(pair.first, pair.second);
         FormBody formBody = formBodyBuilder.build();
         Request request = new Request.Builder().url(EBT_API).post(formBody).build();
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
                 return getJsonObject(ERROR, mHttpError + " " + response.code());
-            String body = response.body().string();
+            String body = response.body() != null ? response.body().string() : "";
             JSONObject json = getJsonObject(body);
             if (json == null)
                 return getJsonObject(ERROR, body);
