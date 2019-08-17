@@ -3,28 +3,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
    <androidx.preference.PreferenceCategory
        android:title="@string/settings_ebt_account">
-      <EditTextPreference
+      <androidx.preference.EditTextPreference
           android:key="@string/pref_settings_email_key"
           android:title="@string/settings_email_title"
-          android:summary="@string/settings_email_summary"
-          android:inputType="textEmailAddress"/>
-      <EditTextPreference
+          android:summary="@string/settings_email_summary"/>
+      <androidx.preference.EditTextPreference
           android:key="@string/pref_settings_password_key"
           android:title="@string/settings_password_title"
-          android:summary="@string/settings_password_summary"
-          android:inputType="textPassword"/>
+          android:summary="@string/settings_password_summary"/>
    </androidx.preference.PreferenceCategory>
    <androidx.preference.PreferenceCategory
        android:title="@string/settings_misc">
-      <EditTextPreference
+      <androidx.preference.EditTextPreference
           android:key="@string/pref_settings_comment_key"
           android:title="@string/settings_comment_title"
-          android:summary="@string/settings_comment_summary"
-          android:inputType="text"/>
-      <EditTextPreference
+          android:summary="@string/settings_comment_summary"/>
+      <androidx.preference.EditTextPreference
           android:key="@string/pref_settings_ocr_key"
           android:title="@string/settings_ocr_title"
-          android:summary="@string/settings_ocr_summary"
-          android:inputType="text"/>
+          android:summary="@string/settings_ocr_summary"/>
+   </androidx.preference.PreferenceCategory>
+   <androidx.preference.PreferenceCategory
+       android:title="@string/settings_advanced">
+      <androidx.preference.EditTextPreference
+          android:key="@string/pref_settings_submitted_key"
+          android:title="@string/settings_submitted_title"
+          android:summary="@string/settings_submitted_summary"
+          android:defaultValue="@integer/max_show_num"/>
    </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

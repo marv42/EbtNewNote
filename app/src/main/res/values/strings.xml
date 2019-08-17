@@ -100,6 +100,9 @@
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_ocr_title">OCR service key</string>
     <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used.</string>
+    <string name="settings_advanced">Advanced settings</string>
+    <string name="settings_submitted_title">Number of notes</string>
+    <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
     <string name="get_ocr_key">Would you like to go to the settings and enter/get an OCR service key?</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
@@ -113,6 +116,7 @@
     <string name="pref_settings_password_key">pref_settings_password</string>
     <string name="pref_settings_comment_key">pref_settings_comment</string>
     <string name="pref_settings_ocr_key">pref_settings_ocr</string>
+    <string name="pref_settings_submitted_key">pref_settings_submitted</string>
     <string name="pref_country_key">pref_country</string>
     <string name="pref_city_key">pref_city</string>
     <string name="pref_postal_code_key">pref_postal_code</string>

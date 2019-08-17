@@ -20,12 +20,20 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatActivity;
+
+import static android.content.Intent.ACTION_VIEW;
+import static android.text.InputType.TYPE_CLASS_NUMBER;
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL;
+import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
 
 public class SettingsActivity extends DaggerAppCompatActivity {
     @Override
@@ -34,9 +42,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment()).commit();
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
             actionBar.setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     @Override
@@ -63,6 +70,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             setEmailSummary();
             setPasswordSummary();
             setCommentSummary();
+            setSubmittedInteger();
         }
 
         @Override
@@ -78,19 +86,19 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
             if (sharedPreferences == getPreferenceScreen().getSharedPreferences()) {
                 String emailKey = getString(R.string.pref_settings_email_key);
                 String passwordKey = getString(R.string.pref_settings_password_key);
-                if (key.equals(emailKey))
+                if (s.equals(emailKey))
                     setEmailSummary();
-                if (key.equals(passwordKey))
+                if (s.equals(passwordKey))
                     setPasswordSummary();
-                if (key.equals(getString(R.string.pref_settings_comment_key)))
+                if (s.equals(getString(R.string.pref_settings_comment_key)))
                     setCommentSummary();
-                if (key.equals(getString(R.string.pref_settings_ocr_key)))
+                if (s.equals(getString(R.string.pref_settings_ocr_key)))
                     setOcrSummary();
-                if ((key.equals(emailKey) || key.equals(passwordKey)) &&
+                if ((s.equals(emailKey) || s.equals(passwordKey)) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(passwordKey, "")))
                     new LoginChecker((ThisApp) getActivity().getApplicationContext(), mApiCaller).execute();
@@ -99,20 +107,29 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void setEmailSummary() {
             String emailKey = getString(R.string.pref_settings_email_key);
-            String email = getPreferenceScreen().getSharedPreferences().getString(emailKey, "").trim();
-            String summary = getString(R.string.settings_email_summary);
-            if (! TextUtils.isEmpty(email))
-                summary += getString(R.string.settings_currently) + " " + email;
-            (findPreference(emailKey)).setSummary(summary);
+            EditTextPreference preference = findPreference(emailKey);
+            if (preference != null) {
+                String email = getPreferenceScreen().getSharedPreferences().getString(emailKey, "").trim();
+                String summary = getString(R.string.settings_email_summary);
+                if (!TextUtils.isEmpty(email))
+                    summary += getString(R.string.settings_currently) + " " + email;
+                preference.setSummary(summary);
+                preference.setOnBindEditTextListener(editText ->
+                        editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS));
+            }
         }
 
         private void setPasswordSummary() {
             String passwordKey = getString(R.string.pref_settings_password_key);
-            String summary = getString(R.string.settings_password_summary);
-            if (TextUtils.isEmpty(getPreferenceScreen().getSharedPreferences().getString(
-                    passwordKey, "")))
-                summary += getString(R.string.settings_currently_not_set);
-            (findPreference(passwordKey)).setSummary(summary);
+            EditTextPreference preference = findPreference(passwordKey);
+            if (preference != null) {
+                String summary = getString(R.string.settings_password_summary);
+                if (TextUtils.isEmpty(getPreferenceScreen().getSharedPreferences().getString(passwordKey, "")))
+                    summary += getString(R.string.settings_currently_not_set);
+                preference.setSummary(summary);
+                preference.setOnBindEditTextListener(editText ->
+                        editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD));
+            }
         }
 
         private void setCommentSummary() {
@@ -126,15 +143,25 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void setOcrSummary() {
             String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
-            String ocrServiceKey = getPreferenceScreen().getSharedPreferences().getString(ocrKeyKey, "");
-            String summary = getString(R.string.settings_ocr_summary);
-            String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
-            if (TextUtils.isEmpty(ocrServiceKey))
-                summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
-            (findPreference(ocrKeyKey)).setSummary(summary);
-            if (TextUtils.isEmpty(ocrServiceKey))
-                (findPreference(ocrKeyKey)).setIntent(new Intent().setAction(Intent.ACTION_VIEW)
-                        .setData(Uri.parse(ocrServiceUrl)));
+            EditTextPreference preference = findPreference(ocrKeyKey);
+            if (preference != null ) {
+                String ocrServiceKey = getPreferenceScreen().getSharedPreferences().getString(ocrKeyKey, "");
+                String summary = getString(R.string.settings_ocr_summary);
+                String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
+                if (TextUtils.isEmpty(ocrServiceKey))
+                    summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
+                preference.setSummary(summary);
+                if (TextUtils.isEmpty(ocrServiceKey))
+                    preference.setIntent(new Intent().setAction(ACTION_VIEW)
+                            .setData(Uri.parse(ocrServiceUrl)));
+            }
+        }
+
+        private void setSubmittedInteger() {
+            EditTextPreference preference = findPreference(getString(R.string.pref_settings_submitted_key));
+            if (preference != null )
+                preference.setOnBindEditTextListener(editText ->
+                        editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
         }
     }
 }

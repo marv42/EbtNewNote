@@ -14,8 +14,6 @@ import javax.inject.Inject;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class SubmissionResults {
-    private static final int MAX_SHOW_NUM = 100;
-
     private ThisApp mApp;
     private ArrayList<SubmissionResult> mResults = new ArrayList<>();
 
@@ -28,8 +26,11 @@ public class SubmissionResults {
             for (int i = 0; i < array.size(); ++i)
                 mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
             Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
-            int howMany = Math.min(MAX_SHOW_NUM, mResults.size());
-            int startIndex = mResults.size() < MAX_SHOW_NUM ? 0 : mResults.size() - MAX_SHOW_NUM;
+            int maxShowNum = getDefaultSharedPreferences(app)
+                    .getInt(app.getString(R.string.pref_settings_submitted_key),
+                            mApp.getResources().getInteger(R.integer.max_show_num));
+            int howMany = Math.min(maxShowNum, mResults.size());
+            int startIndex = mResults.size() < maxShowNum ? 0 : mResults.size() - maxShowNum;
             mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));
         }
     }
@@ -48,9 +49,9 @@ public class SubmissionResults {
 
     void addResult(final SubmissionResult result) {
         mResults.add(result);
-        if (result.isSuccessful(mApp)) {
-            getDefaultSharedPreferences(mApp).edit().putString(mApp.getString(R.string.pref_results), new Gson().toJson(mResults)).apply();
-        }
+        if (result.isSuccessful(mApp))
+            getDefaultSharedPreferences(mApp).edit().putString(mApp.getString(R.string.pref_results),
+                    new Gson().toJson(mResults)).apply();
     }
 
     ArrayList<SubmissionResult> getResults() {
