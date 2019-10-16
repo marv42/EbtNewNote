@@ -332,6 +332,16 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.photo_button)
     void takePhoto() {
+        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
+            Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
+            return;
+        }
+        if (checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[] { CAMERA },
+                    CAMERA_PERMISSION_REQUEST_CODE);
+            return;
+        }
         if (!TextUtils.isEmpty(mCurrentPhotoPath)) {
             // TODO enable multiple OCR runs at the same time
             Toast.makeText(getActivity(), getString(R.string.ocr_executing), LENGTH_LONG).show();
@@ -352,21 +362,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .show();
             return;
         }
-        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
-            Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
-            return;
-        }
-        if (checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[] { CAMERA },
-                    CAMERA_PERMISSION_REQUEST_CODE);
-            return;
-        }
         File photoFile;
         try {
             photoFile = createImageFile();
         } catch (IOException ex) {
-            Toast.makeText(getActivity(), getString(R.string.error_creating_file), LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_creating_file) + ": "
+                    + ex.getMessage(), LENGTH_LONG).show();
             return;
         }
         mCurrentPhotoPath = photoFile.getAbsolutePath();
