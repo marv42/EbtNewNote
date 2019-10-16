@@ -19,37 +19,22 @@ import android.view.inputmethod.EditorInfo;
 
 import com.marv42.ebt.newnote.R;
 
-
-
-public class EbtKeyboard extends Keyboard
-{
+public class EbtKeyboard extends Keyboard {
    private static final int UNICODE_LINE_FEED = 0xA;
    
    private Key mEnterKey;
-   
-   
-   
-   public EbtKeyboard(Context context, int xmlLayoutResId)
-   {
+
+  EbtKeyboard(Context context, int xmlLayoutResId) {
        super(context, xmlLayoutResId);
    }
-   
-   
-   
-   
+
    public EbtKeyboard(Context context, int layoutTemplateResId,
-      CharSequence characters, int columns, int horizontalPadding)
-   {
+      CharSequence characters, int columns, int horizontalPadding) {
        super(context, layoutTemplateResId, characters, columns, horizontalPadding);
    }
-   
-   
-   
+
    @Override
-   protected Key
-   createKeyFromXml(Resources res, Row parent, int x, int y,
-                    XmlResourceParser parser)
-   {
+   protected Key createKeyFromXml(Resources res, Row parent, int x, int y, XmlResourceParser parser) {
       Key key = new Keyboard.Key(res, parent, x, y, parser);
       
       if (key.codes[0] == UNICODE_LINE_FEED)
@@ -57,24 +42,18 @@ public class EbtKeyboard extends Keyboard
       
       return key;
    }
-   
-   
-   
-   void
-   setImeOptions(Resources res, int options)
-   {
+
+   void setImeOptions(Resources res, int options) {
       if (mEnterKey == null)
          return;
       
       mEnterKey.iconPreview = null;
       mEnterKey.icon = null;
-      
-      switch (options&(EditorInfo.IME_MASK_ACTION|EditorInfo.IME_FLAG_NO_ENTER_ACTION))
-      {
-      case EditorInfo.IME_ACTION_NEXT:
+
+      if ((options & (EditorInfo.IME_MASK_ACTION | EditorInfo.IME_FLAG_NO_ENTER_ACTION))
+              == EditorInfo.IME_ACTION_NEXT) {
          mEnterKey.label = res.getText(R.string.label_next_key);
-         break;
-      default:
+      } else {
          mEnterKey.label = res.getText(R.string.label_done_key);
       }
    }
