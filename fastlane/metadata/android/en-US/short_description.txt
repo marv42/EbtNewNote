@@ -1,0 +1,1 @@
+EBT New Note is an app for submitting Euro bill note data to EuroBillTracker
