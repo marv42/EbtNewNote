@@ -44,12 +44,13 @@ public class TextProcessor {
             error = resultJson.optString(ERROR);
             if (!TextUtils.isEmpty(error))
                 return ERROR + error;
-            String result = resultJson.getString("ParsedText").replaceAll("\\W+", "").trim();
+            String result = resultJson.getString("ParsedText").replaceAll("[ \\t\\x0B\\f]+", "").trim();
             if (TextUtils.isEmpty(result))
                 return EMPTY;
+            // TODO split result at line breaks and treat them separately
             return correct(result);
         } catch (JSONException e) {
-            return app.getString(R.string.internal_error);
+            return ERROR + app.getString(R.string.internal_error);
         }
     }
 
@@ -65,9 +66,8 @@ public class TextProcessor {
             for (int i = 0; i < parsedResults.length(); i++) {
                 JSONObject aResult = parsedResults.getJSONObject(i);
                 int fileParseExitCode = aResult.getInt("FileParseExitCode");
-                if (fileParseExitCode == 1) {
+                if (fileParseExitCode == 1)
                     return aResult;
-                }
             }
         }
         return getJsonObject(ERROR, app.getString(R.string.ocr_failed_internal) + ": "
@@ -89,6 +89,7 @@ public class TextProcessor {
         char2unambiguous.put("#", "4");
 //        char2unambiguous.put("s", "5");
         char2unambiguous.put("*", "5");
+        char2unambiguous.put(">", "5");
         char2unambiguous.put("?", "7");
         char2unambiguous.put("f", "7");
         char2unambiguous.put("a", "8");
@@ -117,6 +118,7 @@ public class TextProcessor {
         char2digit.put("S", "5");
         char2digit.put("$", "5");
         char2digit.put("*", "5");
+        char2digit.put(">", "5");
         char2digit.put("?", "7");
         char2digit.put("f", "7");
         char2digit.put("a", "8");
@@ -131,7 +133,6 @@ public class TextProcessor {
             pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
         } else
             letterIndices.add(4); // probably a short code
-
         for (int i = 0; i < s.length(); ++i) {
             s = s.substring(0, i) + correctCharacter(s.charAt(i), char2unambiguous) + s.substring(i+1);
             if (letterIndices.contains(i)) {
@@ -141,7 +142,6 @@ public class TextProcessor {
                 if (! s.substring(i, i+1).matches("\\d"))
                     s = s.substring(0, i) + correctCharacter(s.charAt(i), char2digit) + s.substring(i+1);
         }
-
         Matcher matcher = pattern.matcher(s);
         if (matcher.find())
             s = s.substring(matcher.start(), matcher.end());
