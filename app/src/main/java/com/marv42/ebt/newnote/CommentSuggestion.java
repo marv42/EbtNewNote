@@ -47,43 +47,28 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
     }
 
     @Override
-    protected String[] doInBackground(LocationValues... params) {
-        return getSuggestion(params[0]);
-    }
-
-    @Override
-    protected void onPostExecute(String[] s) {
-        if (s == null || s.length < 1 || s[0].equals(ERROR))
-            return;
-        mCallback.onSuggestions(s);
-    }
-
-    private String[] getSuggestion(LocationValues l) {
+    protected String[] doInBackground(LocationValues... locationValues) {
         JSONObject json = mApiCaller.callLogin();
         if (json.has(ERROR))
             return new String[]{ ERROR, json.optString(ERROR) };
-
+        LocationValues lv = locationValues[0];
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "mycomments"));
         params.add(new Pair<>("v", "1"));
         params.add(new Pair<>("PHPSESSID", json.optString("sessionid")));
-        params.add(new Pair<>("city", l.mCity));
-        params.add(new Pair<>("country", l.mCountry));
-        params.add(new Pair<>("zip", l.mPostalCode));
+        params.add(new Pair<>("city", lv.mCity));
+        params.add(new Pair<>("country", lv.mCountry));
+        params.add(new Pair<>("zip", lv.mPostalCode));
         json = mApiCaller.callMyComments(params);
         if (json.has(ERROR))
             return new String[]{ ERROR, json.optString(ERROR) };
-
         JSONArray allComments = json.optJSONArray("data");
         List<JSONObject> list = new ArrayList<>();
         for (int i = 0; allComments != null && i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
-
         Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
-
         String additionalComment = mSharedPreferences.getString(mPreferenceCommentKey, "")
                 .replace("\u00a0", " ");
-
         // unique wrt additionalComment
         List<String> uniqueList = new ArrayList<>();
         for (int i = 0; i < list.size(); ++i) {
@@ -94,12 +79,17 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
                 uniqueList.add(value);
         }
         uniqueList = new ArrayList<>(new LinkedHashSet<>(uniqueList));
-
         int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
-
         String[] s = new String[numSuggestions];
         for (int i = 0; i < numSuggestions; ++i)
             s[i] = uniqueList.get(i);
         return s;
+    }
+
+    @Override
+    protected void onPostExecute(String[] s) {
+        if (s == null || s.length < 1 || s[0].equals(ERROR))
+            return;
+        mCallback.onSuggestions(s);
     }
 }
