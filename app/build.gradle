@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.0'
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         applicationId "com.marv42.ebt.newnote"
@@ -17,12 +17,9 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            useProguard false
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-android-debug.pro', 'proguard-rules-acra.pro'
         }
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules-acra.pro'
         }
     }
 
@@ -52,7 +49,7 @@ android {
 //    }
 }
 
-def buildToolsVersion = '29.0.0'
+def buildToolsVersion = '29.0.2'
 def acraVersion = '5.1.3'
 def daggerVersion = '2.23.1'
 def butterknifeVersion = '10.1.0'
@@ -64,10 +61,10 @@ dependencies {
 //    implementation "com.splunk:mint-android-sdk:5.1.0"
     implementation "androidx.exifinterface:exifinterface:1.0.0"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.fragment:fragment:$androidXVersion-alpha02"
+    implementation "androidx.fragment:fragment:$androidXVersion-beta02"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3" // $androidXVersion
-    implementation "androidx.appcompat:appcompat:1.0.2" // $androidXVersion
-    implementation "androidx.preference:preference:1.1.0-rc01" // $androidXVersion
+    implementation "androidx.appcompat:appcompat:1.1.0" // $androidXVersion
+    implementation "androidx.preference:preference:1.1.0" // $androidXVersion
     implementation "com.takisoft.preferencex:preferencex:1.1.0-alpha05" // $androidXVersion
     implementation "com.android.support:design:$buildToolsVersion"
 //    implementation "com.google.android.material:material:$buildToolsVersion"
