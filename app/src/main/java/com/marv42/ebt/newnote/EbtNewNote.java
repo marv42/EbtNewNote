@@ -12,7 +12,9 @@
 package com.marv42.ebt.newnote;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.Toast;
@@ -59,7 +61,14 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorAccent, typedValue, true);
+        int androidAccentColor = typedValue.data;
+        Resources.Theme theme = getTheme();
+        theme.applyStyle(androidAccentColor, true);
+        // TODO when we have Q: setTheme(theme.rebase());
         setContentView(R.layout.main);
+
         mAdapter = new FragmentWithTitlePagerAdapter();
         ViewPager pager = findViewById(R.id.view_pager);
         pager.setAdapter(mAdapter);
