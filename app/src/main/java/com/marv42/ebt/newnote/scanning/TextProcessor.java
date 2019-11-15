@@ -102,6 +102,7 @@ public class TextProcessor {
         char2letter.put("W", "U");
         char2letter.put("K", "X");
         char2letter.put("%", "X");
+        char2letter.put("1", "Z");
 
         // when we know the result must be a digit
         Map<String, String> char2digit = new HashMap<>();
@@ -121,6 +122,7 @@ public class TextProcessor {
         char2digit.put(">", "5");
         char2digit.put("?", "7");
         char2digit.put("f", "7");
+        char2digit.put("Y", "7");
         char2digit.put("a", "8");
         char2digit.put("A", "8");
         char2digit.put("B", "8");
