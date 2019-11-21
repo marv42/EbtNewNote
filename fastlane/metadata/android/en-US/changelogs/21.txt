@@ -1,0 +1,4 @@
+Multiple bug fixes
+Update build tools
+Update gradle
+Update dependencies

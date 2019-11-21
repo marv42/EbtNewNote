@@ -1,0 +1,1 @@
+Fix crash caused by 'filename cannot be null'
