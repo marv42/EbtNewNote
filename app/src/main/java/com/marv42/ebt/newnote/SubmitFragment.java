@@ -99,6 +99,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = 1000 * 60 * 60 * 24; // one day
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
 
+    private File mPhotoFile;
     private String mCurrentPhotoPath;
 
     private Unbinder mUnbinder;
@@ -362,16 +363,15 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .show();
             return;
         }
-        File photoFile;
         try {
-            photoFile = createImageFile();
+            mPhotoFile = createImageFile();
         } catch (IOException ex) {
             Toast.makeText(getActivity(), getString(R.string.error_creating_file) + ": "
                     + ex.getMessage(), LENGTH_LONG).show();
             return;
         }
-        mCurrentPhotoPath = photoFile.getAbsolutePath();
-        Uri photoUri = getUriForFile(getActivity(), getActivity().getPackageName(), photoFile);
+        mCurrentPhotoPath = mPhotoFile.getAbsolutePath();
+        Uri photoUri = getUriForFile(getActivity(), getActivity().getPackageName(), mPhotoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
         getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
