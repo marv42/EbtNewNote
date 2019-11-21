@@ -258,7 +258,7 @@ public class SubmittedFragment extends DaggerFragment {
                 if (from[i].equals(DENOMINATION_IMAGE)) {
                    ImageView v = view.findViewById(to[i]);
                    if (v != null)
-                       Picasso.with(getActivity()).load(s).into(v);
+                       Picasso.get().load(s).into(v);
                 } else {
                     TextView v = view.findViewById(to[i]);
                     if (v != null) {
