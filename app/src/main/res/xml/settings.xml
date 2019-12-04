@@ -29,6 +29,6 @@
           android:key="@string/pref_settings_submitted_key"
           android:title="@string/settings_submitted_title"
           android:summary="@string/settings_submitted_summary"
-          android:defaultValue="@integer/max_show_num"/>
+          android:defaultValue="@string/max_show_num"/>
    </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

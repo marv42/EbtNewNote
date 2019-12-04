@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +11,7 @@ import java.util.Collections;
 import javax.inject.Inject;
 
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
+import static com.google.gson.JsonParser.parseString;
 
 public class SubmissionResults {
     private ThisApp mApp;
@@ -22,13 +22,13 @@ public class SubmissionResults {
         mApp = app;
         String results = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
         if (! TextUtils.isEmpty(results)) {
-            JsonArray array = new JsonParser().parse(results).getAsJsonArray();
+            JsonArray array = parseString(results).getAsJsonArray();
             for (int i = 0; i < array.size(); ++i)
                 mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
             Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
-            int maxShowNum = getDefaultSharedPreferences(app)
-                    .getInt(app.getString(R.string.pref_settings_submitted_key),
-                            mApp.getResources().getInteger(R.integer.max_show_num));
+            int maxShowNum = Integer.parseInt(getDefaultSharedPreferences(app)
+                    .getString(app.getString(R.string.pref_settings_submitted_key),
+                            app.getResources().getString(R.string.max_show_num)));
             int howMany = Math.min(maxShowNum, mResults.size());
             int startIndex = mResults.size() < maxShowNum ? 0 : mResults.size() - maxShowNum;
             mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));

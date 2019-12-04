@@ -110,6 +110,7 @@
     <string name="trying_login">Trying to log in to EBT&#8230;</string>
     <string name="wrong_login_info">You haven\'t provided valid EBT login information: email address and password.</string>
     <string name="change_login_info">\n\nDo you want to do this now?\n\n(You can do this later in the settings.)</string>
+    <string name="max_show_num">100</string>
 
     <!-- preferences -->
     <string name="pref_settings_email_key">pref_settings_email</string>
