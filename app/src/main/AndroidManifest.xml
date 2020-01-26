@@ -49,6 +49,9 @@
             </intent-filter>
         </receiver>
         <service
+            android:name=".location.FetchAddressIntentService"
+            android:exported="false"/>
+        <service
             android:name=".keyboard.SoftKeyboard"
             android:label="@string/ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD">

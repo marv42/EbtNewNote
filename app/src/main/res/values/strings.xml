@@ -148,15 +148,15 @@
 
     <!-- location -->
     <string name="location">Location</string>
-    <string name="location_none">No location</string>
     <string name="location_not_enabled">Location is not enabled. Please enable location in the system setting.</string>
     <string name="location_no_gps">Fine location is not enabled. Consider activating GPS in the system setting to obtain better location results.</string>
-    <string name="location_no_last_known">No recent location information available. Activating the location provider and waiting for location information updates.</string>
-    <string name="location_last_known">Location was set to the last known location</string>
-    <string name="location_done">Location information gathering finished</string>
+    <string name="location_start">Gathering location information</string>
+    <string name="location_got">Got a current location</string>
+    <string name="location_last_known">Got the last known location</string>
     <string name="location_no_geocoder">No Geocoder backend service on this platform to transform latitude/longitude location values into postal addresses</string>
     <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
-    <string name="location_geocoder_exception">Geocoder couldn\'t get location information</string>
+    <string name="location_geocoder_io_exception">Geocoder service is not available</string>
+    <string name="location_geocoder_illegal_argument_exception">Invalid latitude/longitude</string>
 
     <!-- about -->
     <string name="about">About</string>
