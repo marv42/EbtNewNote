@@ -1,0 +1,1 @@
+Fetch geolocation address with an intent service
