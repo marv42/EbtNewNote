@@ -97,6 +97,7 @@ public class TextProcessor {
 
         // when we know the result must be a letter
         Map<String, String> char2letter = new HashMap<>();
+        char2letter.put("8", "A");
         char2letter.put("4", "N");
         char2letter.put("0", "O");
         char2letter.put("W", "U");
