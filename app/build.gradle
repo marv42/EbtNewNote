@@ -57,7 +57,7 @@ dependencies {
 //    implementation "com.splunk:mint-android-sdk:5.1.0"
     implementation "androidx.exifinterface:exifinterface:1.1.0"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.fragment:fragment:$androidXVersion-rc04"
+    implementation "androidx.fragment:fragment:$androidXVersion"
     implementation "androidx.constraintlayout:constraintlayout:1.1.3" // $androidXVersion
     implementation "androidx.appcompat:appcompat:1.1.0" // $androidXVersion
     implementation "androidx.preference:preference:1.1.0" // $androidXVersion
