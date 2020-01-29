@@ -244,15 +244,14 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
         LocationManager locationManager = (LocationManager)
                 getActivity().getSystemService(Context.LOCATION_SERVICE);
-        ThisApp app = (ThisApp) getActivity().getApplication();
         if (locationManager != null && !locationManager.isLocationEnabled()) {
             Toast.makeText(getActivity(), getString(R.string.location_not_enabled), LENGTH_LONG).show();
-            app.startLocationProviderChangedReceiver();
+            mApp.startLocationProviderChangedReceiver();
             return;
         }
         if (checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
             Toast.makeText(getActivity(), getString(R.string.location_no_gps), LENGTH_LONG).show();
-        app.startLocationTask();
+        mApp.startLocationTask();
     }
 
     @Override

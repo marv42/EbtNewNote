@@ -148,6 +148,7 @@
 
     <!-- location -->
     <string name="location">Location</string>
+    <string name="location_none">No location information available</string>
     <string name="location_not_enabled">Location is not enabled. Please enable location in the system setting.</string>
     <string name="location_no_gps">Fine location is not enabled. Consider activating GPS in the system setting to obtain better location results.</string>
     <string name="location_start">Gathering location information</string>

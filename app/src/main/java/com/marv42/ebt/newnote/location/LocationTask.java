@@ -42,16 +42,17 @@ public class LocationTask extends AsyncTask<Void, Void, Integer> {
         if (lastKnownLocation != null) {
             if (mLocation == null ||
                     lastKnownLocation.getTime() - mLocation.getTime() > LOCATION_MAX_WAIT_TIME_MS) {
-                setLocation(lastKnownLocation);
+                mLocation = lastKnownLocation;
                 return R.string.location_last_known;
             }
         }
         mLocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-                mLocationManager.removeUpdates(this);
-                setLocation(location);
+                if (location != null) {
+                    mLocationManager.removeUpdates(this);
+                    mLocation = location;
+                }
             }
-
             public void onStatusChanged(String provider, int status, Bundle extras) {}
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
@@ -76,14 +77,11 @@ public class LocationTask extends AsyncTask<Void, Void, Integer> {
         return lastKnownGpsLocation != null ? lastKnownGpsLocation : lastKnownNetworkLocation;
     }
 
-    private void setLocation(Location l) {
-        mLocation = l;
-    }
-
     @Override
     protected void onPostExecute(Integer result) {
         if (result != null)
             Toast.makeText(mApp, mApp.getString(result), LENGTH_LONG).show();
-        mApp.onLocation(mLocation);
+        if (mLocation != null)
+            mApp.onLocation(mLocation);
     }
 }
