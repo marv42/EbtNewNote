@@ -39,6 +39,7 @@ public class ApiCaller {
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
     private SharedPreferences mSharedPreferences;
+    private SharedPreferences mEncryptedSharedPreferences;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
     private final String mNoConnection;
@@ -51,6 +52,8 @@ public class ApiCaller {
     @Inject
     public ApiCaller(ThisApp app) {
         mSharedPreferences = getDefaultSharedPreferences(app);
+        mEncryptedSharedPreferences = EncryptedSharedPreferencesProvider.getEncryptedSharedPreferences(app);
+        // TODO if (mEncryptedSharedPreferences == null) ???
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mNoConnection = app.getString(R.string.error_no_connection);
