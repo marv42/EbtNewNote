@@ -158,10 +158,17 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setSubmittedInteger() {
-            EditTextPreference preference = findPreference(getString(R.string.pref_settings_submitted_key));
-            if (preference != null )
+            String submittedKey = getString(R.string.pref_settings_submitted_key);
+            EditTextPreference preference = findPreference(submittedKey);
+            if (preference != null) {
+                String submitted = getPreferenceScreen().getSharedPreferences().getString(submittedKey, "").trim();
+                String summary = getString(R.string.settings_submitted_summary);
+                if (!TextUtils.isEmpty(submitted))
+                    summary += getString(R.string.settings_currently) + " " + submitted;
+                preference.setSummary(summary);
                 preference.setOnBindEditTextListener(editText ->
                         editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
+            }
         }
     }
 }
