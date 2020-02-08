@@ -70,7 +70,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             setEmailSummary();
             setPasswordSummary();
             setCommentSummary();
-            setSubmittedInteger();
+            setSubmittedSummary();
         }
 
         @Override
@@ -98,6 +98,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                     setCommentSummary();
                 if (s.equals(getString(R.string.pref_settings_ocr_key)))
                     setOcrSummary();
+                if (s.equals(getString(R.string.pref_settings_submitted_key)))
+                    setSubmittedSummary();
                 if ((s.equals(emailKey) || s.equals(passwordKey)) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
                         ! TextUtils.isEmpty(sharedPreferences.getString(passwordKey, "")))
@@ -159,7 +161,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             }
         }
 
-        private void setSubmittedInteger() {
+        private void setSubmittedSummary() {
             String submittedKey = getString(R.string.pref_settings_submitted_key);
             EditTextPreference preference = findPreference(submittedKey);
             if (preference != null) {
