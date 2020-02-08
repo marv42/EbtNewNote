@@ -138,7 +138,9 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String summary = getString(R.string.settings_comment_summary);
             if (! TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
-            (findPreference(commentKey)).setSummary(summary);
+            EditTextPreference preference = findPreference(commentKey);
+            if (preference != null)
+                    preference.setSummary(summary);
         }
 
         private void setOcrSummary() {
