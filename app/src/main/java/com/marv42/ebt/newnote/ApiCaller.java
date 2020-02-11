@@ -30,7 +30,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
 public class ApiCaller {
@@ -38,7 +37,7 @@ public class ApiCaller {
 
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
-    private SharedPreferences mSharedPreferences;
+    private SharedPreferencesHandler mSharedPreferencesHandler;
     private SharedPreferences mEncryptedSharedPreferences;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
@@ -50,8 +49,8 @@ public class ApiCaller {
     private final String mInternalError;
 
     @Inject
-    public ApiCaller(ThisApp app) {
-        mSharedPreferences = getDefaultSharedPreferences(app);
+    public ApiCaller(ThisApp app, SharedPreferencesHandler sharedPreferencesHandler) {
+        mSharedPreferencesHandler = sharedPreferencesHandler;
         mEncryptedSharedPreferences = EncryptedSharedPreferencesProvider.getEncryptedSharedPreferences(app);
         // TODO if (mEncryptedSharedPreferences == null) ???
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
@@ -91,8 +90,8 @@ public class ApiCaller {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
-        params.add(new Pair<>("my_email", mSharedPreferences.getString(mPrefSettingsEmailKey, "").trim()));
-        params.add(new Pair<>("my_password", mSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
+        params.add(new Pair<>("my_email", mSharedPreferencesHandler.get(mPrefSettingsEmailKey, "").trim()));
+        params.add(new Pair<>("my_password", mSharedPreferencesHandler.get(mPrefSettingsPasswordKey, "")));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return getJsonObject(ERROR, mInternalError);

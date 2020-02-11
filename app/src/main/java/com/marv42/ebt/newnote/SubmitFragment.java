@@ -77,7 +77,6 @@ import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
-import static com.marv42.ebt.newnote.scanning.Keys.OCR_SERVICE;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
@@ -95,6 +94,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     ApiCaller mApiCaller;
     @Inject
     SubmissionResults mSubmissionResults;
+    @Inject
+    SharedPreferencesHandler mSharedPreferencesHandler;
 
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = 1000 * 60 * 60 * 24; // one day
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
@@ -126,15 +127,13 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.submit, container, false);
         mUnbinder = ButterKnife.bind(this, view);
-        mSharedPreferences.edit().putString(getString(R.string.pref_settings_ocr_key),
-                OCR_SERVICE).apply();
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (!mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false)) {
+        if (!mSharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false)) {
             new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
                     .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
                     .setPositiveButton(getString(R.string.yes),
@@ -146,7 +145,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
         }
-        String ocrResult = mSharedPreferences.getString(getString(R.string.pref_ocr_result), "");
+        String ocrResult = mSharedPreferencesHandler.get(R.string.pref_ocr_result, "");
         if (!TextUtils.isEmpty(ocrResult))
             presentOcrResult(ocrResult);
         ((Callback) getActivity()).onSubmitFragmentAdded();
@@ -159,8 +158,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             if (checkedId != -1 && mRadioChangingDone) {
                 mRadioChangingDone = false;
                 mRadioGroup2.clearCheck();
-                mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
-                        getDenomination()).apply();
+                mSharedPreferencesHandler.set(R.string.pref_denomination_key, getDenomination());
             }
             mRadioChangingDone = true;
         });
@@ -168,8 +166,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             if (checkedId != -1 && mRadioChangingDone) {
                 mRadioChangingDone = false;
                 mRadioGroup1.clearCheck();
-                mSharedPreferences.edit().putString(getString(R.string.pref_denomination_key),
-                        getDenomination()).apply();
+                mSharedPreferencesHandler.set(R.string.pref_denomination_key, getDenomination());
             }
             mRadioChangingDone = true;
         });
@@ -206,6 +203,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onDestroyView() {
         mUnbinder.unbind();
+        mSharedPreferencesHandler = null;
         super.onDestroyView();
     }
 
@@ -255,39 +253,49 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (sharedPreferences == mSharedPreferences) {
-            setEditTextFromSharedPreferences(s, getString(R.string.pref_country_key), mCountryText);
-            setEditTextFromSharedPreferences(s, getString(R.string.pref_city_key), mCityText);
-            setEditTextFromSharedPreferences(s, getString(R.string.pref_postal_code_key), mPostalCodeText);
-        }
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == mSharedPreferences)
+            setEditTextFromSharedPreferences(key);
     }
 
-    private void setEditTextFromSharedPreferences(String s, String key, EditText editText) {
-        if (s.equals(key)) {
-            String newValue = mSharedPreferences.getString(key, "");
-            if (!TextUtils.isEmpty(newValue) && !newValue.equals(editText.getText().toString()))
-                editText.setText(newValue);
-        }
+    private void setEditTextFromSharedPreferences(String key) {
+        String newValue = mSharedPreferences.getString(key, "");
+        EditText editText = getEditText(key);
+        if (editText != null && !TextUtils.isEmpty(newValue) && !newValue.equals(editText.getText().toString()))
+            editText.setText(newValue);
+    }
+
+    private EditText getEditText(String prefRes) {
+        if (prefRes.equals(mApp.getString(R.string.pref_country_key)))
+            return mCountryText;
+        if (prefRes.equals(mApp.getString(R.string.pref_city_key)))
+            return mCityText;
+        if (prefRes.equals(mApp.getString(R.string.pref_postal_code_key)))
+            return mPostalCodeText;
+        if (prefRes.equals(mApp.getString(R.string.pref_short_code_key)))
+            return mShortCodeText;
+        if (prefRes.equals(mApp.getString(R.string.pref_serial_number_key)))
+            return mSerialText;
+        if (prefRes.equals(mApp.getString(R.string.pref_comment_key)))
+            return mCommentText;
+        return null;
     }
 
     void setViewValuesFromPreferences() {
-        String country = mSharedPreferences.getString(getString(R.string.pref_country_key), "");
+        String country = mSharedPreferencesHandler.get(R.string.pref_country_key, "");
         if (! TextUtils.equals(country, mCountryText.getText()))
             mCountryText.setText(country);
-        String city = mSharedPreferences.getString(getString(R.string.pref_city_key), "");
+        String city = mSharedPreferencesHandler.get(R.string.pref_city_key, "");
         if (! TextUtils.equals(city, mCityText.getText()))
             mCityText.setText(city);
-        String postalCode = mSharedPreferences.getString(getString(R.string.pref_postal_code_key), "");
+        String postalCode = mSharedPreferencesHandler.get(R.string.pref_postal_code_key, "");
         if (! TextUtils.equals(postalCode, mPostalCodeText.getText()))
             mPostalCodeText.setText(postalCode);
-        setDenomination(mSharedPreferences.getString(getString(R.string.pref_denomination_key),
-                getString(R.string.eur5)));
-        mShortCodeText.setText(mSharedPreferences.getString(getString(R.string.pref_short_code_key), ""));
-        mSerialText.setText(mSharedPreferences.getString(getString(R.string.pref_serial_number_key), ""));
-        String comment = mSharedPreferences.getString(getString(R.string.pref_comment_key), "");
-        String additionalComment =
-                mSharedPreferences.getString(getString(R.string.pref_settings_comment_key), "");
+        setDenomination(mSharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5)));
+        mShortCodeText.setText(mSharedPreferencesHandler.get(R.string.pref_short_code_key, ""));
+        mSerialText.setText(mSharedPreferencesHandler.get(R.string.pref_serial_number_key, ""));
+        String comment = mSharedPreferencesHandler.get(R.string.pref_comment_key, "");
+        String additionalComment = mSharedPreferencesHandler.get(R.string.pref_settings_comment_key, "");
         if (comment.endsWith(additionalComment))
             mCommentText.setText(comment.substring(0, comment.length() - additionalComment.length()));
         else
@@ -347,7 +355,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             Toast.makeText(getActivity(), getString(R.string.ocr_executing), LENGTH_LONG).show();
             return;
         }
-        if (TextUtils.isEmpty(mSharedPreferences.getString(getString(R.string.pref_settings_ocr_key), ""))) {
+        if (TextUtils.isEmpty(mSharedPreferencesHandler.get(R.string.pref_settings_ocr_key, ""))) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.ocr_no_service_key)
                     .setMessage(mApp.getString(R.string.settings_ocr_summary) + " " +
@@ -389,7 +397,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (isVisible()) // des is immer visible, mir soll's recht sei
             presentOcrResult(result);
         else {
-            mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), result).apply();
+            mSharedPreferencesHandler.set(R.string.pref_ocr_result, result);
             Intent intent = new Intent(mApp, EbtNewNote.class);
             intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
             PendingIntent contentIntent = PendingIntent.getActivity(mApp, 0, intent,
@@ -455,7 +463,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             }
             Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
         }
-        mSharedPreferences.edit().putString(mApp.getString(R.string.pref_ocr_result), "").apply();
+        mSharedPreferencesHandler.set(R.string.pref_ocr_result, "");
     }
 
     private void putToClipboard(Editable text) {
@@ -484,7 +492,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         @Override
         public void afterTextChanged(Editable s) {
-            mSharedPreferences.edit().putString(mPreferenceKey, s.toString()).apply();
+            mSharedPreferencesHandler.set(mPreferenceKey, s.toString());
         }
     }
 
@@ -503,10 +511,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void executeCommentSuggestion() {
-        if (! mSharedPreferences.getBoolean(getString(R.string.pref_login_values_ok_key), false))
+        if (! mSharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
-        new CommentSuggestion(mApiCaller, mSharedPreferences, (EbtNewNote) getActivity(),
-                mApp.getString(R.string.pref_settings_comment_key))
+        new CommentSuggestion(mApiCaller, mSharedPreferencesHandler, (EbtNewNote) getActivity())
                 .execute(new LocationValues(
                         mCountryText.getText().toString(),
                         mCityText.getText().toString(),

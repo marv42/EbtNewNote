@@ -13,7 +13,6 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -56,7 +55,7 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     @Inject
-    SharedPreferences mSharedPreferences;
+    SharedPreferencesHandler mSharedPreferencesHandler;
     @Inject
     SubmissionResults mSubmissionResults;
 
@@ -194,14 +193,13 @@ public class SubmittedFragment extends DaggerFragment {
 
     private void startNewNote(int groupPos) {
         NoteData noteData = mSubmissionResults.getResults().get(groupPos).mNoteData;
-        mSharedPreferences.edit()
-                .putString(getString(R.string.pref_country_key), noteData.mCountry)
-                .putString(getString(R.string.pref_city_key), noteData.mCity)
-                .putString(getString(R.string.pref_postal_code_key), noteData.mPostalCode)
-                .putString(getString(R.string.pref_denomination_key), noteData.mDenomination)
-                .putString(getString(R.string.pref_short_code_key), noteData.mShortCode)
-                .putString(getString(R.string.pref_serial_number_key), noteData.mSerialNumber)
-                .putString(getString(R.string.pref_comment_key), noteData.mComment).apply();
+        mSharedPreferencesHandler.set(getString(R.string.pref_country_key), noteData.mCountry);
+        mSharedPreferencesHandler.set(getString(R.string.pref_city_key), noteData.mCity);
+        mSharedPreferencesHandler.set(getString(R.string.pref_postal_code_key), noteData.mPostalCode);
+        mSharedPreferencesHandler.set(getString(R.string.pref_denomination_key), noteData.mDenomination);
+        mSharedPreferencesHandler.set(getString(R.string.pref_short_code_key), noteData.mShortCode);
+        mSharedPreferencesHandler.set(getString(R.string.pref_serial_number_key), noteData.mSerialNumber);
+        mSharedPreferencesHandler.set(getString(R.string.pref_comment_key), noteData.mComment);
         ((Callback) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 

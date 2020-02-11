@@ -8,6 +8,7 @@ import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
+import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResults;
 import com.marv42.ebt.newnote.ThisApp;
 
@@ -52,8 +53,15 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app) {
-        return new ApiCaller(app);
+    static SharedPreferencesHandler provideSharedPreferencesHandler(
+            @NonNull ThisApp app, @NonNull SharedPreferences sharedPreferences) {
+        return new SharedPreferencesHandler(app, sharedPreferences);
+    }
+
+    @Provides
+    @Singleton
+    static ApiCaller provideApiCaller(@NonNull ThisApp app, @NonNull SharedPreferencesHandler sharedPreferencesHandler) {
+        return new ApiCaller(app, sharedPreferencesHandler);
     }
 
     @Provides
@@ -68,4 +76,11 @@ abstract class ApplicationModule {
             @NonNull ThisApp app, @NonNull ApiCaller apiCaller, @NonNull SubmissionResults submissionResults) {
         return new NoteDataSubmitter(app, apiCaller, submissionResults);
     }
+
+//    @Provides
+//    @Singleton
+//    static LoginChecker provideLoginChecker(@NonNull ThisApp app, @NonNull ApiCaller apiCaller,
+//            @NonNull SharedPreferencesHandler sharedPreferencesHandler) {
+//        return new LoginChecker(app, apiCaller, sharedPreferencesHandler);
+//    }
 }

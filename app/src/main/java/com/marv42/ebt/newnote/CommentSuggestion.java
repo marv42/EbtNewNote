@@ -11,7 +11,6 @@
 
 package com.marv42.ebt.newnote;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import androidx.core.util.Pair;
@@ -35,15 +34,12 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
     private Callback mCallback;
     private ApiCaller mApiCaller;
-    private SharedPreferences mSharedPreferences;
-    private String mPreferenceCommentKey;
+    private SharedPreferencesHandler mSharedPreferencesHandler;
 
-    CommentSuggestion(ApiCaller apiCaller, SharedPreferences sharedPreferences, Callback callback,
-                      String preferenceCommentKey) {
+    CommentSuggestion(ApiCaller apiCaller, SharedPreferencesHandler sharedPreferencesHandler, Callback callback) {
         mApiCaller = apiCaller;
-        mSharedPreferences = sharedPreferences;
+        mSharedPreferencesHandler = sharedPreferencesHandler;
         mCallback = callback;
-        mPreferenceCommentKey = preferenceCommentKey;
     }
 
     @Override
@@ -67,7 +63,7 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         for (int i = 0; allComments != null && i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
         Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
-        String additionalComment = mSharedPreferences.getString(mPreferenceCommentKey, "")
+        String additionalComment = mSharedPreferencesHandler.get(R.string.pref_settings_comment_key, "")
                 .replace("\u00a0", " ");
         // unique wrt additionalComment
         List<String> uniqueList = new ArrayList<>();
