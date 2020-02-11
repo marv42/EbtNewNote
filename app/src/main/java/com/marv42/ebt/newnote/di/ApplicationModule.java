@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.EncryptedSharedPreferencesProvider;
 import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
@@ -60,8 +61,14 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app, @NonNull SharedPreferencesHandler sharedPreferencesHandler) {
-        return new ApiCaller(app, sharedPreferencesHandler);
+    static EncryptedSharedPreferencesProvider provideEncryptedSharedPreferencesProvider (@NonNull ThisApp app) {
+        return new EncryptedSharedPreferencesProvider(app);
+    }
+
+    @Provides
+    @Singleton
+    static ApiCaller provideApiCaller(@NonNull ThisApp app, @NonNull EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider) {
+        return new ApiCaller(app, encryptedSharedPreferencesProvider);
     }
 
     @Provides

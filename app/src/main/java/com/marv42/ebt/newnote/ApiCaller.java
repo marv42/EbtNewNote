@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,6 @@ public class ApiCaller {
 
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
-    private SharedPreferencesHandler mSharedPreferencesHandler;
     private SharedPreferences mEncryptedSharedPreferences;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
@@ -49,10 +49,12 @@ public class ApiCaller {
     private final String mInternalError;
 
     @Inject
-    public ApiCaller(ThisApp app, SharedPreferencesHandler sharedPreferencesHandler) {
-        mSharedPreferencesHandler = sharedPreferencesHandler;
-        mEncryptedSharedPreferences = EncryptedSharedPreferencesProvider.getEncryptedSharedPreferences(app);
-        // TODO if (mEncryptedSharedPreferences == null) ???
+    public ApiCaller(ThisApp app, EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider) {
+        try {
+            mEncryptedSharedPreferences = encryptedSharedPreferencesProvider.getEncryptedSharedPreferences();
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+        }
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mNoConnection = app.getString(R.string.error_no_connection);
@@ -90,8 +92,8 @@ public class ApiCaller {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
-        params.add(new Pair<>("my_email", mSharedPreferencesHandler.get(mPrefSettingsEmailKey, "").trim()));
-        params.add(new Pair<>("my_password", mSharedPreferencesHandler.get(mPrefSettingsPasswordKey, "")));
+        params.add(new Pair<>("my_email", mEncryptedSharedPreferences.getString(mPrefSettingsEmailKey, "").trim()));
+        params.add(new Pair<>("my_password", mEncryptedSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return getJsonObject(ERROR, mInternalError);
