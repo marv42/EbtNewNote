@@ -1,0 +1,2 @@
+Fix "No camera button in portrait mode"
+https://github.com/marv42/EbtNewNote/issues/2
