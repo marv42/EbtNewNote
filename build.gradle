@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:3.6.4'
     }
 }
 
@@ -13,4 +13,9 @@ allprojects {
         jcenter()
         google()
     }
+}
+
+ext {
+    sdkVersion = 30
+    buildToolsVersion = '30.0.0'
 }
