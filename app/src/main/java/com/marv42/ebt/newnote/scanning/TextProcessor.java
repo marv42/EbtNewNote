@@ -75,37 +75,37 @@ public class TextProcessor {
     }
 
     private static String correct(String s) {
-        // when we don't know whether the result must be a letter or a digit
-        Map<String, String> char2unambiguous = new HashMap<>();
-//        char2unambiguous.put("$", "S");
-//        char2unambiguous.put("$", "5");
-//        char2unambiguous.put("W", "U");
-        char2unambiguous.put("K", "X");
-        char2unambiguous.put("%", "X");
-        char2unambiguous.put("@", "0");
-        char2unambiguous.put("i", "1");
-        char2unambiguous.put("I", "1");
-        char2unambiguous.put("t", "1");
-        char2unambiguous.put("#", "4");
-//        char2unambiguous.put("s", "5");
-        char2unambiguous.put("*", "5");
-        char2unambiguous.put(">", "5");
-        char2unambiguous.put("?", "7");
-        char2unambiguous.put("f", "7");
-        char2unambiguous.put("a", "8");
-        char2unambiguous.put("&", "8");
+        Map<String, String> char2ambiguous = new HashMap<>();
+//        char2ambiguous.put("$", "S");
+//        char2ambiguous.put("$", "5");
+//        char2ambiguous.put("W", "U");
+        char2ambiguous.put("K", "X");
+        char2ambiguous.put("%", "X");
+        char2ambiguous.put("@", "0");
+        char2ambiguous.put("i", "1");
+        char2ambiguous.put("I", "1");
+        char2ambiguous.put("t", "1");
+        char2ambiguous.put("#", "4");
+//        char2ambiguous.put("s", "5");
+        char2ambiguous.put("*", "5");
+        char2ambiguous.put(">", "5");
+        char2ambiguous.put("?", "7");
+        char2ambiguous.put("f", "7");
+        char2ambiguous.put("a", "8");
+        char2ambiguous.put("&", "8");
 
-        // when we know the result must be a letter
         Map<String, String> char2letter = new HashMap<>();
         char2letter.put("8", "A");
+        char2letter.put("3", "B");
         char2letter.put("4", "N");
         char2letter.put("0", "O");
+        char2letter.put("1", "U");
         char2letter.put("W", "U");
         char2letter.put("K", "X");
         char2letter.put("%", "X");
-        char2letter.put("1", "Z");
+        char2letter.put("2", "Z");
+//        char2letter.put("1", "Z");
 
-        // when we know the result must be a digit
         Map<String, String> char2digit = new HashMap<>();
         char2digit.put("D", "0");
         char2digit.put("O", "0");
@@ -115,14 +115,15 @@ public class TextProcessor {
         char2digit.put("I", "1");
         char2digit.put("t", "1");
         char2digit.put("Z", "2");
-        //char2digit.put("s", "3");
-        //char2digit.put("s", "5");
+//        char2digit.put("s", "3");
+//        char2digit.put("s", "5");
         char2digit.put("S", "5");
         char2digit.put("$", "5");
         char2digit.put("*", "5");
         char2digit.put(">", "5");
         char2digit.put("?", "7");
         char2digit.put("f", "7");
+        char2digit.put("T", "7");
         char2digit.put("Y", "7");
         char2digit.put("a", "8");
         char2digit.put("A", "8");
@@ -133,11 +134,13 @@ public class TextProcessor {
         Pattern pattern = Pattern.compile("\\w\\d{3}\\w\\d", CASE_INSENSITIVE);
         if (s.length() > 9) {
             letterIndices.add(1); // probably a serial number
+            // we don't support the old number format \\w{1}\\d{11} any more,
+            // because if we would, we couldn't fix the 2nd letter of the new format
             pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
         } else
             letterIndices.add(4); // probably a short code
         for (int i = 0; i < s.length(); ++i) {
-            s = s.substring(0, i) + correctCharacter(s.charAt(i), char2unambiguous) + s.substring(i+1);
+            s = s.substring(0, i) + correctCharacter(s.charAt(i), char2ambiguous) + s.substring(i+1);
             if (letterIndices.contains(i)) {
                 if (! s.substring(i, i+1).matches("\\w"))
                     s = s.substring(0, i) + correctCharacter(s.charAt(i), char2letter) + s.substring(i+1);
