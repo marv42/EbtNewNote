@@ -1,0 +1,4 @@
+Fix issue #3 "OCR API key not saved"
+https://github.com/marv42/EbtNewNote/issues/3
+
+Add OCR character replacement rules
