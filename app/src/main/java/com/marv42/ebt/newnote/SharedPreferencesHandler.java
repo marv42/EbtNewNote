@@ -1,7 +1,6 @@
 package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 
@@ -15,19 +14,20 @@ public class SharedPreferencesHandler {
     public SharedPreferencesHandler(ThisApp app, SharedPreferences sharedPreferences) {
         mApp = app;
         mSharedPreferences = sharedPreferences;
-        set(R.string.pref_settings_ocr_key, OCR_SERVICE);
+        if (! OCR_SERVICE.isEmpty())
+            set(R.string.pref_settings_ocr_key, OCR_SERVICE);
     }
 
     <T> T get(int prefResId, T defValue) {
         return get(mApp.getString(prefResId), defValue);
     }
 
-    <T> T get(String prefRes, T defValue) {
+    private <T> T get(String prefRes, T defValue) {
         if (defValue instanceof String)
             return (T) mSharedPreferences.getString(prefRes, (String) defValue);
         if (defValue instanceof Boolean)
             return (T) (Boolean) mSharedPreferences.getBoolean(prefRes, (Boolean) defValue);
-        throw new IllegalArgumentException("Unknown instance of defValue " + defValue);
+        throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
     }
 
     <T> void set(int prefResId, T value) {
@@ -40,6 +40,6 @@ public class SharedPreferencesHandler {
         else if (value instanceof Boolean)
             mSharedPreferences.edit().putBoolean(prefRes, (Boolean) value).apply();
         else
-            throw new IllegalArgumentException("Unknown instance of value " + value);
+            throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
     }
 }
