@@ -14,8 +14,6 @@ public class SharedPreferencesHandler {
     public SharedPreferencesHandler(ThisApp app, SharedPreferences sharedPreferences) {
         mApp = app;
         mSharedPreferences = sharedPreferences;
-        if (! OCR_SERVICE.isEmpty())
-            set(R.string.pref_settings_ocr_key, OCR_SERVICE);
     }
 
     <T> T get(int prefResId, T defValue) {

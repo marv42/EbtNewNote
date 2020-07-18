@@ -30,6 +30,7 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
@@ -38,7 +39,7 @@ public class ApiCaller {
 
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
-    private SharedPreferences mEncryptedSharedPreferences;
+    private SharedPreferences mSharedPreferences;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
     private final String mNoConnection;
@@ -49,12 +50,13 @@ public class ApiCaller {
     private final String mInternalError;
 
     @Inject
-    public ApiCaller(ThisApp app, EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider) {
-        try {
-            mEncryptedSharedPreferences = encryptedSharedPreferencesProvider.getEncryptedSharedPreferences();
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-        }
+    public ApiCaller(ThisApp app, SharedPreferences sharedPreferences /*EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider*/) {
+        mSharedPreferences = sharedPreferences;
+//        try {
+//            mSharedPreferences = encryptedSharedPreferencesProvider.getEncryptedSharedPreferences();
+//        } catch (GeneralSecurityException | IOException e) {
+//            e.printStackTrace();
+//        }
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mNoConnection = app.getString(R.string.error_no_connection);
@@ -76,7 +78,8 @@ public class ApiCaller {
         try (Response response = call.execute()) {
             if (! response.isSuccessful())
                 return getJsonObject(ERROR, mHttpError + " " + response.code());
-            String body = response.body() != null ? response.body().string() : "";
+            ResponseBody responseBody = response.body();
+            String body = responseBody != null ? responseBody.string() : "";
             JSONObject json = getJsonObject(body);
             if (json == null)
                 return getJsonObject(ERROR, body);
@@ -92,8 +95,9 @@ public class ApiCaller {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
-        params.add(new Pair<>("my_email", mEncryptedSharedPreferences.getString(mPrefSettingsEmailKey, "").trim()));
-        params.add(new Pair<>("my_password", mEncryptedSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
+        String email = mSharedPreferences.getString(mPrefSettingsEmailKey, "");
+        params.add(new Pair<>("my_email", email != null ? email.trim() : ""));
+        params.add(new Pair<>("my_password", mSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return getJsonObject(ERROR, mInternalError);

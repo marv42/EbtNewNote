@@ -67,8 +67,8 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app, @NonNull EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider) {
-        return new ApiCaller(app, encryptedSharedPreferencesProvider);
+    static ApiCaller provideApiCaller(@NonNull ThisApp app, SharedPreferences sharedPreferences /*@NonNull EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider*/) {
+        return new ApiCaller(app, sharedPreferences /*encryptedSharedPreferencesProvider*/);
     }
 
     @Provides
