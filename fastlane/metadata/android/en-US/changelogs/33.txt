@@ -1,0 +1,1 @@
+Indicate if there are comment suggestions

@@ -11,7 +11,9 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import androidx.core.util.Pair;
 
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 
 public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
@@ -84,8 +87,12 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
     @Override
     protected void onPostExecute(String[] s) {
-        if (s == null || s.length < 1 || s[0].equals(ERROR))
+        Context context = (Context) mCallback;
+        if (s == null || s.length < 1 || s[0].equals(ERROR)) {
+            Toast.makeText(context, context.getString(R.string.no_comment_suggestions), LENGTH_LONG).show();
             return;
+        }
+        Toast.makeText(context, context.getString(R.string.comment_suggestions_set), LENGTH_LONG).show();
         mCallback.onSuggestions(s);
     }
 }

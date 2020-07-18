@@ -85,6 +85,8 @@
     <string name="comment_hint">e.g.: Where did you get the note from? …</string>
     <string name="submit">Submit Data to EBT</string>
     <string name="acquire">Acquire Values from Photo</string>
+    <string name="no_comment_suggestions">No comment suggestions</string>
+    <string name="comment_suggestions_set">Successfully set comment suggestions</string>
 
     <!-- settings -->
     <string name="settings">Settings</string>
