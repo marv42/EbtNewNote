@@ -106,13 +106,13 @@
     <string name="settings_advanced">Advanced settings</string>
     <string name="settings_submitted_title">Number of notes</string>
     <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
-    <string name="get_ocr_key">You are now being redirected to the settings to enter/get an OCR service key.</string>
+    <string name="get_ocr_key">\n\nYou are now being redirected to the settings to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
     <string name="logged_in">You have successfully been logged in to EBT.</string>
     <string name="trying_login">Trying to log in to EBT&#8230;</string>
     <string name="wrong_login_info">You haven\'t provided valid EBT login information: email address and password.</string>
-    <string name="change_login_info">\n\nDo you want to do this now?\n\n(You can do this later in the settings.)</string>
+    <string name="change_login_info">\n\nYou are now being redirected to the settings.</string>
     <string name="max_show_num">100</string>
 
     <!-- preferences -->

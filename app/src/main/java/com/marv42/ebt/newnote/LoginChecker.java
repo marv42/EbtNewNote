@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
@@ -33,7 +34,7 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
     private ApiCaller mApiCaller;
 
     // TODO @Inject
-    public LoginChecker(final ThisApp app, ApiCaller apiCaller) {
+    public LoginChecker(@NonNull final ThisApp app, ApiCaller apiCaller) {
         mApp = app;
         mApiCaller = apiCaller;
     }
@@ -43,13 +44,12 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
         if (!getDefaultSharedPreferences(app).getBoolean(app.getString(R.string.pref_login_values_ok_key), false)) {
             new AlertDialog.Builder(activity).setTitle(app.getString(R.string.info))
                     .setMessage(app.getString(R.string.wrong_login_info) + app.getString(R.string.change_login_info))
-                    .setPositiveButton(app.getString(R.string.yes),
+                    .setPositiveButton(app.getString(R.string.ok),
                             (dialog, which) -> {
                                 activity.startActivity(new Intent(activity.getApplicationContext(),
                                         SettingsActivity.class));
                                 dialog.dismiss();
                             })
-                    .setNegativeButton(app.getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
         }
     }
