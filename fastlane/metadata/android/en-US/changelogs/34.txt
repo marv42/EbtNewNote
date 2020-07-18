@@ -1,0 +1,5 @@
+Redirect to settings instead of asking
+Adapt to new EncryptedSharedPreferences
+Fix SharedPreferences usage
+Increase build tools version
+Indicate if there are comment suggestions
