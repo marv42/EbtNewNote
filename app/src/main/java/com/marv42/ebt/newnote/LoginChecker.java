@@ -11,11 +11,16 @@
 
 package com.marv42.ebt.newnote;
 
+import android.app.Application;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 
 import org.json.JSONObject;
 
@@ -27,9 +32,26 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
     private ThisApp mApp;
     private ApiCaller mApiCaller;
 
-    LoginChecker(final ThisApp app, ApiCaller apiCaller) {
+    // TODO @Inject
+    public LoginChecker(final ThisApp app, ApiCaller apiCaller) {
         mApp = app;
         mApiCaller = apiCaller;
+    }
+
+    static void checkLoginInfo(FragmentActivity activity) {
+        Application app = activity.getApplication();
+        if (!getDefaultSharedPreferences(app).getBoolean(app.getString(R.string.pref_login_values_ok_key), false)) {
+            new AlertDialog.Builder(activity).setTitle(app.getString(R.string.info))
+                    .setMessage(app.getString(R.string.wrong_login_info) + app.getString(R.string.change_login_info))
+                    .setPositiveButton(app.getString(R.string.yes),
+                            (dialog, which) -> {
+                                activity.startActivity(new Intent(activity.getApplicationContext(),
+                                        SettingsActivity.class));
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton(app.getString(R.string.no), (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
     }
 
     @Override

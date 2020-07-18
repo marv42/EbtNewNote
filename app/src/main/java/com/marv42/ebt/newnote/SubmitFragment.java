@@ -99,6 +99,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = 1000 * 60 * 60 * 24; // one day
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
+    private static final int VIBRATION_MS = 150;
 
     private File mPhotoFile;
     private String mCurrentPhotoPath;
@@ -133,21 +134,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (!mSharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false)) {
-            new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.info))
-                    .setMessage(getString(R.string.wrong_login_info) + getString(R.string.change_login_info))
-                    .setPositiveButton(getString(R.string.yes),
-                            (dialog, which) -> {
-                                startActivity(new Intent(getActivity().getApplicationContext(),
-                                        SettingsActivity.class));
-                                dialog.dismiss();
-                            })
-                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
-        String ocrResult = mSharedPreferencesHandler.get(R.string.pref_ocr_result, "");
-        if (!TextUtils.isEmpty(ocrResult))
-            presentOcrResult(ocrResult);
+        LoginChecker.checkLoginInfo(getActivity());
+        checkOcrResult();
         ((Callback) getActivity()).onSubmitFragmentAdded();
     }
 
@@ -261,7 +249,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void setEditTextFromSharedPreferences(String key) {
         String newValue = mSharedPreferences.getString(key, "");
         EditText editText = getEditText(key);
-        if (editText != null && !TextUtils.isEmpty(newValue) && !newValue.equals(editText.getText().toString()))
+        if (editText != null && !TextUtils.isEmpty(newValue) && newValue != null && !newValue.equals(editText.getText().toString()))
             editText.setText(newValue);
     }
 
@@ -438,21 +426,21 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 android.R.layout.simple_dropdown_item_1line, suggestions));
     }
 
+    private void checkOcrResult() {
+        String ocrResult = mSharedPreferencesHandler.get(R.string.pref_ocr_result, "");
+        if (!TextUtils.isEmpty(ocrResult))
+            presentOcrResult(ocrResult);
+    }
+
     private void presentOcrResult(String ocrResult) {
         Vibrator v = (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
         if (v != null)
-            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, VibrationEffect.DEFAULT_AMPLITUDE));
         Activity activity = getActivity();
         if (ocrResult.equals(TextProcessor.EMPTY))
-            new AlertDialog.Builder(activity)
-                    .setTitle(R.string.ocr_dialog_title)
-                    .setMessage(getString(R.string.ocr_dialog_empty))
-                    .show();
+            showDialog(activity, getString(R.string.ocr_dialog_empty));
         else if (ocrResult.startsWith(ERROR))
-            new AlertDialog.Builder(activity)
-                    .setTitle(R.string.ocr_dialog_title)
-                    .setMessage(ocrResult.substring(5))
-                    .show();
+            showDialog(activity, ocrResult.substring(5));
         else {
             if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
@@ -461,9 +449,16 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 putToClipboard(mSerialText.getText());
                 mSerialText.setText(ocrResult);
             }
-            Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.ocr_return), LENGTH_LONG).show();
         }
         mSharedPreferencesHandler.set(R.string.pref_ocr_result, "");
+    }
+
+    private static void showDialog(Activity activity, String message) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.ocr_dialog_title)
+                .setMessage(message)
+                .show();
     }
 
     private void putToClipboard(Editable text) {
