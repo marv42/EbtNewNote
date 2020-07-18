@@ -249,7 +249,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void setEditTextFromSharedPreferences(String key) {
         String newValue = mSharedPreferences.getString(key, "");
         EditText editText = getEditText(key);
-        if (editText != null && !TextUtils.isEmpty(newValue) && newValue != null && !newValue.equals(editText.getText().toString()))
+        if (editText != null && !TextUtils.isEmpty(newValue) &&
+                newValue != null && !newValue.equals(editText.getText().toString()))
             editText.setText(newValue);
     }
 
@@ -348,13 +349,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                     .setTitle(R.string.ocr_no_service_key)
                     .setMessage(mApp.getString(R.string.settings_ocr_summary) + " " +
                             mApp.getString(R.string.get_ocr_key))
-                    .setPositiveButton(getString(R.string.yes),
+                    .setPositiveButton(getString(R.string.ok),
                             (dialog, which) -> {
                                 startActivity(new Intent(getActivity().getApplicationContext(),
                                         SettingsActivity.class));
                                 dialog.dismiss();
                             })
-                    .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss())
                     .show();
             return;
         }
