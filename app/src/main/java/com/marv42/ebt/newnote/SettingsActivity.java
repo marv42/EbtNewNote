@@ -11,6 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,9 +23,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.EditTextPreference;
+import androidx.preference.PreferenceDataStore;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import androidx.security.crypto.EncryptedSharedPreferences;
 
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +62,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
@@ -66,8 +71,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Inject
         ApiCaller mApiCaller;
-//        @Inject
-//        EncryptedSharedPreferencesProvider mEncryptedSharedPreferencesProvider;
+        @Inject
+        EncryptedSharedPreferencesProvider mEncryptedSharedPreferencesProvider;
 
         private SharedPreferences mSharedPreferences;
 
@@ -80,11 +85,10 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            mSharedPreferences = getPreferenceScreen().getSharedPreferences();
 //            try {
 //                mSharedPreferences = mEncryptedSharedPreferencesProvider.getEncryptedSharedPreferences();
 //            } catch (GeneralSecurityException | IOException e) {
-//                e.printStackTrace();
+            mSharedPreferences = getPreferenceScreen().getSharedPreferences();
 //            }
             mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
             checkOcrKey();
@@ -98,7 +102,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void checkOcrKey() {
             String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
             String ocrKey = mSharedPreferences.getString(ocrKeyKey, "");
-            if (ocrKey != null && ocrKey.isEmpty() && ! OCR_SERVICE.isEmpty())
+            if (ocrKey != null && ocrKey.isEmpty() && !OCR_SERVICE.isEmpty())
                 mSharedPreferences.edit().putString(ocrKeyKey, OCR_SERVICE).apply();
         }
 
@@ -111,6 +115,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            PreferenceManager preferenceManager = getPreferenceManager();
+//            preferenceManager.setPreferenceDataStore(EncryptedPreferenceDataStore.getInstance(mEncryptedSharedPreferencesProvider));
             addPreferencesFromResource(R.xml.settings);
         }
 
@@ -124,9 +130,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (key.equals(passwordKey))
                     setPasswordSummary();
                 if ((key.equals(emailKey) || key.equals(passwordKey)) &&
-                        ! TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
-                        ! TextUtils.isEmpty(sharedPreferences.getString(passwordKey, "")))
-                    new LoginChecker((ThisApp) getActivity().getApplicationContext(), mApiCaller).execute();
+                        !TextUtils.isEmpty(sharedPreferences.getString(emailKey, "")) &&
+                        !TextUtils.isEmpty(sharedPreferences.getString(passwordKey, ""))) {
+                    Activity activity = getActivity();
+                    if (activity != null)
+                        new LoginChecker((ThisApp) activity.getApplicationContext(), mApiCaller).execute();
+                }
                 if (key.equals(getString(R.string.pref_settings_comment_key)))
                     setCommentSummary();
                 if (key.equals(getString(R.string.pref_settings_ocr_key)))
@@ -142,7 +151,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (preference != null) {
                 String email = mSharedPreferences.getString(emailKey, "");
                 String summary = getString(R.string.settings_email_summary);
-                if (email != null && ! TextUtils.isEmpty(email))
+                if (email != null && !TextUtils.isEmpty(email))
                     summary += getString(R.string.settings_currently) + " " + email.trim();
                 preference.setSummary(summary);
                 preference.setOnBindEditTextListener(editText ->
@@ -167,7 +176,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String commentKey = getString(R.string.pref_settings_comment_key);
             String comment = mSharedPreferences.getString(commentKey, "");
             String summary = getString(R.string.settings_comment_summary);
-            if (! TextUtils.isEmpty(comment))
+            if (!TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
             EditTextPreference preference = findPreference(commentKey);
             if (preference != null)
@@ -177,7 +186,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void setOcrSummary() {
             String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
             EditTextPreference preference = findPreference(ocrKeyKey);
-            if (preference != null ) {
+            if (preference != null) {
                 String ocrServiceKey = mSharedPreferences.getString(ocrKeyKey, "");
                 String summary = getString(R.string.settings_ocr_summary);
                 String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
@@ -196,7 +205,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (preference != null) {
                 String submitted = mSharedPreferences.getString(submittedKey, "");
                 String summary = getString(R.string.settings_submitted_summary);
-                if (submitted != null && ! TextUtils.isEmpty(submitted))
+                if (submitted != null && !TextUtils.isEmpty(submitted))
                     summary += getString(R.string.settings_currently) + " " + submitted.trim();
                 preference.setSummary(summary);
                 preference.setOnBindEditTextListener(editText ->

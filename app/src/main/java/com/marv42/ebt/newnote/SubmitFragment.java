@@ -44,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.TextProcessor;
@@ -134,9 +135,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        LoginChecker.checkLoginInfo(getActivity());
+        FragmentActivity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        LoginChecker.checkLoginInfo(activity);
         checkOcrResult();
-        ((Callback) getActivity()).onSubmitFragmentAdded();
+        ((Callback) activity).onSubmitFragmentAdded();
     }
 
     @Override
@@ -221,22 +225,26 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.location_button)
     void checkLocationSetting() {
+        Activity activity = getActivity();
         if (checkSelfPermission(mApp, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
-                checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
+                checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
+                activity != null) {
+            ActivityCompat.requestPermissions(activity,
                     new String[] { ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION },
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
+        if (activity == null)
+            throw new IllegalStateException("No activity");
         LocationManager locationManager = (LocationManager)
-                getActivity().getSystemService(Context.LOCATION_SERVICE);
+                activity.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null && !locationManager.isLocationEnabled()) {
-            Toast.makeText(getActivity(), getString(R.string.location_not_enabled), LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.location_not_enabled), LENGTH_LONG).show();
             mApp.startLocationProviderChangedReceiver();
             return;
         }
         if (checkSelfPermission(mApp, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
-            Toast.makeText(getActivity(), getString(R.string.location_no_gps), LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.location_no_gps), LENGTH_LONG).show();
         mApp.startLocationTask();
     }
 
@@ -329,23 +337,26 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.photo_button)
     void takePhoto() {
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getActivity().getPackageManager()) == null) {
-            Toast.makeText(getActivity(), getString(R.string.no_camera_activity), LENGTH_LONG).show();
+        if (intent.resolveActivity(activity.getPackageManager()) == null) {
+            Toast.makeText(activity, getString(R.string.no_camera_activity), LENGTH_LONG).show();
             return;
         }
         if (checkSelfPermission(mApp, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[] { CAMERA },
+            ActivityCompat.requestPermissions(activity, new String[] { CAMERA },
                     CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
         if (!TextUtils.isEmpty(mCurrentPhotoPath)) {
             // TODO enable multiple OCR runs at the same time
-            Toast.makeText(getActivity(), getString(R.string.ocr_executing), LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.ocr_executing), LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(mSharedPreferencesHandler.get(R.string.pref_settings_ocr_key, ""))) {
-            new AlertDialog.Builder(getActivity())
+            new AlertDialog.Builder(activity)
                     .setTitle(R.string.ocr_no_service_key)
                     .setMessage(mApp.getString(R.string.settings_ocr_summary) + " " +
                             mApp.getString(R.string.get_ocr_key))
@@ -361,18 +372,21 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         try {
             mPhotoFile = createImageFile();
         } catch (IOException ex) {
-            Toast.makeText(getActivity(), getString(R.string.error_creating_file) + ": "
+            Toast.makeText(activity, getString(R.string.error_creating_file) + ": "
                     + ex.getMessage(), LENGTH_LONG).show();
             return;
         }
         mCurrentPhotoPath = mPhotoFile.getAbsolutePath();
-        Uri photoUri = getUriForFile(getActivity(), getActivity().getPackageName(), mPhotoFile);
+        Uri photoUri = getUriForFile(activity, activity.getPackageName(), mPhotoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-        getActivity().startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
+        activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
 
     private File createImageFile() throws IOException {
-        File tempFolder = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        File tempFolder = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         for (File file: tempFolder.listFiles())
             if (Calendar.getInstance().getTimeInMillis() - file.lastModified() > TIME_THRESHOLD_DELETE_OLD_PICS_MS)
                 file.delete();
@@ -422,8 +436,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     void setCommentsAdapter(String[] suggestions) {
-        mCommentText.setAdapter(new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, suggestions));
+        Activity activity = getActivity();
+        if (activity != null)
+            mCommentText.setAdapter(new ArrayAdapter<>(activity,
+                    android.R.layout.simple_dropdown_item_1line, suggestions));
     }
 
     private void checkOcrResult() {

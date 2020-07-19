@@ -11,6 +11,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 import com.squareup.picasso.Picasso;
 
@@ -84,7 +86,9 @@ public class SubmittedFragment extends DaggerFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((Callback) getActivity()).onSubmittedFragmentAdded();
+        Activity activity = getActivity();
+        if (activity != null)
+            ((Callback) activity).onSubmittedFragmentAdded();
     }
 
     void refreshResults() {
@@ -181,7 +185,10 @@ public class SubmittedFragment extends DaggerFragment {
     }
 
     private String getReason(SubmissionResult result) {
-        return result.isSuccessful(getActivity()) ?
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        return result.isSuccessful(activity) ?
                 getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
                         "green") :
                 getColoredString(result.mReason, "red");
@@ -200,7 +207,10 @@ public class SubmittedFragment extends DaggerFragment {
         mSharedPreferencesHandler.set(getString(R.string.pref_short_code_key), noteData.mShortCode);
         mSharedPreferencesHandler.set(getString(R.string.pref_serial_number_key), noteData.mSerialNumber);
         mSharedPreferencesHandler.set(getString(R.string.pref_comment_key), noteData.mComment);
-        ((Callback) getActivity()).switchFragment(SUBMIT_FRAGMENT_INDEX);
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        ((Callback) activity).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void showInBrowser(int groupPos) {
