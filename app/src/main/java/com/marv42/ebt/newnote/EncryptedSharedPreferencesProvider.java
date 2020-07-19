@@ -22,6 +22,7 @@ import static androidx.security.crypto.MasterKey.DEFAULT_MASTER_KEY_ALIAS;
 
 public class EncryptedSharedPreferencesProvider {
     private static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "encrypted_shared_prefs";
+    private static final String MASTER_KEY_ALIAS = "ebt_new_note_master_key";
     private static final int KEY_SIZE = 256;
 
     private ThisApp mApp;
@@ -33,7 +34,7 @@ public class EncryptedSharedPreferencesProvider {
 
     private MasterKey getMasterKey() throws GeneralSecurityException, IOException {
         KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
-                DEFAULT_MASTER_KEY_ALIAS, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
+                MASTER_KEY_ALIAS, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
                 .setBlockModes(BLOCK_MODE_GCM)
                 .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
