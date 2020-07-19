@@ -74,15 +74,9 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
             return response.optString(ERROR);
         }
         editor.putBoolean(loginValuesOkKey, true).apply();
-        String countryKey = mApp.getString(R.string.pref_country_key);
-        String cityKey = mApp.getString(R.string.pref_city_key);
-        String postalCodeKey = mApp.getString(R.string.pref_postal_code_key);
-        if (TextUtils.isEmpty(preferences.getString(countryKey, "")) &&
-                TextUtils.isEmpty(preferences.getString(cityKey, "")) &&
-                TextUtils.isEmpty(preferences.getString(postalCodeKey, "")))
-            editor.putString(countryKey, response.optString("my_country"))
-                    .putString(cityKey, response.optString("my_city"))
-                    .putString(postalCodeKey, response.optString("my_zip")).apply();
+        editor.putString(mApp.getString(R.string.pref_country_key), response.optString("my_country"))
+                .putString(mApp.getString(R.string.pref_city_key), response.optString("my_city"))
+                .putString(mApp.getString(R.string.pref_postal_code_key), response.optString("my_zip")).apply();
         return mApp.getString(R.string.hello) + " " +
                 response.optString("username") + ". " + mApp.getString(R.string.logged_in);
     }
