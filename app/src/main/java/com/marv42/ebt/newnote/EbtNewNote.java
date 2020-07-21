@@ -31,6 +31,8 @@ import com.marv42.ebt.newnote.scanning.OcrHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dagger.android.support.DaggerAppCompatActivity;
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -39,6 +41,9 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
         ActivityCompat.OnRequestPermissionsResultCallback /*, LifecycleOwner*/ {
+    @Inject
+    EncryptedPreferenceDataStore mDataStore;
+
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final String NOTIFICATION_NOTE_CHANNEL_ID = "default";
     public static final String NOTIFICATION_OCR_CHANNEL_ID = "ebt_ocr_channel";
@@ -52,7 +57,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
 
-    private FragmentWithTitlePagerAdapter mAdapter;
     private SubmitFragment mSubmitFragment = null;
     private SubmittedFragment mSubmittedFragment = null;
     private boolean mSwitchToResults;
@@ -69,26 +73,25 @@ public class EbtNewNote extends DaggerAppCompatActivity
         // TODO when we have Q: setTheme(theme.rebase());
         setContentView(R.layout.main);
 
-        mAdapter = new FragmentWithTitlePagerAdapter();
+        FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
         ViewPager pager = findViewById(R.id.view_pager);
-        pager.setAdapter(mAdapter);
+        pager.setAdapter(adapter);
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(pager);
 
-        mAdapter.startUpdate(pager);
-        mSubmitFragment = (SubmitFragment) mAdapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
-        mSubmittedFragment = (SubmittedFragment) mAdapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
-        mAdapter.finishUpdate(pager);
+        adapter.startUpdate(pager);
+        mSubmitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
+        mSubmittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+        adapter.finishUpdate(pager);
 
         pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (position == SUBMIT_FRAGMENT_INDEX)
-                    getSubmitFragment().setViewValuesFromPreferences();
+                    mSubmitFragment.setViewValuesFromPreferences();
                 else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                    ((SubmittedFragment) mAdapter.getItem(SUBMITTED_FRAGMENT_INDEX))
-                            .refreshResults();
+                    mSubmittedFragment.refreshResults();
                 }
             }
         });
@@ -98,10 +101,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (extras != null && SubmittedFragment.class.getSimpleName().equals(
                 extras.getString(FRAGMENT_TYPE)))
             mSwitchToResults = true;
-    }
-
-    private SubmitFragment getSubmitFragment() {
-        return (SubmitFragment) mAdapter.getItem(SUBMIT_FRAGMENT_INDEX);
     }
 
     @Override
@@ -119,11 +118,16 @@ public class EbtNewNote extends DaggerAppCompatActivity
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                String apiKey = mDataStore.getString(getString(R.string.pref_settings_ocr_key), "");
+                if (apiKey == null) {
+                    Toast.makeText(this, getString(R.string.error_reading_preferences), LENGTH_LONG).show();
+                    return;
+                }
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler((ThisApp) getApplication(), getSubmitFragment(),
-                        mSubmitFragment.getPhotoPath()).execute();
+                new OcrHandler(getApplication(), mSubmitFragment,
+                        mSubmitFragment.getPhotoPath(), apiKey).execute();
             } else
-                getSubmitFragment().setPhotoPath("");
+                mSubmitFragment.resetPhotoPath();
         }
     }
 
@@ -137,15 +141,15 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
         Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
-            getSubmitFragment().checkLocationSetting();
+            mSubmitFragment.checkLocationSetting();
         else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
-            getSubmitFragment().takePhoto();
+            mSubmitFragment.takePhoto();
     }
 
     @Override
     public void onSubmitFragmentAdded() {
         if (mCommentSuggestions != null && mCommentSuggestions.length > 0) {
-            getSubmitFragment().setCommentsAdapter(mCommentSuggestions);
+            mSubmitFragment.setCommentsAdapter(mCommentSuggestions);
             mCommentSuggestions = null;
         }
     }
@@ -166,9 +170,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public void onSuggestions(String[] suggestions) {
-        SubmitFragment submitFragment = getSubmitFragment();
-        if (submitFragment.isAdded())
-            submitFragment.setCommentsAdapter(suggestions);
+        if (mSubmitFragment.isAdded())
+            mSubmitFragment.setCommentsAdapter(suggestions);
         else
             mCommentSuggestions = suggestions;
     }

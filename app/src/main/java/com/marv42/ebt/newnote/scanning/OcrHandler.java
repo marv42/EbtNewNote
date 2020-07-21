@@ -11,12 +11,12 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.app.Application;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.R;
-import com.marv42.ebt.newnote.ThisApp;
 
 import org.json.JSONObject;
 
@@ -28,8 +28,8 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.scanning.PictureConverter.convert;
@@ -41,22 +41,24 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
 
     private static final String OCR_HOST = "https://api.ocr.space/parse/image";
 
-    private ThisApp mApp;
+    private Application mApp;
     private Callback mCallback;
     private String mPhotoPath;
+    private String mApiKey;
 
-    public OcrHandler(@NonNull ThisApp app, @NonNull Callback callback, @NonNull String photoPath) {
+    public OcrHandler(@NonNull Application app, @NonNull Callback callback, @NonNull String photoPath,
+                      @NonNull String apiKey) {
         mApp = app;
         mCallback = callback;
         mPhotoPath = photoPath;
+        mApiKey = apiKey;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
         String base64Image = convert(mPhotoPath);
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        formBodyBuilder.add("apikey", getDefaultSharedPreferences(mApp).getString(
-                mApp.getString(R.string.pref_settings_ocr_key), ""));
+        formBodyBuilder.add("apikey", mApiKey);
         formBodyBuilder.add("base64Image", "data:image/jpeg;base64," + base64Image);
         FormBody formBody = formBodyBuilder.build();
 
@@ -66,7 +68,10 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
             if (!response.isSuccessful())
                 return getJsonObject(ERROR, mApp.getString(R.string.http_error)
                         + " " + response.code()).toString();
-            String body = response.body().string();
+            ResponseBody responseBody = response.body();
+            if (responseBody == null)
+                return getJsonObject(ERROR, mApp.getString(R.string.server_error)).toString();
+            String body = responseBody.string();
             JSONObject json = getJsonObject(body);
             if (json == null || json.has("error"))
                 return getJsonObject(ERROR, body).toString();

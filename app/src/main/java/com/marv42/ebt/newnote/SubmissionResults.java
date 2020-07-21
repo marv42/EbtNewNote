@@ -18,21 +18,21 @@ public class SubmissionResults {
     private ArrayList<SubmissionResult> mResults = new ArrayList<>();
 
     @Inject
-    public SubmissionResults(ThisApp app) {
+    public SubmissionResults(ThisApp app, EncryptedPreferenceDataStore dataStore) {
         mApp = app;
         String results = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
-        if (! TextUtils.isEmpty(results)) {
-            JsonArray array = parseString(results).getAsJsonArray();
-            for (int i = 0; i < array.size(); ++i)
-                mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
-            Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
-            int maxShowNum = Integer.parseInt(getDefaultSharedPreferences(app)
-                    .getString(app.getString(R.string.pref_settings_submitted_key),
-                            app.getResources().getString(R.string.max_show_num)));
-            int howMany = Math.min(maxShowNum, mResults.size());
-            int startIndex = mResults.size() < maxShowNum ? 0 : mResults.size() - maxShowNum;
-            mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));
-        }
+        if (results == null || TextUtils.isEmpty(results))
+            return;
+        JsonArray array = parseString(results).getAsJsonArray();
+        for (int i = 0; i < array.size(); ++i)
+            mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
+        Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
+        String defValue = app.getResources().getString(R.string.max_show_num);
+        int maxShowNum = Integer.parseInt(
+                dataStore.get(R.string.pref_settings_submitted_key, defValue));
+        int howMany = Math.min(maxShowNum, mResults.size());
+        int startIndex = mResults.size() < maxShowNum ? 0 : mResults.size() - maxShowNum;
+        mResults = new ArrayList<>(mResults.subList(startIndex, startIndex + howMany));
     }
 
     class ResultSummary {

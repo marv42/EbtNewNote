@@ -11,15 +11,12 @@
 
 package com.marv42.ebt.newnote;
 
-import android.content.SharedPreferences;
-
 import androidx.core.util.Pair;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +36,7 @@ public class ApiCaller {
 
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
-    private SharedPreferences mSharedPreferences;
+    private EncryptedPreferenceDataStore mDataStore;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
     private final String mNoConnection;
@@ -50,13 +47,8 @@ public class ApiCaller {
     private final String mInternalError;
 
     @Inject
-    public ApiCaller(ThisApp app, SharedPreferences sharedPreferences /*EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider*/) {
-        mSharedPreferences = sharedPreferences;
-//        try {
-//            mSharedPreferences = encryptedSharedPreferencesProvider.getEncryptedSharedPreferences();
-//        } catch (GeneralSecurityException | IOException e) {
-//            e.printStackTrace();
-//        }
+    public ApiCaller(ThisApp app, EncryptedPreferenceDataStore dataStore) {
+        mDataStore = dataStore;
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
         mNoConnection = app.getString(R.string.error_no_connection);
@@ -95,9 +87,10 @@ public class ApiCaller {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
-        String email = mSharedPreferences.getString(mPrefSettingsEmailKey, "");
+        String email = mDataStore.getString(mPrefSettingsEmailKey, "");
         params.add(new Pair<>("my_email", email != null ? email.trim() : ""));
-        params.add(new Pair<>("my_password", mSharedPreferences.getString(mPrefSettingsPasswordKey, "")));
+        String password = mDataStore.getString(mPrefSettingsPasswordKey, "");
+        params.add(new Pair<>("my_password", password != null ? password : ""));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
             return getJsonObject(ERROR, mInternalError);

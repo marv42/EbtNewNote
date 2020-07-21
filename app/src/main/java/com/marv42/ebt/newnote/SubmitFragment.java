@@ -97,6 +97,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     SubmissionResults mSubmissionResults;
     @Inject
     SharedPreferencesHandler mSharedPreferencesHandler;
+    @Inject
+    EncryptedPreferenceDataStore mDataStore;
 
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = 1000 * 60 * 60 * 24; // one day
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
@@ -202,7 +204,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @OnClick(R.id.submit_button)
     void submitValues() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
-        new NoteDataSubmitter(mApp, mApiCaller, mSubmissionResults).execute(new NoteData(
+        new NoteDataSubmitter(mApp, mApiCaller, mSubmissionResults, mDataStore).execute(new NoteData(
                 mCountryText.getText().toString(),
                 mCityText.getText().toString(),
                 mPostalCodeText.getText().toString(),
@@ -292,7 +294,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         mShortCodeText.setText(mSharedPreferencesHandler.get(R.string.pref_short_code_key, ""));
         mSerialText.setText(mSharedPreferencesHandler.get(R.string.pref_serial_number_key, ""));
         String comment = mSharedPreferencesHandler.get(R.string.pref_comment_key, "");
-        String additionalComment = mSharedPreferencesHandler.get(R.string.pref_settings_comment_key, "");
+        String additionalComment = mDataStore.get(R.string.pref_settings_comment_key, "");
         if (comment.endsWith(additionalComment))
             mCommentText.setText(comment.substring(0, comment.length() - additionalComment.length()));
         else
@@ -355,7 +357,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             Toast.makeText(activity, getString(R.string.ocr_executing), LENGTH_LONG).show();
             return;
         }
-        if (TextUtils.isEmpty(mSharedPreferencesHandler.get(R.string.pref_settings_ocr_key, ""))) {
+        if (TextUtils.isEmpty(mDataStore.get(R.string.pref_settings_ocr_key, ""))) {
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.ocr_no_service_key)
                     .setMessage(mApp.getString(R.string.settings_ocr_summary) + " " +
@@ -431,8 +433,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return mCurrentPhotoPath;
     }
 
-    void setPhotoPath(String path) {
-        mCurrentPhotoPath = path;
+    void resetPhotoPath() {
+        mCurrentPhotoPath = "";
     }
 
     void setCommentsAdapter(String[] suggestions) {
@@ -524,7 +526,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void executeCommentSuggestion() {
         if (! mSharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
-        new CommentSuggestion(mApiCaller, mSharedPreferencesHandler, (EbtNewNote) getActivity())
+        new CommentSuggestion(mApiCaller, (EbtNewNote) getActivity(), mDataStore)
                 .execute(new LocationValues(
                         mCountryText.getText().toString(),
                         mCityText.getText().toString(),

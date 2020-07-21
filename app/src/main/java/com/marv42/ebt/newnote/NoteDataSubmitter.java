@@ -33,7 +33,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
@@ -43,12 +42,15 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     private ThisApp mApp;
     private ApiCaller mApiCaller;
     private SubmissionResults mSubmissionResults;
+    private EncryptedPreferenceDataStore mDataStore;
 
     @Inject
-    public NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller, SubmissionResults submissionResults) {
+    public NoteDataSubmitter(final ThisApp app, ApiCaller apiCaller, SubmissionResults submissionResults,
+                             EncryptedPreferenceDataStore dataStore) {
         mApp = app;
         mApiCaller = apiCaller;
         mSubmissionResults = submissionResults;
+        mDataStore = dataStore;
     }
 
     @Override
@@ -94,8 +96,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
                 noteData.mDenomination,
                 noteData.mShortCode,
                 noteData.mSerialNumber,
-                noteData.mComment + getDefaultSharedPreferences(mApp).getString(
-                        mApp.getString(R.string.pref_settings_comment_key), ""));
+                noteData.mComment + mDataStore.get(R.string.pref_settings_comment_key, ""));
         JSONObject json = mApiCaller.callLogin();
         if (json.has(ERROR))
             return new SubmissionResult(submittedNoteData, json.optString(ERROR));

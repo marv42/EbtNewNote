@@ -3,10 +3,11 @@ package com.marv42.ebt.newnote.di;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceDataStore;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
-import com.marv42.ebt.newnote.EncryptedSharedPreferencesProvider;
+import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
@@ -61,27 +62,29 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static EncryptedSharedPreferencesProvider provideEncryptedSharedPreferencesProvider (@NonNull ThisApp app) {
-        return new EncryptedSharedPreferencesProvider(app);
+    static EncryptedPreferenceDataStore provideEncryptedPreferenceDataStore (@NonNull ThisApp app) {
+        return new EncryptedPreferenceDataStore(app);
     }
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app, SharedPreferences sharedPreferences /*@NonNull EncryptedSharedPreferencesProvider encryptedSharedPreferencesProvider*/) {
-        return new ApiCaller(app, sharedPreferences /*encryptedSharedPreferencesProvider*/);
+    static ApiCaller provideApiCaller(@NonNull ThisApp app, EncryptedPreferenceDataStore dataStore) {
+        return new ApiCaller(app, dataStore);
     }
 
     @Provides
     @Singleton
-    static SubmissionResults provideSubmissionResults(@NonNull ThisApp app) {
-        return new SubmissionResults(app);
+    static SubmissionResults provideSubmissionResults(
+            @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore) {
+        return new SubmissionResults(app, dataStore);
     }
 
     @Provides
     @Singleton
     static NoteDataSubmitter provideNoteDataSubmitter(
-            @NonNull ThisApp app, @NonNull ApiCaller apiCaller, @NonNull SubmissionResults submissionResults) {
-        return new NoteDataSubmitter(app, apiCaller, submissionResults);
+            @NonNull ThisApp app, @NonNull ApiCaller apiCaller,
+            @NonNull SubmissionResults submissionResults, @NonNull EncryptedPreferenceDataStore dataStore) {
+        return new NoteDataSubmitter(app, apiCaller, submissionResults, dataStore);
     }
 
 //    @Provides

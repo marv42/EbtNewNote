@@ -35,14 +35,15 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
 
     private static final int MAX_NUMBER_SUGGESTIONS = 50;
 
-    private Callback mCallback;
     private ApiCaller mApiCaller;
-    private SharedPreferencesHandler mSharedPreferencesHandler;
+    private Callback mCallback;
+    private String mAdditionalComment;
 
-    CommentSuggestion(ApiCaller apiCaller, SharedPreferencesHandler sharedPreferencesHandler, Callback callback) {
+    CommentSuggestion(ApiCaller apiCaller, Callback callback, EncryptedPreferenceDataStore dataStore) {
         mApiCaller = apiCaller;
-        mSharedPreferencesHandler = sharedPreferencesHandler;
         mCallback = callback;
+        mAdditionalComment = dataStore.get(R.string.pref_settings_comment_key, "")
+                .replace("\u00a0", " ");
     }
 
     @Override
@@ -66,14 +67,12 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         for (int i = 0; allComments != null && i < allComments.length(); ++i)
             list.add(allComments.optJSONObject(i));
         Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
-        String additionalComment = mSharedPreferencesHandler.get(R.string.pref_settings_comment_key, "")
-                .replace("\u00a0", " ");
         // unique wrt additionalComment
         List<String> uniqueList = new ArrayList<>();
         for (int i = 0; i < list.size(); ++i) {
             String value = list.get(i).optString("comment").replace("\u00a0", " ");
-            if (value.endsWith(additionalComment))
-                value = value.substring(0, value.length() - additionalComment.length());
+            if (value.endsWith(mAdditionalComment))
+                value = value.substring(0, value.length() - mAdditionalComment.length());
             if (value.length() > 0 && ! uniqueList.contains(value))
                 uniqueList.add(value);
         }
