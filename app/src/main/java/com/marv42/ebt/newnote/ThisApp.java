@@ -18,7 +18,7 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.os.ResultReceiver;
+import android.os.ResultReceiver;
 import android.widget.Toast;
 
 import com.google.gson.JsonArray;
