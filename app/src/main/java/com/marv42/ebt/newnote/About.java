@@ -31,7 +31,7 @@ public class About implements OnMenuItemClickListener {
         dialog.setContentView(R.layout.about);
         dialog.setTitle(R.string.app_name);
 
-        String versionNumber = "x.y.z";
+        String versionNumber = "0.0";
         try {
             versionNumber = mContext.getPackageManager().getPackageInfo(
                     mContext.getPackageName(), 0).versionName;
