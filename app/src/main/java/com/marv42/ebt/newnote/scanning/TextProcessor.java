@@ -11,6 +11,7 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.app.Application;
 import android.text.TextUtils;
 
 import com.marv42.ebt.newnote.R;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dagger.android.support.DaggerApplication;
+
 import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -34,7 +37,7 @@ import static java.util.regex.Pattern.CASE_INSENSITIVE;
 public class TextProcessor {
     public static final String EMPTY = "<empty>";
 
-    static String getOcrResult(String s, ThisApp app) {
+    static String getOcrResult(String s, Application app) {
         try {
             JSONObject json = new JSONObject(s);
             String error = json.optString(ERROR);
@@ -55,7 +58,7 @@ public class TextProcessor {
     }
 
     // cf. https://ocr.space/ocrapi#Response
-    private static JSONObject getResult(JSONObject json, ThisApp app) throws JSONException {
+    private static JSONObject getResult(JSONObject json, Application app) throws JSONException {
         int exitCode = json.getInt("OCRExitCode");
         if (exitCode == 3 || exitCode == 4) {
             String errorMessage = json.getString("ErrorMessage");
