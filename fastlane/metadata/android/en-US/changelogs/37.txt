@@ -1,0 +1,2 @@
+Denomination images can be switched off in the settings
+Fix version number in About dialog

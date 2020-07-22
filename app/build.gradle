@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 def versionMajor = 0
-def versionMinor = 36
+def versionMinor = 37
 
 android {
     compileSdkVersion rootProject.ext.sdkVersion
