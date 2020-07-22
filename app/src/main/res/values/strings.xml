@@ -94,6 +94,8 @@
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_ocr_title">OCR service key</string>
     <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used.</string>
+    <string name="settings_images_title">Denomination images</string>
+    <string name="settings_images_summary">Show denomination images in the \'Submitted\' tab.</string>
     <string name="settings_advanced">Advanced settings</string>
     <string name="settings_submitted_title">Number of notes</string>
     <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
@@ -111,6 +113,7 @@
     <string name="pref_settings_password_key">pref_settings_password</string>
     <string name="pref_settings_comment_key">pref_settings_comment</string>
     <string name="pref_settings_ocr_key">pref_settings_ocr</string>
+    <string name="pref_settings_images">pref_settings_images</string>
     <string name="pref_settings_submitted_key">pref_settings_submitted</string>
     <string name="pref_country_key">pref_country</string>
     <string name="pref_city_key">pref_city</string>

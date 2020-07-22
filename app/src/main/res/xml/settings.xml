@@ -22,6 +22,11 @@
             android:key="@string/pref_settings_comment_key"
             android:title="@string/settings_comment_title"
             android:summary="@string/settings_comment_summary"/>
+        <androidx.preference.CheckBoxPreference
+            android:key="@string/pref_settings_images"
+            android:title="@string/settings_images_title"
+            android:summary="@string/settings_images_summary"
+            android:defaultValue="true"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_advanced">

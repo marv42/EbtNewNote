@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 
 import com.squareup.picasso.Picasso;
 
@@ -60,6 +61,8 @@ public class SubmittedFragment extends DaggerFragment {
     SharedPreferencesHandler mSharedPreferencesHandler;
     @Inject
     SubmissionResults mSubmissionResults;
+    @Inject
+    EncryptedPreferenceDataStore mDataStore;
 
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
@@ -91,7 +94,14 @@ public class SubmittedFragment extends DaggerFragment {
             ((Callback) activity).onSubmittedFragmentAdded();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshResults();
+    }
+
     void refreshResults() {
+        boolean showImages = mDataStore.get(R.string.pref_settings_images, true);
         ArrayList<SubmissionResult> results = mSubmissionResults.getResults();
         Map<String, String> groupMap;
         List<Map<String, String>> groupData = new ArrayList<>();
@@ -114,7 +124,8 @@ public class SubmittedFragment extends DaggerFragment {
 
             groupMap = new HashMap<>();
             groupMap.put(BUTTON_PLACEHOLDER, " ");
-            groupMap.put(DENOMINATION_IMAGE, denominationUrl);
+            if (showImages)
+                groupMap.put(DENOMINATION_IMAGE, denominationUrl);
             groupMap.put(DENOMINATION, denomination);
             groupMap.put(SERIAL_NUMBER, sn.length() > 0 ? sn : "-");
             groupMap.put(RESULT, result);
@@ -130,18 +141,30 @@ public class SubmittedFragment extends DaggerFragment {
             children.add(childMap);
             childData.add(children);
         }
-        String[] groupFrom = new String[] { BUTTON_PLACEHOLDER, DENOMINATION_IMAGE,
-                DENOMINATION, SERIAL_NUMBER, RESULT };
+        String[] groupFrom;
+        int[] groupTo;
+        if (showImages) {
+            groupFrom = new String[]{BUTTON_PLACEHOLDER, DENOMINATION_IMAGE,
+                    DENOMINATION, SERIAL_NUMBER, RESULT};
+            groupTo = new int[]{R.id.list_place_holder,
+                    R.id.list_denomination_image,
+                    R.id.list_denomination,
+                    R.id.list_serial,
+                    R.id.list_result};
+        }
+        else {
+            groupFrom = new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
+            groupTo = new int[]{R.id.list_place_holder,
+                    R.id.list_denomination,
+                    R.id.list_serial,
+                    R.id.list_result};
+        }
         mListView.setAdapter(new MyExpandableListAdapter(
                 getContext(),
                 groupData,
                 R.layout.list_parents,
                 groupFrom,
-                new int[] { R.id.list_place_holder,
-                        R.id.list_denomination_image,
-                        R.id.list_denomination,
-                        R.id.list_serial,
-                        R.id.list_result },
+                groupTo,
                 childData,
                 R.layout.list_children,
                 new String[] { REASON, NOTE, COMMENT, LOCATION },

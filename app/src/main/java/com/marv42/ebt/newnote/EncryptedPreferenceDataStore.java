@@ -56,21 +56,40 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
                 .build();
     }
 
-    public SharedPreferences getSharedPreferences() {
+    SharedPreferences getSharedPreferences() {
         return mSharedPreferences;
     }
 
     @NonNull
-    String get(int keyResId, String defValue) {
-        return get(mApp.getString(keyResId), defValue);
+    <T> T get(int keyId, T defValue) {
+        return get(mApp.getString(keyId), defValue);
     }
 
     @NonNull
-    private String get(String key, String defValue) {
-        String value = getString(key, defValue);
+    private <T> T get(String key, T defValue) {
+        T value;
+        if (defValue instanceof String)
+            value = (T) getString(key, (String) defValue);
+        else if (defValue instanceof Boolean)
+            value = (T) (Boolean) getBoolean(key, (Boolean) defValue);
+        else
+            throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
         if (value == null)
             return defValue;
         return value;
+    }
+
+    <T> void set(int keyId, T value) {
+        set(mApp.getString(keyId), value);
+    }
+
+    <T> void set(String key, T value) {
+        if (value instanceof String)
+            putString(key, (String) value);
+        else if (value instanceof Boolean)
+            putBoolean(key, (Boolean) value);
+        else
+            throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
     }
 
     @Nullable
@@ -79,12 +98,18 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
         return mSharedPreferences.getString(key, defValue);
     }
 
-    void putStringById(int keyResId, String value) {
-        putString(mApp.getString(keyResId), value);
-    }
-
     @Override
     public void putString(String key, @Nullable String value) {
         mSharedPreferences.edit().putString(key, value).apply();
+    }
+
+    @Override
+    public boolean getBoolean(String key, boolean defValue) {
+        return mSharedPreferences.getBoolean(key, defValue);
+    }
+
+    @Override
+    public void putBoolean(String key, boolean value) {
+        mSharedPreferences.edit().putBoolean(key, value).apply();
     }
 }

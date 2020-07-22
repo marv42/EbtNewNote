@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import com.marv42.ebt.newnote.scanning.Keys;
 
@@ -85,7 +86,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void checkOcrKey() {
             String ocrKey = mDataStore.get(R.string.pref_settings_ocr_key, "");
             if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                mDataStore.putStringById(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
+                mDataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
         }
 
         @Override
@@ -100,6 +101,9 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             getPreferenceManager().setPreferenceDataStore(mDataStore);
             addPreferencesFromResource(R.xml.settings);
+            Context context = getContext();
+            if (context != null)
+                PreferenceManager.setDefaultValues(context, R.xml.settings, false);
         }
 
         @Override
