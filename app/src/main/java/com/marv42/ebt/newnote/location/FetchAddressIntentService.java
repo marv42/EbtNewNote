@@ -6,7 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.os.ResultReceiver;
+import android.os.ResultReceiver;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
