@@ -1,0 +1,1 @@
+Fix bug that crashes the app when hitting the locaion button
