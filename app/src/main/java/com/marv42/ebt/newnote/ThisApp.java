@@ -98,7 +98,10 @@ public class ThisApp extends DaggerApplication {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode != SUCCESS_RESULT) {
-                Toast.makeText(ThisApp.this, getString(resultCode), LENGTH_LONG).show();
+                String text = getString(resultCode);
+                if (resultData != null)
+                    text += " (\"" + resultData.getString(RESULT_DATA_KEY) + "\")";
+                Toast.makeText(ThisApp.this, text, LENGTH_LONG).show();
                 return;
             }
             if (resultData == null)

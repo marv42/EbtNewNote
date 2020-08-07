@@ -52,10 +52,11 @@ public class FetchAddressIntentService extends IntentService {
         try {
             addresses = geocoder.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
         } catch (IOException ioException) {
-            deliverResultToReceiver(R.string.location_geocoder_io_exception, "");
+            deliverResultToReceiver(R.string.location_geocoder_io_exception, ioException.getMessage());
             return;
         } catch (IllegalArgumentException illegalArgumentException) {
-            deliverResultToReceiver(R.string.location_geocoder_illegal_argument_exception, "");
+            deliverResultToReceiver(R.string.location_geocoder_illegal_argument_exception,
+                    illegalArgumentException.getMessage());
             return;
         }
         if (addresses == null || addresses.size() == 0) {
