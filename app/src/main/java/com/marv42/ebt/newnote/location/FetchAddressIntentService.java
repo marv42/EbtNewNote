@@ -2,22 +2,28 @@ package com.marv42.ebt.newnote.location;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.marv42.ebt.newnote.R;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.net.SocketTimeoutException;
+
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
 public class FetchAddressIntentService extends IntentService {
     public static final String TAG = "FetchAddressIntentService";
@@ -27,7 +33,10 @@ public class FetchAddressIntentService extends IntentService {
     public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME + ".LOCATION_DATA_EXTRA";
     public static final int SUCCESS_RESULT = 0;
 
-    private static final int NUMBER_ADDRESSES = 5;
+    private static final String GEOCODING_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
+    private static final String COUNTRIES_URL = "https://restcountries.eu/rest/v2/alpha/";
+    private static final String ELEMENT_ADDRESS = "address";
+    private static final String ELEMENT_NAME = "name";
 
     private ResultReceiver mReceiver;
 
@@ -47,38 +56,71 @@ public class FetchAddressIntentService extends IntentService {
             return;
         }
         mReceiver = intent.getParcelableExtra(RECEIVER);
-        Geocoder geocoder = new Geocoder(this, Locale.US);
-        List<Address> addresses = null;
-        try {
-            addresses = geocoder.getFromLocation(l.getLatitude(), l.getLongitude(), NUMBER_ADDRESSES);
-        } catch (IOException ioException) {
-            deliverResultToReceiver(R.string.location_geocoder_io_exception, ioException.getMessage());
-            return;
-        } catch (IllegalArgumentException illegalArgumentException) {
-            deliverResultToReceiver(R.string.location_geocoder_illegal_argument_exception,
-                    illegalArgumentException.getMessage());
-            return;
-        }
-        if (addresses == null || addresses.size() == 0) {
-            deliverResultToReceiver(R.string.location_no_address, "");
-            return;
-        }
-        String[] previousLocation = new String[3];
-        ArrayList<String[]> result = new ArrayList<String[]>();
-        for (Address a : addresses) {
-            if (a == null)
-                continue;
-            String countryName = a.getCountryName();
-            String locality = a.getLocality();
-            String postalCode = a.getPostalCode();
-            if ((!TextUtils.isEmpty(countryName) && !countryName.equals(previousLocation[0])) ||
-                    (!TextUtils.isEmpty(locality) && !locality.equals(previousLocation[1])) ||
-                    (!TextUtils.isEmpty(postalCode) && !postalCode.equals(previousLocation[2]))) {
-                previousLocation = new String[]{countryName, locality, postalCode};
-                result.add(new String[]{countryName, locality, postalCode});
+        String latitude = String.valueOf(l.getLatitude());
+        String longitude = String.valueOf(l.getLongitude());
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        formBodyBuilder.add("f", "json");
+        formBodyBuilder.add("langCode", "EN");
+        formBodyBuilder.add("location", longitude + "," + latitude);
+        FormBody formBody = formBodyBuilder.build();
+        Request request = new Request.Builder().url(GEOCODING_URL).post(formBody).build();
+        Call call = new OkHttpClient().newCall(request);
+        try (Response response = call.execute()) {
+            if (!response.isSuccessful()) {
+                deliverResultToReceiver(R.string.http_error, String.valueOf(response.code())); // TODO which server?
+                return;
             }
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) {
+                deliverResultToReceiver(R.string.server_error, "");
+                return;
+            }
+            String body = responseBody.string();
+            JSONObject json = getJsonObject(body);
+            if (json == null || ! json.has(ELEMENT_ADDRESS)) {
+                deliverResultToReceiver(R.string.server_error, body);
+                return;
+            }
+            JSONObject jsonAddress = json.optJSONObject(ELEMENT_ADDRESS);
+            if (jsonAddress == null) {
+                deliverResultToReceiver(R.string.internal_error, "");
+                return;
+            }
+            String countryCode = jsonAddress.optString("CountryCode");
+            String locality = jsonAddress.optString("City");
+            String postalCode = jsonAddress.optString("Postal");
+            String countryName = getCountryName(countryCode);
+            String[] result = new String[]{countryName, locality, postalCode};
+            deliverResultToReceiver(SUCCESS_RESULT, new Gson().toJson(result)); // TODO .toJson(jsonAddress)
+        } catch (SocketTimeoutException e) {
+            deliverResultToReceiver(R.string.error_no_connection, "");
+        } catch (IOException e) {
+            deliverResultToReceiver(R.string.internal_error, "");
         }
-        deliverResultToReceiver(SUCCESS_RESULT, new Gson().toJson(result));
+    }
+
+    private String getCountryName(String countryCode) {
+        Request request = new Request.Builder().url(COUNTRIES_URL + countryCode).build();
+        Call call = new OkHttpClient().newCall(request);
+        try (Response response = call.execute()) {
+            if (!response.isSuccessful()) {
+                return ""; //TODO R.string.http_error;
+            }
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) {
+                return ""; // TODO R.string.server_error
+            }
+            String body = responseBody.string();
+            JSONObject json = getJsonObject(body);
+            if (json == null || ! json.has(ELEMENT_NAME)) {
+                return ""; // TODO R.string.server_error, body
+            }
+            return json.optString(ELEMENT_NAME);
+        } catch (SocketTimeoutException e) {
+            return ""; // TODO R.string.error_no_connection;
+        } catch (IOException e) {
+            return ""; // TODO R.string.internal_error;
+        }
     }
 
     private void deliverResultToReceiver(int resultCode, String message) {

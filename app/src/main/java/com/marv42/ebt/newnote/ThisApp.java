@@ -111,11 +111,10 @@ public class ThisApp extends DaggerApplication {
                 return; // ?
             }
             JsonArray array = parseString(addressOutput).getAsJsonArray();
-            JsonArray firstElement = array.get(0).getAsJsonArray(); // TODO Let the user decide on multiple results
             getDefaultSharedPreferences(ThisApp.this).edit()
-                    .putString(ThisApp.this.getString(R.string.pref_country_key), firstElement.get(0).getAsString())
-                    .putString(ThisApp.this.getString(R.string.pref_city_key), firstElement.get(1).getAsString())
-                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), firstElement.get(2).getAsString())
+                    .putString(ThisApp.this.getString(R.string.pref_country_key), array.get(0).getAsString())
+                    .putString(ThisApp.this.getString(R.string.pref_city_key), array.get(1).getAsString())
+                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), array.get(2).getAsString())
                     .apply();
         }
     }
