@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 def versionMajor = 0
-def versionMinor = 39
+def versionMinor = 40
 def versionPatch = 0
 
 android {
