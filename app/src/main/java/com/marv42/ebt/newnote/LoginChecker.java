@@ -26,7 +26,7 @@ import org.json.JSONObject;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 
 public class LoginChecker extends AsyncTask<Void, Void, String> {
     private ThisApp mApp;

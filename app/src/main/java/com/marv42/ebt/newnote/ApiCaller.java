@@ -29,11 +29,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 
 public class ApiCaller {
-    public static final String ERROR = "ERROR";
-
     private static final String EBT_API = "https://api.eurobilltracker.com/";
 
     private EncryptedPreferenceDataStore mDataStore;

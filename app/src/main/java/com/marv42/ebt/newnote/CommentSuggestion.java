@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static android.widget.Toast.LENGTH_LONG;
-import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 
 public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
     interface Callback {

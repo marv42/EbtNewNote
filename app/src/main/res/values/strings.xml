@@ -35,7 +35,8 @@
 
     <!-- server responses -->
     <string name="error_no_connection">No or insufficient internet connection</string>
-    <string name="http_error">Error communicating to the server, server response code:</string>
+    <string name="http_error">Error communicating to the server</string>
+    <string name="response_code">server response code</string>
     <string name="server_error">Unusable response from the server</string>
     <string name="internal_error">Internal error</string>
 

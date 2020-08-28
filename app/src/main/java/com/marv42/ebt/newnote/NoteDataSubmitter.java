@@ -33,7 +33,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.text.Html.FROM_HTML_MODE_COMPACT;
 import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
-import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_NOTE_CHANNEL_ID;

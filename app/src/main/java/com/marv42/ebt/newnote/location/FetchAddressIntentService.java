@@ -9,6 +9,7 @@ import android.os.ResultReceiver;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
+import com.marv42.ebt.newnote.CountryCode;
 import com.marv42.ebt.newnote.R;
 
 import org.json.JSONObject;
@@ -34,9 +35,7 @@ public class FetchAddressIntentService extends IntentService {
     public static final int SUCCESS_RESULT = 0;
 
     private static final String GEOCODING_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
-    private static final String COUNTRIES_URL = "https://restcountries.eu/rest/v2/alpha/";
     private static final String ELEMENT_ADDRESS = "address";
-    private static final String ELEMENT_NAME = "name";
 
     private ResultReceiver mReceiver;
 
@@ -89,37 +88,13 @@ public class FetchAddressIntentService extends IntentService {
             String countryCode = jsonAddress.optString("CountryCode");
             String locality = jsonAddress.optString("City");
             String postalCode = jsonAddress.optString("Postal");
-            String countryName = getCountryName(countryCode);
+            String countryName = new CountryCode().convert(countryCode);
             String[] result = new String[]{countryName, locality, postalCode};
             deliverResultToReceiver(SUCCESS_RESULT, new Gson().toJson(result)); // TODO .toJson(jsonAddress)
         } catch (SocketTimeoutException e) {
             deliverResultToReceiver(R.string.error_no_connection, "");
         } catch (IOException e) {
             deliverResultToReceiver(R.string.internal_error, "");
-        }
-    }
-
-    private String getCountryName(String countryCode) {
-        Request request = new Request.Builder().url(COUNTRIES_URL + countryCode).build();
-        Call call = new OkHttpClient().newCall(request);
-        try (Response response = call.execute()) {
-            if (!response.isSuccessful()) {
-                return ""; //TODO R.string.http_error;
-            }
-            ResponseBody responseBody = response.body();
-            if (responseBody == null) {
-                return ""; // TODO R.string.server_error
-            }
-            String body = responseBody.string();
-            JSONObject json = getJsonObject(body);
-            if (json == null || ! json.has(ELEMENT_NAME)) {
-                return ""; // TODO R.string.server_error, body
-            }
-            return json.optString(ELEMENT_NAME);
-        } catch (SocketTimeoutException e) {
-            return ""; // TODO R.string.error_no_connection;
-        } catch (IOException e) {
-            return ""; // TODO R.string.internal_error;
         }
     }
 

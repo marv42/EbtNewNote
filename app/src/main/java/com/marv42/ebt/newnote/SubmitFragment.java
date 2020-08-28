@@ -71,13 +71,13 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
-import static com.marv42.ebt.newnote.ApiCaller.ERROR;
 import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTIFICATION_OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,

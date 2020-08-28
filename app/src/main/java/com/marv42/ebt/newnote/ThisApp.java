@@ -40,6 +40,7 @@ import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.google.gson.JsonParser.parseString;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RESULT_DATA_KEY;
@@ -111,8 +112,17 @@ public class ThisApp extends DaggerApplication {
                 return; // ?
             }
             JsonArray array = parseString(addressOutput).getAsJsonArray();
+            String countryName = array.get(0).getAsString();
+            if (countryName.startsWith(ERROR)) {
+                Toast.makeText(ThisApp.this,
+                        new ErrorMessage(ThisApp.this).getErrorMessage(countryName), LENGTH_LONG).show();
+            }
+            else {
+                getDefaultSharedPreferences(ThisApp.this).edit()
+                        .putString(ThisApp.this.getString(R.string.pref_country_key), countryName)
+                        .apply();
+            }
             getDefaultSharedPreferences(ThisApp.this).edit()
-                    .putString(ThisApp.this.getString(R.string.pref_country_key), array.get(0).getAsString())
                     .putString(ThisApp.this.getString(R.string.pref_city_key), array.get(1).getAsString())
                     .putString(ThisApp.this.getString(R.string.pref_postal_code_key), array.get(2).getAsString())
                     .apply();

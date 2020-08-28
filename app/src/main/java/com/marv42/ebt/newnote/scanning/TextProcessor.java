@@ -15,7 +15,6 @@ import android.app.Application;
 import android.text.TextUtils;
 
 import com.marv42.ebt.newnote.R;
-import com.marv42.ebt.newnote.ThisApp;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,9 +27,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import dagger.android.support.DaggerApplication;
-
-import static com.marv42.ebt.newnote.ApiCaller.ERROR;
+import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
@@ -53,7 +50,7 @@ public class TextProcessor {
             // TODO split result at line breaks and treat them separately
             return correct(result);
         } catch (JSONException e) {
-            return ERROR + app.getString(R.string.internal_error);
+            return ERROR + app.getString(R.string.internal_error) + ": " + e.getMessage();
         }
     }
 
