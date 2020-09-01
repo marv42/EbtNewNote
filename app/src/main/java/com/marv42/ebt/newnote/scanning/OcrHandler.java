@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 
+import com.marv42.ebt.newnote.HttpCaller;
 import com.marv42.ebt.newnote.R;
 
 import org.json.JSONObject;
@@ -63,24 +64,13 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
         FormBody formBody = formBodyBuilder.build();
 
         Request request = new Request.Builder().url(OCR_HOST).post(formBody).build();
-        Call call = new OkHttpClient().newCall(request);
-        try (Response response = call.execute()) {
-            if (!response.isSuccessful())
-                return getJsonObject(ERROR, mApp.getString(R.string.http_error)
-                        + " " + response.code()).toString();
-            ResponseBody responseBody = response.body();
-            if (responseBody == null)
-                return getJsonObject(ERROR, mApp.getString(R.string.server_error)).toString();
-            String body = responseBody.string();
-            JSONObject json = getJsonObject(body);
-            if (json == null || json.has("error"))
-                return getJsonObject(ERROR, body).toString();
-            return json.toString();
-        } catch (SocketTimeoutException e) {
-            return getJsonObject(ERROR, mApp.getString(R.string.error_no_connection)).toString();
-        } catch (IOException e) {
-            return getJsonObject(ERROR, mApp.getString(R.string.internal_error)).toString();
-        }
+        String body = new HttpCaller().call(request);
+        if (body.startsWith(ERROR))
+            return getJsonObject(ERROR, body).toString();
+        JSONObject json = getJsonObject(body);
+        if (json == null || json.has("error"))
+            return getJsonObject(ERROR, ERROR + body).toString();
+        return json.toString();
     }
 
     @Override

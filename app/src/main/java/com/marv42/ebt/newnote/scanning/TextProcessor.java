@@ -34,12 +34,12 @@ import static java.util.regex.Pattern.CASE_INSENSITIVE;
 public class TextProcessor {
     public static final String EMPTY = "<empty>";
 
-    static String getOcrResult(String s, Application app) {
+    static String getOcrResult(String jsonResult, Application app) {
         try {
-            JSONObject json = new JSONObject(s);
+            JSONObject json = new JSONObject(jsonResult);
             String error = json.optString(ERROR);
             if (!TextUtils.isEmpty(error))
-                return ERROR + error;
+                return error;
             JSONObject resultJson = getResult(json, app);
             error = resultJson.optString(ERROR);
             if (!TextUtils.isEmpty(error))

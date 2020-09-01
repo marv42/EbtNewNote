@@ -38,24 +38,12 @@ public class ApiCaller {
     private EncryptedPreferenceDataStore mDataStore;
     private final String mPrefSettingsEmailKey;
     private final String mPrefSettingsPasswordKey;
-    private final String mNoConnection;
-    private final String mHttpError;
-    private final String mWrongLogin;
-    private final String mServerError;
-    private final String mNoSerialNumber;
-    private final String mInternalError;
 
     @Inject
     public ApiCaller(ThisApp app, EncryptedPreferenceDataStore dataStore) {
         mDataStore = dataStore;
         mPrefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
         mPrefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
-        mNoConnection = app.getString(R.string.error_no_connection);
-        mHttpError = app.getString(R.string.http_error);
-        mWrongLogin = app.getString(R.string.wrong_login_info);
-        mServerError = app.getString(R.string.server_error);
-        mNoSerialNumber = app.getString(R.string.no_serial_number);
-        mInternalError = app.getString(R.string.internal_error);
     }
 
     private synchronized JSONObject doBasicCall(List<Pair<String, String>> params) {
@@ -65,21 +53,13 @@ public class ApiCaller {
                 formBodyBuilder.add(pair.first, pair.second);
         FormBody formBody = formBodyBuilder.build();
         Request request = new Request.Builder().url(EBT_API).post(formBody).build();
-        Call call = new OkHttpClient().newCall(request);
-        try (Response response = call.execute()) {
-            if (! response.isSuccessful())
-                return getJsonObject(ERROR, mHttpError + " " + response.code());
-            ResponseBody responseBody = response.body();
-            String body = responseBody != null ? responseBody.string() : "";
-            JSONObject json = getJsonObject(body);
-            if (json == null)
-                return getJsonObject(ERROR, body);
-            return json;
-        } catch (SocketTimeoutException e) {
-            return getJsonObject(ERROR, mNoConnection);
-        } catch (IOException e) {
-            return getJsonObject(ERROR, mInternalError + ": " + e.getMessage());
-        }
+        String body = new HttpCaller().call(request);
+        if (body.startsWith(ERROR))
+            return getJsonObject(ERROR, body);
+        JSONObject json = getJsonObject(body);
+        if (json == null)
+            return getJsonObject(ERROR, ERROR + body);
+        return json;
     }
 
     JSONObject callLogin() {
@@ -92,38 +72,38 @@ public class ApiCaller {
         params.add(new Pair<>("my_password", password != null ? password : ""));
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mInternalError);
-        if (jsonObject.optString(ERROR).equals("false") || !jsonObject.has("sessionid"))
-            return getJsonObject(ERROR, mWrongLogin);
+            return getJsonObject(ERROR, ERROR + "R.string.internal_error");
+        if (jsonObject.optString(ERROR).equals(ERROR + "false") || !jsonObject.has("sessionid"))
+            return getJsonObject(ERROR, ERROR + "R.string.wrong_login_info");
         return jsonObject;
     }
 
     JSONObject callInsertBills(List<Pair<String, String>> params) {
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mInternalError);
+            return getJsonObject(ERROR, ERROR + "R.string.internal_error");
         if (jsonObject.has(ERROR))
             return jsonObject;
         if (!jsonObject.has("note0"))
-            return getJsonObject(ERROR, mNoSerialNumber);
+            return getJsonObject(ERROR, ERROR + "R.string.no_serial_number");
         JSONObject note0 = getJsonObject(jsonObject.optString("note0"));
         if (note0 == null)
-            return getJsonObject(ERROR, mNoSerialNumber);
+            return getJsonObject(ERROR, ERROR + "R.string.no_serial_number");
         if (!note0.has("status"))
-            return getJsonObject(ERROR, mServerError + ": no 'status' element in the 'note0' element");
+            return getJsonObject(ERROR, ERROR + "R.string.server_error: no 'status' element in the 'note0' element");
         return note0;
     }
 
     JSONObject callMyComments(List<Pair<String, String>> params) {
         JSONObject jsonObject = doBasicCall(params);
         if (jsonObject == null)
-            return getJsonObject(ERROR, mInternalError);
+            return getJsonObject(ERROR, ERROR + "R.string.internal_error");
         if (jsonObject.has(ERROR))
             return jsonObject;
         if (!jsonObject.has("rows"))
-            return getJsonObject(ERROR, mServerError + ": no 'rows' element");
+            return getJsonObject(ERROR, ERROR + "R.string.server_error: no 'rows' element");
         if (!jsonObject.has("data"))
-            return getJsonObject(ERROR, mServerError + ": no 'data' element");
+            return getJsonObject(ERROR, ERROR + "R.string.server_error: no 'data' element");
         return jsonObject;
     }
 }

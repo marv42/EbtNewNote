@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 def versionMajor = 0
-def versionMinor = 40
+def versionMinor = 41
 def versionPatch = 0
 
 android {
@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.marv42.ebt.newnote"
-        versionCode versionMajor * 1000 + versionMinor * 100 + versionPatch
+        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         minSdkVersion 28
         targetSdkVersion rootProject.ext.sdkVersion

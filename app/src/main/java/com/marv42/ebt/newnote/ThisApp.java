@@ -44,12 +44,14 @@ import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RESULT_DATA_KEY;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.SUCCESS_RESULT;
 
 @AcraCore(buildConfigClass = BuildConfig.class)
 @AcraMailSender(mailTo = "marv42+acra@gmail.com")
 @AcraToast(resText = R.string.crash_text)
 public class ThisApp extends DaggerApplication {
+    public static final int RESULT_CODE_SUCCESS = 0;
+    public static final int RESULT_CODE_ERROR = 1;
+
     BroadcastReceiver mBroadcastReceiver;
 
     private AddressResultReceiver mAddressResultReceiver;
@@ -98,18 +100,20 @@ public class ThisApp extends DaggerApplication {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode != SUCCESS_RESULT) {
-                String text = getString(resultCode);
-                if (resultData != null)
-                    text += " (\"" + resultData.getString(RESULT_DATA_KEY) + "\")";
-                Toast.makeText(ThisApp.this, text, LENGTH_LONG).show();
+            if (resultCode != RESULT_CODE_SUCCESS) {
+                String text = resultData.getString(RESULT_DATA_KEY);
+                if (text == null)
+                    text = ERROR + "R.string.internal_error";
+                Toast.makeText(ThisApp.this, new ErrorMessage(
+                        ThisApp.this).getErrorMessage(text), LENGTH_LONG).show();
                 return;
             }
-            if (resultData == null)
-                return; // dann hätte addresses -> Gson in FetchAddressIntentService nicht geklappt
             String addressOutput = resultData.getString(RESULT_DATA_KEY);
             if (addressOutput == null) {
-                return; // ?
+                Toast.makeText(ThisApp.this, new ErrorMessage(ThisApp.this)
+                                .getErrorMessage(ERROR + "R.string.internal_error"),
+                        LENGTH_LONG).show();
+                return;
             }
             JsonArray array = parseString(addressOutput).getAsJsonArray();
             String countryName = array.get(0).getAsString();

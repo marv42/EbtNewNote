@@ -2,6 +2,8 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +16,7 @@ public class ErrorMessage {
         mContext = context;
     }
 
-    String getErrorMessage(String text) {
+    String getErrorMessage(@NonNull String text) {
         if (! text.startsWith(ERROR))
             return text;
         text = text.substring(ERROR.length());

@@ -214,7 +214,7 @@ public class SubmittedFragment extends DaggerFragment {
         return result.isSuccessful(activity) ?
                 getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
                         "green") :
-                getColoredString(result.mReason, "red");
+                getColoredString(new ErrorMessage(activity).getErrorMessage(result.mReason), "red");
     }
 
     static String getColoredString(String s, String color) {

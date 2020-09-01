@@ -65,7 +65,7 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
         String loginValuesOkKey = mApp.getString(R.string.pref_login_values_ok_key);
         JSONObject response = mApiCaller.callLogin();
         if (response.has(ERROR)) {
-            String wrongLogin = mApp.getString(R.string.wrong_login_info);
+            String wrongLogin = ERROR + "R.string.wrong_login_info";
             if (response.optString(ERROR).equals(wrongLogin)) {
                 editor.putBoolean(loginValuesOkKey, false).apply();
                 return wrongLogin;
@@ -81,7 +81,9 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String string) {
-        Toast.makeText(mApp, string, LENGTH_LONG).show();
+    protected void onPostExecute(String text) {
+        if (text.startsWith(ERROR))
+            text = new ErrorMessage(mApp).getErrorMessage(text);
+        Toast.makeText(mApp, text, LENGTH_LONG).show();
     }
 }
