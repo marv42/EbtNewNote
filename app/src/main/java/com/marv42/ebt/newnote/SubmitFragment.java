@@ -458,7 +458,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (ocrResult.equals(TextProcessor.EMPTY))
             showDialog(activity, getString(R.string.ocr_dialog_empty));
         else if (ocrResult.startsWith(ERROR))
-            showDialog(activity, ocrResult.substring(5));
+            showDialog(activity, new ErrorMessage(activity).getErrorMessage(ocrResult));
         else {
             if (ocrResult.length() < 9) {
                 putToClipboard(mShortCodeText.getText());
