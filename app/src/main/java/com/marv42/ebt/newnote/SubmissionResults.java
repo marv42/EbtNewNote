@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,8 +25,7 @@ public class SubmissionResults {
         if (results == null || TextUtils.isEmpty(results))
             return;
         JsonArray array = parseString(results).getAsJsonArray();
-        for (int i = 0; i < array.size(); ++i)
-            mResults.add(i, new Gson().fromJson(array.get(i), SubmissionResult.class));
+        mResults = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>(){}.getType());
         Collections.sort(mResults, new SubmissionResult.SubmissionComparator());
         String defValue = app.getResources().getString(R.string.max_show_num);
         int maxShowNum = Integer.parseInt(
