@@ -104,7 +104,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
 
-    private File mPhotoFile;
     private String mCurrentPhotoPath;
 
     private Unbinder mUnbinder;
@@ -366,20 +365,20 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                             (dialog, which) -> {
                                 startActivity(new Intent(getActivity().getApplicationContext(),
                                         SettingsActivity.class));
-                                dialog.dismiss();
-                            })
+                                dialog.dismiss(); })
                     .show();
             return;
         }
+        File photoFile;
         try {
-            mPhotoFile = createImageFile();
+            photoFile = createImageFile();
         } catch (IOException ex) {
             Toast.makeText(activity, getString(R.string.error_creating_file) + ": "
                     + ex.getMessage(), LENGTH_LONG).show();
             return;
         }
-        mCurrentPhotoPath = mPhotoFile.getAbsolutePath();
-        Uri photoUri = getUriForFile(activity, activity.getPackageName(), mPhotoFile);
+        mCurrentPhotoPath = photoFile.getAbsolutePath();
+        Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
         activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
@@ -389,8 +388,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (activity == null)
             throw new IllegalStateException("No activity");
         File tempFolder = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        if (tempFolder == null || tempFolder.listFiles() == null)
+//            throw new IOException("Error getting picture directory");
         for (File file: tempFolder.listFiles())
-            if (Calendar.getInstance().getTimeInMillis() - file.lastModified() > TIME_THRESHOLD_DELETE_OLD_PICS_MS)
+            if (Calendar.getInstance().getTimeInMillis() - file.lastModified()
+                    > TIME_THRESHOLD_DELETE_OLD_PICS_MS)
                 file.delete();
         return createTempFile("bill_", ".png", tempFolder);
     }
