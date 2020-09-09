@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
 import com.marv42.ebt.newnote.location.FetchAddressIntentService;
@@ -31,6 +32,7 @@ import org.acra.ACRA;
 import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraMailSender;
 import org.acra.annotation.AcraToast;
+import org.json.JSONObject;
 
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
@@ -115,20 +117,20 @@ public class ThisApp extends DaggerApplication {
                         LENGTH_LONG).show();
                 return;
             }
-            JsonArray array = parseString(addressOutput).getAsJsonArray();
-            String countryName = array.get(0).getAsString();
-            if (countryName.startsWith(ERROR)) {
+            LocationValues location = new Gson().fromJson(addressOutput, LocationValues.class);
+            String country = location.mCountry;
+            if (country.startsWith(ERROR)) {
                 Toast.makeText(ThisApp.this,
-                        new ErrorMessage(ThisApp.this).getErrorMessage(countryName), LENGTH_LONG).show();
+                        new ErrorMessage(ThisApp.this).getErrorMessage(country), LENGTH_LONG).show();
             }
             else {
                 getDefaultSharedPreferences(ThisApp.this).edit()
-                        .putString(ThisApp.this.getString(R.string.pref_country_key), countryName)
+                        .putString(ThisApp.this.getString(R.string.pref_country_key), country)
                         .apply();
             }
             getDefaultSharedPreferences(ThisApp.this).edit()
-                    .putString(ThisApp.this.getString(R.string.pref_city_key), array.get(1).getAsString())
-                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), array.get(2).getAsString())
+                    .putString(ThisApp.this.getString(R.string.pref_city_key), location.mCity)
+                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), location.mPostalCode)
                     .apply();
         }
     }

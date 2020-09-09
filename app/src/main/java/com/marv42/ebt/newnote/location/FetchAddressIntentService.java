@@ -9,25 +9,27 @@ import android.os.ResultReceiver;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
+import com.marv42.ebt.newnote.BuildConfig;
 import com.marv42.ebt.newnote.CountryCode;
 import com.marv42.ebt.newnote.HttpCaller;
+import com.marv42.ebt.newnote.LocationValues;
 
 import org.json.JSONObject;
 
 import okhttp3.FormBody;
 import okhttp3.Request;
 
+import static com.marv42.ebt.newnote.BuildConfig.APPLICATION_ID;
 import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.JsonHelper.getJsonObject;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_ERROR;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_SUCCESS;
 
 public class FetchAddressIntentService extends IntentService {
-    public static final String TAG = "FetchAddressIntentService";
-    public static final String PACKAGE_NAME = "com.marv42.ebt.newnote"; // TODO ThisApp.getPackageName()
-    public static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
-    public static final String RESULT_DATA_KEY = PACKAGE_NAME + ".RESULT_DATA_KEY";
-    public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME + ".LOCATION_DATA_EXTRA";
+    public static final String TAG = FetchAddressIntentService.class.getSimpleName();
+    public static final String RECEIVER = APPLICATION_ID + ".RECEIVER";
+    public static final String RESULT_DATA_KEY = APPLICATION_ID + ".RESULT_DATA_KEY";
+    public static final String LOCATION_DATA_EXTRA = APPLICATION_ID + ".LOCATION_DATA_EXTRA";
 
     private static final String GEOCODING_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
     private static final String ELEMENT_ADDRESS = "address";
@@ -76,11 +78,11 @@ public class FetchAddressIntentService extends IntentService {
             return;
         }
         String countryCode = jsonAddress.optString("CountryCode");
-        String locality = jsonAddress.optString("City");
+        String city = jsonAddress.optString("City");
         String postalCode = jsonAddress.optString("Postal");
         String countryName = new CountryCode().convert(countryCode);
-        String[] result = new String[]{countryName, locality, postalCode};
-        deliverResultToReceiver(RESULT_CODE_SUCCESS, new Gson().toJson(result)); // TODO .toJson(jsonAddress)
+        deliverResultToReceiver(RESULT_CODE_SUCCESS, new Gson().toJson(
+                new LocationValues(countryName, city, postalCode)));
     }
 
     private void deliverResultToReceiver(int resultCode, String message) {

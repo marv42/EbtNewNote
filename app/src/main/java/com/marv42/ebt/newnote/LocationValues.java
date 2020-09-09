@@ -11,12 +11,12 @@
 
 package com.marv42.ebt.newnote;
 
-class LocationValues {
+public class LocationValues {
     final String mCountry;
     final String mCity;
     final String mPostalCode;
 
-    LocationValues(final String country, final String city, final String postalCode) {
+    public LocationValues(final String country, final String city, final String postalCode) {
         mCountry = country;
         mCity = city;
         mPostalCode = postalCode;
