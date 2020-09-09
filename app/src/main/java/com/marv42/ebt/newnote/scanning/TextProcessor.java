@@ -112,6 +112,7 @@ public class TextProcessor {
         char2digit.put("o", "0");
         char2digit.put("@", "0");
         char2digit.put("i", "1");
+        char2digit.put("\"", "11");
         char2digit.put("I", "1");
         char2digit.put("t", "1");
         char2digit.put("Z", "2");
