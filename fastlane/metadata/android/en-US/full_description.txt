@@ -2,10 +2,10 @@ With the EBT New Note app, you can enter  Euro bill note data and submit them to
 
 EuroBillTracker is a project for tracking Euro bill notes.
 It comprises:
-- a website: www.eurobilltracker.com
+- a website: <a href="www.eurobilltracker.com">www.eurobilltracker.com</a>
 - a Euro bill note database
 - a EuroBillTracker API
-- a user forum: forum.eurobilltracker.com
+- a user forum: <a href="forum.eurobilltracker.com">forum.eurobilltracker.com</a>
 - etc.
 
 This app includes features as follows:
