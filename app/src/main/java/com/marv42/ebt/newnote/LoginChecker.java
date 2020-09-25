@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2010 marvin.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * Contributors:
- *     marvin - initial API and implementation
- ******************************************************************************/
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 
 package com.marv42.ebt.newnote;
 
@@ -22,20 +19,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
-import org.json.JSONObject;
+import com.marv42.ebt.newnote.exceptions.CallResponseException;
+import com.marv42.ebt.newnote.exceptions.ErrorMessage;
+import com.marv42.ebt.newnote.exceptions.HttpCallException;
+
+import org.jetbrains.annotations.NotNull;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
 public class LoginChecker extends AsyncTask<Void, Void, String> {
-    private ThisApp mApp;
-    private ApiCaller mApiCaller;
+    private ThisApp app;
+    private ApiCaller apiCaller;
 
     // TODO @Inject
     public LoginChecker(@NonNull final ThisApp app, ApiCaller apiCaller) {
-        mApp = app;
-        mApiCaller = apiCaller;
+        this.app = app;
+        this.apiCaller = apiCaller;
     }
 
     static void checkLoginInfo(@NonNull FragmentActivity activity) {
@@ -55,35 +56,45 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(mApp, mApp.getString(R.string.trying_login), LENGTH_LONG).show();
+        Toast.makeText(app, app.getString(R.string.trying_login), LENGTH_LONG).show();
     }
 
     @Override
     protected String doInBackground(Void... params) {
-        SharedPreferences preferences = getDefaultSharedPreferences(mApp);
+        try {
+            return tryToLogIn();
+        } catch (HttpCallException | CallResponseException e) {
+            return ERROR + e.getMessage();
+        }
+    }
+
+    @NotNull
+    private String tryToLogIn() throws HttpCallException, CallResponseException {
+        LoginInfo loginInfo = apiCaller.callLogin();
+        return setPreferences(loginInfo);
+    }
+
+    @NotNull
+    private String setPreferences(LoginInfo loginInfo) {
+        SharedPreferences preferences = getDefaultSharedPreferences(app);
         Editor editor = preferences.edit();
-        String loginValuesOkKey = mApp.getString(R.string.pref_login_values_ok_key);
-        JSONObject response = mApiCaller.callLogin();
-        if (response.has(ERROR)) {
-            String wrongLogin = ERROR + "R.string.wrong_login_info";
-            if (response.optString(ERROR).equals(wrongLogin)) {
-                editor.putBoolean(loginValuesOkKey, false).apply();
-                return wrongLogin;
-            }
-            return response.optString(ERROR);
+        String loginValuesOkKey = app.getString(R.string.pref_login_values_ok_key);
+        if (loginInfo.sessionId.isEmpty()) {
+            editor.putBoolean(loginValuesOkKey, false).apply();
+            return ERROR + app.getString(R.string.wrong_login_info);
         }
         editor.putBoolean(loginValuesOkKey, true).apply();
-        editor.putString(mApp.getString(R.string.pref_country_key), response.optString("my_country"))
-                .putString(mApp.getString(R.string.pref_city_key), response.optString("my_city"))
-                .putString(mApp.getString(R.string.pref_postal_code_key), response.optString("my_zip")).apply();
-        return mApp.getString(R.string.hello) + " " +
-                response.optString("username") + ". " + mApp.getString(R.string.logged_in);
+        editor.putString(app.getString(R.string.pref_country_key), loginInfo.myCountry)
+                .putString(app.getString(R.string.pref_city_key), loginInfo.myCity)
+                .putString(app.getString(R.string.pref_postal_code_key), loginInfo.myZip).apply();
+        return app.getString(R.string.hello) + " " + loginInfo.userName + ". "
+                + app.getString(R.string.logged_in);
     }
 
     @Override
     protected void onPostExecute(String text) {
         if (text.startsWith(ERROR))
-            text = new ErrorMessage(mApp).getErrorMessage(text);
-        Toast.makeText(mApp, text, LENGTH_LONG).show();
+            text = new ErrorMessage(app).getErrorMessage(text);
+        Toast.makeText(app, text, LENGTH_LONG).show();
     }
 }

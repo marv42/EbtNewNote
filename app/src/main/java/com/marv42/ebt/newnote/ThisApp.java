@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2010 marvin.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * Contributors:
- *     marvin - initial API and implementation
- ******************************************************************************/
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 
 package com.marv42.ebt.newnote;
 
@@ -22,8 +19,8 @@ import android.os.ResultReceiver;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
+import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.location.FetchAddressIntentService;
 import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
 import com.marv42.ebt.newnote.location.LocationTask;
@@ -32,7 +29,6 @@ import org.acra.ACRA;
 import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraMailSender;
 import org.acra.annotation.AcraToast;
-import org.json.JSONObject;
 
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
@@ -41,8 +37,7 @@ import static android.content.Intent.ACTION_PROVIDER_CHANGED;
 import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-import static com.google.gson.JsonParser.parseString;
-import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RESULT_DATA_KEY;
@@ -54,9 +49,7 @@ public class ThisApp extends DaggerApplication {
     public static final int RESULT_CODE_SUCCESS = 0;
     public static final int RESULT_CODE_ERROR = 1;
 
-    BroadcastReceiver mBroadcastReceiver;
-
-    private AddressResultReceiver mAddressResultReceiver;
+    BroadcastReceiver broadcastReceiver;
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -70,17 +63,17 @@ public class ThisApp extends DaggerApplication {
     }
 
     void startLocationProviderChangedReceiver() {
-        if (mBroadcastReceiver == null) {
-            mBroadcastReceiver = new LocationProviderChangedReceiver();
+        if (broadcastReceiver == null) {
+            broadcastReceiver = new LocationProviderChangedReceiver();
             IntentFilter filter = new IntentFilter(PROVIDERS_CHANGED_ACTION);
             filter.addAction(ACTION_PROVIDER_CHANGED);
-            registerReceiver(mBroadcastReceiver, filter);
+            registerReceiver(broadcastReceiver, filter);
         }
     }
 
     public void stopLocationProviderChangedReceiver() {
-        unregisterReceiver(mBroadcastReceiver);
-        mBroadcastReceiver = null;
+        unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     public void startLocationTask() {
@@ -105,20 +98,18 @@ public class ThisApp extends DaggerApplication {
             if (resultCode != RESULT_CODE_SUCCESS) {
                 String text = resultData.getString(RESULT_DATA_KEY);
                 if (text == null)
-                    text = ERROR + "R.string.internal_error";
+                    text = getString(R.string.internal_error);
                 Toast.makeText(ThisApp.this, new ErrorMessage(
                         ThisApp.this).getErrorMessage(text), LENGTH_LONG).show();
                 return;
             }
             String addressOutput = resultData.getString(RESULT_DATA_KEY);
             if (addressOutput == null) {
-                Toast.makeText(ThisApp.this, new ErrorMessage(ThisApp.this)
-                                .getErrorMessage(ERROR + "R.string.internal_error"),
-                        LENGTH_LONG).show();
+                Toast.makeText(ThisApp.this, getString(R.string.internal_error),LENGTH_LONG).show();
                 return;
             }
             LocationValues location = new Gson().fromJson(addressOutput, LocationValues.class);
-            String country = location.mCountry;
+            String country = location.country;
             if (country.startsWith(ERROR)) {
                 Toast.makeText(ThisApp.this,
                         new ErrorMessage(ThisApp.this).getErrorMessage(country), LENGTH_LONG).show();
@@ -129,8 +120,8 @@ public class ThisApp extends DaggerApplication {
                         .apply();
             }
             getDefaultSharedPreferences(ThisApp.this).edit()
-                    .putString(ThisApp.this.getString(R.string.pref_city_key), location.mCity)
-                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), location.mPostalCode)
+                    .putString(ThisApp.this.getString(R.string.pref_city_key), location.city)
+                    .putString(ThisApp.this.getString(R.string.pref_postal_code_key), location.postalCode)
                     .apply();
         }
     }

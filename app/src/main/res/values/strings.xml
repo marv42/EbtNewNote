@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2010 - 2020 Marvin Horter.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v2.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  -->
+
 <resources>
     <!-- app -->
     <string name="app_name">EBT New Note</string>
@@ -33,11 +41,15 @@
     <string name="sent">sent</string>
     <string name="total">Total</string>
 
+    <!-- exceptions -->
+    <string name="http_error">Error communicating to the server</string>
+    <string name="server_error">Unusable response from the server</string>
+    <string name="ocr_error">OCR error</string>
+
     <!-- server responses -->
     <string name="error_no_connection">No or insufficient internet connection</string>
-    <string name="http_error">Error communicating to the server</string>
     <string name="response_code">server response code</string>
-    <string name="server_error">Unusable response from the server</string>
+    <string name="no_json">Not in valid JSON format</string>
     <string name="internal_error">Internal error</string>
 
     <!-- note status -->
@@ -78,7 +90,8 @@
     <string name="submit">Submit Data to EBT</string>
     <string name="acquire">Acquire Values from Photo</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
-    <string name="comment_suggestions_set">Successfully set comment suggestions</string>
+    <string name="comment_suggestions_error">Error getting comment suggestions</string>
+    <string name="comment_suggestions_set">Successfully set comment suggestions.\n(Start typing a comment to see them.)</string>
 
     <!-- settings -->
     <string name="settings">Settings</string>
@@ -165,8 +178,6 @@
     <!-- OCR -->
     <string name="error_creating_file">Error creating file for saving picture</string>
     <string name="error_reading_preferences">Error reading OCR service key</string>
-    <string name="ocr_failed_internal">Internal OCR server error</string>
-    <string name="ocr_failed_undefined_exit_code">undefined OCR exit code</string>
     <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>
     <string name="ocr_result_description">OCR has finished. See the result.</string>

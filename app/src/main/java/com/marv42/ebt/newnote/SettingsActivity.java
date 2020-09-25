@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2010 marvin.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * 
- * Contributors:
- *     marvin - initial API and implementation
- ******************************************************************************/
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 
 package com.marv42.ebt.newnote;
 
@@ -59,9 +56,9 @@ public class SettingsActivity extends DaggerAppCompatActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Inject
-        ApiCaller mApiCaller;
+        ApiCaller apiCaller;
         @Inject
-        EncryptedPreferenceDataStore mDataStore;
+        EncryptedPreferenceDataStore dataStore;
 
         @Override
         public void onAttach(@NonNull Context context) {
@@ -72,7 +69,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            SharedPreferences sharedPreferences = mDataStore.getSharedPreferences();
+            SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
             if (sharedPreferences != null)
                 sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             checkOcrKey();
@@ -84,14 +81,14 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkOcrKey() {
-            String ocrKey = mDataStore.get(R.string.pref_settings_ocr_key, "");
+            String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
             if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                mDataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
+                dataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
         }
 
         @Override
         public void onPause() {
-            SharedPreferences sharedPreferences = mDataStore.getSharedPreferences();
+            SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
             if (sharedPreferences != null)
                 sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
             super.onPause();
@@ -99,7 +96,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            getPreferenceManager().setPreferenceDataStore(mDataStore);
+            getPreferenceManager().setPreferenceDataStore(dataStore);
             addPreferencesFromResource(R.xml.settings);
             Context context = getContext();
             if (context != null)
@@ -108,7 +105,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (sharedPreferences == mDataStore.getSharedPreferences()) {
+            if (sharedPreferences == dataStore.getSharedPreferences()) {
                 String emailKey = getString(R.string.pref_settings_email_key);
                 String passwordKey = getString(R.string.pref_settings_password_key);
                 if (key.equals(emailKey))
@@ -116,11 +113,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (key.equals(passwordKey))
                     setPasswordSummary();
                 if ((key.equals(emailKey) || key.equals(passwordKey)) &&
-                        !TextUtils.isEmpty(mDataStore.getString(emailKey, "")) &&
-                        !TextUtils.isEmpty(mDataStore.getString(passwordKey, ""))) {
+                        !TextUtils.isEmpty(dataStore.getString(emailKey, "")) &&
+                        !TextUtils.isEmpty(dataStore.getString(passwordKey, ""))) {
                     Activity activity = getActivity();
                     if (activity != null)
-                        new LoginChecker((ThisApp) activity.getApplicationContext(), mApiCaller).execute();
+                        new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
                 }
                 if (key.equals(getString(R.string.pref_settings_comment_key)))
                     setCommentSummary();
@@ -135,7 +132,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String emailKey = getString(R.string.pref_settings_email_key);
             EditTextPreference preference = findPreference(emailKey);
             if (preference != null) {
-                String email = mDataStore.getString(emailKey, "");
+                String email = dataStore.getString(emailKey, "");
                 String summary = getString(R.string.settings_email_summary);
                 if (email != null && !TextUtils.isEmpty(email))
                     summary += getString(R.string.settings_currently) + " " + email.trim();
@@ -150,7 +147,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             EditTextPreference preference = findPreference(passwordKey);
             if (preference != null) {
                 String summary = getString(R.string.settings_password_summary);
-                if (TextUtils.isEmpty(mDataStore.getString(passwordKey, "")))
+                if (TextUtils.isEmpty(dataStore.getString(passwordKey, "")))
                     summary += getString(R.string.settings_currently_not_set);
                 preference.setSummary(summary);
                 preference.setOnBindEditTextListener(editText ->
@@ -160,7 +157,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void setCommentSummary() {
             String commentKey = getString(R.string.pref_settings_comment_key);
-            String comment = mDataStore.getString(commentKey, "");
+            String comment = dataStore.getString(commentKey, "");
             String summary = getString(R.string.settings_comment_summary);
             if (!TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
@@ -174,7 +171,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             EditTextPreference preference = findPreference(ocrKeyKey);
             if (preference != null) {
                 String summary = getString(R.string.settings_ocr_summary);
-                if (TextUtils.isEmpty(mDataStore.getString(ocrKeyKey, ""))) {
+                if (TextUtils.isEmpty(dataStore.getString(ocrKeyKey, ""))) {
                     String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
                     summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
                     preference.setIntent(new Intent().setAction(ACTION_VIEW)
@@ -188,7 +185,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String submittedKey = getString(R.string.pref_settings_submitted_key);
             EditTextPreference preference = findPreference(submittedKey);
             if (preference != null) {
-                String submitted = mDataStore.getString(submittedKey, "");
+                String submitted = dataStore.getString(submittedKey, "");
                 String summary = getString(R.string.settings_submitted_summary);
                 if (submitted != null && !TextUtils.isEmpty(submitted))
                     summary += getString(R.string.settings_currently) + " " + submitted.trim();

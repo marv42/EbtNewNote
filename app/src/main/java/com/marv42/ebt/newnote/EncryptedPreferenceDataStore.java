@@ -1,3 +1,11 @@
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
+
 package com.marv42.ebt.newnote;
 
 import android.content.SharedPreferences;
@@ -28,18 +36,18 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
 //    private static final String MASTER_KEY_ALIAS = "ebt_new_note_master_key";
     private static final int KEY_SIZE = 256;
 
-    private ThisApp mApp;
-    private SharedPreferences mSharedPreferences;
+    private ThisApp app;
+    private SharedPreferences sharedPreferences;
 
     @Inject
     public EncryptedPreferenceDataStore(ThisApp app) {
-        mApp = app;
+        this.app = app;
         try {
-            mSharedPreferences = EncryptedSharedPreferences.create(app,
+            sharedPreferences = EncryptedSharedPreferences.create(app,
                     ENCRYPTED_SHARED_PREFERENCES_FILE_NAME,
                     getMasterKey(), AES256_SIV, AES256_GCM);
         } catch (GeneralSecurityException | IOException e) {
-            mSharedPreferences = getDefaultSharedPreferences(app);
+            sharedPreferences = getDefaultSharedPreferences(app);
         }
     }
 
@@ -50,19 +58,19 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
                 .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
                 .build();
-        return new MasterKey.Builder(mApp)
+        return new MasterKey.Builder(app)
 //                .setKeyScheme(AES256_GCM)
                 .setKeyGenParameterSpec(spec)
                 .build();
     }
 
     SharedPreferences getSharedPreferences() {
-        return mSharedPreferences;
+        return sharedPreferences;
     }
 
     @NonNull
     <T> T get(int keyId, T defValue) {
-        return get(mApp.getString(keyId), defValue);
+        return get(app.getString(keyId), defValue);
     }
 
     @NonNull
@@ -80,7 +88,7 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
     }
 
     <T> void set(int keyId, T value) {
-        set(mApp.getString(keyId), value);
+        set(app.getString(keyId), value);
     }
 
     <T> void set(String key, T value) {
@@ -95,21 +103,21 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
     @Nullable
     @Override
     public String getString(String key, @Nullable String defValue) {
-        return mSharedPreferences.getString(key, defValue);
+        return sharedPreferences.getString(key, defValue);
     }
 
     @Override
     public void putString(String key, @Nullable String value) {
-        mSharedPreferences.edit().putString(key, value).apply();
+        sharedPreferences.edit().putString(key, value).apply();
     }
 
     @Override
     public boolean getBoolean(String key, boolean defValue) {
-        return mSharedPreferences.getBoolean(key, defValue);
+        return sharedPreferences.getBoolean(key, defValue);
     }
 
     @Override
     public void putBoolean(String key, boolean value) {
-        mSharedPreferences.edit().putBoolean(key, value).apply();
+        sharedPreferences.edit().putBoolean(key, value).apply();
     }
 }

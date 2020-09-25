@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2010 marvin.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * Contributors:
- *     marvin - initial API and implementation
- ******************************************************************************/
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 
 package com.marv42.ebt.newnote;
 
@@ -17,7 +14,12 @@ import android.widget.Toast;
 
 import androidx.core.util.Pair;
 
+import com.marv42.ebt.newnote.exceptions.CallResponseException;
+import com.marv42.ebt.newnote.exceptions.HttpCallException;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -26,57 +28,48 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static android.widget.Toast.LENGTH_LONG;
-import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
-public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
+class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
+
+    private static final String DATA_ELEMENT = "data";
+    private static final String AMOUNT_ELEMENT = "amount";
+    private static final String COMMENT_ELEMENT = "comment";
+
     interface Callback {
         void onSuggestions(String[] suggestions);
     }
 
     private static final int MAX_NUMBER_SUGGESTIONS = 50;
 
-    private ApiCaller mApiCaller;
-    private Callback mCallback;
-    private String mAdditionalComment;
+    private ApiCaller apiCaller;
+    private Callback callback;
+    private String additionalComment;
 
     CommentSuggestion(ApiCaller apiCaller, Callback callback, EncryptedPreferenceDataStore dataStore) {
-        mApiCaller = apiCaller;
-        mCallback = callback;
-        mAdditionalComment = dataStore.get(R.string.pref_settings_comment_key, "")
+        this.apiCaller = apiCaller;
+        this.callback = callback;
+        additionalComment = dataStore.get(R.string.pref_settings_comment_key, "")
                 .replace("\u00a0", " ");
     }
 
     @Override
     protected String[] doInBackground(LocationValues... locationValues) {
-        JSONObject json = mApiCaller.callLogin();
-        if (json.has(ERROR))
-            return new String[]{ ERROR, json.optString(ERROR) };
-        LocationValues lv = locationValues[0];
-        List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair<>("m", "mycomments"));
-        params.add(new Pair<>("v", "1"));
-        params.add(new Pair<>("PHPSESSID", json.optString("sessionid")));
-        params.add(new Pair<>("city", lv.mCity));
-        params.add(new Pair<>("country", lv.mCountry));
-        params.add(new Pair<>("zip", lv.mPostalCode));
-        json = mApiCaller.callMyComments(params);
-        if (json.has(ERROR))
-            return new String[]{ ERROR, json.optString(ERROR) };
-        JSONArray allComments = json.optJSONArray("data");
-        List<JSONObject> list = new ArrayList<>();
-        for (int i = 0; allComments != null && i < allComments.length(); ++i)
-            list.add(allComments.optJSONObject(i));
-        Collections.sort(list, (j1, j2) -> j2.optInt("amount") - j1.optInt("amount"));
-        // unique wrt additionalComment
-        List<String> uniqueList = new ArrayList<>();
-        for (int i = 0; i < list.size(); ++i) {
-            String value = list.get(i).optString("comment").replace("\u00a0", " ");
-            if (value.endsWith(mAdditionalComment))
-                value = value.substring(0, value.length() - mAdditionalComment.length());
-            if (value.length() > 0 && ! uniqueList.contains(value))
-                uniqueList.add(value);
+        try {
+            return getSuggestions(locationValues);
+        } catch (CallResponseException e) {
+            return getErrorStrings(e.getMessage());
         }
-        uniqueList = new ArrayList<>(new LinkedHashSet<>(uniqueList));
+    }
+
+    @NotNull
+    private String[] getSuggestions(LocationValues[] locationValues) throws CallResponseException {
+        List<String> uniqueList = getUniques(locationValues);
+        return getOnlyNumSuggestions(uniqueList);
+    }
+
+    @NotNull
+    private String[] getOnlyNumSuggestions(List<String> uniqueList) {
         int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
         String[] s = new String[numSuggestions];
         for (int i = 0; i < numSuggestions; ++i)
@@ -84,14 +77,81 @@ public class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]>
         return s;
     }
 
+    @NotNull
+    private List<String> getUniques(LocationValues[] locationValues) throws CallResponseException {
+        JSONObject json = getJson(locationValues);
+        JSONArray allSuggestions = json.optJSONArray(DATA_ELEMENT);
+        List<String> uniques = getUniquesWrtAdditionalComments(allSuggestions);
+        return new ArrayList<>(new LinkedHashSet<>(uniques));
+    }
+
+    private JSONObject getJson(LocationValues[] locationValues) throws CallResponseException {
+        try {
+            LoginInfo loginInfo = apiCaller.callLogin();
+            List<Pair<String, String>> params = getLocationParams(loginInfo.sessionId, locationValues);
+            String body = apiCaller.callMyComments(params);
+            JSONObject json = new JSONObject(body);
+            if (!json.has(DATA_ELEMENT))
+                throw new CallResponseException("R.string.server_error: no '" + DATA_ELEMENT + "' element");
+            return json;
+        } catch (HttpCallException | CallResponseException | JSONException e) {
+            throw new CallResponseException(e.getMessage());
+        }
+    }
+
+    @NotNull
+    private List<String> getUniquesWrtAdditionalComments(JSONArray allSuggestions) {
+        List<JSONObject> suggestions = getJsonList(allSuggestions);
+        Collections.sort(suggestions, (j1, j2) -> j2.optInt(AMOUNT_ELEMENT) - j1.optInt(AMOUNT_ELEMENT));
+        List<String> uniques = new ArrayList<>();
+        for (int i = 0; i < suggestions.size(); ++i) {
+            String value = suggestions.get(i).optString(COMMENT_ELEMENT).replace("\u00a0", " ");
+            if (value.endsWith(additionalComment))
+                value = value.substring(0, value.length() - additionalComment.length());
+            if (value.length() > 0 && ! uniques.contains(value))
+                uniques.add(value);
+        }
+        return uniques;
+    }
+
+    @NotNull
+    private List<JSONObject> getJsonList(JSONArray allComments) {
+        List<JSONObject> list = new ArrayList<>();
+        for (int i = 0; allComments != null && i < allComments.length(); ++i)
+            list.add(allComments.optJSONObject(i));
+        return list;
+    }
+
+    @NotNull
+    private String[] getErrorStrings(String s) {
+        return new String[]{ERROR, s};
+    }
+
+    @NotNull
+    private List<Pair<String, String>> getLocationParams(String sessionId, LocationValues[] locationValues) {
+        LocationValues lv = locationValues[0];
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(new Pair<>("m", "mycomments"));
+        params.add(new Pair<>("v", "1"));
+        params.add(new Pair<>("PHPSESSID", sessionId));
+        params.add(new Pair<>("country", lv.country));
+        params.add(new Pair<>("city", lv.city));
+        params.add(new Pair<>("zip", lv.postalCode));
+        return params;
+    }
+
     @Override
     protected void onPostExecute(String[] s) {
-        Context context = (Context) mCallback;
-        if (s == null || s.length < 1 || s[0].equals(ERROR)) {
+        Context context = (Context) callback;
+        if (s == null || s.length < 1) {
             Toast.makeText(context, context.getString(R.string.no_comment_suggestions), LENGTH_LONG).show();
             return;
         }
+        if (s[0].equals(ERROR)) {
+            Toast.makeText(context, context.getString(R.string.comment_suggestions_error), LENGTH_LONG).show();
+            return;
+        }
         Toast.makeText(context, context.getString(R.string.comment_suggestions_set), LENGTH_LONG).show();
-        mCallback.onSuggestions(s);
+        callback.onSuggestions(s);
     }
 }

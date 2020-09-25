@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2010 marvin.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
- * Contributors:
- *     marvin - initial API and implementation
- ******************************************************************************/
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 
 package com.marv42.ebt.newnote;
 
@@ -42,11 +39,9 @@ public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
         ActivityCompat.OnRequestPermissionsResultCallback /*, LifecycleOwner*/ {
     @Inject
-    EncryptedPreferenceDataStore mDataStore;
+    EncryptedPreferenceDataStore dataStore;
 
     public static final String FRAGMENT_TYPE = "fragment_type";
-    public static final String NOTIFICATION_NOTE_CHANNEL_ID = "default";
-    public static final String NOTIFICATION_OCR_CHANNEL_ID = "ebt_ocr_channel";
     public static final int OCR_NOTIFICATION_ID = 2;
 
     static final int NOTE_NOTIFICATION_ID = 1;
@@ -57,50 +52,17 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
 
-    private SubmitFragment mSubmitFragment = null;
-    private SubmittedFragment mSubmittedFragment = null;
-    private boolean mSwitchToResults;
-    private String[] mCommentSuggestions;
+    private SubmitFragment submitFragment = null;
+    private SubmittedFragment submittedFragment = null;
+    private boolean switchToResults;
+    private String[] commentSuggestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(android.R.attr.colorAccent, typedValue, true);
-        int androidAccentColor = typedValue.data;
-        Resources.Theme theme = getTheme();
-        theme.applyStyle(androidAccentColor, true);
-        // TODO when we have Q: setTheme(theme.rebase());
-        setContentView(R.layout.main);
-
-        FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
-        ViewPager pager = findViewById(R.id.view_pager);
-        pager.setAdapter(adapter);
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(pager);
-
-        adapter.startUpdate(pager);
-        mSubmitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
-        mSubmittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
-        adapter.finishUpdate(pager);
-
-        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                if (position == SUBMIT_FRAGMENT_INDEX)
-                    mSubmitFragment.setViewValuesFromPreferences();
-                else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                    mSubmittedFragment.refreshResults();
-                }
-            }
-        });
-
-        mSwitchToResults = false;
-        Bundle extras = getIntent().getExtras();
-        if (extras != null && SubmittedFragment.class.getSimpleName().equals(
-                extras.getString(FRAGMENT_TYPE)))
-            mSwitchToResults = true;
+        setLayout();
+        setFragments();
+        checkSwitching();
     }
 
     @Override
@@ -118,16 +80,15 @@ public class EbtNewNote extends DaggerAppCompatActivity
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                String apiKey = mDataStore.getString(getString(R.string.pref_settings_ocr_key), "");
+                String apiKey = dataStore.getString(getString(R.string.pref_settings_ocr_key), "");
                 if (apiKey == null) {
                     Toast.makeText(this, getString(R.string.error_reading_preferences), LENGTH_LONG).show();
                     return;
                 }
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler(getApplication(), mSubmitFragment,
-                        mSubmitFragment.getPhotoPath(), apiKey).execute();
+                new OcrHandler(submitFragment, submitFragment.getPhotoPath(), apiKey).execute();
             } else
-                mSubmitFragment.resetPhotoPath();
+                submitFragment.resetPhotoPath();
         }
     }
 
@@ -141,24 +102,24 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
         Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
-            mSubmitFragment.checkLocationSetting();
+            submitFragment.checkLocationSetting();
         else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
-            mSubmitFragment.takePhoto();
+            submitFragment.takePhoto();
     }
 
     @Override
     public void onSubmitFragmentAdded() {
-        if (mCommentSuggestions != null && mCommentSuggestions.length > 0) {
-            mSubmitFragment.setCommentsAdapter(mCommentSuggestions);
-            mCommentSuggestions = null;
+        if (commentSuggestions != null && commentSuggestions.length > 0) {
+            submitFragment.setCommentsAdapter(commentSuggestions);
+            commentSuggestions = null;
         }
     }
 
     @Override
     public void onSubmittedFragmentAdded() {
-        if (mSwitchToResults) {
+        if (switchToResults) {
             switchFragment(SUBMITTED_FRAGMENT_INDEX);
-            mSwitchToResults = false;
+            switchToResults = false;
         }
     }
 
@@ -170,14 +131,61 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public void onSuggestions(String[] suggestions) {
-        if (mSubmitFragment.isAdded())
-            mSubmitFragment.setCommentsAdapter(suggestions);
+        if (submitFragment.isAdded())
+            submitFragment.setCommentsAdapter(suggestions);
         else
-            mCommentSuggestions = suggestions;
+            commentSuggestions = suggestions;
+    }
+
+    private void setLayout() {
+        Resources.Theme theme = getTheme();
+        TypedValue typedValue = new TypedValue();
+        theme.resolveAttribute(android.R.attr.colorAccent, typedValue, true);
+        int androidAccentColor = typedValue.data;
+        theme.applyStyle(androidAccentColor, true);
+        // TODO set theme according to system settings
+        setContentView(R.layout.main);
+    }
+
+    private void setFragments() {
+        FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
+        ViewPager pager = findViewById(R.id.view_pager);
+        pager.setAdapter(adapter);
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(pager);
+
+        adapter.startUpdate(pager);
+        submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
+        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+        adapter.finishUpdate(pager);
+
+        addOnPageChangeListener(pager);
+    }
+
+    private void addOnPageChangeListener(ViewPager pager) {
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position == SUBMIT_FRAGMENT_INDEX)
+                    submitFragment.setViewValuesFromPreferences();
+                else if (position == SUBMITTED_FRAGMENT_INDEX) {
+                    submittedFragment.refreshResults();
+                }
+            }
+        });
+    }
+
+    private void checkSwitching() {
+        switchToResults = false;
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && SubmittedFragment.class.getSimpleName().equals(
+                extras.getString(FRAGMENT_TYPE)))
+            switchToResults = true;
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
-        private final List<String> mFragmentTitles = new ArrayList<>();
+        private final List<String> fragmentTitles = new ArrayList<>();
 
         FragmentWithTitlePagerAdapter() {
             super(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
@@ -186,7 +194,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
         @Override
         public int getCount() {
-            return mFragmentTitles.size();
+            return fragmentTitles.size();
         }
 
         @NonNull
@@ -194,29 +202,26 @@ public class EbtNewNote extends DaggerAppCompatActivity
         public Fragment getItem(int position) {
             Fragment fragment;
             if (position == SUBMIT_FRAGMENT_INDEX) {
-                fragment = mSubmitFragment;
-                if (fragment == null) {
+                fragment = submitFragment;
+                if (fragment == null)
                     fragment = new SubmitFragment();
-                }
             } else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                fragment = mSubmittedFragment;
-                if (fragment == null) {
+                fragment = submittedFragment;
+                if (fragment == null)
                     fragment = new SubmittedFragment();
-                }
-            } else {
+            } else
                 throw new IllegalArgumentException("position");
-            }
             return fragment;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitles.get(position);
+            return fragmentTitles.get(position);
         }
 
         private void addTitles() {
-            mFragmentTitles.add(getString(R.string.submit_fragment_title));
-            mFragmentTitles.add(getString(R.string.submitted_fragment_title));
+            fragmentTitles.add(getString(R.string.submit_fragment_title));
+            fragmentTitles.add(getString(R.string.submitted_fragment_title));
         }
     }
 }

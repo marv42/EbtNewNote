@@ -6,15 +6,7 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote.di;
+package com.marv42.ebt.newnote.exceptions;
 
-import java.lang.annotation.Retention;
-
-import javax.inject.Scope;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-@Scope
-@Retention(RUNTIME)
-@interface FragmentScope {
+public class NoClipboardManagerException extends Throwable {
 }

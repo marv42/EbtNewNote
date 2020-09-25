@@ -1,4 +1,14 @@
+/*
+ Copyright (c) 2010 - 2020 Marvin Horter.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the GNU Public License v2.0
+ which accompanies this distribution, and is available at
+ http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
+
 package com.marv42.ebt.newnote;
+
+import com.marv42.ebt.newnote.exceptions.HttpCallException;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -9,29 +19,25 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.marv42.ebt.newnote.ErrorMessage.ERROR;
-
 public class HttpCaller {
-    String getServer(Request request) {
+    private String getServer(Request request) {
         return request.url().host();
     }
 
-    public String call(Request request) {
+    public String call(Request request) throws HttpCallException {
         Call call = new OkHttpClient().newCall(request);
         try (Response response = call.execute()) {
-            if (!response.isSuccessful()) {
-                return ERROR + "R.string.http_error " + getServer(request) + ", R.string.response_code: "
-                        + String.valueOf(response.code());
-            }
+            if (!response.isSuccessful())
+                throw new HttpCallException("R.string.http_error " + getServer(request) + ", R.string.response_code: "
+                        + String.valueOf(response.code()));
             ResponseBody responseBody = response.body();
-            if (responseBody == null) {
-                return ERROR + "R.string.server_error " + getServer(request);
-            }
+            if (responseBody == null)
+                throw new HttpCallException("R.string.server_error " + getServer(request));
             return responseBody.string();
         } catch (SocketTimeoutException e) {
-            return ERROR + "R.string.error_no_connection: " + getServer(request) + ": " + e.getMessage();
+            throw new HttpCallException("R.string.error_no_connection: " + getServer(request) + ": " + e.getMessage());
         } catch (IOException e) {
-            return ERROR + "R.string.internal_error: " + getServer(request) + ": " + e.getMessage();
+            throw new HttpCallException("R.string.internal_error: " + getServer(request) + ": " + e.getMessage());
         }
     }
 }
