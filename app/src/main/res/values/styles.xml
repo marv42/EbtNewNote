@@ -9,6 +9,6 @@
 
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="colorAccent">@android:color/holo_orange_light</item>
+        <item name="colorAccent">@color/holo_orange_light</item>
     </style>
 </resources>

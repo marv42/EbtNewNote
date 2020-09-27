@@ -16,8 +16,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -37,7 +40,7 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
-        ActivityCompat.OnRequestPermissionsResultCallback /*, LifecycleOwner*/ {
+        ActivityCompat.OnRequestPermissionsResultCallback /* TODO LifecycleOwner */ {
     @Inject
     EncryptedPreferenceDataStore dataStore;
 
@@ -138,28 +141,41 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setLayout() {
-        Resources.Theme theme = getTheme();
-        TypedValue typedValue = new TypedValue();
-        theme.resolveAttribute(android.R.attr.colorAccent, typedValue, true);
-        int androidAccentColor = typedValue.data;
-        theme.applyStyle(androidAccentColor, true);
-        // TODO set theme according to system settings
+        applyStyle();
         setContentView(R.layout.main);
+    }
+
+    private void applyStyle() {
+        Resources.Theme theme = getTheme();
+        TypedValue colorAccentValue = new TypedValue();
+        if (theme.resolveAttribute(android.R.attr.colorAccent, colorAccentValue, true)) {
+            @ColorRes int colorRes = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
+            @ColorInt int color = ContextCompat.getColor(this, colorRes);
+            theme.applyStyle(color, true);
+        }
     }
 
     private void setFragments() {
         FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
         ViewPager pager = findViewById(R.id.view_pager);
         pager.setAdapter(adapter);
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(pager);
+        setupTabLayout(pager);
 
         adapter.startUpdate(pager);
-        submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
-        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+        instantiateFragments(adapter, pager);
         adapter.finishUpdate(pager);
 
         addOnPageChangeListener(pager);
+    }
+
+    private void setupTabLayout(ViewPager pager) {
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(pager);
+    }
+
+    private void instantiateFragments(FragmentWithTitlePagerAdapter adapter, ViewPager pager) {
+        submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
+        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
     }
 
     private void addOnPageChangeListener(ViewPager pager) {
