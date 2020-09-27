@@ -88,8 +88,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
                 }
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
                 new OcrHandler(submitFragment, apiKey).execute();
-            } else
-                submitFragment.resetPhotoPath();
+            }
         }
     }
 

@@ -17,6 +17,7 @@ import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
+import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.exceptions.OcrException;
 
 import org.jetbrains.annotations.NotNull;
@@ -55,10 +56,12 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
             return ERROR + "R.string.server_error: " + e.getMessage();
         } catch (OcrException e) {
             return ERROR + "R.string.ocr_error: " + e.getMessage();
+        } catch (NoPictureException e) {
+            return ERROR + e.getMessage();
         }
     }
 
-    private String getResult() throws HttpCallException, CallResponseException, OcrException {
+    private String getResult() throws HttpCallException, CallResponseException, OcrException, NoPictureException {
         FormBody formBody = getFormBody();
         Request request = new Request.Builder().url(OCR_URL).post(formBody).build();
         String body = new HttpCaller().call(request);
@@ -66,7 +69,7 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     }
 
     @NotNull
-    private FormBody getFormBody() {
+    private FormBody getFormBody() throws NoPictureException {
         String base64Image = convert(photoPath);
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         formBodyBuilder.add("apikey", apiKey);

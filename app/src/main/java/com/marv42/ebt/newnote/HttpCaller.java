@@ -29,7 +29,7 @@ public class HttpCaller {
         try (Response response = call.execute()) {
             if (!response.isSuccessful())
                 throw new HttpCallException("R.string.http_error " + getServer(request) + ", R.string.response_code: "
-                        + String.valueOf(response.code()));
+                        + response.code());
             ResponseBody responseBody = response.body();
             if (responseBody == null)
                 throw new HttpCallException("R.string.server_error " + getServer(request));

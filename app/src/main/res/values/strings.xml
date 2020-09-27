@@ -178,7 +178,9 @@
     <string name="version">Version %1$s</string>
 
     <!-- OCR -->
-    <string name="error_creating_file">Error creating file for saving picture</string>
+    <string name="error_reading_picture">Error reading picture file</string>
+    <string name="error_compressing_picture">Error converting picture</string>
+    <string name="error_creating_file">Error creating picture file</string>
     <string name="error_reading_preferences">Error reading OCR service key</string>
     <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>

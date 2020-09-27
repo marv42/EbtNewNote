@@ -70,6 +70,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Context.VIBRATOR_SERVICE;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
+import static android.provider.MediaStore.EXTRA_OUTPUT;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
@@ -420,23 +421,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (activity == null)
             throw new IllegalStateException("No activity");
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(activity.getPackageManager()) == null) {
-            Toast.makeText(activity, getString(R.string.no_camera_activity), LENGTH_LONG).show();
+        if (! canTakePhoto(activity, intent))
             return;
-        }
-        if (checkSelfPermission(app, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] { CAMERA }, CAMERA_PERMISSION_REQUEST_CODE);
-            return;
-        }
-        if (!TextUtils.isEmpty(currentPhotoPath)) {
-            // TODO enable multiple OCR runs at the same time
-            Toast.makeText(activity, getString(R.string.ocr_executing), LENGTH_LONG).show();
-            return;
-        }
-        if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
-            showDialogNoOcrServiceKey(activity);
-            return;
-        }
         File photoFile;
         try {
             photoFile = createImageFile();
@@ -447,8 +433,24 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
         currentPhotoPath = photoFile.getAbsolutePath();
         Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+        intent.putExtra(EXTRA_OUTPUT, photoUri);
         activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
+    }
+
+    private boolean canTakePhoto(Activity activity, Intent intent) {
+        if (intent.resolveActivity(activity.getPackageManager()) == null) {
+            Toast.makeText(activity, getString(R.string.no_camera_activity), LENGTH_LONG).show();
+            return false;
+        }
+        if (checkSelfPermission(app, CAMERA) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[] { CAMERA }, CAMERA_PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
+            showDialogNoOcrServiceKey(activity);
+            return false;
+        }
+        return true;
     }
 
     private void showDialogNoOcrServiceKey(Activity activity) {
@@ -458,7 +460,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                         app.getString(R.string.get_ocr_key))
                 .setPositiveButton(getString(R.string.ok),
                         (dialog, which) -> {
-                            startActivity(new Intent(getActivity().getApplicationContext(),
+                            startActivity(new Intent(activity.getApplicationContext(),
                                     SettingsActivity.class));
                             dialog.dismiss(); })
                 .show();
@@ -503,10 +505,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @NonNull
     public String getPhotoPath() {
         return currentPhotoPath;
-    }
-
-    void resetPhotoPath() {
-        currentPhotoPath = "";
     }
 
     void setCommentsAdapter(String[] suggestions) {
