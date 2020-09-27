@@ -10,5 +10,6 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="colorAccent">@color/holo_orange_light</item>
+<!--        TODO <item name="colorForHyperlinks">@color/holo_blue_light</item>-->
     </style>
 </resources>

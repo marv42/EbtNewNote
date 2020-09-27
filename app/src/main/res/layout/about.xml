@@ -32,5 +32,6 @@
         android:id="@+id/about_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:autoLink="web|email" />
+        android:autoLink="web|email"
+        android:textColorLink="@color/holo_blue_light" />
 </LinearLayout>
