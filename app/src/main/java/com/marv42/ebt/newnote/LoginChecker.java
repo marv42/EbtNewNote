@@ -33,7 +33,6 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
     private ThisApp app;
     private ApiCaller apiCaller;
 
-    // TODO @Inject
     public LoginChecker(@NonNull final ThisApp app, ApiCaller apiCaller) {
         this.app = app;
         this.apiCaller = apiCaller;
@@ -84,11 +83,15 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
             return ERROR + app.getString(R.string.wrong_login_info);
         }
         editor.putBoolean(loginValuesOkKey, true).apply();
+        setLocationInfo(loginInfo, editor);
+        return app.getString(R.string.hello) + " " + loginInfo.userName + ". "
+                + app.getString(R.string.logged_in);
+    }
+
+    private void setLocationInfo(LoginInfo loginInfo, Editor editor) {
         editor.putString(app.getString(R.string.pref_country_key), loginInfo.myCountry)
                 .putString(app.getString(R.string.pref_city_key), loginInfo.myCity)
                 .putString(app.getString(R.string.pref_postal_code_key), loginInfo.myZip).apply();
-        return app.getString(R.string.hello) + " " + loginInfo.userName + ". "
-                + app.getString(R.string.logged_in);
     }
 
     @Override

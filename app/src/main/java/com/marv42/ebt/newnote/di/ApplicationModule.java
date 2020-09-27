@@ -93,11 +93,4 @@ abstract class ApplicationModule {
             @NonNull SubmissionResults submissionResults, @NonNull EncryptedPreferenceDataStore dataStore) {
         return new NoteDataSubmitter(app, apiCaller, submissionResults, dataStore);
     }
-
-//    @Provides
-//    @Singleton
-//    static LoginChecker provideLoginChecker(@NonNull ThisApp app, @NonNull ApiCaller apiCaller,
-//            @NonNull SharedPreferencesHandler sharedPreferencesHandler) {
-//        return new LoginChecker(app, apiCaller, sharedPreferencesHandler);
-//    }
 }

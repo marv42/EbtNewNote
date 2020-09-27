@@ -73,17 +73,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (sharedPreferences != null)
                 sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             checkOcrKey();
-            setEmailSummary();
-            setPasswordSummary();
-            setCommentSummary();
-            setOcrSummary();
-            setSubmittedSummary();
-        }
-
-        private void checkOcrKey() {
-            String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
-            if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                dataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
+            checkEmailSummary();
+            checkPasswordSummary();
+            checkCommentSummary();
+            checkOcrSummary();
+            checkSubmittedSummary();
         }
 
         @Override
@@ -109,90 +103,116 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 String emailKey = getString(R.string.pref_settings_email_key);
                 String passwordKey = getString(R.string.pref_settings_password_key);
                 if (key.equals(emailKey))
-                    setEmailSummary();
+                    checkEmailSummary();
                 if (key.equals(passwordKey))
-                    setPasswordSummary();
+                    checkPasswordSummary();
                 if ((key.equals(emailKey) || key.equals(passwordKey)) &&
-                        !TextUtils.isEmpty(dataStore.getString(emailKey, "")) &&
-                        !TextUtils.isEmpty(dataStore.getString(passwordKey, ""))) {
+                        isEmailAndPasswordSet(emailKey, passwordKey)) {
                     Activity activity = getActivity();
                     if (activity != null)
                         new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
                 }
                 if (key.equals(getString(R.string.pref_settings_comment_key)))
-                    setCommentSummary();
+                    checkCommentSummary();
                 if (key.equals(getString(R.string.pref_settings_ocr_key)))
-                    setOcrSummary();
+                    checkOcrSummary();
                 if (key.equals(getString(R.string.pref_settings_submitted_key)))
-                    setSubmittedSummary();
+                    checkSubmittedSummary();
             }
         }
 
-        private void setEmailSummary() {
+        private void checkOcrKey() {
+            String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+            if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
+                dataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
+        }
+
+        private void checkEmailSummary() {
             String emailKey = getString(R.string.pref_settings_email_key);
             EditTextPreference preference = findPreference(emailKey);
-            if (preference != null) {
-                String email = dataStore.getString(emailKey, "");
-                String summary = getString(R.string.settings_email_summary);
-                if (email != null && !TextUtils.isEmpty(email))
-                    summary += getString(R.string.settings_currently) + " " + email.trim();
-                preference.setSummary(summary);
-                preference.setOnBindEditTextListener(editText ->
-                        editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS));
-            }
+            if (preference != null)
+                setEmailSummary(emailKey, preference);
         }
 
-        private void setPasswordSummary() {
+        private void setEmailSummary(String emailKey, EditTextPreference preference) {
+            String email = dataStore.getString(emailKey, "");
+            String summary = getString(R.string.settings_email_summary);
+            if (email != null && !TextUtils.isEmpty(email))
+                summary += getString(R.string.settings_currently) + " " + email.trim();
+            preference.setSummary(summary);
+            preference.setOnBindEditTextListener(editText ->
+                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS));
+        }
+
+        private void checkPasswordSummary() {
             String passwordKey = getString(R.string.pref_settings_password_key);
             EditTextPreference preference = findPreference(passwordKey);
-            if (preference != null) {
-                String summary = getString(R.string.settings_password_summary);
-                if (TextUtils.isEmpty(dataStore.getString(passwordKey, "")))
-                    summary += getString(R.string.settings_currently_not_set);
-                preference.setSummary(summary);
-                preference.setOnBindEditTextListener(editText ->
-                        editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD));
-            }
+            if (preference != null)
+                setPasswordSummary(passwordKey, preference);
         }
 
-        private void setCommentSummary() {
+        private void setPasswordSummary(String passwordKey, EditTextPreference preference) {
+            String summary = getString(R.string.settings_password_summary);
+            if (TextUtils.isEmpty(dataStore.getString(passwordKey, "")))
+                summary += getString(R.string.settings_currently_not_set);
+            preference.setSummary(summary);
+            preference.setOnBindEditTextListener(editText ->
+                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD));
+        }
+
+        private void checkCommentSummary() {
             String commentKey = getString(R.string.pref_settings_comment_key);
+            EditTextPreference preference = findPreference(commentKey);
+            if (preference != null)
+                setCommentSummary(commentKey, preference);
+        }
+
+        private void setCommentSummary(String commentKey, EditTextPreference preference) {
             String comment = dataStore.getString(commentKey, "");
             String summary = getString(R.string.settings_comment_summary);
             if (!TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
-            EditTextPreference preference = findPreference(commentKey);
-            if (preference != null)
-                preference.setSummary(summary);
+            preference.setSummary(summary);
         }
 
-        private void setOcrSummary() {
+        private void checkOcrSummary() {
             String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
             EditTextPreference preference = findPreference(ocrKeyKey);
-            if (preference != null) {
-                String summary = getString(R.string.settings_ocr_summary);
-                if (TextUtils.isEmpty(dataStore.getString(ocrKeyKey, ""))) {
-                    String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
-                    summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
-                    preference.setIntent(new Intent().setAction(ACTION_VIEW)
-                            .setData(Uri.parse(ocrServiceUrl)));
-                }
-                preference.setSummary(summary);
-            }
+            if (preference != null)
+                setOcrSummary(ocrKeyKey, preference);
         }
 
-        private void setSubmittedSummary() {
+        private void setOcrSummary(String ocrKeyKey, EditTextPreference preference) {
+            String summary = getString(R.string.settings_ocr_summary);
+            if (TextUtils.isEmpty(dataStore.getString(ocrKeyKey, ""))) {
+                String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
+                summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
+                preference.setIntent(new Intent().setAction(ACTION_VIEW)
+                        .setData(Uri.parse(ocrServiceUrl)));
+            }
+            preference.setSummary(summary);
+        }
+
+        private void checkSubmittedSummary() {
             String submittedKey = getString(R.string.pref_settings_submitted_key);
             EditTextPreference preference = findPreference(submittedKey);
-            if (preference != null) {
-                String submitted = dataStore.getString(submittedKey, "");
-                String summary = getString(R.string.settings_submitted_summary);
-                if (submitted != null && !TextUtils.isEmpty(submitted))
-                    summary += getString(R.string.settings_currently) + " " + submitted.trim();
-                preference.setSummary(summary);
-                preference.setOnBindEditTextListener(editText ->
-                        editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
-            }
+            if (preference != null)
+                setSubmittedSummary(submittedKey, preference);
+        }
+
+        private void setSubmittedSummary(String submittedKey, EditTextPreference preference) {
+            String submitted = dataStore.getString(submittedKey, "");
+            String summary = getString(R.string.settings_submitted_summary);
+            if (submitted != null && !TextUtils.isEmpty(submitted))
+                summary += getString(R.string.settings_currently) + " " + submitted.trim();
+            preference.setSummary(summary);
+            preference.setOnBindEditTextListener(editText ->
+                    editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
+        }
+
+        private boolean isEmailAndPasswordSet(String emailKey, String passwordKey) {
+            return !TextUtils.isEmpty(dataStore.getString(emailKey, "")) &&
+                    !TextUtils.isEmpty(dataStore.getString(passwordKey, ""));
         }
     }
 }
