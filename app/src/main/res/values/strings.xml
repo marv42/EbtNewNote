@@ -97,7 +97,7 @@
 
     <!-- settings -->
     <string name="settings">Settings</string>
-    <string name="settings_ebt_account">EBT account settings</string>
+    <string name="settings_category_ebt_account">EBT account settings</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>
     <string name="settings_email_summary">Email address to log in to your EBT account</string>
@@ -105,14 +105,14 @@
     <string name="settings_currently_not_set">, currently not set</string>
     <string name="settings_password_title">Password</string>
     <string name="settings_password_summary">Password of your EBT account</string>
-    <string name="settings_misc">Miscellaneous settings</string>
-    <string name="settings_comment_title">Additional comment</string>
-    <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
+    <string name="settings_category_ocr">OCR settings</string>
     <string name="settings_ocr_title">OCR service key</string>
     <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used</string>
+    <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
     <string name="settings_images_summary">Show denomination images in the \'Submitted\' tab</string>
-    <string name="settings_advanced">Advanced settings</string>
+    <string name="settings_comment_title">Additional comment</string>
+    <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
     <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
     <string name="get_ocr_key">\n\nYou are now being redirected to the settings to enter/get an OCR service key.</string>
