@@ -8,10 +8,12 @@
   -->
 
 <resources>
+    <!-- cf. https://material.io/design/communication/writing.html#principles -->
+
     <!-- app -->
     <string name="app_name">EBT New Note</string>
     <string name="ime_name">EBT keyboard</string>
-    <string name="crash_text">The app EbtNewNote just crashed. You can send a report to the developer to help fix the problem.</string>
+    <string name="crash_text">EbtNewNote crashed\nSend a report to the developer</string>
 
     <!-- general -->
     <string name="ok">OK</string>
@@ -35,7 +37,7 @@
 
     <!-- notification -->
     <string name="insertion">Insertion</string>
-    <string name="submitting">The data is being submitted to the EBT server…</string>
+    <string name="submitting">Submitting data to EBT…</string>
     <string name="failed">failed</string>
     <string name="successful">successful</string>
     <string name="sent">sent</string>
@@ -47,23 +49,23 @@
     <string name="ocr_error">OCR error</string>
 
     <!-- server responses -->
-    <string name="error_no_connection">No or insufficient internet connection</string>
+    <string name="error_no_connection">Insufficient internet connection contacting</string>
     <string name="response_code">server response code</string>
     <string name="no_json">Not in valid JSON format</string>
     <string name="internal_error">Internal error</string>
 
     <!-- note status -->
-    <string name="has_been_entered">"Note has been entered into the system."</string>
-    <string name="got_hit">"CONGRATULATIONS! You have got a hit. This note has already been entered into the system."</string>
-    <string name="invalid_denomination">"You have attempted to enter an invalid denomination."</string>
-    <string name="invalid_country">"You have attempted to enter an invalid country."</string>
-    <string name="no_serial_number">"You didn\'t provide a serial number."</string>
-    <string name="invalid_serial_number">"You have attempted to enter an invalid serial number."</string>
-    <string name="invalid_short_code">"You have attempted to enter an invalid short code."</string>
-    <string name="city_missing">"The city or postal code is missing."</string>
-    <string name="already_entered">"You have already entered this note."</string>
-    <string name="already_entered_serial_number">"You have already entered this serial number."</string>
-    <string name="inconsistent">Inconsistent note data: For this denomination, the serial number or the printer code is invalid.</string>
+    <string name="has_been_entered">Note entered into the system</string>
+    <string name="got_hit">CONGRATULATIONS! You have got a hit. This note has already been entered by someone else</string>
+    <string name="invalid_denomination">Invalid denomination</string>
+    <string name="invalid_country">Invalid country</string>
+    <string name="no_serial_number">No serial number</string>
+    <string name="invalid_serial_number">Invalid serial number</string>
+    <string name="invalid_short_code">Invalid short code</string>
+    <string name="city_missing">No city or postal code</string>
+    <string name="already_entered">You have already entered this note</string>
+    <string name="already_entered_serial_number">You have already entered this serial number</string>
+    <string name="inconsistent">Serial number or printer code invalid for this denomination</string>
 
     <!-- new note -->
     <string name="city">City</string>
@@ -82,7 +84,7 @@
     <string name="eur200">200 €</string>
     <string name="eur500">500 €</string>
     <string name="short_code">Short Code</string>
-    <string name="short_code_hint">e.g. A123B4 (omit leading zeros)</string>
+    <string name="short_code_hint">e.g. A123B4 (or C5D6)</string>
     <string name="serial_number">Serial Number</string>
     <string name="serial_number_hint">e.g. AB1234567890</string>
     <string name="comment">Comment</string>
@@ -91,7 +93,7 @@
     <string name="acquire">Acquire Values from Photo</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
     <string name="comment_suggestions_error">Error getting comment suggestions</string>
-    <string name="comment_suggestions_set">Successfully set comment suggestions.\n(Start typing a comment to see them.)</string>
+    <string name="comment_suggestions_set">Comment suggestions set\n(Start typing to see them)</string>
 
     <!-- settings -->
     <string name="settings">Settings</string>
@@ -107,19 +109,19 @@
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_ocr_title">OCR service key</string>
-    <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used.</string>
+    <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used</string>
     <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show denomination images in the \'Submitted\' tab.</string>
+    <string name="settings_images_summary">Show denomination images in the \'Submitted\' tab</string>
     <string name="settings_advanced">Advanced settings</string>
     <string name="settings_submitted_title">Number of notes</string>
     <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
     <string name="get_ocr_key">\n\nYou are now being redirected to the settings to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
-    <string name="logged_in">You have successfully been logged in to EBT.</string>
-    <string name="trying_login">Trying to log in to EBT&#8230;</string>
-    <string name="wrong_login_info">You haven\'t provided valid EBT login information: email address and password.</string>
-    <string name="change_login_info">\n\nYou are now being redirected to the settings.</string>
+    <string name="logged_in">Login successful</string>
+    <string name="trying_login">Trying to log in to EBT…</string>
+    <string name="wrong_login_info">No valid EBT login information</string>
+    <string name="change_login_info">\n\nYou are being redirected to the settings.</string>
     <string name="max_show_num">100</string>
 
     <!-- preferences -->
@@ -145,34 +147,34 @@
     <string name="label_done_key">Done</string>
 
     <!-- permissions -->
-    <string name="no_permission">Permissions have not been granted</string>
-    <string name="permission">Permissions have been granted</string>
+    <string name="no_permission">Permissions not granted</string>
+    <string name="permission">Permissions granted</string>
 
     <!-- photo -->
     <string name="camera">Camera</string>
     <string name="no_camera_activity">No activity for taking pictures</string>
-    <string name="processing">The photo is being processed&#8230;</string>
-    <string name="ocr_return">Photo processing finished successfully. The result was put into the respective field. The former content of the field is in the clipboard now.</string>
+    <string name="processing">Photo is being processed…</string>
+    <string name="ocr_return">Photo processing result set\nFormer content is in the clipboard now</string>
     <string name="ocr_dialog_title">Character Recognition Result</string>
     <string name="ocr_dialog_empty">Nothing found</string>
-    <string name="ocr_executing">The previous OCR request is still running</string>
+    <string name="ocr_executing">Previous OCR request is still running</string>
 
     <!-- location -->
     <string name="location">Location</string>
     <string name="location_none">No location information available</string>
-    <string name="location_not_enabled">Location is not enabled. Please enable location in the system setting.</string>
-    <string name="location_no_gps">Fine location is not enabled. Consider activating GPS in the system setting to obtain better location results.</string>
-    <string name="location_start">Gathering location information</string>
+    <string name="location_not_enabled">Location is not enabled\nEnable location in the system setting</string>
+    <string name="location_no_gps">Fine location is not enabled\nConsider activating GPS</string>
+    <string name="location_start">Gathering location information…</string>
     <string name="location_got">Got a current location</string>
     <string name="location_last_known">Got the last known location</string>
-    <string name="location_no_geocoder">No Geocoder backend service on this platform to transform latitude/longitude location values into postal addresses</string>
+    <string name="location_no_geocoder">No Geocoder backend service\nCould not transform latitude/longitude into postal address</string>
     <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
     <string name="location_geocoder_io_exception">Geocoder service is not available</string>
     <string name="location_geocoder_illegal_argument_exception">Invalid latitude/longitude</string>
 
     <!-- about -->
     <string name="about">About</string>
-    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (www.eurobilltracker.com), a web site for tracking Euro bills.\n\nDeveloper contact: marv42+ebtnn@gmail.com</string>
+    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (www.eurobilltracker.com), a web site for tracking Euro bills\n\nDeveloper contact: marv42+ebtnn@gmail.com</string>
     <string name="version">Version %1$s</string>
 
     <!-- OCR -->
@@ -180,7 +182,7 @@
     <string name="error_reading_preferences">Error reading OCR service key</string>
     <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>
-    <string name="ocr_result_description">OCR has finished. See the result.</string>
+    <string name="ocr_result_description">OCR has finished\nSee the result</string>
 
     <string name="submit_fragment_title">New Note</string>
     <string name="submitted_fragment_title">Submitted</string>

@@ -35,7 +35,7 @@ class Notifications {
     }
 
     static NotificationCompat.Builder createBuilder(
-            Context context, String channelId, String title, String content, PendingIntent intent) {
+            Context context, String channelId, CharSequence title, CharSequence content, PendingIntent intent) {
         return new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
                 .setContentTitle(title)

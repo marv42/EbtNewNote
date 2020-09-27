@@ -96,11 +96,7 @@ public class ThisApp extends DaggerApplication {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode != RESULT_CODE_SUCCESS) {
-                String text = resultData.getString(RESULT_DATA_KEY);
-                if (text == null)
-                    text = getString(R.string.internal_error);
-                Toast.makeText(ThisApp.this, new ErrorMessage(
-                        ThisApp.this).getErrorMessage(text), LENGTH_LONG).show();
+                showErrorMessage(resultData);
                 return;
             }
             String addressOutput = resultData.getString(RESULT_DATA_KEY);
@@ -108,17 +104,27 @@ public class ThisApp extends DaggerApplication {
                 Toast.makeText(ThisApp.this, getString(R.string.internal_error),LENGTH_LONG).show();
                 return;
             }
+            putLocationValues(addressOutput);
+        }
+
+        private void showErrorMessage(Bundle resultData) {
+            String text = resultData.getString(RESULT_DATA_KEY);
+            if (text == null)
+                text = getString(R.string.internal_error);
+            Toast.makeText(ThisApp.this, new ErrorMessage(
+                    ThisApp.this).getErrorMessage(text), LENGTH_LONG).show();
+        }
+
+        private void putLocationValues(String addressOutput) {
             LocationValues location = new Gson().fromJson(addressOutput, LocationValues.class);
             String country = location.country;
-            if (country.startsWith(ERROR)) {
+            if (country.startsWith(ERROR))
                 Toast.makeText(ThisApp.this,
                         new ErrorMessage(ThisApp.this).getErrorMessage(country), LENGTH_LONG).show();
-            }
-            else {
+            else
                 getDefaultSharedPreferences(ThisApp.this).edit()
                         .putString(ThisApp.this.getString(R.string.pref_country_key), country)
                         .apply();
-            }
             getDefaultSharedPreferences(ThisApp.this).edit()
                     .putString(ThisApp.this.getString(R.string.pref_city_key), location.city)
                     .putString(ThisApp.this.getString(R.string.pref_postal_code_key), location.postalCode)

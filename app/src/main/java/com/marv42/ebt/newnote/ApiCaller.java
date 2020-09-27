@@ -69,14 +69,22 @@ public class ApiCaller {
         return formBodyBuilder;
     }
 
-    LoginInfo callLogin() throws HttpCallException, CallResponseException {
+    LoginInfo callLogin() throws HttpCallException {
         List<Pair<String, String>> params = getLoginParams();
         String body = executeHttpCall(params);
         return getLoginInfo(body);
     }
 
-    private LoginInfo getLoginInfo(String body) throws CallResponseException {
-        JSONObject jsonObject = getJson(body);
+    private LoginInfo getLoginInfo(String body) {
+        try {
+            JSONObject jsonObject = getJson(body);
+            return getLoginInfoFromJson(jsonObject);
+        } catch (JSONException e) {
+            return new LoginInfo();
+        }
+    }
+
+    private LoginInfo getLoginInfoFromJson(JSONObject jsonObject) {
         if (!jsonObject.has(SESSION_ID_ELEMENT))
             return new LoginInfo();
         return new LoginInfo(
@@ -87,12 +95,8 @@ public class ApiCaller {
                 jsonObject.optString(MY_ZIP_ELEMENT));
     }
 
-    private JSONObject getJson(String body) throws CallResponseException {
-        try {
-            return new JSONObject(body);
-        } catch (JSONException e) {
-            throw new CallResponseException("R.string.no_json: " + e.getMessage());
-        }
+    private JSONObject getJson(String body) throws JSONException {
+        return new JSONObject(body);
     }
 
     @NotNull
@@ -108,8 +112,17 @@ public class ApiCaller {
     }
 
     NoteInsertionData callInsertBills(List<Pair<String, String>> params) throws HttpCallException, CallResponseException {
-        String body = executeHttpCall(params);
-        JSONObject json = getJson(body);
+        try {
+            String body = executeHttpCall(params);
+            JSONObject json = getJson(body);
+            return getNoteInsertionDataFromJson(json);
+        } catch (JSONException e) {
+            throw new CallResponseException("R.string.no_json: " + e.getMessage());
+        }
+    }
+
+    @NotNull
+    private NoteInsertionData getNoteInsertionDataFromJson(JSONObject json) throws CallResponseException {
         JSONObject note0 = getNote0(json);
         return getNoteInsertionData(note0);
     }

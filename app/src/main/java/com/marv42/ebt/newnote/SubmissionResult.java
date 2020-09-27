@@ -10,9 +10,12 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.Comparator;
 
-import static com.marv42.ebt.newnote.SubmittedFragment.getColoredString;
+import static androidx.core.content.ContextCompat.getColor;
+import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 class SubmissionResult {
     // TODO If we rename these, we have to change the values in shared preferences
@@ -43,8 +46,9 @@ class SubmissionResult {
         return isSuccessful(context) ?
                 getColoredString(isAHit(context) ?
                         context.getString(R.string.hit) : context.getString(R.string.successful),
-                        "green") :
-                getColoredString(context.getString(R.string.failed), "red");
+                        getColor(context, R.color.success)) :
+                getColoredString(context.getString(R.string.failed),
+                        getColor(context, R.color.failed));
     }
 
     static class SubmissionComparator implements Comparator<SubmissionResult> {

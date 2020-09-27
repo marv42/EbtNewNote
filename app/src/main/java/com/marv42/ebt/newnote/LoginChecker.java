@@ -43,7 +43,7 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
         Application app = activity.getApplication();
         if (!getDefaultSharedPreferences(app).getBoolean(app.getString(R.string.pref_login_values_ok_key), false)) {
             new AlertDialog.Builder(activity).setTitle(app.getString(R.string.invalid_login))
-                    .setMessage(app.getString(R.string.wrong_login_info) + app.getString(R.string.change_login_info))
+                    .setMessage(app.getString(R.string.wrong_login_info) + "." + app.getString(R.string.change_login_info))
                     .setPositiveButton(app.getString(R.string.ok),
                             (dialog, which) -> {
                                 activity.startActivity(new Intent(activity.getApplicationContext(),

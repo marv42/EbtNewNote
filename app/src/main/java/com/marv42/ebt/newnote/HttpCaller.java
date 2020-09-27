@@ -35,9 +35,9 @@ public class HttpCaller {
                 throw new HttpCallException("R.string.server_error " + getServer(request));
             return responseBody.string();
         } catch (SocketTimeoutException e) {
-            throw new HttpCallException("R.string.error_no_connection: " + getServer(request) + ": " + e.getMessage());
+            throw new HttpCallException("R.string.error_no_connection " + getServer(request) + ":\n" + e.getMessage());
         } catch (IOException e) {
-            throw new HttpCallException("R.string.internal_error: " + getServer(request) + ": " + e.getMessage());
+            throw new HttpCallException("R.string.internal_error, " + getServer(request) + ":\n" + e.getMessage());
         }
     }
 }

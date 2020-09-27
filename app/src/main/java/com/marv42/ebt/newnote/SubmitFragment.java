@@ -224,9 +224,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void setIfNotEqual(EditText editText, int keyId) {
-        String s = sharedPreferencesHandler.get(keyId, "");
-        if (!TextUtils.equals(s, editText.getText()))
-            editText.setText(s);
+        String value = sharedPreferencesHandler.get(keyId, "");
+        if (!TextUtils.equals(value, editText.getText()))
+            editText.setText(value);
     }
 
     private void setRadioButtons() {

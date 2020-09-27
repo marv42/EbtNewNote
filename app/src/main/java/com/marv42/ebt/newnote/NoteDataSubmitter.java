@@ -30,15 +30,17 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.text.Html.FROM_HTML_MODE_COMPACT;
-import static android.text.Html.fromHtml;
 import static android.text.TextUtils.isEmpty;
+import static androidx.core.content.ContextCompat.getColor;
+import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
+import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
+import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResult> {
     private ThisApp app;
@@ -166,34 +168,48 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     }
 
     private NotificationCompat.Builder getNotificationBuilder(SubmissionResult result) {
-        String content = app.getString(R.string.total) + ": " + getSummary(submissionResults.getSummary());
-        String contentTitle = fromHtml(app.getString(R.string.note) + " " +
-                app.getString(R.string.sent) + ": " + result.getResult(app), FROM_HTML_MODE_COMPACT).toString();
+        final CharSequence contentTitle = getContentTitle(result);
+        final CharSequence content = getSummaryText();
         PendingIntent contentIntent = getPendingIntent();
         return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, contentIntent);
     }
 
-    private CharSequence getSummary(final SubmissionResults.ResultSummary summary) {
-        String s = "";
+    @NotNull
+    private CharSequence getContentTitle(SubmissionResult result) {
+        String title = app.getString(R.string.note) + " " + app.getString(R.string.sent) + ": "
+                + result.getResult(app);
+        return fromHtml(title, FROM_HTML_MODE_COMPACT);
+    }
+
+    private CharSequence getSummaryText() {
+        final SubmissionResults.ResultSummary summary = submissionResults.getSummary();
+        final String prefix = app.getString(R.string.total) + ": ";
+        String s = prefix;
         if (summary.hits > 0)
-            s = getColoredString(String.format(app.getResources().getQuantityString(
-                    R.plurals.xHits, summary.hits), summary.hits), "green");
+            s = getColoredString(getHitsText(summary), getColor(app, R.color.success));
         if (summary.successful > 0) {
-            if (s.length() > 0)
-                s += ", ";
+            s = checkComma(s, prefix);
             s += summary.successful + " " + app.getString(R.string.successful);
         }
         if (summary.failed > 0) {
-            if (s.length() > 0)
-                s += ", ";
-            s += getColoredString(summary.failed + " " + app.getString(R.string.failed), "red");
+            s = checkComma(s, prefix);
+            s += getColoredString(summary.failed + " " + app.getString(R.string.failed),
+                    getColor(app, R.color.failed));
         }
         return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }
 
     @NotNull
-    private String getColoredString(String text, String color) {
-        return "<font color=\"" + color + "\">" + text + "</font>";
+    private String getHitsText(SubmissionResults.ResultSummary summary) {
+        return String.format(app.getResources().getQuantityString(
+                R.plurals.xHits, summary.hits), summary.hits);
+    }
+
+    @NotNull
+    private String checkComma(String s, String prefix) {
+        if (s.length() > prefix.length())
+            s += ", ";
+        return s;
     }
 
     private PendingIntent getPendingIntent() {
