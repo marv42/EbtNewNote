@@ -82,6 +82,7 @@ import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
+import static com.marv42.ebt.newnote.Utils.DAYS_IN_MS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SHORT_CODE_SERIAL_NUMBER;
 import static java.io.File.createTempFile;
@@ -106,7 +107,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     EncryptedPreferenceDataStore dataStore;
 
-    private static final int DAYS_IN_MS = 1000 * 60 * 60 * 24;
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
