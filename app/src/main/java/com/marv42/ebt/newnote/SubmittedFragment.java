@@ -29,7 +29,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.squareup.picasso.Picasso;
@@ -53,7 +53,7 @@ import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 import static com.marv42.ebt.newnote.Utils.getColoredString;
 
-public class SubmittedFragment extends DaggerFragment {
+public class SubmittedFragment extends DaggerFragment implements LifecycleOwner {
     public interface Callback {
         void onSubmittedFragmentAdded();
         void switchFragment(int index);

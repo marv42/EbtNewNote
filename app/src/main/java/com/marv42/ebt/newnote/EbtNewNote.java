@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
@@ -40,7 +41,7 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
-        ActivityCompat.OnRequestPermissionsResultCallback /* TODO LifecycleOwner */ {
+        ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
     @Inject
     EncryptedPreferenceDataStore dataStore;
 
@@ -70,10 +71,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
-        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
+        inflateMenu(menu);
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -89,7 +87,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
                     return;
                 }
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler(submitFragment, submitFragment.getPhotoPath(), apiKey).execute();
+                new OcrHandler(submitFragment, apiKey).execute();
             } else
                 submitFragment.resetPhotoPath();
         }
@@ -198,6 +196,13 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (extras != null && SubmittedFragment.class.getSimpleName().equals(
                 extras.getString(FRAGMENT_TYPE)))
             switchToResults = true;
+    }
+
+    private void inflateMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
+        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {

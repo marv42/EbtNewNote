@@ -42,6 +42,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
@@ -88,7 +89,7 @@ import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SHORT
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
-        SharedPreferences.OnSharedPreferenceChangeListener /* TODO LifecycleOwner*/ {
+        SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
 
     public interface Callback {
         void onSubmitFragmentAdded();
@@ -424,8 +425,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             return;
         }
         if (checkSelfPermission(app, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] { CAMERA },
-                    CAMERA_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(activity, new String[] { CAMERA }, CAMERA_PERMISSION_REQUEST_CODE);
             return;
         }
         if (!TextUtils.isEmpty(currentPhotoPath)) {
@@ -434,30 +434,34 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             return;
         }
         if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
-            new AlertDialog.Builder(activity)
-                    .setTitle(R.string.ocr_no_service_key)
-                    .setMessage(app.getString(R.string.settings_ocr_summary) + " " +
-                            app.getString(R.string.get_ocr_key))
-                    .setPositiveButton(getString(R.string.ok),
-                            (dialog, which) -> {
-                                startActivity(new Intent(getActivity().getApplicationContext(),
-                                        SettingsActivity.class));
-                                dialog.dismiss(); })
-                    .show();
+            showDialogNoOcrServiceKey(activity);
             return;
         }
         File photoFile;
         try {
             photoFile = createImageFile();
-        } catch (IOException ex) {
+        } catch (IOException e) {
             Toast.makeText(activity, getString(R.string.error_creating_file) + ": "
-                    + ex.getMessage(), LENGTH_LONG).show();
+                    + e.getMessage(), LENGTH_LONG).show();
             return;
         }
         currentPhotoPath = photoFile.getAbsolutePath();
         Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
         activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
+    }
+
+    private void showDialogNoOcrServiceKey(Activity activity) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.ocr_no_service_key)
+                .setMessage(app.getString(R.string.settings_ocr_summary) + " " +
+                        app.getString(R.string.get_ocr_key))
+                .setPositiveButton(getString(R.string.ok),
+                        (dialog, which) -> {
+                            startActivity(new Intent(getActivity().getApplicationContext(),
+                                    SettingsActivity.class));
+                            dialog.dismiss(); })
+                .show();
     }
 
     private File createImageFile() throws IOException {
@@ -497,7 +501,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @NonNull
-    String getPhotoPath() {
+    public String getPhotoPath() {
         return currentPhotoPath;
     }
 

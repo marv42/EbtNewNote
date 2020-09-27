@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.HttpCaller;
+import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
@@ -38,9 +39,9 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
     private String photoPath;
     private String apiKey;
 
-    public OcrHandler(@NonNull Callback callback, @NonNull String photoPath, @NonNull String apiKey) {
-        this.callback = callback;
-        this.photoPath = photoPath;
+    public OcrHandler(@NonNull SubmitFragment fragment, @NonNull String apiKey) {
+        this.callback = fragment;
+        this.photoPath = fragment.getPhotoPath();
         this.apiKey = apiKey;
     }
 

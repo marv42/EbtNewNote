@@ -9,9 +9,9 @@
 package com.marv42.ebt.newnote;
 
 public class LocationValues {
-    final String country;
-    final String city;
-    final String postalCode;
+    public final String country;
+    public final String city;
+    public final String postalCode;
 
     public LocationValues(final String country, final String city, final String postalCode) {
         this.country = country;
