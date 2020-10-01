@@ -38,14 +38,10 @@ public class ApiCaller {
     private static final String MY_ZIP_ELEMENT = "my_zip";
 
     private EncryptedPreferenceDataStore dataStore;
-    private final String prefSettingsEmailKey;
-    private final String prefSettingsPasswordKey;
 
     @Inject
-    public ApiCaller(ThisApp app, EncryptedPreferenceDataStore dataStore) {
+    public ApiCaller(EncryptedPreferenceDataStore dataStore) {
         this.dataStore = dataStore;
-        prefSettingsEmailKey = app.getString(R.string.pref_settings_email_key);
-        prefSettingsPasswordKey = app.getString(R.string.pref_settings_password_key);
     }
 
     private synchronized String executeHttpCall(List<Pair<String, String>> params) throws HttpCallException {
@@ -104,10 +100,10 @@ public class ApiCaller {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("m", "login"));
         params.add(new Pair<>("v", "2"));
-        String email = dataStore.getString(prefSettingsEmailKey, "");
-        params.add(new Pair<>("my_email", email != null ? email.trim() : ""));
-        String password = dataStore.getString(prefSettingsPasswordKey, "");
-        params.add(new Pair<>("my_password", password != null ? password : ""));
+        String email = dataStore.get(R.string.pref_settings_email_key, "");
+        params.add(new Pair<>("my_email", email.trim()));
+        String password = dataStore.get(R.string.pref_settings_password_key, "");
+        params.add(new Pair<>("my_password", password));
         return params;
     }
 
@@ -127,22 +123,22 @@ public class ApiCaller {
         return getNoteInsertionData(note0);
     }
 
-    @NotNull
-    private NoteInsertionData getNoteInsertionData(JSONObject note0) throws CallResponseException {
-        try {
-            int statusElement = new JsonHelper(note0).getElement(int.class, STATUS_ELEMENT);
-            int billIdElement = new JsonHelper(note0).getElement(int.class, BILL_ID_ELEMENT);
-            return new NoteInsertionData(billIdElement, statusElement);
-        } catch (NoJsonElementException e) {
-            throw new CallResponseException("R.string.server_error: " + e.getMessage());
-        }
-    }
-
     private JSONObject getNote0(JSONObject json) throws CallResponseException {
         try {
             return new JsonHelper(json).getElement(JSONObject.class, NOTE_0_ELEMENT);
         } catch (NoJsonElementException e) {
             throw new CallResponseException("R.string.no_serial_number");
+        }
+    }
+
+    @NotNull
+    private NoteInsertionData getNoteInsertionData(JSONObject note0) throws CallResponseException {
+        try {
+            int status = new JsonHelper(note0).getElement(int.class, STATUS_ELEMENT);
+            int billId = note0.optInt(BILL_ID_ELEMENT);
+            return new NoteInsertionData(billId, status);
+        } catch (NoJsonElementException e) {
+            throw new CallResponseException("R.string.server_error: " + e.getMessage());
         }
     }
 

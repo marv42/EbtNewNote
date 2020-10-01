@@ -186,15 +186,14 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         final String prefix = app.getString(R.string.total) + ": ";
         String s = prefix;
         if (summary.hits > 0)
-            s = getColoredString(getHitsText(summary), getColor(app, R.color.success));
+            s += getHitsText(summary);
         if (summary.successful > 0) {
             s = checkComma(s, prefix);
             s += summary.successful + " " + app.getString(R.string.successful);
         }
         if (summary.failed > 0) {
             s = checkComma(s, prefix);
-            s += getColoredString(summary.failed + " " + app.getString(R.string.failed),
-                    getColor(app, R.color.failed));
+            s += summary.failed + " " + app.getString(R.string.failed);
         }
         return fromHtml(s, FROM_HTML_MODE_COMPACT);
     }

@@ -17,16 +17,16 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.util.Calendar;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,13 +47,14 @@ import androidx.lifecycle.LifecycleOwner;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
+import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -68,6 +69,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Context.VIBRATOR_SERVICE;
+import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.provider.MediaStore.EXTRA_OUTPUT;
@@ -109,11 +111,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     EncryptedPreferenceDataStore dataStore;
 
+    public static final String TAG = SubmitFragment.class.getSimpleName();
+
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
-
-    private String currentPhotoPath;
 
     private Unbinder unbinder;
     @BindView(R.id.edit_text_country) EditText countryText;
@@ -178,7 +180,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onDestroyView() {
         unbinder.unbind();
-        sharedPreferencesHandler = null;
         super.onDestroyView();
     }
 
@@ -190,8 +191,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public void onOcrResult(String result) throws NoNotificationManagerException {
-        currentPhotoPath = "";
-        if (isVisible()) // des is immer visible, mir soll's recht sei
+        if (isVisible())
             presentOcrResult(result);
         else {
             sharedPreferencesHandler.set(R.string.pref_ocr_result, result);
@@ -417,27 +417,21 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.photo_button)
     void takePhoto() {
+        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
+        if (! canTakePhoto(intent))
+            return;
+        try {
+            startCameraActivity(intent);
+        } catch (NoPictureException e) {
+            Activity activity = getActivity();
+            Toast.makeText(activity, new ErrorMessage(activity).getErrorMessage(e.getMessage()), LENGTH_LONG).show();
+        }
+    }
+
+    private boolean canTakePhoto(Intent intent) {
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (! canTakePhoto(activity, intent))
-            return;
-        File photoFile;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException e) {
-            Toast.makeText(activity, getString(R.string.error_creating_file) + ": "
-                    + e.getMessage(), LENGTH_LONG).show();
-            return;
-        }
-        currentPhotoPath = photoFile.getAbsolutePath();
-        Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
-        intent.putExtra(EXTRA_OUTPUT, photoUri);
-        activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
-    }
-
-    private boolean canTakePhoto(Activity activity, Intent intent) {
         if (intent.resolveActivity(activity.getPackageManager()) == null) {
             Toast.makeText(activity, getString(R.string.no_camera_activity), LENGTH_LONG).show();
             return false;
@@ -466,18 +460,48 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 .show();
     }
 
-    private File createImageFile() throws IOException {
+    private void startCameraActivity(Intent intent) throws NoPictureException {
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        File tempFolder = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-//        if (tempFolder == null || tempFolder.listFiles() == null)
-//            throw new IOException("Error getting picture directory");
-        for (File file: tempFolder.listFiles())
-            if (Calendar.getInstance().getTimeInMillis() - file.lastModified()
-                    > TIME_THRESHOLD_DELETE_OLD_PICS_MS)
-                file.delete();
-        return createTempFile("bill_", ".png", tempFolder);
+        File photoFile = createImageFile();
+        String photoPath = photoFile.getAbsolutePath();
+        Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
+        sharedPreferencesHandler.set(R.string.pref_photo_path, photoPath);
+        sharedPreferencesHandler.set(R.string.pref_photo_uri, photoUri.toString());
+        intent.putExtra(EXTRA_OUTPUT, photoUri);
+        activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
+    }
+
+    private File createImageFile() throws NoPictureException {
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        File tempFolder = activity.getExternalFilesDir(DIRECTORY_PICTURES);
+        if (tempFolder == null)
+            throw new NoPictureException("R.string.error_creating_file: Error getting picture directory");
+        deleteOldPhotos(tempFolder);
+        return createTempPhotoFile(tempFolder);
+    }
+
+    private void deleteOldPhotos(@NonNull File tempFolder) {
+        for (File file: Objects.requireNonNull(tempFolder.listFiles()))
+            if (fileIsOld(file))
+                if (! file.delete())
+                    Log.w(TAG, "deleteOldPhotos: Could not delete file " + file.getAbsolutePath());
+    }
+
+    private boolean fileIsOld(File file) {
+        return Calendar.getInstance().getTimeInMillis() - file.lastModified() > TIME_THRESHOLD_DELETE_OLD_PICS_MS;
+    }
+
+    @NotNull
+    private File createTempPhotoFile(File tempFolder) throws NoPictureException {
+        try {
+            return createTempFile("bill_", ".png", tempFolder);
+        } catch (IOException e) {
+            throw new NoPictureException("R.string.error_creating_file: " + e.getMessage());
+        }
     }
 
     private void showNotification() throws NoNotificationManagerException {
@@ -500,11 +524,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         return createBuilder(app, OCR_CHANNEL_ID, title, content, contentIntent);
-    }
-
-    @NonNull
-    public String getPhotoPath() {
-        return currentPhotoPath;
     }
 
     void setCommentsAdapter(String[] suggestions) {

@@ -10,6 +10,8 @@ package com.marv42.ebt.newnote;
 
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
@@ -26,6 +28,11 @@ public class HttpCaller {
 
     public String call(Request request) throws HttpCallException {
         Call call = new OkHttpClient().newCall(request);
+        return getBody(request, call);
+    }
+
+    @NotNull
+    private String getBody(Request request, Call call) throws HttpCallException {
         try (Response response = call.execute()) {
             if (!response.isSuccessful())
                 throw new HttpCallException("R.string.http_error " + getServer(request) + ", R.string.response_code: "

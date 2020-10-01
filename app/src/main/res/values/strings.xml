@@ -15,6 +15,9 @@
     <string name="ime_name">EBT keyboard</string>
     <string name="crash_text">EbtNewNote crashed\nSend a report to the developer</string>
 
+    <string name="submit_fragment_title">New Note</string>
+    <string name="submitted_fragment_title">Submitted</string>
+
     <!-- general -->
     <string name="ok">OK</string>
     <string name="hello">Hello</string>
@@ -141,6 +144,8 @@
     <string name="pref_login_values_ok_key">pref_login_values_ok</string>
     <string name="pref_results">pref_results</string>
     <string name="pref_ocr_result">pref_ocr_result</string>
+    <string name="pref_photo_path">pref_photo_path</string>
+    <string name="pref_photo_uri">pref_photo_uri</string>
 
     <!-- keyboard -->
     <string name="label_next_key">Next</string>
@@ -185,7 +190,5 @@
     <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>
     <string name="ocr_result_description">OCR has finished\nSee the result</string>
-
-    <string name="submit_fragment_title">New Note</string>
-    <string name="submitted_fragment_title">Submitted</string>
+    <string name="ocr_wrong_key">Please check your OCR service key</string>
 </resources>

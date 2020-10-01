@@ -107,7 +107,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (key.equals(passwordKey))
                     checkPasswordSummary();
                 if ((key.equals(emailKey) || key.equals(passwordKey)) &&
-                        isEmailAndPasswordSet(emailKey, passwordKey)) {
+                        isEmailAndPasswordSet()) {
                     Activity activity = getActivity();
                     if (activity != null)
                         new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
@@ -131,13 +131,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String emailKey = getString(R.string.pref_settings_email_key);
             EditTextPreference preference = findPreference(emailKey);
             if (preference != null)
-                setEmailSummary(emailKey, preference);
+                setEmailSummary(preference);
         }
 
-        private void setEmailSummary(String emailKey, EditTextPreference preference) {
-            String email = dataStore.getString(emailKey, "");
+        private void setEmailSummary(EditTextPreference preference) {
+            String email = dataStore.get(R.string.pref_settings_email_key, "");
             String summary = getString(R.string.settings_email_summary);
-            if (email != null && !TextUtils.isEmpty(email))
+            if (!TextUtils.isEmpty(email))
                 summary += getString(R.string.settings_currently) + " " + email.trim();
             preference.setSummary(summary);
             preference.setOnBindEditTextListener(editText ->
@@ -148,12 +148,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String passwordKey = getString(R.string.pref_settings_password_key);
             EditTextPreference preference = findPreference(passwordKey);
             if (preference != null)
-                setPasswordSummary(passwordKey, preference);
+                setPasswordSummary(preference);
         }
 
-        private void setPasswordSummary(String passwordKey, EditTextPreference preference) {
+        private void setPasswordSummary(EditTextPreference preference) {
             String summary = getString(R.string.settings_password_summary);
-            if (TextUtils.isEmpty(dataStore.getString(passwordKey, "")))
+            if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_password_key, "")))
                 summary += getString(R.string.settings_currently_not_set);
             preference.setSummary(summary);
             preference.setOnBindEditTextListener(editText ->
@@ -164,11 +164,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String commentKey = getString(R.string.pref_settings_comment_key);
             EditTextPreference preference = findPreference(commentKey);
             if (preference != null)
-                setCommentSummary(commentKey, preference);
+                setCommentSummary(preference);
         }
 
-        private void setCommentSummary(String commentKey, EditTextPreference preference) {
-            String comment = dataStore.getString(commentKey, "");
+        private void setCommentSummary(EditTextPreference preference) {
+            String comment = dataStore.get(R.string.pref_settings_comment_key, "");
             String summary = getString(R.string.settings_comment_summary);
             if (!TextUtils.isEmpty(comment))
                 summary += getString(R.string.settings_currently) + " " + comment;
@@ -179,12 +179,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
             EditTextPreference preference = findPreference(ocrKeyKey);
             if (preference != null)
-                setOcrSummary(ocrKeyKey, preference);
+                setOcrSummary(preference);
         }
 
-        private void setOcrSummary(String ocrKeyKey, EditTextPreference preference) {
+        private void setOcrSummary(EditTextPreference preference) {
             String summary = getString(R.string.settings_ocr_summary);
-            if (TextUtils.isEmpty(dataStore.getString(ocrKeyKey, ""))) {
+            if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
                 String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
                 summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
                 preference.setIntent(new Intent().setAction(ACTION_VIEW)
@@ -197,22 +197,22 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             String submittedKey = getString(R.string.pref_settings_submitted_key);
             EditTextPreference preference = findPreference(submittedKey);
             if (preference != null)
-                setSubmittedSummary(submittedKey, preference);
+                setSubmittedSummary(preference);
         }
 
-        private void setSubmittedSummary(String submittedKey, EditTextPreference preference) {
-            String submitted = dataStore.getString(submittedKey, "");
+        private void setSubmittedSummary(EditTextPreference preference) {
+            String submitted = dataStore.get(R.string.pref_settings_submitted_key, "");
             String summary = getString(R.string.settings_submitted_summary);
-            if (submitted != null && !TextUtils.isEmpty(submitted))
+            if (!TextUtils.isEmpty(submitted))
                 summary += getString(R.string.settings_currently) + " " + submitted.trim();
             preference.setSummary(summary);
             preference.setOnBindEditTextListener(editText ->
                     editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
         }
 
-        private boolean isEmailAndPasswordSet(String emailKey, String passwordKey) {
-            return !TextUtils.isEmpty(dataStore.getString(emailKey, "")) &&
-                    !TextUtils.isEmpty(dataStore.getString(passwordKey, ""));
+        private boolean isEmailAndPasswordSet() {
+            return !TextUtils.isEmpty(dataStore.get(R.string.pref_settings_email_key, "")) &&
+                    !TextUtils.isEmpty(dataStore.get(R.string.pref_settings_password_key, ""));
         }
     }
 }

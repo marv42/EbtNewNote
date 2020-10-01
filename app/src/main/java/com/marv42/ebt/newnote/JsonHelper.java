@@ -27,7 +27,7 @@ public class JsonHelper {
 
     public <T> T getElement(Class<?> c, String element) throws NoJsonElementException {
         if (!json.has(element) || json.isNull(element))
-            throw new NoJsonElementException("No '" + element + "' element");
+            throw new NoJsonElementException("No JSON '" + element + "' element");
         if (c == Integer.class || c == int.class)
             return (T) (Integer) json.optInt(element);
         if (c == String.class)
@@ -37,7 +37,7 @@ public class JsonHelper {
         if (c == JSONArray.class) {
             T array = (T) json.optJSONArray(element);
             if (array == null)
-                throw new NoJsonElementException("Empty '" + element + "' array element");
+                throw new NoJsonElementException("Empty JSON '" + element + "' array element");
             return array;
         }
         throw new IllegalArgumentException("Unhandled class " + c);

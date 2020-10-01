@@ -84,8 +84,8 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
         }
         editor.putBoolean(loginValuesOkKey, true).apply();
         setLocationInfo(loginInfo, editor);
-        return app.getString(R.string.hello) + " " + loginInfo.userName + ". "
-                + app.getString(R.string.logged_in);
+        return app.getString(R.string.logged_in) + "\n"
+                + app.getString(R.string.hello) + " " + loginInfo.userName;
     }
 
     private void setLocationInfo(LoginInfo loginInfo, Editor editor) {

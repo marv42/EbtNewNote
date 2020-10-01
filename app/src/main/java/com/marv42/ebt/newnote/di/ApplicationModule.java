@@ -75,8 +75,8 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(@NonNull ThisApp app, EncryptedPreferenceDataStore dataStore) {
-        return new ApiCaller(app, dataStore);
+    static ApiCaller provideApiCaller(EncryptedPreferenceDataStore dataStore) {
+        return new ApiCaller(dataStore);
     }
 
     @Provides
