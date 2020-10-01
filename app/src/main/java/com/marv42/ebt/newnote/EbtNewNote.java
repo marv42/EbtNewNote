@@ -10,6 +10,7 @@ package com.marv42.ebt.newnote;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -44,6 +45,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
         ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    @Inject
+    SharedPreferencesHandler sharedPreferencesHandler;
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int OCR_NOTIFICATION_ID = 2;
@@ -58,7 +61,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private SubmitFragment submitFragment = null;
     private SubmittedFragment submittedFragment = null;
-    private boolean switchToResults;
+    private int fragmentToSwitchTo = -1;
     private String[] commentSuggestions;
 
     @Override
@@ -81,13 +84,11 @@ public class EbtNewNote extends DaggerAppCompatActivity
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                String apiKey = dataStore.getString(getString(R.string.pref_settings_ocr_key), "");
-                if (apiKey == null) {
-                    Toast.makeText(this, getString(R.string.error_reading_preferences), LENGTH_LONG).show();
-                    return;
-                }
                 Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                new OcrHandler(submitFragment, apiKey).execute();
+                String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+                String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path, "");
+                Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri, ""));
+                new OcrHandler(submitFragment, photoPath, photoUri, getContentResolver(), apiKey).execute();
             }
         }
     }
@@ -113,20 +114,25 @@ public class EbtNewNote extends DaggerAppCompatActivity
             submitFragment.setCommentsAdapter(commentSuggestions);
             commentSuggestions = null;
         }
+        checkSwitchFragments(SUBMIT_FRAGMENT_INDEX);
     }
 
     @Override
     public void onSubmittedFragmentAdded() {
-        if (switchToResults) {
-            switchFragment(SUBMITTED_FRAGMENT_INDEX);
-            switchToResults = false;
+        checkSwitchFragments(SUBMITTED_FRAGMENT_INDEX);
+    }
+
+    private void checkSwitchFragments(int fragmentIndex) {
+        if (fragmentToSwitchTo == fragmentIndex) {
+            switchFragment(fragmentIndex);
+            fragmentToSwitchTo = -1;
         }
     }
 
     @Override
-    public void switchFragment(int index) {
+    public void switchFragment(int fragmentIndex) {
         ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setCurrentItem(index);
+        viewPager.setCurrentItem(fragmentIndex);
     }
 
     @Override
@@ -190,11 +196,14 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void checkSwitching() {
-        switchToResults = false;
+        eventuallySetFragmentToSwitchTo(SubmittedFragment.class.getSimpleName(), SUBMITTED_FRAGMENT_INDEX);
+        eventuallySetFragmentToSwitchTo(SubmitFragment.class.getSimpleName(), SUBMIT_FRAGMENT_INDEX);
+    }
+
+    private void eventuallySetFragmentToSwitchTo(String fragmentClassName, int fragmentIndex) {
         Bundle extras = getIntent().getExtras();
-        if (extras != null && SubmittedFragment.class.getSimpleName().equals(
-                extras.getString(FRAGMENT_TYPE)))
-            switchToResults = true;
+        if (extras != null && fragmentClassName.equals(extras.getString(FRAGMENT_TYPE)))
+            fragmentToSwitchTo = fragmentIndex;
     }
 
     private void inflateMenu(Menu menu) {
