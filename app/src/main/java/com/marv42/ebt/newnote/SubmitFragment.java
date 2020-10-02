@@ -33,12 +33,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -74,6 +76,7 @@ import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.provider.MediaStore.EXTRA_OUTPUT;
 import static android.widget.Toast.LENGTH_LONG;
+import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
@@ -121,6 +124,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.edit_text_country) EditText countryText;
     @BindView(R.id.edit_text_city) EditText cityText;
     @BindView(R.id.edit_text_zip) EditText postalCodeText;
+    @BindView(R.id.location_button) ImageButton locationButton;
     @BindView(R.id.radio_group_1) RadioGroup radioGroup1;
     @BindView(R.id.radio_group_2) RadioGroup radioGroup2;
     private boolean radioChangingDone;
@@ -133,6 +137,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.radio_500) RadioButton eur500Radio;
     @BindView(R.id.edit_text_printer) EditText shortCodeText;
     @BindView(R.id.edit_text_serial) EditText serialText;
+    @BindView(R.id.photo_button) ImageButton photoButton;
     @BindView(R.id.edit_text_comment) AutoCompleteTextView commentText;
 
     private LocationTextWatcher locationTextWatcher;
@@ -159,6 +164,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setOnCheckedChangeListener();
+        setTooltipText(locationButton, getString(R.string.get_location));
+        setTooltipText(photoButton, getString(R.string.acquire));
     }
 
     @Override
