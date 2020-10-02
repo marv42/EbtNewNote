@@ -40,8 +40,6 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
         void onSuggestions(String[] suggestions);
     }
 
-    private static final int MAX_NUMBER_SUGGESTIONS = 50;
-
     private ApiCaller apiCaller;
     private Callback callback;
     private String additionalComment;
@@ -64,25 +62,11 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
 
     @NotNull
     private String[] getSuggestions(LocationValues[] locationValues) throws CallResponseException {
-        List<String> uniqueList = getUniques(locationValues);
-        return getOnlyNumSuggestions(uniqueList);
-    }
-
-    @NotNull
-    private String[] getOnlyNumSuggestions(List<String> uniqueList) {
-        int numSuggestions = Math.min(uniqueList.size(), MAX_NUMBER_SUGGESTIONS);
-        String[] s = new String[numSuggestions];
-        for (int i = 0; i < numSuggestions; ++i)
-            s[i] = uniqueList.get(i);
-        return s;
-    }
-
-    @NotNull
-    private List<String> getUniques(LocationValues[] locationValues) throws CallResponseException {
         JSONObject json = getJson(locationValues);
         JSONArray allSuggestions = json.optJSONArray(DATA_ELEMENT);
         List<String> uniques = getUniquesWrtAdditionalComments(allSuggestions);
-        return new ArrayList<>(new LinkedHashSet<>(uniques));
+        uniques = new ArrayList<>(new LinkedHashSet<>(uniques));
+        return uniques.toArray(new String[0]);
     }
 
     private JSONObject getJson(LocationValues[] locationValues) throws CallResponseException {
