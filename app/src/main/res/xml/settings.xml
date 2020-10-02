@@ -39,6 +39,9 @@
             android:title="@string/settings_submitted_title"
             android:summary="@string/settings_submitted_summary"
             android:defaultValue="@string/max_show_num"/>
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_category_advanced">
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_comment_key"
             android:title="@string/settings_comment_title"
