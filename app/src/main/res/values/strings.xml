@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY submitted_fragment_title "Submitted">
+    <!ENTITY redirect_to_settings "\n\nYou are being redirected to the settings">
+    ]>
 <!--
   Copyright (c) 2010 - 2020 Marvin Horter.
   All rights reserved. This program and the accompanying materials
@@ -13,10 +17,10 @@
     <!-- app -->
     <string name="app_name">EBT New Note</string>
     <string name="ime_name">EBT keyboard</string>
-    <string name="crash_text">EbtNewNote crashed\nSend a report to the developer</string>
+    <string name="crash_text">EBT New Note crashed\nSend a report to the developer</string>
 
     <string name="submit_fragment_title">New Note</string>
-    <string name="submitted_fragment_title">Submitted</string>
+    <string name="submitted_fragment_title">&submitted_fragment_title;</string>
 
     <!-- general -->
     <string name="ok">OK</string>
@@ -24,10 +28,6 @@
 
     <!-- notes -->
     <string name="note">Note</string>
-    <plurals name="xNotes">
-        <item quantity="one">1 note</item>
-        <item quantity="other">%d notes</item>
-    </plurals>
     <string name="hit">HIT</string>
     <plurals name="xHits">
         <item quantity="one">1 hit</item>
@@ -35,7 +35,7 @@
     </plurals>
 
     <!-- submitted fragment -->
-    <string name="edit_data">edit note data</string>
+    <string name="edit_data">edit for resubmission</string>
     <string name="show_in_browser">show on EBT web site</string>
 
     <!-- notification -->
@@ -53,13 +53,13 @@
 
     <!-- server responses -->
     <string name="error_no_connection">Insufficient internet connection contacting</string>
-    <string name="response_code">server response code</string>
+    <string name="response_code">HTTP status code</string>
     <string name="no_json">Not in valid JSON format</string>
     <string name="internal_error">Internal error</string>
 
     <!-- note status -->
     <string name="has_been_entered">Note entered into the system</string>
-    <string name="got_hit">CONGRATULATIONS! You have got a hit. This note has already been entered by someone else</string>
+    <string name="got_hit">Congratulations! You have got a hit. This note has already been entered</string>
     <string name="invalid_denomination">Invalid denomination</string>
     <string name="invalid_country">Invalid country</string>
     <string name="no_serial_number">No serial number</string>
@@ -93,7 +93,7 @@
     <string name="comment">Comment</string>
     <string name="comment_hint">e.g.: Where did you get the note from? …</string>
     <string name="submit">Submit Data to EBT</string>
-    <string name="acquire">Acquire Values from Photo</string>
+    <string name="acquire">Take Photo and Acquire Values</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
     <string name="comment_suggestions_error">Error getting comment suggestions</string>
     <string name="comment_suggestions_set">Comment suggestions set\n(Start typing to see them)</string>
@@ -113,18 +113,19 @@
     <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used</string>
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show denomination images in the \'Submitted\' tab</string>
+    <string name="settings_images_summary">Show denomination images in the \'&submitted_fragment_title;\' tab</string>
+    <string name="settings_category_advanced">Advanced settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
-    <string name="settings_submitted_summary">Maximum number of notes to display in the \'Submitted\' tab</string>
-    <string name="get_ocr_key">\n\nYou are now being redirected to the settings to enter/get an OCR service key.</string>
+    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&submitted_fragment_title;\' tab</string>
+    <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
     <string name="logged_in">Login successful</string>
     <string name="trying_login">Trying to log in to EBT…</string>
     <string name="wrong_login_info">No valid EBT login information</string>
-    <string name="change_login_info">\n\nYou are being redirected to the settings.</string>
+    <string name="redirect_to_settings">&redirect_to_settings;</string>
     <string name="max_show_num">100</string>
 
     <!-- preferences -->
@@ -156,13 +157,11 @@
     <string name="permission">Permissions granted</string>
 
     <!-- photo -->
-    <string name="camera">Camera</string>
     <string name="no_camera_activity">No activity for taking pictures</string>
     <string name="processing">Photo is being processed…</string>
     <string name="ocr_return">Photo processing result set\nFormer content is in the clipboard now</string>
     <string name="ocr_dialog_title">Character Recognition Result</string>
     <string name="ocr_dialog_empty">Nothing found</string>
-    <string name="ocr_executing">Previous OCR request is still running</string>
 
     <!-- location -->
     <string name="location">Location</string>
@@ -174,8 +173,6 @@
     <string name="location_last_known">Got the last known location</string>
     <string name="location_no_geocoder">No Geocoder backend service\nCould not transform latitude/longitude into postal address</string>
     <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
-    <string name="location_geocoder_io_exception">Geocoder service is not available</string>
-    <string name="location_geocoder_illegal_argument_exception">Invalid latitude/longitude</string>
 
     <!-- about -->
     <string name="about">About</string>

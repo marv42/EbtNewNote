@@ -27,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:shrinkColumns="1"
             android:stretchColumns="1">
             <TableRow>
                 <TextView android:text="@string/country" />
@@ -62,7 +63,7 @@
                     android:singleLine="true" />
                 <ImageButton
                     android:id="@+id/location_button"
-                    android:contentDescription="@string/location"
+                    android:contentDescription="@string/get_location"
                     android:src="@android:drawable/ic_menu_mylocation" />
             </TableRow>
         </TableLayout>

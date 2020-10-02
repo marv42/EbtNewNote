@@ -450,8 +450,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void showDialogNoOcrServiceKey(Activity activity) {
         new AlertDialog.Builder(activity)
                 .setTitle(R.string.ocr_no_service_key)
-                .setMessage(app.getString(R.string.settings_ocr_summary) + " " +
-                        app.getString(R.string.get_ocr_key))
+                .setMessage(app.getString(R.string.settings_ocr_summary) + "." +
+                        app.getString(R.string.redirect_to_settings) + app.getString(R.string.get_ocr_key))
                 .setPositiveButton(getString(R.string.ok),
                         (dialog, which) -> {
                             startActivity(new Intent(activity.getApplicationContext(),

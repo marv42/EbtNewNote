@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY submitted_fragment_title "Gesendet">
+    <!ENTITY redirect_to_settings "\n\nDu wirst nun zu den Einstellungen weitergeleitet">
+    ]>
+<!--
+  Copyright (c) 2010 - 2020 Marvin Horter.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v2.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  -->
+
+<resources>
+    <!-- cf. https://material.io/design/communication/writing.html#principles -->
+
+    <!-- app -->
+    <string name="crash_text">EBT New Note ist abgestürzt\nFehlerbericht an den Entwickler senden</string>
+
+    <string name="submit_fragment_title">Neuer Schein</string>
+    <string name="submitted_fragment_title">&submitted_fragment_title;</string>
+
+    <!-- general -->
+    <string name="hello">Hallo</string>
+
+    <!-- notes -->
+    <string name="note">Schein</string>
+    <string name="hit">Treffer</string>
+    <plurals name="xHits">
+        <item quantity="one">1 Treffer</item>
+        <item quantity="other">%d Treffer</item>
+    </plurals>
+
+    <!-- submitted fragment -->
+    <string name="edit_data">ändern, um nochmal zu senden</string>
+    <string name="show_in_browser">auf der EBT-Seite zeigen</string>
+
+    <!-- notification -->
+    <string name="insertion">Eintragung</string>
+    <string name="submitting">Wird an EBT gesendet…</string>
+    <string name="failed">fehlgeschlagen</string>
+    <string name="successful">erfolgreich</string>
+    <string name="sent">gesendet</string>
+    <string name="total">Insgesamt</string>
+
+    <!-- exceptions -->
+    <string name="http_error">Server-Verbindungs-Problem</string>
+    <string name="server_error">Unbrauchbare Antwort des Servers</string>
+    <string name="ocr_error">OCR-Fehler</string>
+
+    <!-- server responses -->
+    <string name="error_no_connection">Ungenügende Internet-Verbindung beim Kontaktieren von</string>
+    <string name="response_code">HTTP-Statuscode</string>
+    <string name="no_json">Ungültiges JSON</string>
+    <string name="internal_error">Interner Fehler</string>
+
+    <!-- note status -->
+    <string name="has_been_entered">Schein wurde eingetragen</string>
+    <string name="got_hit">Glückwunsch! Treffer. Dieser Schein wurde schon einmal eingetragen</string>
+    <string name="invalid_denomination">Ungültiger Nennwert</string>
+    <string name="invalid_country">Ungültiges Land</string>
+    <string name="no_serial_number">Keine Seriennummer</string>
+    <string name="invalid_serial_number">Ungültige Seriennummer</string>
+    <string name="invalid_short_code">Ungültiger Plattencode</string>
+    <string name="city_missing">Keine Stadt oder Postleitzahl</string>
+    <string name="already_entered">Du hast diesen Schein schon einmal eingetragen</string>
+    <string name="already_entered_serial_number">Du hast diese Seriennummer schon einmal eingetragen</string>
+    <string name="inconsistent">Ungültige Seriennummer oder Plattencode für diesen Nennwert</string>
+
+    <!-- new note -->
+    <string name="city">Stadt</string>
+    <string name="city_hint">z.B. Berlin</string>
+    <string name="country">Land</string>
+    <string name="country_hint">auf Englisch, z.B. Germany</string>
+    <string name="postal_code">Postleitzahl</string>
+    <string name="get_location">Aktuellen Standort besorgen</string>
+    <string name="postal_code_hint">z.B. 10557</string>
+    <string name="denomination">Nennwert</string>
+    <string name="short_code">Plattencode</string>
+    <string name="short_code_hint">z.B. A123B4 (or C5D6)</string>
+    <string name="serial_number">Seriennummer</string>
+    <string name="serial_number_hint">z.B. AB1234567890</string>
+    <string name="comment">Kommentar</string>
+    <string name="comment_hint">z.B.: Woher hast du den Schein? …</string>
+    <string name="submit">An EBT senden</string>
+    <string name="acquire">Foto machen und Werte auslesen</string>
+    <string name="no_comment_suggestions">Keine Kommentar-Vorschläge</string>
+    <string name="comment_suggestions_error">Fehler beim Besorgen von Kommentar-Vorschlägen</string>
+    <string name="comment_suggestions_set">Kommentar-Vorschläge besorgt\n(Sichtbar, wenn etwas eingetagen wird)</string>
+
+    <!-- settings -->
+    <string name="settings">Einstellungen</string>
+    <string name="settings_category_ebt_account">EBT-Konto-Zugangsdaten</string>
+    <string name="invalid_login">Ungültige Zugangsdaten</string>
+    <string name="settings_email_title">E-Mail-Adresse</string>
+    <string name="settings_email_summary">E-Mail-Adresse zum Einloggen in das EBT-Konto</string>
+    <string name="settings_currently">:</string>
+    <string name="settings_currently_not_set">, nicht gesetzt</string>
+    <string name="settings_password_title">Passwort</string>
+    <string name="settings_password_summary">Passwort des EBT-Kontos</string>
+    <string name="settings_category_ocr">Texterkennungs-Einstellungen</string>
+    <string name="settings_ocr_title">Texterkennungs-Service-\nRegistrierungs-Code</string>
+    <string name="settings_ocr_summary">Um die Fotos auszuwerten wird ein Online-Texterkennungs-Service (OCR, optical character recognition) verwendet</string>
+    <string name="settings_category_display">Darstellungs-Einstellungen</string>
+    <string name="settings_images_title">Nennwert-Bilder</string>
+    <string name="settings_images_summary">Nennwert-Bilder im \'&submitted_fragment_title;\'-Tab anzeigen</string>
+    <string name="settings_category_advanced">Erweiterte Einstellungen</string>
+    <string name="settings_comment_title">Kommentar-Zusatz</string>
+    <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>
+    <string name="settings_submitted_title">Anzahl der Scheine</string>
+    <string name="settings_submitted_summary">Maximale Anzahl der Scheine im \'&submitted_fragment_title;\'-Tab</string>
+    <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
+    <string name="settings_ocr_summary_no_key">Bitte besorge dir deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
+    <string name="logged_in">Erfolgreich eingeloggt</string>
+    <string name="trying_login">EBT-Zugangsdaten werden geprüft…</string>
+    <string name="wrong_login_info">Ungültige EBT-Konto-Zugangsdaten</string>
+    <string name="redirect_to_settings">&redirect_to_settings;</string>
+
+    <!-- keyboard -->
+    <string name="label_next_key">Nächstes</string>
+    <string name="label_done_key">Fertig</string>
+
+    <!-- permissions -->
+    <string name="no_permission">Erlaubnis nicht gewährt</string>
+    <string name="permission">Erlaubnis gewährt</string>
+
+    <!-- photo -->
+    <string name="no_camera_activity">Keine Kamera-App</string>
+    <string name="processing">Foto wird verarbeitet…</string>
+    <string name="ocr_return">Foto-Verarbeitungs-Ergebnis wurde eingetragen\nVorheriger Eintrag ist in der Zwischenablage</string>
+    <string name="ocr_dialog_title">Texterkennungs-Ergebnis</string>
+    <string name="ocr_dialog_empty">Nichts gefunden</string>
+
+    <!-- location -->
+    <string name="location">Ort</string>
+    <string name="location_none">Keine Standort-Information verfügbar</string>
+    <string name="location_not_enabled">Standort ist nicht aktiviert\nBitte aktivieren</string>
+    <string name="location_no_gps">Genauer Standort ist nicht verfügbar\nGgf. GPS aktivieren</string>
+    <string name="location_start">Standort-Daten werden abgefragt…</string>
+    <string name="location_got">Aktueller Standort wurde eingesetzt</string>
+    <string name="location_last_known">Zuletzt bekannter Standort wurde eingesetzt</string>
+    <string name="location_no_geocoder">Kein Geocoding-Service vorhanden\nKoordinaten konnten nicht in Adresse umgewandelt werden</string>
+    <string name="location_no_address">Geocoder konnte keine Adresse für den Standort ausmachen</string>
+
+    <!-- about -->
+    <string name="about">Info</string>
+    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (www.eurobilltracker.com), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: marv42+ebtnn@gmail.com</string>
+
+    <!-- OCR -->
+    <string name="error_reading_picture">Fehler beim Lesen der Foto-Datei</string>
+    <string name="error_compressing_picture">Fehler beim Konvertieren der Foto-Datei</string>
+    <string name="error_creating_file">Fehler beim Erzeugen der Foto-Datei</string>
+    <string name="error_reading_preferences">Fehler beim Lesen des Texterkennungs-Service-Registrierungs-Codes</string>
+    <string name="ocr_no_service_key">Kein Texterkennungs-Service-Registrierungs-Code</string>
+    <string name="ocr_result">Texterkennungs-Ergebnis</string>
+    <string name="ocr_result_description">Texterkennung beendet\nErgebnis betrachten</string>
+    <string name="ocr_wrong_key">Bitte den Texterkennungs-Service-Registrierungs-Code überprüfen</string>
+</resources>

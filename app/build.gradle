@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Marvin Horter.
+ Copyright (c) 2010 - 2020 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -23,28 +23,26 @@ android {
         minSdkVersion 28
         targetSdkVersion rootProject.ext.sdkVersion
         multiDexEnabled true
-
-        testApplicationId "com.marv42.ebt.newnote.test"
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
     buildTypes {
-        debug {
-            minifyEnabled false
-        }
         release {
             minifyEnabled true
         }
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
     }
 
-    flavorDimensions "ocrServiceKey"
+    flavorDimensions 'ocrServiceKey'
     productFlavors {
         withKey {
-            dimension "ocrServiceKey"
-            versionNameSuffix "-withKey"
+            dimension 'ocrServiceKey'
+            versionNameSuffix '-withKey'
         }
         withoutKey {
-            dimension "ocrServiceKey"
+            dimension 'ocrServiceKey'
         }
     }
 
@@ -53,21 +51,23 @@ android {
     }
 
     compileOptions {
-//        incremental false
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    lintOptions{
+        disable 'MissingTranslation'
+    }
 }
 
-def acraVersion = '5.1.3'
-def daggerVersion = '2.29.1'
-def butterknifeVersion = '10.2.3'
-def espressoVersion = '3.3.0'
-
 dependencies {
+    def acraVersion = '5.1.3'
+    def daggerVersion = '2.29.1'
+    def butterknifeVersion = '10.2.3'
+//    def espressoVersion = '3.3.0'
+
     implementation "ch.acra:acra-mail:$acraVersion"
     implementation "ch.acra:acra-toast:$acraVersion"
-//    implementation "com.splunk:mint-android-sdk:5.1.0"
     implementation "androidx.exifinterface:exifinterface:1.3.0"
     implementation "androidx.fragment:fragment:1.2.5"
     implementation "androidx.security:security-crypto:1.1.0-alpha02"
@@ -77,7 +77,6 @@ dependencies {
     implementation "com.google.android.material:material:1.2.1"
     implementation "com.squareup.okhttp3:okhttp:4.9.0"
     implementation "com.jakewharton:butterknife:$butterknifeVersion"
-    androidTestImplementation 'org.testng:testng:6.9.6'
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterknifeVersion"
     implementation "com.google.code.gson:gson:2.8.6"
     implementation "com.squareup.picasso:picasso:2.71828"
@@ -87,17 +86,19 @@ dependencies {
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
 
+//    implementation "androidx.test.ext:junit:1.1.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "androidx.test:core:1.3.0"
     androidTestImplementation "androidx.test:runner:1.3.0"
     androidTestImplementation "androidx.test:rules:1.3.0"
-    androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "androidx.test.ext:truth:1.3.0"
-    androidTestImplementation "com.google.truth:truth:1.0.1"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-accessibility:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-web:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
+//    androidTestImplementation "com.google.truth:truth:1.0.1"
+//    androidTestImplementation "org.testng:testng:6.9.6"
+//    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso:espresso-accessibility:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso:espresso-web:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
+//    androidTestImplementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 }
