@@ -34,7 +34,7 @@
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_country"
-                    android:autofillHints="@string/country_hint"
+                    android:autofillHints=""
                     android:hint="@string/country_hint"
                     android:nextFocusDown="@+id/edit_text_city"
                     android:singleLine="true"
@@ -45,7 +45,7 @@
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_city"
-                    android:autofillHints="@string/city_hint"
+                    android:autofillHints=""
                     android:hint="@string/city_hint"
                     android:nextFocusDown="@+id/edit_text_zip"
                     android:singleLine="true"
@@ -56,7 +56,7 @@
                 <!-- AutoCompleteTextView  -->
                 <EditText
                     android:id="@+id/edit_text_zip"
-                    android:autofillHints="@string/postal_code_hint"
+                    android:autofillHints="postalCode"
                     android:hint="@string/postal_code_hint"
                     android:inputType="textPostalAddress"
                     android:nextFocusDown="@+id/edit_text_printer"
@@ -140,17 +140,18 @@
                 <EditText
                     android:id="@+id/edit_text_printer"
                     android:maxLength="6"
-                    android:autofillHints="@string/short_code_hint"
+                    android:autofillHints=""
                     android:hint="@string/short_code_hint"
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_serial"
                     android:singleLine="true" />
+<!--                TODO android:ellipsize="marquee"-->
             </TableRow>
             <TableRow>
                 <TextView android:text="@string/serial_number" />
                 <EditText
                     android:id="@+id/edit_text_serial"
-                    android:autofillHints="@string/serial_number_hint"
+                    android:autofillHints=""
                     android:maxLength="14"
                     android:hint="@string/serial_number_hint"
                     android:inputType="textCapCharacters"
