@@ -15,6 +15,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -22,6 +23,7 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.marv42.ebt.newnote.exceptions.NoPreferenceException;
 import com.marv42.ebt.newnote.scanning.Keys;
 
 import javax.inject.Inject;
@@ -59,6 +61,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         ApiCaller apiCaller;
         @Inject
         EncryptedPreferenceDataStore dataStore;
+
+        private static final String TAG = SettingsFragment.class.getSimpleName();
 
         @Override
         public void onAttach(@NonNull Context context) {
@@ -121,17 +125,35 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             }
         }
 
+        private EditTextPreference getPreference(int resourceId) throws NoPreferenceException {
+            String key = getString(resourceId);
+            EditTextPreference preference = findPreference(key);
+            if (preference == null)
+                throw new NoPreferenceException("No preference for " + key);
+            return preference;
+        }
+
         private void checkOcrKey() {
-            String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
-            if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                dataStore.set(R.string.pref_settings_ocr_key, Keys.OCR_SERVICE);
+            try {
+                String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+                if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty()) {
+                    EditTextPreference preference = getPreference(R.string.pref_settings_ocr_key);
+                    preference.setText(Keys.OCR_SERVICE);
+                }
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void checkEmailSummary() {
-            String emailKey = getString(R.string.pref_settings_email_key);
-            EditTextPreference preference = findPreference(emailKey);
-            if (preference != null)
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_email_key);
                 setEmailSummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void setEmailSummary(EditTextPreference preference) {
@@ -145,10 +167,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkPasswordSummary() {
-            String passwordKey = getString(R.string.pref_settings_password_key);
-            EditTextPreference preference = findPreference(passwordKey);
-            if (preference != null)
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_password_key);
                 setPasswordSummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void setPasswordSummary(EditTextPreference preference) {
@@ -161,10 +186,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkCommentSummary() {
-            String commentKey = getString(R.string.pref_settings_comment_key);
-            EditTextPreference preference = findPreference(commentKey);
-            if (preference != null)
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_comment_key);
                 setCommentSummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void setCommentSummary(EditTextPreference preference) {
@@ -176,10 +204,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkOcrSummary() {
-            String ocrKeyKey = getString(R.string.pref_settings_ocr_key);
-            EditTextPreference preference = findPreference(ocrKeyKey);
-            if (preference != null)
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_ocr_key);
                 setOcrSummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void setOcrSummary(EditTextPreference preference) {
@@ -194,10 +225,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkSubmittedSummary() {
-            String submittedKey = getString(R.string.pref_settings_submitted_key);
-            EditTextPreference preference = findPreference(submittedKey);
-            if (preference != null)
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_submitted_key);
                 setSubmittedSummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         private void setSubmittedSummary(EditTextPreference preference) {
