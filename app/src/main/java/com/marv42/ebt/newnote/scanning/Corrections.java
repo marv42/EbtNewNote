@@ -23,20 +23,20 @@ public class Corrections {
     static String correct(String s) {
         s = correctChars(s);
         s = findPattern(s);
-        return s;
+        return s.toUpperCase();
     }
 
-    public static final int LENGTH_THRESHOLD_SHORT_CODE_SERIAL_NUMBER = 9;
+    public static final int LENGTH_THRESHOLD_SERIAL_NUMBER = 8;
 
     @NotNull
     private static String correctChars(String s) {
         List<Integer> letterIndices = getLetterIndices(s);
         for (int i = 0; i < s.length(); ++i) {
-            s = correctAmbiguous(s, i);
             if (letterIndices.contains(i))
                 s = correctLetter(s, i);
             else
                 s = correctDigit(s, i);
+            s = correctAmbiguous(s, i);
         }
         return s;
     }
@@ -45,7 +45,7 @@ public class Corrections {
     private static List<Integer> getLetterIndices(String s) {
         List<Integer> letterIndices = new ArrayList<>();
         letterIndices.add(0);
-        if (s.length() > LENGTH_THRESHOLD_SHORT_CODE_SERIAL_NUMBER)
+        if (s.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
             letterIndices.add(1);
         else
             letterIndices.add(4);

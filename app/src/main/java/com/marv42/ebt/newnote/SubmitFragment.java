@@ -40,7 +40,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -91,12 +90,11 @@ import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
 import static com.marv42.ebt.newnote.Utils.DAYS_IN_MS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
-import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SHORT_CODE_SERIAL_NUMBER;
+import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
-
     public interface Callback {
         void onSubmitFragmentAdded();
     }
@@ -114,20 +112,17 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     EncryptedPreferenceDataStore dataStore;
 
-    public static final String TAG = SubmitFragment.class.getSimpleName();
-
+    private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
 
-    private Unbinder unbinder;
     @BindView(R.id.edit_text_country) EditText countryText;
     @BindView(R.id.edit_text_city) EditText cityText;
     @BindView(R.id.edit_text_zip) EditText postalCodeText;
     @BindView(R.id.location_button) ImageButton locationButton;
     @BindView(R.id.radio_group_1) RadioGroup radioGroup1;
     @BindView(R.id.radio_group_2) RadioGroup radioGroup2;
-    private boolean radioChangingDone;
     @BindView(R.id.radio_5) RadioButton eur5Radio;
     @BindView(R.id.radio_10) RadioButton eur10Radio;
     @BindView(R.id.radio_20) RadioButton eur20Radio;
@@ -140,6 +135,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @BindView(R.id.photo_button) ImageButton photoButton;
     @BindView(R.id.edit_text_comment) AutoCompleteTextView commentText;
 
+    private Unbinder unbinder;
+    private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
 
     @Override
@@ -576,10 +573,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void replaceShortCodeOrSerialNumber(String ocrResult) {
-        if (ocrResult.length() < LENGTH_THRESHOLD_SHORT_CODE_SERIAL_NUMBER)
-            replaceText(ocrResult, shortCodeText);
-        else
+        if (ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
             replaceText(ocrResult, serialText);
+        else
+            replaceText(ocrResult, shortCodeText);
         Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
     }
 

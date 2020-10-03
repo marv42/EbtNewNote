@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class PatternAnalyzer {
@@ -26,7 +27,7 @@ public class PatternAnalyzer {
     @NotNull
     private static Matcher getMatcher(String s) {
         Pattern pattern = Pattern.compile("\\w\\d{3}\\w\\d", CASE_INSENSITIVE);
-        if (s.length() > 9)
+        if (s.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
             // we don't support the old number format \\w{1}\\d{11} any more,
             // because if we would, we couldn't fix the 2nd letter of the new format
             pattern = Pattern.compile("\\w{2}\\d{10}", CASE_INSENSITIVE);
