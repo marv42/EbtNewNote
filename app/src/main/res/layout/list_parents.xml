@@ -15,21 +15,18 @@
     android:orientation="horizontal">
     <TextView
         android:id="@+id/list_place_holder"
-        android:layout_width="0px"
-        android:layout_height="wrap_content"
-        android:layout_weight="5" />
+        android:layout_width="20dp"
+        android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/list_denomination"
-        android:layout_width="0px"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:layout_weight="10"
         android:gravity="end"
         android:layout_marginStart="10dp" />
     <ImageView
         android:id="@+id/list_denomination_image"
-        android:layout_width="0px"
+        android:layout_width="20dp"
         android:layout_height="match_parent"
-        android:layout_weight="5"
         android:gravity="center"
         android:layout_margin="10dp"
         android:contentDescription="@string/denomination" />
@@ -38,11 +35,11 @@
         android:layout_width="0px"
         android:layout_height="35dp"
         android:gravity="center"
-        android:layout_weight="60" />
+        android:layout_weight="65" />
     <TextView
         android:id="@+id/list_result"
         android:layout_width="0px"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_weight="20" />
+        android:layout_weight="35" />
 </LinearLayout>
