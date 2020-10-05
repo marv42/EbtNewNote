@@ -99,18 +99,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         void onSubmitFragmentAdded();
     }
 
-    @Inject
-    ThisApp app;
-    @Inject
-    SharedPreferences sharedPreferences;
-    @Inject
-    ApiCaller apiCaller;
-    @Inject
-    SubmissionResults submissionResults;
-    @Inject
-    SharedPreferencesHandler sharedPreferencesHandler;
-    @Inject
-    EncryptedPreferenceDataStore dataStore;
+    @Inject ThisApp app;
+    @Inject SharedPreferences sharedPreferences;
+    @Inject ApiCaller apiCaller;
+    @Inject SubmissionResults submissionResults;
+    @Inject SharedPreferencesHandler sharedPreferencesHandler;
+    @Inject EncryptedPreferenceDataStore dataStore;
 
     private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
@@ -258,12 +252,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         countryText.addTextChangedListener(locationTextWatcher);
         cityText.addTextChangedListener(locationTextWatcher);
         postalCodeText.addTextChangedListener(locationTextWatcher);
-        countryText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_country_key)));
-        cityText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_city_key)));
-        postalCodeText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_postal_code_key)));
-        shortCodeText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_short_code_key)));
-        serialText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_serial_number_key)));
-        commentText.addTextChangedListener(new SavePreferencesTextWatcher(getString(R.string.pref_comment_key)));
+        countryText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
+        cityText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
+        postalCodeText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
+        shortCodeText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
+        serialText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
+        commentText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
     }
 
     private void removeTextChangedListeners() {
@@ -601,25 +595,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (! s.isEmpty()) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, s);
             manager.setPrimaryClip(data);
-        }
-    }
-
-    private class SavePreferencesTextWatcher implements TextWatcher {
-        private String preferenceKey;
-
-        SavePreferencesTextWatcher(String preference) {
-            preferenceKey = preference;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            sharedPreferencesHandler.set(preferenceKey, s.toString());
         }
     }
 
