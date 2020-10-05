@@ -74,13 +74,17 @@
             android:text="@string/note"
             android:textAllCaps="true" />
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/denomination" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2" />
             <RadioGroup
                 android:id="@+id/radio_group_1"
                 android:layout_width="wrap_content"
@@ -111,7 +115,8 @@
                 android:id="@+id/radio_group_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_gravity="bottom">
                 <RadioButton
                     android:id="@+id/radio_100"
                     android:layout_width="wrap_content"
@@ -128,6 +133,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/eur500" />
             </RadioGroup>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
         </LinearLayout>
         <TableLayout
             android:layout_width="match_parent"
@@ -145,7 +154,8 @@
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_serial"
                     android:singleLine="true" />
-<!--                TODO android:ellipsize="marquee"-->
+<!--                TODO android:ellipsize="marquee"
+                         https://stackoverflow.com/a/7328941/542235 -->
             </TableRow>
             <TableRow>
                 <TextView android:text="@string/serial_number" />
