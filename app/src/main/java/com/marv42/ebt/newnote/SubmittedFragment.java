@@ -59,17 +59,14 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         void switchFragment(int index);
     }
 
-    @Inject
-    SharedPreferencesHandler sharedPreferencesHandler;
-    @Inject
-    SubmissionResults submissionResults;
-    @Inject
-    EncryptedPreferenceDataStore dataStore;
+    @Inject SharedPreferencesHandler sharedPreferencesHandler;
+    @Inject SubmissionResults submissionResults;
+    @Inject EncryptedPreferenceDataStore dataStore;
 
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
-    private static final String DENOMINATION_IMAGE = "denomination image";
     private static final String DENOMINATION = "denomination";
+    protected static final String DENOMINATION_IMAGE = "denomination image";
     private static final String SERIAL_NUMBER = "serial number";
     private static final String RESULT = "result";
     private static final String REASON = "reason";
@@ -145,7 +142,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         String[] groupFrom = getGroupFrom(showImages);
         int[] groupTo = getGroupTo(showImages);
         listView.setAdapter(new MyExpandableListAdapter(
-                getContext(),
+                this,
                 groupData,
                 R.layout.list_parents,
                 groupFrom,
@@ -163,18 +160,24 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     private void addGroupData(List<Map<String, String>> groupData, SubmissionResult sr, boolean showImages) {
         String denomination = sr.mNoteData.mDenomination;
-        String denominationUrl = EBT_HOST + "img/bills/ebt" +
-                denomination.replace(" €", "") + "b.gif";
-        String sn = sr.mNoteData.mSerialNumber;
+        String denominationUrl = EBT_HOST + "img/bills/ebt" + denomination.replace(" €", "") + "b.gif";
+        String serialNumber = sr.mNoteData.mSerialNumber;
         String result = sr.getResult(getActivity());
+        Map<String, String> groupMap = getGroupMap(showImages, denomination, denominationUrl, serialNumber, result);
+        groupData.add(groupMap);
+    }
+
+    @NotNull
+    private Map<String, String> getGroupMap(boolean showImages, String denomination, String denominationUrl, String sn, String result) {
         Map<String, String> groupMap = new HashMap<>();
         groupMap.put(BUTTON_PLACEHOLDER, " ");
+        groupMap.put(DENOMINATION, denomination);
         if (showImages)
             groupMap.put(DENOMINATION_IMAGE, denominationUrl);
-        groupMap.put(DENOMINATION, denomination);
+        // TODO Make the space disappear if no image
         groupMap.put(SERIAL_NUMBER, sn.length() > 0 ? sn : "-");
         groupMap.put(RESULT, result);
-        groupData.add(groupMap);
+        return groupMap;
     }
 
     private void addChildData(List<List<Map<String, String>>> childData, SubmissionResult sr) {
@@ -187,6 +190,12 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         String note = getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
         String comment = getString(R.string.comment) + ": " + sr.mNoteData.mComment;
         String location = getString(R.string.location) + ": " + getLocation(sr);
+        List<Map<String, String>> children = getChildMap(reason, note, comment, location);
+        childData.add(children);
+    }
+
+    @NotNull
+    private List<Map<String, String>> getChildMap(String reason, String note, String comment, String location) {
         Map<String, String> childMap = new HashMap<>();
         childMap.put(REASON, reason);
         childMap.put(NOTE, note);
@@ -194,14 +203,13 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         childMap.put(LOCATION, location);
         List<Map<String, String>> children = new ArrayList<>();
         children.add(childMap);
-        childData.add(children);
+        return children;
     }
 
     @NotNull
     private String[] getGroupFrom(boolean showImages) {
         if (showImages)
-            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION_IMAGE,
-                    DENOMINATION, SERIAL_NUMBER, RESULT};
+            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT};
         else
             return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
     }
@@ -209,8 +217,8 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     private int[] getGroupTo(boolean showImages) {
         if (showImages)
             return new int[]{R.id.list_place_holder,
-                    R.id.list_denomination_image,
                     R.id.list_denomination,
+                    R.id.list_denomination_image,
                     R.id.list_serial,
                     R.id.list_result};
         else
@@ -259,72 +267,5 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     private void showInBrowser(SubmissionResult submissionResult) {
         startActivity(new Intent(ACTION_VIEW, Uri.parse(EBT_HOST + "notes/?id=" +
                 submissionResult.mBillId)));
-    }
-
-    public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
-        private List<? extends Map<String, ?> > groupData;
-        private String[] groupFrom;
-        private int[] groupTo;
-        private List<? extends List<? extends Map<String, ?>>> childData;
-        private String[] childFrom;
-        private int[] childTo;
-
-        MyExpandableListAdapter(Context context,
-                                List<? extends Map<String, ?> > groupData,
-                                int groupLayout,
-                                String[] groupFrom,
-                                int[] groupTo,
-                                List<? extends List<? extends Map<String, ?>>> childData,
-                                int childLayout,
-                                String[] childFrom,
-                                int[] childTo) {
-            super(context, groupData, groupLayout, groupFrom, groupTo,
-                    childData, childLayout, childFrom, childTo);
-            this.groupData = groupData;
-            this.groupFrom = groupFrom;
-            this.groupTo = groupTo;
-            this.childData = childData;
-            this.childFrom = childFrom;
-            this.childTo = childTo;
-        }
-
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_parents, parent, false);
-            bindView(v, groupData.get(groupPosition), groupFrom, groupTo);
-            return v;
-        }
-
-        @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-                     View convertView, ViewGroup parent) {
-            View v = SubmittedFragment.this.getLayoutInflater().inflate(R.layout.list_children, parent, false);
-            bindView(v, childData.get(groupPosition).get(childPosition), childFrom, childTo);
-            return v;
-        }
-
-        private void bindView(View view, Map<String, ?> data, String[] from, int[] to) {
-            for (int i = 0; i < to.length; ++i) {
-                String dataFromI = (String) data.get(from[i]);
-                if (from[i].equals(DENOMINATION_IMAGE))
-                    loadDenominationImage(view.findViewById(to[i]), dataFromI);
-                else
-                    setTextFromHtml(view.findViewById(to[i]), dataFromI);
-            }
-        }
-
-        private void loadDenominationImage(ImageView viewById, String data) {
-            if (viewById != null)
-                Picasso.get().load(data).into(viewById);
-        }
-
-        private void setTextFromHtml(TextView viewById, String data) {
-            if (viewById != null) {
-                final Spanned text = fromHtml(data, FROM_HTML_MODE_COMPACT);
-                viewById.setText(text);
-                if (TextUtils.isEmpty(data))
-                    viewById.setVisibility(GONE);
-            }
-        }
     }
 }
