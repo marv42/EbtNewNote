@@ -15,30 +15,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
 import static android.view.View.GONE;
+import static android.view.View.TEXT_ALIGNMENT_CENTER;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.SubmittedFragment.DENOMINATION_IMAGE;
 
 public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 
+    public static final int DENOMINATION_IMAGE_WIDTH = 55;
+    public static final int DENOMINATION_IMAGE_MARGIN = 10;
     private LayoutInflater layoutInflater;
-    private List<? extends Map<String, ?> > groupData;
+    private boolean showImages;
+    private List<? extends Map<String, ?>> groupData;
     private String[] groupFrom;
     private int[] groupTo;
     private List<? extends List<? extends Map<String, ?>>> childData;
     private String[] childFrom;
     private int[] childTo;
 
-    MyExpandableListAdapter(LayoutInflater layoutInflater,
-                            List<? extends Map<String, ?> > groupData,
+    MyExpandableListAdapter(LayoutInflater layoutInflater, boolean showImages,
+                            List<? extends Map<String, ?>> groupData,
                             String[] groupFrom,
                             int[] groupTo,
                             List<? extends List<? extends Map<String, ?>>> childData,
@@ -47,6 +55,7 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
         super(layoutInflater.getContext(), groupData, R.layout.list_parents, groupFrom, groupTo,
                 childData, R.layout.list_children, childFrom, childTo);
         this.layoutInflater = layoutInflater;
+        this.showImages = showImages;
         this.groupData = groupData;
         this.groupFrom = groupFrom;
         this.groupTo = groupTo;
@@ -59,7 +68,30 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View v = layoutInflater.inflate(R.layout.list_parents, parent, false);
         bindView(v, groupData.get(groupPosition), groupFrom, groupTo);
+        checkShowImages(v);
         return v;
+    }
+
+    private void checkShowImages(View view) {
+        if (showImages) {
+            ImageView denominationImage = view.findViewById(R.id.list_denomination_image);
+            TableRow.LayoutParams params = getLayoutParams();
+            denominationImage.setLayoutParams(params);
+        }
+    }
+
+    @NotNull
+    private TableRow.LayoutParams getLayoutParams() {
+        TableRow.LayoutParams params = new TableRow.LayoutParams(DENOMINATION_IMAGE_WIDTH, MATCH_PARENT);
+        final int margin = getMargin();
+        params.setMargins(margin, margin, margin, margin);
+        return params;
+    }
+
+    private int getMargin() {
+        // https://developer.android.com/training/multiscreen/screendensities#dips-pels
+        final float scale = layoutInflater.getContext().getResources().getDisplayMetrics().density;
+        return (int) (DENOMINATION_IMAGE_MARGIN * scale);
     }
 
     @Override
@@ -80,17 +112,17 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
         }
     }
 
-    private void loadDenominationImage(ImageView viewById, String data) {
-        if (viewById != null)
-            Picasso.get().load(data).into(viewById);
+    private void loadDenominationImage(ImageView view, String data) {
+        if (view != null)
+            Picasso.get().load(data).into(view);
     }
 
-    private void setTextFromHtml(TextView viewById, String data) {
-        if (viewById != null) {
+    private void setTextFromHtml(TextView view, String data) {
+        if (view != null) {
             final Spanned text = fromHtml(data, FROM_HTML_MODE_COMPACT);
-            viewById.setText(text);
+            view.setText(text);
             if (TextUtils.isEmpty(data))
-                viewById.setVisibility(GONE);
+                view.setVisibility(GONE);
         }
     }
 }

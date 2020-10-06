@@ -124,6 +124,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         int[] groupTo = getGroupTo();
         listView.setAdapter(new MyExpandableListAdapter(
                 getLayoutInflater(),
+                shouldShowImages(),
                 groupData,
                 groupFrom,
                 groupTo,
@@ -133,6 +134,11 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         registerForContextMenu(listView);
         ArrayList<SubmissionResult> results = submissionResults.getResults();
         listView.setSelection(results.size());
+    }
+
+    @NotNull
+    private Boolean shouldShowImages() {
+        return dataStore.get(R.string.pref_settings_images, false);
     }
 
     @NotNull
@@ -167,10 +173,8 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         Map<String, String> groupMap = new HashMap<>();
         groupMap.put(BUTTON_PLACEHOLDER, " ");
         groupMap.put(DENOMINATION, denomination);
-        boolean showImages = dataStore.get(R.string.pref_settings_images, true);
-        if (showImages)
+        if (shouldShowImages())
             groupMap.put(DENOMINATION_IMAGE, denominationUrl);
-        // TODO Make the space disappear if no image
         final String serialNumber = sn.length() > 0 ? sn : "-";
         groupMap.put(SERIAL_NUMBER, serialNumber);
         groupMap.put(RESULT, result);
@@ -205,16 +209,14 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     @NotNull
     private String[] getGroupFrom() {
-        boolean showImages = dataStore.get(R.string.pref_settings_images, true);
-        if (showImages)
+        if (shouldShowImages())
             return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT};
         else
             return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
     }
 
     private int[] getGroupTo() {
-        boolean showImages = dataStore.get(R.string.pref_settings_images, true);
-        if (showImages)
+        if (shouldShowImages())
             return new int[]{R.id.list_place_holder,
                     R.id.list_denomination,
                     R.id.list_denomination_image,

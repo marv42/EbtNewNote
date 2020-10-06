@@ -25,10 +25,8 @@
         android:layout_marginStart="10dp" />
     <ImageView
         android:id="@+id/list_denomination_image"
-        android:layout_width="20dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:layout_margin="10dp"
         android:contentDescription="@string/denomination" />
     <TextView
         android:id="@+id/list_serial"
