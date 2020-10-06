@@ -40,20 +40,14 @@ import static androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
 public class OcrHandler extends AsyncTask<Void, Void, String> {
-    public interface Callback {
-        void onOcrResult(String result) throws NoNotificationManagerException;
-    }
-
     private static final String OCR_HOST = "api.ocr.space";
     private static final String OCR_URL = "https://" + OCR_HOST + "/parse/image";
     private static final String WRONG_OCR_KEY_MESSAGE = "R.string.http_error " + OCR_HOST + ", R.string.response_code: 403";
-
     private Callback callback;
     private String photoPath;
     private Uri photoUri;
     private ContentResolver contentResolver;
     private String apiKey;
-
     public OcrHandler(@NonNull SubmitFragment fragment, String photoPath, Uri photoUri,
                       @NonNull ContentResolver contentResolver, @NonNull String apiKey) {
         callback = fragment;
@@ -83,7 +77,7 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
             errorMessage = "R.string.http_error";
         if (errorMessage.equals(WRONG_OCR_KEY_MESSAGE))
             errorMessage += ".\n\nR.string.ocr_wrong_key.";
-        if (! errorMessage.startsWith("R.string.http_error"))
+        if (!errorMessage.startsWith("R.string.http_error"))
             errorMessage = "R.string.http_error: " + errorMessage;
         return ERROR + errorMessage;
     }
@@ -151,5 +145,9 @@ public class OcrHandler extends AsyncTask<Void, Void, String> {
         } catch (IOException e) {
             return ORIENTATION_UNDEFINED;
         }
+    }
+
+    public interface Callback {
+        void onOcrResult(String result) throws NoNotificationManagerException;
     }
 }

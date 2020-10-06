@@ -57,12 +57,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+        private static final String TAG = SettingsFragment.class.getSimpleName();
         @Inject
         ApiCaller apiCaller;
         @Inject
         EncryptedPreferenceDataStore dataStore;
-
-        private static final String TAG = SettingsFragment.class.getSimpleName();
 
         @Override
         public void onAttach(@NonNull Context context) {

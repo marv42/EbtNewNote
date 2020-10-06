@@ -43,22 +43,19 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
         ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
-    @Inject
-    EncryptedPreferenceDataStore dataStore;
-    @Inject
-    SharedPreferencesHandler sharedPreferencesHandler;
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int OCR_NOTIFICATION_ID = 2;
-
     static final int NOTE_NOTIFICATION_ID = 1;
     static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
     static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
-
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
-
+    @Inject
+    EncryptedPreferenceDataStore dataStore;
+    @Inject
+    SharedPreferencesHandler sharedPreferencesHandler;
     private SubmitFragment submitFragment = null;
     private SubmittedFragment submittedFragment = null;
     private int fragmentToSwitchTo = -1;

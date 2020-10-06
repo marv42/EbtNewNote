@@ -13,14 +13,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.ResultReceiver;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
-import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.location.AddressResultReceiver;
 import com.marv42.ebt.newnote.location.FetchAddressIntentService;
 import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
@@ -37,11 +33,8 @@ import dagger.android.support.DaggerApplication;
 import static android.content.Intent.ACTION_PROVIDER_CHANGED;
 import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 import static android.widget.Toast.LENGTH_LONG;
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
 import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RESULT_DATA_KEY;
 
 @AcraCore(buildConfigClass = BuildConfig.class)
 @AcraMailSender(mailTo = "marv42+acra@gmail.com")

@@ -8,9 +8,9 @@
 
 package com.marv42.ebt.newnote;
 
-import android.content.Context;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,7 +29,7 @@ import static com.marv42.ebt.newnote.SubmittedFragment.DENOMINATION_IMAGE;
 
 public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 
-    private SubmittedFragment submittedFragment;
+    private LayoutInflater layoutInflater;
     private List<? extends Map<String, ?> > groupData;
     private String[] groupFrom;
     private int[] groupTo;
@@ -37,18 +37,16 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     private String[] childFrom;
     private int[] childTo;
 
-    MyExpandableListAdapter(SubmittedFragment submittedFragment,
+    MyExpandableListAdapter(LayoutInflater layoutInflater,
                             List<? extends Map<String, ?> > groupData,
-                            int groupLayout,
                             String[] groupFrom,
                             int[] groupTo,
                             List<? extends List<? extends Map<String, ?>>> childData,
-                            int childLayout,
                             String[] childFrom,
                             int[] childTo) {
-        super(submittedFragment.getContext(), groupData, groupLayout, groupFrom, groupTo,
-                childData, childLayout, childFrom, childTo);
-        this.submittedFragment = submittedFragment;
+        super(layoutInflater.getContext(), groupData, R.layout.list_parents, groupFrom, groupTo,
+                childData, R.layout.list_children, childFrom, childTo);
+        this.layoutInflater = layoutInflater;
         this.groupData = groupData;
         this.groupFrom = groupFrom;
         this.groupTo = groupTo;
@@ -59,7 +57,7 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        View v = submittedFragment.getLayoutInflater().inflate(R.layout.list_parents, parent, false);
+        View v = layoutInflater.inflate(R.layout.list_parents, parent, false);
         bindView(v, groupData.get(groupPosition), groupFrom, groupTo);
         return v;
     }
@@ -67,7 +65,7 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                              View convertView, ViewGroup parent) {
-        View v = submittedFragment.getLayoutInflater().inflate(R.layout.list_children, parent, false);
+        View v = layoutInflater.inflate(R.layout.list_children, parent, false);
         bindView(v, childData.get(groupPosition).get(childPosition), childFrom, childTo);
         return v;
     }

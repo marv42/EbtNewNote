@@ -35,15 +35,9 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
     private static final String DATA_ELEMENT = "data";
     private static final String AMOUNT_ELEMENT = "amount";
     private static final String COMMENT_ELEMENT = "comment";
-
-    interface Callback {
-        void onSuggestions(String[] suggestions);
-    }
-
     private ApiCaller apiCaller;
     private Callback callback;
     private String additionalComment;
-
     CommentSuggestion(ApiCaller apiCaller, Callback callback, EncryptedPreferenceDataStore dataStore) {
         this.apiCaller = apiCaller;
         this.callback = callback;
@@ -92,7 +86,7 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
             String value = suggestions.get(i).optString(COMMENT_ELEMENT).replace("\u00a0", " ");
             if (value.endsWith(additionalComment))
                 value = value.substring(0, value.length() - additionalComment.length());
-            if (value.length() > 0 && ! uniques.contains(value))
+            if (value.length() > 0 && !uniques.contains(value))
                 uniques.add(value);
         }
         return uniques;
@@ -137,5 +131,9 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
         }
         Toast.makeText(context, context.getString(R.string.comment_suggestions_set), LENGTH_LONG).show();
         callback.onSuggestions(s);
+    }
+
+    interface Callback {
+        void onSuggestions(String[] suggestions);
     }
 }

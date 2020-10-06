@@ -95,43 +95,66 @@ import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
-    public interface Callback {
-        void onSubmitFragmentAdded();
-    }
-
-    @Inject ThisApp app;
-    @Inject SharedPreferences sharedPreferences;
-    @Inject ApiCaller apiCaller;
-    @Inject SubmissionResults submissionResults;
-    @Inject SharedPreferencesHandler sharedPreferencesHandler;
-    @Inject EncryptedPreferenceDataStore dataStore;
-
     private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
-
-    @BindView(R.id.edit_text_country) EditText countryText;
-    @BindView(R.id.edit_text_city) EditText cityText;
-    @BindView(R.id.edit_text_zip) EditText postalCodeText;
-    @BindView(R.id.location_button) ImageButton locationButton;
-    @BindView(R.id.radio_group_1) RadioGroup radioGroup1;
-    @BindView(R.id.radio_group_2) RadioGroup radioGroup2;
-    @BindView(R.id.radio_5) RadioButton eur5Radio;
-    @BindView(R.id.radio_10) RadioButton eur10Radio;
-    @BindView(R.id.radio_20) RadioButton eur20Radio;
-    @BindView(R.id.radio_50) RadioButton eur50Radio;
-    @BindView(R.id.radio_100) RadioButton eur100Radio;
-    @BindView(R.id.radio_200) RadioButton eur200Radio;
-    @BindView(R.id.radio_500) RadioButton eur500Radio;
-    @BindView(R.id.edit_text_printer) EditText shortCodeText;
-    @BindView(R.id.edit_text_serial) EditText serialText;
-    @BindView(R.id.photo_button) ImageButton photoButton;
-    @BindView(R.id.edit_text_comment) AutoCompleteTextView commentText;
-
+    @Inject
+    ThisApp app;
+    @Inject
+    SharedPreferences sharedPreferences;
+    @Inject
+    ApiCaller apiCaller;
+    @Inject
+    SubmissionResults submissionResults;
+    @Inject
+    SharedPreferencesHandler sharedPreferencesHandler;
+    @Inject
+    EncryptedPreferenceDataStore dataStore;
+    @BindView(R.id.edit_text_country)
+    EditText countryText;
+    @BindView(R.id.edit_text_city)
+    EditText cityText;
+    @BindView(R.id.edit_text_zip)
+    EditText postalCodeText;
+    @BindView(R.id.location_button)
+    ImageButton locationButton;
+    @BindView(R.id.radio_group_1)
+    RadioGroup radioGroup1;
+    @BindView(R.id.radio_group_2)
+    RadioGroup radioGroup2;
+    @BindView(R.id.radio_5)
+    RadioButton eur5Radio;
+    @BindView(R.id.radio_10)
+    RadioButton eur10Radio;
+    @BindView(R.id.radio_20)
+    RadioButton eur20Radio;
+    @BindView(R.id.radio_50)
+    RadioButton eur50Radio;
+    @BindView(R.id.radio_100)
+    RadioButton eur100Radio;
+    @BindView(R.id.radio_200)
+    RadioButton eur200Radio;
+    @BindView(R.id.radio_500)
+    RadioButton eur500Radio;
+    @BindView(R.id.edit_text_printer)
+    EditText shortCodeText;
+    @BindView(R.id.edit_text_serial)
+    EditText serialText;
+    @BindView(R.id.photo_button)
+    ImageButton photoButton;
+    @BindView(R.id.edit_text_comment)
+    AutoCompleteTextView commentText;
     private Unbinder unbinder;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
+
+    private static void showDialog(Activity activity, String message) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.ocr_dialog_title)
+                .setMessage(message)
+                .show();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -335,7 +358,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
                 activity != null) {
             ActivityCompat.requestPermissions(activity,
-                    new String[] { ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION },
+                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
             return;
         }
@@ -416,7 +439,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @OnClick(R.id.photo_button)
     void takePhoto() {
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (! canTakePhoto(intent))
+        if (!canTakePhoto(intent))
             return;
         try {
             startCameraActivity(intent);
@@ -435,7 +458,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             return false;
         }
         if (checkSelfPermission(app, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] { CAMERA }, CAMERA_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(activity, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
             return false;
         }
         if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
@@ -454,7 +477,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                         (dialog, which) -> {
                             startActivity(new Intent(activity.getApplicationContext(),
                                     SettingsActivity.class));
-                            dialog.dismiss(); })
+                            dialog.dismiss();
+                        })
                 .show();
     }
 
@@ -483,9 +507,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void deleteOldPhotos(@NonNull File tempFolder) {
-        for (File file: Objects.requireNonNull(tempFolder.listFiles()))
+        for (File file : Objects.requireNonNull(tempFolder.listFiles()))
             if (fileIsOld(file))
-                if (! file.delete())
+                if (!file.delete())
                     Log.w(TAG, "deleteOldPhotos: Could not delete file " + file.getAbsolutePath());
     }
 
@@ -559,13 +583,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             replaceShortCodeOrSerialNumber(ocrResult);
     }
 
-    private static void showDialog(Activity activity, String message) {
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.ocr_dialog_title)
-                .setMessage(message)
-                .show();
-    }
-
     private void replaceShortCodeOrSerialNumber(String ocrResult) {
         if (ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
             replaceText(ocrResult, serialText);
@@ -592,33 +609,39 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (manager == null)
             throw new NoClipboardManagerException();
         String s = text.toString();
-        if (! s.isEmpty()) {
+        if (!s.isEmpty()) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, s);
             manager.setPrimaryClip(data);
         }
     }
 
-    private class LocationTextWatcher implements TextWatcher {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            commentText.setText("");
-            executeCommentSuggestion();
-        }
-    }
-
     private void executeCommentSuggestion() {
-        if (! sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
+        if (!sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
         new CommentSuggestion(apiCaller, (EbtNewNote) getActivity(), dataStore)
                 .execute(new LocationValues(
                         getCountry(),
                         getCity(),
                         getPostalCode()));
+    }
+
+    public interface Callback {
+        void onSubmitFragmentAdded();
+    }
+
+    private class LocationTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            commentText.setText("");
+            executeCommentSuggestion();
+        }
     }
 }
