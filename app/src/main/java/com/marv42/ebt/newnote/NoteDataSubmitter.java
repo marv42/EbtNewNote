@@ -11,7 +11,6 @@ package com.marv42.ebt.newnote;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import androidx.core.app.NotificationCompat;
@@ -33,12 +32,12 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.text.TextUtils.isEmpty;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
-import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.NOTE_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
+import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 
 public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResult> {
     private ThisApp app;
@@ -168,7 +167,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     private NotificationCompat.Builder getNotificationBuilder(SubmissionResult result) {
         final CharSequence contentTitle = getContentTitle(result);
         final CharSequence content = getSummaryText();
-        PendingIntent contentIntent = getPendingIntent();
+        PendingIntent contentIntent = getPendingIntent(app, SubmittedFragment.class.getSimpleName());
         return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, contentIntent);
     }
 
@@ -207,12 +206,5 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         if (s.length() > prefix.length())
             s += ", ";
         return s;
-    }
-
-    private PendingIntent getPendingIntent() {
-        Intent intent = new Intent(app, EbtNewNote.class);
-        intent.putExtra(FRAGMENT_TYPE, SubmittedFragment.class.getSimpleName());
-        return PendingIntent.getActivity(app, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }

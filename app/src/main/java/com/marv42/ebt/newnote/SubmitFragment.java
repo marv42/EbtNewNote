@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -88,6 +89,7 @@ import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
+import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 import static com.marv42.ebt.newnote.Utils.DAYS_IN_MS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
@@ -534,17 +536,14 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         NotificationChannel notificationChannel = getNotificationChannel(
                 OCR_CHANNEL_ID, OCR_CHANNEL_NAME);
         notificationManager.createNotificationChannel(notificationChannel);
-        Intent intent = new Intent(app, EbtNewNote.class);
-        intent.putExtra(FRAGMENT_TYPE, SubmitFragment.class.getSimpleName());
-        NotificationCompat.Builder builder = getNotificationBuilder(intent);
+        NotificationCompat.Builder builder = getNotificationBuilder();
         notificationManager.notify(OCR_NOTIFICATION_ID, builder.build());
     }
 
-    private NotificationCompat.Builder getNotificationBuilder(Intent intent) {
+    private NotificationCompat.Builder getNotificationBuilder() {
         final String title = app.getString(R.string.ocr_result);
         final String content = app.getString(R.string.ocr_result_description);
-        PendingIntent contentIntent = PendingIntent.getActivity(app, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = getPendingIntent(app, SubmitFragment.class.getSimpleName());
         return createBuilder(app, OCR_CHANNEL_ID, title, content, contentIntent);
     }
 

@@ -11,18 +11,21 @@ package com.marv42.ebt.newnote;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 
 import org.jetbrains.annotations.NotNull;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
 class Notifications {
     static final String NOTE_SUBMISSION_CHANNEL_ID = "default";
     static final String OCR_CHANNEL_ID = "ebt_ocr_channel";
     static final String NOTE_SUBMISSION_CHANNEL_NAME = "Note Submission Result Notification Channel";
     static final String OCR_CHANNEL_NAME = "OCR Result Notification Channel";
+    private static final int REQUEST_CODE = 0;
 
     @NotNull
     static NotificationChannel getNotificationChannel(String channelId, String name) {
@@ -42,5 +45,11 @@ class Notifications {
                 .setContentText(content)
                 .setAutoCancel(true)
                 .setContentIntent(intent);
+    }
+
+    static PendingIntent getPendingIntent(ThisApp app, String className) {
+        Intent intent = new Intent(app, EbtNewNote.class);
+        intent.putExtra(FRAGMENT_TYPE, className);
+        return PendingIntent.getActivity(app, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
