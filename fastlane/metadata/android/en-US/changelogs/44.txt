@@ -1,0 +1,4 @@
+slight design changes: colors, layout
+OCR is not blocked any more, when previous OCR ist still running
+German translations
+minor fixes
