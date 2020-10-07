@@ -29,29 +29,26 @@ public class SubmissionResults {
     @Inject
     public SubmissionResults(ThisApp app, EncryptedPreferenceDataStore dataStore) {
         this.app = app;
+        setResults(dataStore);
+    }
+
+    private void setResults(EncryptedPreferenceDataStore dataStore) {
         String resultsFromPreferences = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
         if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
             return;
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>(){}.getType());
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
+        }.getType());
         Collections.sort(results, new SubmissionResult.SubmissionComparator());
+        setSubListWithMaxNum(dataStore);
+    }
+
+    private void setSubListWithMaxNum(EncryptedPreferenceDataStore dataStore) {
         String defValue = app.getResources().getString(R.string.max_show_num);
         int maxShowNum = Integer.parseInt(dataStore.get(R.string.pref_settings_submitted_key, defValue));
         int howMany = Math.min(maxShowNum, results.size());
         int startIndex = results.size() < maxShowNum ? 0 : results.size() - maxShowNum;
         results = new ArrayList<>(results.subList(startIndex, startIndex + howMany));
-    }
-
-    static class ResultSummary {
-        final int hits;
-        final int successful;
-        final int failed;
-
-        ResultSummary(final int hits, final int successful, final int failed) {
-            this.hits = hits;
-            this.successful = successful;
-            this.failed = failed;
-        }
     }
 
     void addResult(final SubmissionResult aResult) {

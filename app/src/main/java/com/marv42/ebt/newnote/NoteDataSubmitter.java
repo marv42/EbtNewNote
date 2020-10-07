@@ -31,7 +31,6 @@ import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.text.TextUtils.isEmpty;
-import static androidx.core.content.ContextCompat.getColor;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
@@ -40,7 +39,6 @@ import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
-import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResult> {
     private ThisApp app;
@@ -101,19 +99,19 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
         if (status == 1)
             return new SubmissionResult(submittedNoteData, app.getString(R.string.got_hit), billId);
         String reply = "";
-        if ((status &  64) != 0)
+        if ((status & 64) != 0)
             reply += app.getString(R.string.already_entered) + "<br>";
         if ((status & 128) != 0)
             reply += app.getString(R.string.already_entered_serial_number) + "<br>";
-        if ((status &   4) != 0)
+        if ((status & 4) != 0)
             reply += app.getString(R.string.invalid_country) + "<br>";
-        if ((status &  32) != 0)
+        if ((status & 32) != 0)
             reply += app.getString(R.string.city_missing) + "<br>";
-        if ((status &   2) != 0)
+        if ((status & 2) != 0)
             reply += app.getString(R.string.invalid_denomination) + "<br>"; // ;-)
-        if ((status &  16) != 0)
+        if ((status & 16) != 0)
             reply += app.getString(R.string.invalid_short_code) + "<br>";
-        if ((status &   8) != 0)
+        if ((status & 8) != 0)
             reply += app.getString(R.string.invalid_serial_number) + "<br>";
         if ((status & 32768) != 0)
             reply += app.getString(R.string.inconsistent) + "<br>";
@@ -182,7 +180,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     }
 
     private CharSequence getSummaryText() {
-        final SubmissionResults.ResultSummary summary = submissionResults.getSummary();
+        final ResultSummary summary = submissionResults.getSummary();
         final String prefix = app.getString(R.string.total) + ": ";
         String s = prefix;
         if (summary.hits > 0)
@@ -199,7 +197,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     }
 
     @NotNull
-    private String getHitsText(SubmissionResults.ResultSummary summary) {
+    private String getHitsText(ResultSummary summary) {
         return String.format(app.getResources().getQuantityString(
                 R.plurals.xHits, summary.hits), summary.hits);
     }
