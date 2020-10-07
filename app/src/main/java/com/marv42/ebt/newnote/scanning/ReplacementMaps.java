@@ -10,28 +10,23 @@ package com.marv42.ebt.newnote.scanning;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class ReplacementMaps {
-    // https://www.ascii-code.com/
 
     @NotNull
     static Map<String, String> getAmbiguousMap() {
         return Stream.of(new String[][]{
                 // {"$", "S"},
                 // {"$", "5"},
-                // {"W", "U"},
                 {"K", "X"},
                 {"%", "X"},
                 {"@", "0"},
                 {"i", "1"},
-                {"I", "1"},
                 {"t", "1"},
                 {"#", "4"},
-                // {"s", "5"},
                 {"*", "5"},
                 {">", "5"},
                 {"?", "7"},
@@ -50,7 +45,6 @@ class ReplacementMaps {
                 {"4", "N"},
                 {"0", "O"},
                 {"1", "U"},
-                {"W", "U"},
                 {"K", "X"},
                 {"%", "X"},
                 {"2", "Z"}
