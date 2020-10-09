@@ -9,7 +9,6 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -81,7 +80,6 @@ import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
-import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
@@ -109,6 +107,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     ApiCaller apiCaller;
     @Inject
     SubmissionResults submissionResults;
+    @Inject
+    SubmissionResultHandler submissionResultHandler;
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
@@ -277,12 +277,18 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         countryText.addTextChangedListener(locationTextWatcher);
         cityText.addTextChangedListener(locationTextWatcher);
         postalCodeText.addTextChangedListener(locationTextWatcher);
-        countryText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
-        cityText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
-        postalCodeText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
-        shortCodeText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
-        serialText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
-        commentText.addTextChangedListener(new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
+        countryText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
+        cityText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
+        postalCodeText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
+        shortCodeText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
+        serialText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
+        commentText.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
     }
 
     private void removeTextChangedListeners() {
@@ -293,15 +299,15 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @OnClick(R.id.submit_button)
-    void submitValues() {
+    void submitButtonClicked() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
-        doSubmit();
+        submitNoteData();
         shortCodeText.setText("");
         serialText.setText("");
     }
 
-    private void doSubmit() {
-        final NoteData noteData = new NoteData(
+    private void submitNoteData() {
+        NoteData noteData = new NoteData(
                 getCountry(),
                 getCity(),
                 getPostalCode(),
@@ -309,7 +315,20 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 getFixedShortCode().toUpperCase(),
                 getSerialNumber().toUpperCase(),
                 commentText.getText().toString());
-        new NoteDataSubmitter(app, apiCaller, submissionResults, dataStore).execute(noteData);
+        noteData = getNoteDataWithAdditionalComment(noteData);
+        new NoteDataSubmitter(app, apiCaller, submissionResultHandler).execute(noteData);
+    }
+
+    @NotNull
+    private NoteData getNoteDataWithAdditionalComment(NoteData noteData) {
+        return new NoteData(
+                noteData.mCountry,
+                noteData.mCity,
+                noteData.mPostalCode,
+                noteData.mDenomination,
+                noteData.mShortCode,
+                noteData.mSerialNumber,
+                noteData.mComment + dataStore.get(R.string.pref_settings_comment_key, ""));
     }
 
     @NotNull
@@ -354,28 +373,39 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @OnClick(R.id.location_button)
-    void checkLocationSetting() {
+    void locationButtonClicked() {
         Activity activity = getActivity();
-        if (checkSelfPermission(app, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
-                checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED &&
-                activity != null) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
-            return;
-        }
         if (activity == null)
             throw new IllegalStateException("No activity");
-        LocationManager locationManager = (LocationManager)
-                activity.getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null && !locationManager.isLocationEnabled()) {
-            Toast.makeText(activity, getString(R.string.location_not_enabled), LENGTH_LONG).show();
-            app.startLocationProviderChangedReceiver();
+        if (!locationPermissionsGranted(activity))
             return;
-        }
+        if (!locationIsEnabled(activity))
+            return;
         if (checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
             Toast.makeText(activity, getString(R.string.location_no_gps), LENGTH_LONG).show();
         app.startLocationTask();
+    }
+
+    private boolean locationPermissionsGranted(Activity activity) {
+        if (activity != null &&
+                checkSelfPermission(app, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
+                checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean locationIsEnabled(Activity activity) {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null && !locationManager.isLocationEnabled()) {
+            Toast.makeText(activity, getString(R.string.location_not_enabled), LENGTH_LONG).show();
+            app.startLocationProviderChangedReceiver();
+            return false;
+        }
+        return true;
     }
 
     private void setEditTextFromSharedPreferences(String key) {

@@ -100,7 +100,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
         Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
-            submitFragment.checkLocationSetting();
+            submitFragment.locationButtonClicked();
         else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
             submitFragment.takePhoto();
     }

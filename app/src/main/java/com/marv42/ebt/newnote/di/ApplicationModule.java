@@ -18,6 +18,7 @@ import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmissionResults;
 import com.marv42.ebt.newnote.ThisApp;
 
@@ -38,12 +39,6 @@ abstract class ApplicationModule {
     @SettingsScope
     @ContributesAndroidInjector(modules = SettingsModule.class)
     abstract SettingsActivity contributeSettingsActivityInjector();
-
-//    @Provides
-//    @Singleton
-//    static Application provideApplication(@NonNull ThisApp app) {
-//        return app;
-//    }
 
 //    @Singleton
 //    abstract Context bindContext(ThisApp app);
@@ -69,7 +64,7 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static EncryptedPreferenceDataStore provideEncryptedPreferenceDataStore (@NonNull ThisApp app) {
+    static EncryptedPreferenceDataStore provideEncryptedPreferenceDataStore(@NonNull ThisApp app) {
         return new EncryptedPreferenceDataStore(app);
     }
 
@@ -88,9 +83,8 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static NoteDataSubmitter provideNoteDataSubmitter(
-            @NonNull ThisApp app, @NonNull ApiCaller apiCaller,
-            @NonNull SubmissionResults submissionResults, @NonNull EncryptedPreferenceDataStore dataStore) {
-        return new NoteDataSubmitter(app, apiCaller, submissionResults, dataStore);
+    static SubmissionResultHandler provideSubmissionResultHandler(
+            @NonNull ThisApp app, @NonNull SubmissionResults submissionResults) {
+        return new SubmissionResultHandler(app, submissionResults);
     }
 }
