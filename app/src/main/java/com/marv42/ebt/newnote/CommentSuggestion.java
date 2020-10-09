@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.core.util.Pair;
 
+import com.marv42.ebt.newnote.data.LocationValues;
+import com.marv42.ebt.newnote.data.LoginInfo;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 
@@ -38,6 +40,7 @@ class CommentSuggestion extends AsyncTask<LocationValues, Void, String[]> {
     private ApiCaller apiCaller;
     private Callback callback;
     private String additionalComment;
+
     CommentSuggestion(ApiCaller apiCaller, Callback callback, EncryptedPreferenceDataStore dataStore) {
         this.apiCaller = apiCaller;
         this.callback = callback;

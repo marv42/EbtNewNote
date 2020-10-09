@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 
+import com.marv42.ebt.newnote.data.LoginInfo;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
@@ -89,9 +90,9 @@ public class LoginChecker extends AsyncTask<Void, Void, String> {
     }
 
     private void setLocationInfo(LoginInfo loginInfo, Editor editor) {
-        editor.putString(app.getString(R.string.pref_country_key), loginInfo.myCountry)
-                .putString(app.getString(R.string.pref_city_key), loginInfo.myCity)
-                .putString(app.getString(R.string.pref_postal_code_key), loginInfo.myZip).apply();
+        editor.putString(app.getString(R.string.pref_country_key), loginInfo.locationValues.country)
+                .putString(app.getString(R.string.pref_city_key), loginInfo.locationValues.city)
+                .putString(app.getString(R.string.pref_postal_code_key), loginInfo.locationValues.postalCode).apply();
     }
 
     @Override

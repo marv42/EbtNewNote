@@ -6,29 +6,23 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.data;
 
-class LoginInfo {
-    final String sessionId;
-    final String userName;
-    final String myCountry;
-    final String myCity;
-    final String myZip;
+public class LoginInfo {
+    public final String sessionId;
+    public final String userName;
+    public final LocationValues locationValues;
 
     public LoginInfo(final String sessionId, final String userName,
-                     final String myCountry, final String myCity, final String myZip) {
+                     final LocationValues locationValues) {
         this.sessionId = sessionId;
         this.userName = userName;
-        this.myCountry = myCountry;
-        this.myCity = myCity;
-        this.myZip = myZip;
+        this.locationValues = locationValues;
     }
 
     public LoginInfo() {
         sessionId = "";
         userName = "";
-        myCountry = "";
-        myCity = "";
-        myZip = "";
+        locationValues = new LocationValues();
     }
 }

@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.marv42.ebt.newnote.CountryCode;
 import com.marv42.ebt.newnote.HttpCaller;
-import com.marv42.ebt.newnote.LocationValues;
+import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;

@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
+import com.marv42.ebt.newnote.data.ResultSummary;
 
 import java.util.ArrayList;
 import java.util.Collections;

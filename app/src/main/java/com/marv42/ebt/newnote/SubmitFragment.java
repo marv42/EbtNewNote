@@ -45,6 +45,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.marv42.ebt.newnote.data.LocationValues;
+import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;

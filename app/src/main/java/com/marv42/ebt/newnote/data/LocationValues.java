@@ -6,7 +6,7 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.data;
 
 public class LocationValues {
     public final String country;
@@ -17,5 +17,11 @@ public class LocationValues {
         this.country = country;
         this.city = city;
         this.postalCode = postalCode;
+    }
+
+    public LocationValues() {
+        this.country = "";
+        this.city = "";
+        this.postalCode = "";
     }
 }

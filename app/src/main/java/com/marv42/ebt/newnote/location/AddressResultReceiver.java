@@ -11,17 +11,13 @@ package com.marv42.ebt.newnote.location;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.marv42.ebt.newnote.LocationValues;
+import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.R;
-import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
-
-import java.io.Serializable;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;

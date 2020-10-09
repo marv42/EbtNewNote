@@ -15,6 +15,7 @@ import android.app.PendingIntent;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.marv42.ebt.newnote.data.ResultSummary;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 
 import org.jetbrains.annotations.NotNull;

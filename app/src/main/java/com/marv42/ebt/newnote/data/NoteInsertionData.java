@@ -6,11 +6,11 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.data;
 
-class NoteInsertionData {
-    final int billId;
-    final int status;
+public class NoteInsertionData {
+    public final int billId;
+    public final int status;
 
     public NoteInsertionData(final int billId, final int status) {
         this.billId = billId;

@@ -25,6 +25,7 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 
 import org.jetbrains.annotations.NotNull;

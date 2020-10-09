@@ -10,6 +10,9 @@ package com.marv42.ebt.newnote;
 
 import androidx.core.util.Pair;
 
+import com.marv42.ebt.newnote.data.LocationValues;
+import com.marv42.ebt.newnote.data.LoginInfo;
+import com.marv42.ebt.newnote.data.NoteInsertionData;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoJsonElementException;
@@ -86,9 +89,10 @@ public class ApiCaller {
         return new LoginInfo(
                 jsonObject.optString(SESSION_ID_ELEMENT),
                 jsonObject.optString(USER_NAME_ELEMENT),
-                jsonObject.optString(MY_COUNTRY_ELEMENT),
-                jsonObject.optString(MY_CITY_ELEMENT),
-                jsonObject.optString(MY_ZIP_ELEMENT));
+                new LocationValues(
+                        jsonObject.optString(MY_COUNTRY_ELEMENT),
+                        jsonObject.optString(MY_CITY_ELEMENT),
+                        jsonObject.optString(MY_ZIP_ELEMENT)));
     }
 
     private JSONObject getJson(String body) throws JSONException {

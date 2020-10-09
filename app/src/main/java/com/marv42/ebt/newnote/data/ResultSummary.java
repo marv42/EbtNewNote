@@ -6,14 +6,14 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.data;
 
-class ResultSummary {
-    final int hits;
-    final int successful;
-    final int failed;
+public class ResultSummary {
+    public final int hits;
+    public final int successful;
+    public final int failed;
 
-    ResultSummary(final int hits, final int successful, final int failed) {
+    public ResultSummary(final int hits, final int successful, final int failed) {
         this.hits = hits;
         this.successful = successful;
         this.failed = failed;

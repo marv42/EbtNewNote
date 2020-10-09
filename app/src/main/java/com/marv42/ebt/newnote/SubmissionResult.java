@@ -10,7 +10,7 @@ package com.marv42.ebt.newnote;
 
 import android.content.Context;
 
-import androidx.core.content.ContextCompat;
+import com.marv42.ebt.newnote.data.NoteData;
 
 import java.util.Comparator;
 
