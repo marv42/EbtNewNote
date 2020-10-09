@@ -56,28 +56,16 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
 
     @Override
     protected SubmissionResult doInBackground(final NoteData... noteDatas) {
-        NoteData noteData = noteDatas[0];
-        NoteData submittedNoteData = getSubmittedNoteData(noteData);
+        NoteData noteData = getNoteDataWithAdditionalComment(noteDatas[0]);
         try {
-            return callLoginAndInsert(noteData, submittedNoteData);
+            return callLoginAndInsert(noteData);
         } catch (HttpCallException | CallResponseException e) {
-            return new SubmissionResult(submittedNoteData,
-                    new ErrorMessage(app).getErrorMessage(e.getMessage()));
+            return new SubmissionResult(noteData, new ErrorMessage(app).getErrorMessage(e.getMessage()));
         }
     }
 
     @NotNull
-    private SubmissionResult callLoginAndInsert(NoteData noteData, NoteData submittedNoteData) throws HttpCallException, CallResponseException {
-        LoginInfo loginInfo = apiCaller.callLogin();
-        if (loginInfo.sessionId.isEmpty())
-            return new SubmissionResult(submittedNoteData, app.getString(R.string.wrong_login_info));
-        List<Pair<String, String>> params = getInsertionParams(noteData, submittedNoteData, loginInfo);
-        NoteInsertionData insertionData = apiCaller.callInsertBills(params);
-        return assembleReply(submittedNoteData, insertionData);
-    }
-
-    @NotNull
-    private NoteData getSubmittedNoteData(NoteData noteData) {
+    private NoteData getNoteDataWithAdditionalComment(NoteData noteData) {
         return new NoteData(
                 noteData.mCountry,
                 noteData.mCity,
@@ -89,14 +77,44 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
     }
 
     @NotNull
-    private SubmissionResult assembleReply(NoteData submittedNoteData, NoteInsertionData insertionData) {
+    private SubmissionResult callLoginAndInsert(NoteData noteData) throws HttpCallException, CallResponseException {
+        LoginInfo loginInfo = apiCaller.callLogin();
+        if (loginInfo.sessionId.isEmpty())
+            return new SubmissionResult(noteData, app.getString(R.string.wrong_login_info));
+        List<Pair<String, String>> params = getInsertionParams(noteData, loginInfo);
+        NoteInsertionData insertionData = apiCaller.callInsertBills(params);
+        return assembleReply(noteData, insertionData);
+    }
+
+    @NotNull
+    private List<Pair<String, String>> getInsertionParams(NoteData noteData, LoginInfo loginInfo) {
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(new Pair<>("m", "insertbills"));
+        params.add(new Pair<>("v", "1"));
+        params.add(new Pair<>("PHPSESSID", loginInfo.sessionId));
+        params.add(new Pair<>("city", noteData.mCity));
+        params.add(new Pair<>("zip", noteData.mPostalCode));
+        params.add(new Pair<>("country", noteData.mCountry));
+        params.add(new Pair<>("serial0", noteData.mSerialNumber));
+        params.add(new Pair<>("denomination0", getDenominationValue(noteData.mDenomination)));
+        params.add(new Pair<>("shortcode0", noteData.mShortCode));
+        params.add(new Pair<>("comment0", noteData.mComment));
+        return params;
+    }
+
+    @NotNull
+    private String getDenominationValue(String denomination) {
+        return denomination.substring(0, denomination.length() - 2);
+    }
+
+    @NotNull
+    private SubmissionResult assembleReply(NoteData noteData, NoteInsertionData insertionData) {
         int billId = insertionData.billId;
         int status = insertionData.status;
         if (status == 0)
-            return new SubmissionResult(submittedNoteData,
-                    app.getString(R.string.has_been_entered), billId);
+            return new SubmissionResult(noteData, app.getString(R.string.has_been_entered), billId);
         if (status == 1)
-            return new SubmissionResult(submittedNoteData, app.getString(R.string.got_hit), billId);
+            return new SubmissionResult(noteData, app.getString(R.string.got_hit), billId);
         String reply = "";
         if ((status & 64) != 0)
             reply += app.getString(R.string.already_entered) + "<br>";
@@ -118,24 +136,7 @@ public class NoteDataSubmitter extends AsyncTask<NoteData, Void, SubmissionResul
             reply = reply.substring(0, reply.length() - 4);
         if (isEmpty(reply))
             reply = "Someone seems to have to debug something here...";
-        return new SubmissionResult(submittedNoteData, reply, billId);
-    }
-
-    @NotNull
-    private List<Pair<String, String>> getInsertionParams(NoteData noteData, NoteData submittedNoteData, LoginInfo loginInfo) {
-        List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair<>("m", "insertbills"));
-        params.add(new Pair<>("v", "1"));
-        params.add(new Pair<>("PHPSESSID", loginInfo.sessionId));
-        params.add(new Pair<>("city", noteData.mCity));
-        params.add(new Pair<>("zip", noteData.mPostalCode));
-        params.add(new Pair<>("country", noteData.mCountry));
-        params.add(new Pair<>("serial0", noteData.mSerialNumber));
-        params.add(new Pair<>("denomination0",
-                noteData.mDenomination.substring(0, noteData.mDenomination.length() - 2)));
-        params.add(new Pair<>("shortcode0", noteData.mShortCode));
-        params.add(new Pair<>("comment0", submittedNoteData.mComment));
-        return params;
+        return new SubmissionResult(noteData, reply, billId);
     }
 
     @Override
