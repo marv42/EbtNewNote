@@ -32,13 +32,13 @@ import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
 
     private ThisApp app;
-    private SubmissionResults allResults;
+    private AllResults allResults;
     private ArrayList<SubmissionResult> notifiedResults = new ArrayList<>();
 
     @Inject
-    public SubmissionResultHandler(@NonNull ThisApp app, @NonNull SubmissionResults submissionResults) {
+    public SubmissionResultHandler(@NonNull ThisApp app, @NonNull AllResults allResults) {
         this.app = app;
-        this.allResults = submissionResults;
+        this.allResults = allResults;
     }
 
     @Override

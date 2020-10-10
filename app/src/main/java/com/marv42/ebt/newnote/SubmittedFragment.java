@@ -45,6 +45,7 @@ import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class SubmittedFragment extends DaggerFragment implements LifecycleOwner {
+
     protected static final String DENOMINATION_IMAGE = "denomination image";
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
@@ -61,7 +62,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
-    SubmissionResults submissionResults;
+    AllResults allResults;
     @Inject
     EncryptedPreferenceDataStore dataStore;
     @Inject
@@ -118,7 +119,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     private SubmissionResult getSubmissionResult(long packedPosition) {
         int group = ExpandableListView.getPackedPositionGroup(packedPosition);
-        return submissionResults.getResults().get(group);
+        return allResults.getResults().get(group);
     }
 
     void refreshResults() {
@@ -136,7 +137,11 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
                 new String[]{REASON, NOTE, COMMENT, LOCATION},
                 new int[]{R.id.list_reason, R.id.list_note, R.id.list_comment, R.id.list_location}));
         registerForContextMenu(listView);
-        ArrayList<SubmissionResult> results = submissionResults.getResults();
+        scrollToLast();
+    }
+
+    private void scrollToLast() {
+        ArrayList<SubmissionResult> results = allResults.getResults();
         listView.setSelection(results.size());
     }
 
@@ -147,7 +152,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     @NotNull
     private List<Map<String, String>> getGroupData() {
-        ArrayList<SubmissionResult> results = submissionResults.getResults();
+        ArrayList<SubmissionResult> results = allResults.getResults();
         List<Map<String, String>> groupData = new ArrayList<>();
         for (SubmissionResult sr : results)
             addGroupData(groupData, sr);
@@ -156,7 +161,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     @NotNull
     private List<List<Map<String, String>>> getChildData() {
-        ArrayList<SubmissionResult> results = submissionResults.getResults();
+        ArrayList<SubmissionResult> results = allResults.getResults();
         List<List<Map<String, String>>> childData = new ArrayList<>();
         for (SubmissionResult sr : results)
             addChildData(childData, sr);

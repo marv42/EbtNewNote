@@ -12,13 +12,13 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
-import com.marv42.ebt.newnote.SubmissionResults;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
@@ -31,6 +31,7 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
 @Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
+
     @Provides
     @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull ThisApp app) {
@@ -67,16 +68,16 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static SubmissionResults provideSubmissionResults(
+    static AllResults provideSubmissionResults(
             @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore) {
-        return new SubmissionResults(app, dataStore);
+        return new AllResults(app, dataStore);
     }
 
     @Provides
     @Singleton
     static SubmissionResultHandler provideSubmissionResultHandler(
-            @NonNull ThisApp app, @NonNull SubmissionResults submissionResults) {
-        return new SubmissionResultHandler(app, submissionResults);
+            @NonNull ThisApp app, @NonNull AllResults allResults) {
+        return new SubmissionResultHandler(app, allResults);
     }
 
     @ActivityScope
