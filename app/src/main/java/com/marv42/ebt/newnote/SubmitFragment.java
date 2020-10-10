@@ -9,16 +9,12 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.icu.util.Calendar;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -41,7 +37,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -51,7 +46,9 @@ import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
+import com.marv42.ebt.newnote.location.LocationButtonHandler;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
+import com.marv42.ebt.newnote.scanning.OcrNotifier;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -67,10 +64,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import dagger.android.support.DaggerFragment;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
-import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Context.VIBRATOR_SERVICE;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
@@ -83,13 +77,6 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
-import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
-import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
-import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_ID;
-import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_NAME;
-import static com.marv42.ebt.newnote.Notifications.createBuilder;
-import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
-import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 import static com.marv42.ebt.newnote.Utils.DAYS_IN_MS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
@@ -107,6 +94,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     SharedPreferences sharedPreferences;
     @Inject
     ApiCaller apiCaller;
+    @Inject
+    LocationButtonHandler locationButtonHandler;
     @Inject
     SubmissionResults submissionResults;
     @Inject
@@ -220,7 +209,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
             presentOcrResult(result);
         else {
             sharedPreferencesHandler.set(R.string.pref_ocr_result, result);
-            showNotification();
+            new OcrNotifier().showNotification(app);
         }
     }
 
@@ -376,38 +365,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @OnClick(R.id.location_button)
     void locationButtonClicked() {
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        if (!locationPermissionsGranted(activity))
-            return;
-        if (!locationIsEnabled(activity))
-            return;
-        if (checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
-            Toast.makeText(activity, getString(R.string.location_no_gps), LENGTH_LONG).show();
-        app.startLocationTask();
-    }
-
-    private boolean locationPermissionsGranted(Activity activity) {
-        if (activity != null &&
-                checkSelfPermission(app, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED &&
-                checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
-            return false;
-        }
-        return true;
-    }
-
-    private boolean locationIsEnabled(Activity activity) {
-        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null && !locationManager.isLocationEnabled()) {
-            Toast.makeText(activity, getString(R.string.location_not_enabled), LENGTH_LONG).show();
-            app.startLocationProviderChangedReceiver();
-            return false;
-        }
-        return true;
+        locationButtonHandler.clicked();
     }
 
     private void setEditTextFromSharedPreferences(String key) {
@@ -558,25 +516,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         } catch (IOException e) {
             throw new NoPictureException("R.string.error_creating_file: " + e.getMessage());
         }
-    }
-
-    private void showNotification() throws NoNotificationManagerException {
-        NotificationManager notificationManager =
-                (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager == null)
-            throw new NoNotificationManagerException();
-        NotificationChannel notificationChannel = getNotificationChannel(
-                OCR_CHANNEL_ID, OCR_CHANNEL_NAME);
-        notificationManager.createNotificationChannel(notificationChannel);
-        NotificationCompat.Builder builder = getNotificationBuilder();
-        notificationManager.notify(OCR_NOTIFICATION_ID, builder.build());
-    }
-
-    private NotificationCompat.Builder getNotificationBuilder() {
-        final String title = app.getString(R.string.ocr_result);
-        final String content = app.getString(R.string.ocr_result_description);
-        PendingIntent contentIntent = getPendingIntent(app, SubmitFragment.class.getSimpleName());
-        return createBuilder(app, OCR_CHANNEL_ID, title, content, contentIntent);
     }
 
     void setCommentsAdapter(String[] suggestions) {

@@ -56,7 +56,7 @@ public class ThisApp extends DaggerApplication {
         ACRA.init(this);
     }
 
-    void startLocationProviderChangedReceiver() {
+    public void startLocationProviderChangedReceiver() {
         if (broadcastReceiver == null) {
             broadcastReceiver = new LocationProviderChangedReceiver();
             IntentFilter filter = new IntentFilter(PROVIDERS_CHANGED_ACTION);

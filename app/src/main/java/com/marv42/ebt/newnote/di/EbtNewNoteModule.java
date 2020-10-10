@@ -8,22 +8,27 @@
 
 package com.marv42.ebt.newnote.di;
 
+import android.app.Activity;
+
+import androidx.annotation.NonNull;
+
+import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.SubmittedFragment;
 
 import dagger.Module;
+import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 
 @Module(subcomponents = {SubmitFragmentComponent.class, SubmittedFragmentComponent.class,
         SettingsComponent.class})
 abstract class EbtNewNoteModule {
-    @FragmentScope
-    @ContributesAndroidInjector(modules = SubmitFragmentModule.class)
-    abstract SubmitFragment contributeSubmitFragmentInjector();
-
-    @FragmentScope
-    @ContributesAndroidInjector(modules = SubmittedFragmentModule.class)
-    abstract SubmittedFragment contributeSubmittedFragmentInjector();
+    @Provides
+    @ActivityScope
+    //    @Named("Activity")
+    static Activity provideActivity(@NonNull EbtNewNote activity) {
+        return activity;
+    }
 
 //    @Binds
 //    abstract Context bindContext(EbtNewNote activity);
@@ -34,4 +39,12 @@ abstract class EbtNewNoteModule {
 //    static Context provideContext(@NonNull EbtNewNote activity) {
 //        return activity;
 //    }
+
+    @SubmitFragmentScope
+    @ContributesAndroidInjector(modules = SubmitFragmentModule.class)
+    abstract SubmitFragment contributeSubmitFragmentInjector();
+
+    @SubmittedFragmentScope
+    @ContributesAndroidInjector(modules = SubmittedFragmentModule.class)
+    abstract SubmittedFragment contributeSubmittedFragmentInjector();
 }

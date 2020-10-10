@@ -20,15 +20,15 @@ import org.jetbrains.annotations.NotNull;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
-class Notifications {
+public class Notifications {
+    public static final String OCR_CHANNEL_ID = "ebt_ocr_channel";
+    public static final String OCR_CHANNEL_NAME = "OCR Result Notification Channel";
     static final String NOTE_SUBMISSION_CHANNEL_ID = "default";
-    static final String OCR_CHANNEL_ID = "ebt_ocr_channel";
     static final String NOTE_SUBMISSION_CHANNEL_NAME = "Note Submission Result Notification Channel";
-    static final String OCR_CHANNEL_NAME = "OCR Result Notification Channel";
     private static final int REQUEST_CODE = 0;
 
     @NotNull
-    static NotificationChannel getNotificationChannel(String channelId, String name) {
+    public static NotificationChannel getNotificationChannel(String channelId, String name) {
 //            notificationChannel.setDescription("Channel description");
 //            notificationChannel.enableLights(true);
 //            notificationChannel.setLightColor(Color.RED);
@@ -37,7 +37,7 @@ class Notifications {
         return new NotificationChannel(channelId, name, IMPORTANCE_DEFAULT);
     }
 
-    static NotificationCompat.Builder createBuilder(
+    public static NotificationCompat.Builder createBuilder(
             Context context, String channelId, CharSequence title, CharSequence content, PendingIntent intent) {
         return new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_stat_ebt)
@@ -47,7 +47,7 @@ class Notifications {
                 .setContentIntent(intent);
     }
 
-    static PendingIntent getPendingIntent(ThisApp app, String className) {
+    public static PendingIntent getPendingIntent(ThisApp app, String className) {
         Intent intent = new Intent(app, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, className);
         return PendingIntent.getActivity(app, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);

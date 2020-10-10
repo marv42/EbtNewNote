@@ -12,6 +12,9 @@ import android.os.AsyncTask;
 
 import androidx.core.util.Pair;
 
+import com.marv42.ebt.newnote.data.LoginInfo;
+import com.marv42.ebt.newnote.data.NoteData;
+import com.marv42.ebt.newnote.data.NoteInsertionData;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;

@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
-import com.marv42.ebt.newnote.NoteDataSubmitter;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
@@ -32,23 +31,6 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
 @Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
-    @ActivityScope
-    @ContributesAndroidInjector(modules = EbtNewNoteModule.class)
-    abstract EbtNewNote contributeEbtNewNoteInjector();
-
-    @SettingsScope
-    @ContributesAndroidInjector(modules = SettingsModule.class)
-    abstract SettingsActivity contributeSettingsActivityInjector();
-
-//    @Singleton
-//    abstract Context bindContext(ThisApp app);
-    // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
-//    @Provides
-//    @Singleton
-//    static Context provideContext(@NonNull ThisApp app) {
-//        return app.getApplicationContext();
-//    }
-
     @Provides
     @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull ThisApp app) {
@@ -61,6 +43,15 @@ abstract class ApplicationModule {
             @NonNull ThisApp app, @NonNull SharedPreferences sharedPreferences) {
         return new SharedPreferencesHandler(app, sharedPreferences);
     }
+
+//    @Singleton
+//    abstract Context bindContext(ThisApp app);
+    // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
+//    @Provides
+//    @Singleton
+//    static Context provideContext(@NonNull ThisApp app) {
+//        return app.getApplicationContext();
+//    }
 
     @Provides
     @Singleton
@@ -87,4 +78,12 @@ abstract class ApplicationModule {
             @NonNull ThisApp app, @NonNull SubmissionResults submissionResults) {
         return new SubmissionResultHandler(app, submissionResults);
     }
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = EbtNewNoteModule.class)
+    abstract EbtNewNote contributeEbtNewNoteInjector();
+
+    @SettingsScope
+    @ContributesAndroidInjector(modules = SettingsModule.class)
+    abstract SettingsActivity contributeSettingsActivityInjector();
 }

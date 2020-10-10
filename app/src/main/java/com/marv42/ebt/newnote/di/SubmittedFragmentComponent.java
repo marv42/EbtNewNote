@@ -18,7 +18,7 @@ import dagger.android.AndroidInjector;
 abstract class SubmittedFragmentModule {
 }
 
-@FragmentScope
+@SubmittedFragmentScope
 @Subcomponent(modules = {SubmittedFragmentModule.class})
 public interface SubmittedFragmentComponent extends AndroidInjector<SubmittedFragment> {
     @Subcomponent.Factory
