@@ -15,26 +15,19 @@ import android.app.PendingIntent;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import com.marv42.ebt.newnote.data.ResultSummary;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static androidx.core.content.ContextCompat.getColor;
-import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
-import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.Notifications.NOTE_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
 import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
-import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
 
@@ -80,93 +73,10 @@ public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
     }
 
     private NotificationCompat.Builder getNotificationBuilder() {
-        final CharSequence contentTitle = getContentTitle();
-        final CharSequence content = getContent();
+        NotificationTexts notificationText = new NotificationTexts(app);
+        final CharSequence contentTitle = notificationText.getContentTitle(notifiedResults);
+        final CharSequence content = notificationText.getContent(allResults.getResults());
         PendingIntent contentIntent = getPendingIntent(app, SubmittedFragment.class.getSimpleName());
         return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, contentIntent);
-    }
-
-    @NotNull
-    private CharSequence getContentTitle() {
-        String title = getHowManyNotes() + ": " + getSummaryText(getSummary(notifiedResults), true, false);
-        return getHtml(title);
-    }
-
-    @NotNull
-    private String getHowManyNotes() {
-        final int quantity = notifiedResults.size();
-        return String.format(app.getResources().getQuantityString(R.plurals.xNotes, quantity)
-                + " " + app.getString(R.string.sent), quantity);
-    }
-
-    @NotNull
-    private CharSequence getHtml(String s) {
-        return fromHtml(s, FROM_HTML_MODE_COMPACT);
-    }
-
-    @NotNull
-    private CharSequence getContent() {
-        String content = app.getString(R.string.total) + ": "
-                + getSummaryText(getSummary(allResults.getResults()), false, true);
-        return getHtml(content);
-    }
-
-    private ResultSummary getSummary(ArrayList<SubmissionResult> results) {
-        int numberOfHits = 0;
-        int numberOfSuccessful = 0;
-        int numberOfFailed = 0;
-        for (SubmissionResult result : results) {
-            if (result.isSuccessful(app))
-                numberOfSuccessful++;
-            else
-                numberOfFailed++;
-            if (result.isAHit(app))
-                numberOfHits++;
-        }
-        return new ResultSummary(numberOfHits, numberOfSuccessful, numberOfFailed);
-    }
-
-    private CharSequence getSummaryText(ResultSummary summary, boolean colored, boolean showNumber) {
-        String text = "";
-        if (summary.hits > 0)
-            text += getColoredTextOrNot(getHitsText(summary), colored, R.color.success);
-        if (summary.successful > 0) {
-            text = checkComma(text);
-            String successful = getHowMany(summary.successful, R.string.successful, summary, showNumber);
-            text += getColoredTextOrNot(successful, colored, R.color.success);
-        }
-        if (summary.failed > 0) {
-            text = checkComma(text);
-            String failed = getHowMany(summary.failed, R.string.failed, summary, showNumber);
-            text += getColoredTextOrNot(failed, colored, R.color.failed);
-        }
-        return text;
-    }
-
-    @NotNull
-    private String getHowMany(int number, int resId, ResultSummary summary, boolean showNumber) {
-        String text = app.getString(resId);
-        if (summary.getTotal() > 1 || showNumber)
-            text = number + " " + text;
-        return text;
-    }
-
-    private String getColoredTextOrNot(String text, boolean colored, int color) {
-        if (!colored)
-            return text;
-        return getColoredString(text, getColor(app, color));
-    }
-
-    @NotNull
-    private String getHitsText(ResultSummary summary) {
-        return String.format(app.getResources().getQuantityString(
-                R.plurals.xHits, summary.hits), summary.hits);
-    }
-
-    @NotNull
-    private String checkComma(String s) {
-        if (s.length() > 0)
-            s += ", ";
-        return s;
     }
 }
