@@ -28,9 +28,13 @@
 
     <!-- notes -->
     <string name="note">Note</string>
-    <string name="hit">HIT</string>
+    <plurals name="xNotes">
+        <item quantity="one">Note</item>
+        <item quantity="other">%d notes</item>
+    </plurals>
+    <string name="hit">Hit</string>
     <plurals name="xHits">
-        <item quantity="one">1 hit</item>
+        <item quantity="one">A hit</item>
         <item quantity="other">%d hits</item>
     </plurals>
 
@@ -114,7 +118,7 @@
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
     <string name="settings_images_summary">Show denomination images in the \'&submitted_fragment_title;\' tab</string>
-    <string name="settings_category_advanced">Advanced settings</string>
+    <string name="settings_category_advanced">Experimental settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>

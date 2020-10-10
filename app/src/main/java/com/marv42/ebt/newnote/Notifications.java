@@ -21,8 +21,11 @@ import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
 public class Notifications {
+
     public static final String OCR_CHANNEL_ID = "ebt_ocr_channel";
     public static final String OCR_CHANNEL_NAME = "OCR Result Notification Channel";
+    public static final int OCR_NOTIFICATION_ID = 2;
+    static final int NOTE_NOTIFICATION_ID = 1;
     static final String NOTE_SUBMISSION_CHANNEL_ID = "default";
     static final String NOTE_SUBMISSION_CHANNEL_NAME = "Note Submission Result Notification Channel";
     private static final int REQUEST_CODE = 0;

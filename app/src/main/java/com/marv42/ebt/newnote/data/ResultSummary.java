@@ -18,4 +18,8 @@ public class ResultSummary {
         this.successful = successful;
         this.failed = failed;
     }
+
+    public int getTotal() {
+        return hits + successful + failed;
+    }
 }

@@ -62,19 +62,4 @@ public class SubmissionResults {
     ArrayList<SubmissionResult> getResults() {
         return results;
     }
-
-    ResultSummary getSummary() {
-        int numberOfHits = 0;
-        int numberOfSuccessfull = 0;
-        int numberOfFailed = 0;
-        for (SubmissionResult result : results) {
-            if (result.isSuccessful(app))
-                numberOfSuccessfull++;
-            else
-                numberOfFailed++;
-            if (result.isAHit(app))
-                numberOfHits++;
-        }
-        return new ResultSummary(numberOfHits, numberOfSuccessfull, numberOfFailed);
-    }
 }

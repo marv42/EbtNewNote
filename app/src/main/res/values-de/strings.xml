@@ -12,8 +12,6 @@
   -->
 
 <resources>
-    <!-- cf. https://material.io/design/communication/writing.html#principles -->
-
     <!-- app -->
     <string name="crash_text">EBT New Note ist abgestürzt\nFehlerbericht an den Entwickler senden</string>
 
@@ -25,9 +23,13 @@
 
     <!-- notes -->
     <string name="note">Schein</string>
+    <plurals name="xNotes">
+        <item quantity="one">Schein</item>
+        <item quantity="other">%d Scheine</item>
+    </plurals>
     <string name="hit">Treffer</string>
     <plurals name="xHits">
-        <item quantity="one">1 Treffer</item>
+        <item quantity="one">Treffer</item>
         <item quantity="other">%d Treffer</item>
     </plurals>
 
@@ -104,7 +106,7 @@
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
     <string name="settings_images_summary">Nennwert-Bilder im \'&submitted_fragment_title;\'-Tab anzeigen</string>
-    <string name="settings_category_advanced">Erweiterte Einstellungen</string>
+    <string name="settings_category_advanced">Experimentelle Einstellungen</string>
     <string name="settings_comment_title">Kommentar-Zusatz</string>
     <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>
     <string name="settings_submitted_title">Anzahl der Scheine</string>

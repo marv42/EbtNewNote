@@ -64,6 +64,8 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     SubmissionResults submissionResults;
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    @Inject
+    SubmissionResultHandler submissionResultHandler;
     private ExpandableListView listView;
 
     @Override
@@ -110,6 +112,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     @Override
     public void onResume() {
         super.onResume();
+        submissionResultHandler.reset();
         refreshResults();
     }
 

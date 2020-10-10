@@ -20,14 +20,15 @@ import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.marv42.ebt.newnote.EbtNewNote.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_ID;
 import static com.marv42.ebt.newnote.Notifications.OCR_CHANNEL_NAME;
+import static com.marv42.ebt.newnote.Notifications.OCR_NOTIFICATION_ID;
 import static com.marv42.ebt.newnote.Notifications.createBuilder;
 import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
 import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 
 public class OcrNotifier {
+
     public void showNotification(ThisApp app) throws NoNotificationManagerException {
         NotificationManager notificationManager =
                 (NotificationManager) app.getSystemService(NOTIFICATION_SERVICE);
