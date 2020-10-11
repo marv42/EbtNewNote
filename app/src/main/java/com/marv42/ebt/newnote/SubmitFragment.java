@@ -84,6 +84,7 @@ import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
+
     private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
@@ -96,8 +97,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     ApiCaller apiCaller;
     @Inject
     LocationButtonHandler locationButtonHandler;
-    @Inject
-    SubmissionResults submissionResults;
     @Inject
     SubmissionResultHandler submissionResultHandler;
     @Inject

@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
-import com.marv42.ebt.newnote.data.ResultSummary;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,25 +22,15 @@ import javax.inject.Inject;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.google.gson.JsonParser.parseString;
 
-public class SubmissionResults {
+public class AllResults {
+
     private ThisApp app;
     private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
-    public SubmissionResults(ThisApp app, EncryptedPreferenceDataStore dataStore) {
+    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore) {
         this.app = app;
         setResults(dataStore);
-    }
-
-    private void setResults(EncryptedPreferenceDataStore dataStore) {
-        String resultsFromPreferences = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
-        if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
-            return;
-        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
-        }.getType());
-        Collections.sort(results, new SubmissionResult.SubmissionComparator());
-        setSubListWithMaxNum(dataStore);
     }
 
     private void setSubListWithMaxNum(EncryptedPreferenceDataStore dataStore) {
@@ -61,5 +50,16 @@ public class SubmissionResults {
 
     ArrayList<SubmissionResult> getResults() {
         return results;
+    }
+
+    private void setResults(EncryptedPreferenceDataStore dataStore) {
+        String resultsFromPreferences = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
+        if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
+            return;
+        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
+        }.getType());
+        Collections.sort(results, new SubmissionResult.SubmissionComparator());
+        setSubListWithMaxNum(dataStore);
     }
 }

@@ -71,9 +71,9 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.results, container, false);
-        listView = rootView.findViewById(R.id.list);
-        return rootView;
+        View view = inflater.inflate(R.layout.results, container, false);
+        listView = view.findViewById(R.id.list);
+        return view;
     }
 
     @Override
