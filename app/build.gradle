@@ -9,7 +9,7 @@
 apply plugin: 'com.android.application'
 
 def versionMajor = 0
-def versionMinor = 44
+def versionMinor = 45
 def versionPatch = 0
 
 android {
@@ -55,7 +55,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lintOptions{
+    lintOptions {
         disable 'MissingTranslation'
     }
 }
@@ -73,6 +73,7 @@ dependencies {
     implementation "androidx.security:security-crypto:1.1.0-alpha02"
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation "androidx.preference:preference:1.1.1"
+//    implementation "androidx.constraintlayout:constraintlayout:2.0.2"
     implementation "com.android.support:design:${rootProject.ext.buildToolsVersion}"
     implementation "com.google.android.material:material:1.2.1"
     implementation "com.squareup.okhttp3:okhttp:4.9.0"
