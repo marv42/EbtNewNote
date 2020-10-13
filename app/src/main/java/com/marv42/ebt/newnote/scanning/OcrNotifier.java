@@ -8,10 +8,12 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 
 import com.marv42.ebt.newnote.R;
@@ -28,6 +30,13 @@ import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
 import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 
 public class OcrNotifier {
+
+    public static void showDialog(Activity activity, String message) {
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.ocr_dialog_title)
+                .setMessage(message)
+                .show();
+    }
 
     public void showNotification(ThisApp app) throws NoNotificationManagerException {
         NotificationManager notificationManager =

@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -30,7 +29,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -52,15 +50,10 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 
-import static android.Manifest.permission.CAMERA;
 import static android.content.Context.VIBRATOR_SERVICE;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
-import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
-import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
-import static androidx.core.content.PermissionChecker.checkSelfPermission;
-import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
@@ -86,13 +79,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
-
-    private static void showDialog(Activity activity, String message) {
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.ocr_dialog_title)
-                .setMessage(message)
-                .show();
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -190,6 +176,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return "";
     }
 
+    private void setDenomination(String denomination) {
+        if (denomination.equals(getString(R.string.eur5)))
+            binding.radio5.setChecked(true);
+        if (denomination.equals(getString(R.string.eur10)))
+            binding.radio10.setChecked(true);
+        if (denomination.equals(getString(R.string.eur20)))
+            binding.radio20.setChecked(true);
+        if (denomination.equals(getString(R.string.eur50)))
+            binding.radio50.setChecked(true);
+        if (denomination.equals(getString(R.string.eur100)))
+            binding.radio100.setChecked(true);
+        if (denomination.equals(getString(R.string.eur200)))
+            binding.radio200.setChecked(true);
+        if (denomination.equals(getString(R.string.eur500)))
+            binding.radio500.setChecked(true);
+    }
+
     private String getFixedShortCode() {
         String shortCode = binding.editTextShortCode.getText().toString();
         shortCode = removeNonWordCharacters(shortCode);
@@ -248,9 +251,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void showOcrResult(String ocrResult) {
         Activity activity = getActivity();
         if (ocrResult.isEmpty())
-            showDialog(activity, getString(R.string.ocr_dialog_empty));
+            OcrNotifier.showDialog(activity, getString(R.string.ocr_dialog_empty));
         else if (ocrResult.startsWith(ERROR))
-            showDialog(activity, new ErrorMessage(activity).getErrorMessage(ocrResult));
+            OcrNotifier.showDialog(activity, new ErrorMessage(activity).getErrorMessage(ocrResult));
         else
             replaceShortCodeOrSerialNumber(ocrResult);
     }
@@ -276,13 +279,13 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
     }
 
-    private void putToClipboard(Editable text) throws NoClipboardManagerException {
+    private void putToClipboard(Editable editable) throws NoClipboardManagerException {
         ClipboardManager manager = (ClipboardManager) app.getSystemService(Context.CLIPBOARD_SERVICE);
         if (manager == null)
             throw new NoClipboardManagerException();
-        String s = text.toString();
-        if (!s.isEmpty()) {
-            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, s);
+        String text = editable.toString();
+        if (!text.isEmpty()) {
+            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
             manager.setPrimaryClip(data);
         }
     }
@@ -343,23 +346,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void setRadioButtons() {
         setDenomination(sharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5)));
-    }
-
-    private void setDenomination(String denomination) {
-        if (denomination.equals(getString(R.string.eur5)))
-            binding.radio5.setChecked(true);
-        if (denomination.equals(getString(R.string.eur10)))
-            binding.radio10.setChecked(true);
-        if (denomination.equals(getString(R.string.eur20)))
-            binding.radio20.setChecked(true);
-        if (denomination.equals(getString(R.string.eur50)))
-            binding.radio50.setChecked(true);
-        if (denomination.equals(getString(R.string.eur100)))
-            binding.radio100.setChecked(true);
-        if (denomination.equals(getString(R.string.eur200)))
-            binding.radio200.setChecked(true);
-        if (denomination.equals(getString(R.string.eur500)))
-            binding.radio500.setChecked(true);
     }
 
     private void setEditText(EditText editText, int keyId) {
