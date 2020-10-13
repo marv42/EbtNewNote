@@ -13,8 +13,9 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 
 public class SharedPreferencesHandler {
-    private ThisApp app;
-    private SharedPreferences sharedPreferences;
+
+    private final ThisApp app;
+    private final SharedPreferences sharedPreferences;
 
     @Inject
     public SharedPreferencesHandler(ThisApp app, SharedPreferences sharedPreferences) {
@@ -34,7 +35,7 @@ public class SharedPreferencesHandler {
         throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
     }
 
-    <T> void set(int keyId, T value) {
+    public <T> void set(int keyId, T value) {
         set(app.getString(keyId), value);
     }
 

@@ -48,9 +48,9 @@ public class EbtNewNote extends DaggerAppCompatActivity
         ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
+    public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
-    static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
-    static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
+    public static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
     @Inject
@@ -101,8 +101,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
             final FragmentManager manager = getSupportFragmentManager();
             submitFragment = (SubmitFragment) manager.findFragmentById(R.id.submit_fragment);
             submittedFragment = (SubmittedFragment) manager.findFragmentById(R.id.submitted_fragment);
-        }
-        else {
+        } else {
             FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
             pager.setAdapter(adapter);
             setupTabLayout(pager);

@@ -14,23 +14,17 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.util.Calendar;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -42,51 +36,37 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.data.NoteData;
+import com.marv42.ebt.newnote.databinding.SubmitBinding;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.location.LocationButtonHandler;
+import com.marv42.ebt.newnote.scanning.CameraStarter;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
-
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import dagger.android.support.DaggerFragment;
 
 import static android.Manifest.permission.CAMERA;
 import static android.content.Context.VIBRATOR_SERVICE;
-import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
-import static android.provider.MediaStore.EXTRA_OUTPUT;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
-import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.EbtNewNote.CAMERA_PERMISSION_REQUEST_CODE;
-import static com.marv42.ebt.newnote.EbtNewNote.IMAGE_CAPTURE_REQUEST_CODE;
-import static com.marv42.ebt.newnote.Utils.DAYS_IN_MS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
-import static java.io.File.createTempFile;
 
 public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
         SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
 
-    private static final String TAG = SubmitFragment.class.getSimpleName();
-    private static final int TIME_THRESHOLD_DELETE_OLD_PICS_MS = DAYS_IN_MS;
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
     @Inject
@@ -103,41 +83,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
     EncryptedPreferenceDataStore dataStore;
-    @BindView(R.id.edit_text_country)
-    EditText countryText;
-    @BindView(R.id.edit_text_city)
-    EditText cityText;
-    @BindView(R.id.edit_text_zip)
-    EditText postalCodeText;
-    @BindView(R.id.location_button)
-    ImageButton locationButton;
-    @BindView(R.id.radio_group_1)
-    RadioGroup radioGroup1;
-    @BindView(R.id.radio_group_2)
-    RadioGroup radioGroup2;
-    @BindView(R.id.radio_5)
-    RadioButton eur5Radio;
-    @BindView(R.id.radio_10)
-    RadioButton eur10Radio;
-    @BindView(R.id.radio_20)
-    RadioButton eur20Radio;
-    @BindView(R.id.radio_50)
-    RadioButton eur50Radio;
-    @BindView(R.id.radio_100)
-    RadioButton eur100Radio;
-    @BindView(R.id.radio_200)
-    RadioButton eur200Radio;
-    @BindView(R.id.radio_500)
-    RadioButton eur500Radio;
-    @BindView(R.id.edit_text_printer)
-    EditText shortCodeText;
-    @BindView(R.id.edit_text_serial)
-    EditText serialText;
-    @BindView(R.id.photo_button)
-    ImageButton photoButton;
-    @BindView(R.id.edit_text_comment)
-    AutoCompleteTextView commentText;
-    private Unbinder unbinder;
+    private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
 
@@ -150,155 +96,39 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.submit, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        return view;
+        binding = SubmitBinding.inflate(inflater, container, false);
+        setOnClickListeners();
+        return binding.getRoot();
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        FragmentActivity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        LoginChecker.checkLoginInfo(activity);
-        checkOcrResult();
-        ((Callback) activity).onSubmitFragmentAdded();
+    private void setOnClickListeners() {
+        binding.locationButton.setOnClickListener(v -> locationButtonClicked());
+        binding.photoButton.setOnClickListener(v -> takePhoto());
+        binding.submitButton.setOnClickListener(v -> submitButtonClicked());
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setOnCheckedChangeListener();
-        setTooltipText(locationButton, getString(R.string.get_location));
-        setTooltipText(photoButton, getString(R.string.acquire));
-//        SharedPreferencesStringViewModel viewModel = viewModelProvider.get(SharedPreferencesStringViewModel.class);
-//        viewModel.getCountry(app, app.getString(R.string.pref_country_key)).observe(getViewLifecycleOwner(),
-//                observer -> {
-//            countryText.setText(observer);
-//        });
+    void locationButtonClicked() {
+        locationButtonHandler.clicked();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        setViewValuesFromPreferences();
-        addTextChangedListeners();
-        executeCommentSuggestion();
-    }
-
-    @Override
-    public void onPause() {
-        removeTextChangedListeners();
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroyView() {
-        unbinder.unbind();
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == this.sharedPreferences)
-            setEditTextFromSharedPreferences(key);
-    }
-
-    @Override
-    public void onOcrResult(String result) throws NoNotificationManagerException {
-        if (isVisible())
-            presentOcrResult(result);
-        else {
-            sharedPreferencesHandler.set(R.string.pref_ocr_result_key, result);
-            new OcrNotifier().showNotification(app);
+    void takePhoto() {
+        Activity activity = getActivity();
+        CameraStarter cameraStarter = new CameraStarter(activity);
+        final String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+        if (!cameraStarter.canTakePhoto(ocrKey))
+            return;
+        try {
+            cameraStarter.startCameraActivity(sharedPreferencesHandler);
+        } catch (NoPictureException e) {
+            Toast.makeText(activity, new ErrorMessage(activity).getErrorMessage(e.getMessage()), LENGTH_LONG).show();
         }
     }
 
-    private void setOnCheckedChangeListener() {
-        setRadioGroupListener(radioGroup1, radioGroup2);
-        setRadioGroupListener(radioGroup2, radioGroup1);
-    }
-
-    private void setRadioGroupListener(RadioGroup group, RadioGroup otherGroup) {
-        group.setOnCheckedChangeListener((dummy, checkedId) -> {
-            if (checkedId != -1 && radioChangingDone) {
-                radioChangingDone = false;
-                otherGroup.clearCheck();
-                sharedPreferencesHandler.set(R.string.pref_denomination_key, getDenomination());
-            }
-            radioChangingDone = true;
-        });
-    }
-
-    void setViewValuesFromPreferences() {
-        setIfNotEqual(countryText, R.string.pref_country_key);
-        setIfNotEqual(cityText, R.string.pref_city_key);
-        setIfNotEqual(postalCodeText, R.string.pref_postal_code_key);
-        setRadioButtons();
-        setEditText(shortCodeText, R.string.pref_short_code_key);
-        setEditText(serialText, R.string.pref_serial_number_key);
-        setComment();
-    }
-
-    private void setIfNotEqual(EditText editText, int keyId) {
-        String value = sharedPreferencesHandler.get(keyId, "");
-        if (!TextUtils.equals(value, editText.getText()))
-            editText.setText(value);
-    }
-
-    private void setRadioButtons() {
-        setDenomination(sharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5)));
-    }
-
-    private void setEditText(EditText editText, int keyId) {
-        editText.setText(sharedPreferencesHandler.get(keyId, ""));
-
-    }
-
-    private void setComment() {
-        String comment = sharedPreferencesHandler.get(R.string.pref_comment_key, "");
-        String additionalComment = dataStore.get(R.string.pref_settings_comment_key, "");
-        if (comment.endsWith(additionalComment))
-            commentText.setText(comment.substring(0, comment.length() - additionalComment.length()));
-        else
-            commentText.setText(comment);
-    }
-
-    private void addTextChangedListeners() {
-        locationTextWatcher = new LocationTextWatcher();
-        countryText.addTextChangedListener(locationTextWatcher);
-        cityText.addTextChangedListener(locationTextWatcher);
-        postalCodeText.addTextChangedListener(locationTextWatcher);
-        countryText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
-        cityText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
-        postalCodeText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
-        shortCodeText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
-        serialText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
-        commentText.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
-    }
-
-    private void removeTextChangedListeners() {
-        countryText.removeTextChangedListener(locationTextWatcher);
-        cityText.removeTextChangedListener(locationTextWatcher);
-        postalCodeText.removeTextChangedListener(locationTextWatcher);
-        locationTextWatcher = null;
-    }
-
-    @OnClick(R.id.submit_button)
     void submitButtonClicked() {
         Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
         submitNoteData();
-        shortCodeText.setText("");
-        serialText.setText("");
+        binding.editTextShortCode.setText("");
+        binding.editTextSerial.setText("");
     }
 
     private void submitNoteData() {
@@ -309,7 +139,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                 getDenomination(),
                 getFixedShortCode().toUpperCase(),
                 getSerialNumber().toUpperCase(),
-                commentText.getText().toString());
+                binding.editTextComment.getText().toString());
         noteData = getNoteDataWithAdditionalComment(noteData);
         new NoteDataSubmitter(app, apiCaller, submissionResultHandler).execute(noteData);
     }
@@ -328,21 +158,40 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @NotNull
     private String getCountry() {
-        return countryText.getText().toString();
+        return binding.editTextCountry.getText().toString();
     }
 
     @NotNull
     private String getCity() {
-        return cityText.getText().toString();
+        return binding.editTextCity.getText().toString();
     }
 
     @NotNull
     private String getPostalCode() {
-        return postalCodeText.getText().toString();
+        return binding.editTextPostalCode.getText().toString();
+    }
+
+    @NonNull
+    private String getDenomination() {
+        if (binding.radio5.isChecked())
+            return getString(R.string.eur5);
+        if (binding.radio10.isChecked())
+            return getString(R.string.eur10);
+        if (binding.radio20.isChecked())
+            return getString(R.string.eur20);
+        if (binding.radio50.isChecked())
+            return getString(R.string.eur50);
+        if (binding.radio100.isChecked())
+            return getString(R.string.eur100);
+        if (binding.radio200.isChecked())
+            return getString(R.string.eur200);
+        if (binding.radio500.isChecked())
+            return getString(R.string.eur500);
+        return "";
     }
 
     private String getFixedShortCode() {
-        String shortCode = shortCodeText.getText().toString();
+        String shortCode = binding.editTextShortCode.getText().toString();
         shortCode = removeNonWordCharacters(shortCode);
         shortCode = fixLeadingZeros(shortCode);
         return shortCode;
@@ -350,7 +199,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     @NotNull
     private String getSerialNumber() {
-        return removeNonWordCharacters(serialText.getText().toString());
+        return removeNonWordCharacters(binding.editTextSerial.getText().toString());
     }
 
     @NotNull
@@ -367,166 +216,15 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         return shortCode;
     }
 
-    @OnClick(R.id.location_button)
-    void locationButtonClicked() {
-        locationButtonHandler.clicked();
-    }
-
-    private void setEditTextFromSharedPreferences(String key) {
-        String newValue = sharedPreferences.getString(key, "");
-        EditText editText = getEditText(key);
-        if (editText != null && !TextUtils.isEmpty(newValue) &&
-                newValue != null && !newValue.equals(editText.getText().toString()))
-            editText.setText(newValue);
-    }
-
-    private EditText getEditText(String prefRes) {
-        if (prefRes.equals(app.getString(R.string.pref_country_key)))
-            return countryText;
-        if (prefRes.equals(app.getString(R.string.pref_city_key)))
-            return cityText;
-        if (prefRes.equals(app.getString(R.string.pref_postal_code_key)))
-            return postalCodeText;
-        if (prefRes.equals(app.getString(R.string.pref_short_code_key)))
-            return shortCodeText;
-        if (prefRes.equals(app.getString(R.string.pref_serial_number_key)))
-            return serialText;
-        if (prefRes.equals(app.getString(R.string.pref_comment_key)))
-            return commentText;
-        return null;
-    }
-
-    @NonNull
-    private String getDenomination() {
-        if (eur5Radio.isChecked())
-            return getString(R.string.eur5);
-        if (eur10Radio.isChecked())
-            return getString(R.string.eur10);
-        if (eur20Radio.isChecked())
-            return getString(R.string.eur20);
-        if (eur50Radio.isChecked())
-            return getString(R.string.eur50);
-        if (eur100Radio.isChecked())
-            return getString(R.string.eur100);
-        if (eur200Radio.isChecked())
-            return getString(R.string.eur200);
-        if (eur500Radio.isChecked())
-            return getString(R.string.eur500);
-        return "";
-    }
-
-    private void setDenomination(String denomination) {
-        if (denomination.equals(getString(R.string.eur5)))
-            eur5Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur10)))
-            eur10Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur20)))
-            eur20Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur50)))
-            eur50Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur100)))
-            eur100Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur200)))
-            eur200Radio.setChecked(true);
-        if (denomination.equals(getString(R.string.eur500)))
-            eur500Radio.setChecked(true);
-    }
-
-    @OnClick(R.id.photo_button)
-    void takePhoto() {
-        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        if (!canTakePhoto(intent))
-            return;
-        try {
-            startCameraActivity(intent);
-        } catch (NoPictureException e) {
-            Activity activity = getActivity();
-            Toast.makeText(activity, new ErrorMessage(activity).getErrorMessage(e.getMessage()), LENGTH_LONG).show();
-        }
-    }
-
-    private boolean canTakePhoto(Intent intent) {
-        Activity activity = getActivity();
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        FragmentActivity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        if (intent.resolveActivity(activity.getPackageManager()) == null) {
-            Toast.makeText(activity, getString(R.string.no_camera_activity), LENGTH_LONG).show();
-            return false;
-        }
-        if (checkSelfPermission(app, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
-            return false;
-        }
-        if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
-            showDialogNoOcrServiceKey(activity);
-            return false;
-        }
-        return true;
-    }
-
-    private void showDialogNoOcrServiceKey(Activity activity) {
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.ocr_no_service_key)
-                .setMessage(app.getString(R.string.settings_ocr_summary) + "." +
-                        app.getString(R.string.redirect_to_settings) + app.getString(R.string.get_ocr_key))
-                .setPositiveButton(getString(R.string.ok),
-                        (dialog, which) -> {
-                            startActivity(new Intent(activity.getApplicationContext(),
-                                    SettingsActivity.class));
-                            dialog.dismiss();
-                        })
-                .show();
-    }
-
-    private void startCameraActivity(Intent intent) throws NoPictureException {
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        File photoFile = createImageFile();
-        String photoPath = photoFile.getAbsolutePath();
-        Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
-        sharedPreferencesHandler.set(R.string.pref_photo_path_key, photoPath);
-        sharedPreferencesHandler.set(R.string.pref_photo_uri_key, photoUri.toString());
-        intent.putExtra(EXTRA_OUTPUT, photoUri);
-        activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
-    }
-
-    private File createImageFile() throws NoPictureException {
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        File tempFolder = activity.getExternalFilesDir(DIRECTORY_PICTURES);
-        if (tempFolder == null)
-            throw new NoPictureException("R.string.error_creating_file: Error getting picture directory");
-        deleteOldPhotos(tempFolder);
-        return createTempPhotoFile(tempFolder);
-    }
-
-    private void deleteOldPhotos(@NonNull File tempFolder) {
-        for (File file : Objects.requireNonNull(tempFolder.listFiles()))
-            if (fileIsOld(file))
-                if (!file.delete())
-                    Log.w(TAG, "deleteOldPhotos: Could not delete file " + file.getAbsolutePath());
-    }
-
-    private boolean fileIsOld(File file) {
-        return Calendar.getInstance().getTimeInMillis() - file.lastModified() > TIME_THRESHOLD_DELETE_OLD_PICS_MS;
-    }
-
-    @NotNull
-    private File createTempPhotoFile(File tempFolder) throws NoPictureException {
-        try {
-            return createTempFile("bill_", ".png", tempFolder);
-        } catch (IOException e) {
-            throw new NoPictureException("R.string.error_creating_file: " + e.getMessage());
-        }
-    }
-
-    void setCommentsAdapter(String[] suggestions) {
-        Activity activity = getActivity();
-        if (activity != null)
-            commentText.setAdapter(new ArrayAdapter<>(activity,
-                    android.R.layout.simple_dropdown_item_1line, suggestions));
+        LoginChecker.checkLoginInfo(activity);
+        checkOcrResult();
+        ((Callback) activity).onSubmitFragmentAdded();
     }
 
     private void checkOcrResult() {
@@ -559,9 +257,9 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private void replaceShortCodeOrSerialNumber(String ocrResult) {
         if (ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
-            replaceText(ocrResult, serialText);
+            replaceText(ocrResult, binding.editTextSerial);
         else
-            replaceText(ocrResult, shortCodeText);
+            replaceText(ocrResult, binding.editTextShortCode);
         Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
     }
 
@@ -589,6 +287,114 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         }
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setOnCheckedChangeListener();
+        setTooltipText(binding.locationButton, getString(R.string.get_location));
+        setTooltipText(binding.photoButton, getString(R.string.acquire));
+//        SharedPreferencesStringViewModel viewModel = viewModelProvider.get(SharedPreferencesStringViewModel.class);
+//        viewModel.getCountry(app, app.getString(R.string.pref_country_key)).observe(getViewLifecycleOwner(),
+//                observer -> {
+//            binding.editTextCountry.setText(observer);
+//        });
+    }
+
+    private void setOnCheckedChangeListener() {
+        setRadioGroupListener(binding.radioGroup1, binding.radioGroup2);
+        setRadioGroupListener(binding.radioGroup2, binding.radioGroup1);
+    }
+
+    private void setRadioGroupListener(RadioGroup group, RadioGroup otherGroup) {
+        group.setOnCheckedChangeListener((dummy, checkedId) -> {
+            if (checkedId != -1 && radioChangingDone) {
+                radioChangingDone = false;
+                otherGroup.clearCheck();
+                sharedPreferencesHandler.set(R.string.pref_denomination_key, getDenomination());
+            }
+            radioChangingDone = true;
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        setViewValuesFromPreferences();
+        addTextChangedListeners();
+        executeCommentSuggestion();
+    }
+
+    void setViewValuesFromPreferences() {
+        setIfNotEqual(binding.editTextCountry, R.string.pref_country_key);
+        setIfNotEqual(binding.editTextCity, R.string.pref_city_key);
+        setIfNotEqual(binding.editTextPostalCode, R.string.pref_postal_code_key);
+        setRadioButtons();
+        setEditText(binding.editTextShortCode, R.string.pref_short_code_key);
+        setEditText(binding.editTextSerial, R.string.pref_serial_number_key);
+        setComment();
+    }
+
+    private void setIfNotEqual(EditText editText, int keyId) {
+        String value = sharedPreferencesHandler.get(keyId, "");
+        if (!TextUtils.equals(value, editText.getText()))
+            editText.setText(value);
+    }
+
+    private void setRadioButtons() {
+        setDenomination(sharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5)));
+    }
+
+    private void setDenomination(String denomination) {
+        if (denomination.equals(getString(R.string.eur5)))
+            binding.radio5.setChecked(true);
+        if (denomination.equals(getString(R.string.eur10)))
+            binding.radio10.setChecked(true);
+        if (denomination.equals(getString(R.string.eur20)))
+            binding.radio20.setChecked(true);
+        if (denomination.equals(getString(R.string.eur50)))
+            binding.radio50.setChecked(true);
+        if (denomination.equals(getString(R.string.eur100)))
+            binding.radio100.setChecked(true);
+        if (denomination.equals(getString(R.string.eur200)))
+            binding.radio200.setChecked(true);
+        if (denomination.equals(getString(R.string.eur500)))
+            binding.radio500.setChecked(true);
+    }
+
+    private void setEditText(EditText editText, int keyId) {
+        editText.setText(sharedPreferencesHandler.get(keyId, ""));
+
+    }
+
+    private void setComment() {
+        String comment = sharedPreferencesHandler.get(R.string.pref_comment_key, "");
+        String additionalComment = dataStore.get(R.string.pref_settings_comment_key, "");
+        if (comment.endsWith(additionalComment))
+            binding.editTextComment.setText(comment.substring(0, comment.length() - additionalComment.length()));
+        else
+            binding.editTextComment.setText(comment);
+    }
+
+    private void addTextChangedListeners() {
+        locationTextWatcher = new LocationTextWatcher();
+        binding.editTextCountry.addTextChangedListener(locationTextWatcher);
+        binding.editTextCity.addTextChangedListener(locationTextWatcher);
+        binding.editTextPostalCode.addTextChangedListener(locationTextWatcher);
+        binding.editTextCountry.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
+        binding.editTextCity.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
+        binding.editTextPostalCode.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
+        binding.editTextShortCode.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
+        binding.editTextSerial.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
+        binding.editTextComment.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
+    }
+
     private void executeCommentSuggestion() {
         if (!sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
@@ -597,6 +403,73 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
                         getCountry(),
                         getCity(),
                         getPostalCode()));
+    }
+
+    @Override
+    public void onPause() {
+        removeTextChangedListeners();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+
+    private void removeTextChangedListeners() {
+        binding.editTextCountry.removeTextChangedListener(locationTextWatcher);
+        binding.editTextCity.removeTextChangedListener(locationTextWatcher);
+        binding.editTextPostalCode.removeTextChangedListener(locationTextWatcher);
+        locationTextWatcher = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == this.sharedPreferences)
+            setEditTextFromSharedPreferences(key);
+    }
+
+    private void setEditTextFromSharedPreferences(String key) {
+        String newValue = sharedPreferences.getString(key, "");
+        EditText editText = getEditText(key);
+        if (editText != null && !TextUtils.isEmpty(newValue) &&
+                newValue != null && !newValue.equals(editText.getText().toString()))
+            editText.setText(newValue);
+    }
+
+    private EditText getEditText(String prefRes) {
+        if (prefRes.equals(app.getString(R.string.pref_country_key)))
+            return binding.editTextCountry;
+        if (prefRes.equals(app.getString(R.string.pref_city_key)))
+            return binding.editTextCity;
+        if (prefRes.equals(app.getString(R.string.pref_postal_code_key)))
+            return binding.editTextPostalCode;
+        if (prefRes.equals(app.getString(R.string.pref_short_code_key)))
+            return binding.editTextShortCode;
+        if (prefRes.equals(app.getString(R.string.pref_serial_number_key)))
+            return binding.editTextSerial;
+        if (prefRes.equals(app.getString(R.string.pref_comment_key)))
+            return binding.editTextComment;
+        return null;
+    }
+
+    @Override
+    public void onOcrResult(String result) throws NoNotificationManagerException {
+        if (isVisible())
+            presentOcrResult(result);
+        else {
+            sharedPreferencesHandler.set(R.string.pref_ocr_result_key, result);
+            new OcrNotifier().showNotification(app);
+        }
+    }
+
+    void setCommentsAdapter(String[] suggestions) {
+        Activity activity = getActivity();
+        if (activity != null)
+            binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
+                    android.R.layout.simple_dropdown_item_1line, suggestions));
     }
 
     public interface Callback {
@@ -614,7 +487,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
         @Override
         public void afterTextChanged(Editable s) {
-            commentText.setText("");
+            binding.editTextComment.setText("");
             executeCommentSuggestion();
         }
     }
