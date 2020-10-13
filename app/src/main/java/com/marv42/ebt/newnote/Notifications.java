@@ -18,6 +18,12 @@ import androidx.core.app.NotificationCompat;
 import org.jetbrains.annotations.NotNull;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.graphics.Color.RED;
+import static android.graphics.Color.YELLOW;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
 public class Notifications {
@@ -32,12 +38,14 @@ public class Notifications {
 
     @NotNull
     public static NotificationChannel getNotificationChannel(String channelId, String name) {
-//            notificationChannel.setDescription("Channel description");
-//            notificationChannel.enableLights(true);
-//            notificationChannel.setLightColor(Color.RED);
-//            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-//            notificationChannel.enableVibration(true);
-        return new NotificationChannel(channelId, name, IMPORTANCE_DEFAULT);
+        final NotificationChannel channel = new NotificationChannel(channelId, name, IMPORTANCE_DEFAULT);
+//        channel.setDescription("Channel description");
+        // TODO geht net
+        channel.enableLights(true);
+        channel.setLightColor(YELLOW);
+        channel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+        channel.enableVibration(true);
+        return channel;
     }
 
     public static NotificationCompat.Builder createBuilder(
@@ -50,9 +58,9 @@ public class Notifications {
                 .setContentIntent(intent);
     }
 
-    public static PendingIntent getPendingIntent(ThisApp app, String className) {
+    public static PendingIntent getPendingIntent(ThisApp app, Class<?> className) {
         Intent intent = new Intent(app, EbtNewNote.class);
-        intent.putExtra(FRAGMENT_TYPE, className);
-        return PendingIntent.getActivity(app, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra(FRAGMENT_TYPE, className.getSimpleName());
+        return PendingIntent.getActivity(app, REQUEST_CODE, intent, FLAG_UPDATE_CURRENT);
     }
 }

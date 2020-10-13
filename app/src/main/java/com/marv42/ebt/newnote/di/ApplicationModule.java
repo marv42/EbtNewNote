@@ -11,11 +11,13 @@ package com.marv42.ebt.newnote.di;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.ResultsViewModel;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
@@ -64,20 +66,6 @@ abstract class ApplicationModule {
     @Singleton
     static ApiCaller provideApiCaller(EncryptedPreferenceDataStore dataStore) {
         return new ApiCaller(dataStore);
-    }
-
-    @Provides
-    @Singleton
-    static AllResults provideSubmissionResults(
-            @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore) {
-        return new AllResults(app, dataStore);
-    }
-
-    @Provides
-    @Singleton
-    static SubmissionResultHandler provideSubmissionResultHandler(
-            @NonNull ThisApp app, @NonNull AllResults allResults) {
-        return new SubmissionResultHandler(app, allResults);
     }
 
     @ActivityScope

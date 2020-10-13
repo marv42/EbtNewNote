@@ -23,12 +23,15 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,17 +57,91 @@ public class EbtNewNote extends DaggerAppCompatActivity
     EncryptedPreferenceDataStore dataStore;
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
+    @Inject
+    SubmissionResultHandler submissionResultHandler;
     private SubmitFragment submitFragment = null;
     private SubmittedFragment submittedFragment = null;
     private int fragmentToSwitchTo = -1;
     private String[] commentSuggestions;
+    private boolean isDualPane = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLayout();
+        setDualPane();
         setFragments();
-        checkSwitching();
+    }
+
+    private void setLayout() {
+        applyStyle();
+        setContentView(R.layout.main);
+    }
+
+    private void applyStyle() {
+        Resources.Theme theme = getTheme();
+        TypedValue colorAccentValue = new TypedValue();
+        if (theme.resolveAttribute(android.R.attr.colorAccent, colorAccentValue, true)) {
+            @ColorRes int colorRes = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
+            @ColorInt int color = ContextCompat.getColor(this, colorRes);
+            theme.applyStyle(color, true);
+        }
+    }
+
+    @Nullable
+    private void setDualPane() {
+        ViewPager pager = findViewById(R.id.view_pager);
+        if (pager == null)
+            isDualPane = true;
+    }
+
+    private void setFragments() {
+        ViewPager pager = findViewById(R.id.view_pager);
+        if (isDualPane) {
+            final FragmentManager manager = getSupportFragmentManager();
+            submitFragment = (SubmitFragment) manager.findFragmentById(R.id.submit_fragment);
+            submittedFragment = (SubmittedFragment) manager.findFragmentById(R.id.submitted_fragment);
+        }
+        else {
+            FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
+            pager.setAdapter(adapter);
+            setupTabLayout(pager);
+
+            adapter.startUpdate(pager);
+            instantiateFragments(adapter, pager);
+            adapter.finishUpdate(pager);
+        }
+    }
+
+    private void setupTabLayout(ViewPager pager) {
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(pager);
+    }
+
+    private void instantiateFragments(FragmentWithTitlePagerAdapter adapter, ViewPager pager) {
+        submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
+        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        submissionResultHandler.reset();
+        if (!isDualPane) {
+            checkFragmentToSwitchTo(intent);
+            checkSwitchFragment();
+        }
+    }
+
+    private void checkFragmentToSwitchTo(Intent intent) {
+        eventuallySetFragmentToSwitchTo(intent, SubmitFragment.class.getSimpleName(), SUBMIT_FRAGMENT_INDEX);
+        eventuallySetFragmentToSwitchTo(intent, SubmittedFragment.class.getSimpleName(), SUBMITTED_FRAGMENT_INDEX);
+    }
+
+    private void eventuallySetFragmentToSwitchTo(Intent intent, String fragmentClassName, int fragmentIndex) {
+        Bundle extras = intent.getExtras();
+        if (extras != null && fragmentClassName.equals(extras.getString(FRAGMENT_TYPE)))
+            fragmentToSwitchTo = fragmentIndex;
     }
 
     @Override
@@ -74,18 +151,27 @@ public class EbtNewNote extends DaggerAppCompatActivity
         return true;
     }
 
+    private void inflateMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
+        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
-                String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
-                String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path, "");
-                Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri, ""));
-                new OcrHandler(submitFragment, photoPath, photoUri, getContentResolver(), apiKey).execute();
-            }
-        }
+        if (requestCode == IMAGE_CAPTURE_REQUEST_CODE)
+            if (resultCode == RESULT_OK)
+                processPhoto();
+    }
+
+    private void processPhoto() {
+        Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
+        String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+        String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
+        Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
+        new OcrHandler(submitFragment, photoPath, photoUri, getContentResolver(), apiKey).execute();
     }
 
     @Override
@@ -109,19 +195,25 @@ public class EbtNewNote extends DaggerAppCompatActivity
             submitFragment.setCommentsAdapter(commentSuggestions);
             commentSuggestions = null;
         }
-        checkSwitchFragments(SUBMIT_FRAGMENT_INDEX);
+        checkSwitchFragment();
     }
 
     @Override
     public void onSubmittedFragmentAdded() {
-        checkSwitchFragments(SUBMITTED_FRAGMENT_INDEX);
+        checkSwitchFragment();
     }
 
-    private void checkSwitchFragments(int fragmentIndex) {
-        if (fragmentToSwitchTo == fragmentIndex) {
-            switchFragment(fragmentIndex);
-            fragmentToSwitchTo = -1;
-        }
+    private void checkSwitchFragment() {
+        checkSwitchFragment(SUBMIT_FRAGMENT_INDEX);
+        checkSwitchFragment(SUBMITTED_FRAGMENT_INDEX);
+    }
+
+    private void checkSwitchFragment(int fragmentIndex) {
+        if (!isDualPane)
+            if (fragmentToSwitchTo == fragmentIndex) {
+                switchFragment(fragmentIndex);
+                fragmentToSwitchTo = -1;
+            }
     }
 
     @Override
@@ -138,77 +230,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
             commentSuggestions = suggestions;
     }
 
-    private void setLayout() {
-        applyStyle();
-        setContentView(R.layout.main);
-    }
-
-    private void applyStyle() {
-        Resources.Theme theme = getTheme();
-        TypedValue colorAccentValue = new TypedValue();
-        if (theme.resolveAttribute(android.R.attr.colorAccent, colorAccentValue, true)) {
-            @ColorRes int colorRes = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
-            @ColorInt int color = ContextCompat.getColor(this, colorRes);
-            theme.applyStyle(color, true);
-        }
-    }
-
-    private void setFragments() {
-        FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
-        ViewPager pager = findViewById(R.id.view_pager);
-        pager.setAdapter(adapter);
-        setupTabLayout(pager);
-
-        adapter.startUpdate(pager);
-        instantiateFragments(adapter, pager);
-        adapter.finishUpdate(pager);
-
-        addOnPageChangeListener(pager);
-    }
-
-    private void setupTabLayout(ViewPager pager) {
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(pager);
-    }
-
-    private void instantiateFragments(FragmentWithTitlePagerAdapter adapter, ViewPager pager) {
-        submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
-        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
-    }
-
-    private void addOnPageChangeListener(ViewPager pager) {
-        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                if (position == SUBMIT_FRAGMENT_INDEX)
-                    submitFragment.setViewValuesFromPreferences();
-                else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                    submittedFragment.refreshResults();
-                }
-            }
-        });
-    }
-
-    private void checkSwitching() {
-        eventuallySetFragmentToSwitchTo(SubmittedFragment.class.getSimpleName(), SUBMITTED_FRAGMENT_INDEX);
-        eventuallySetFragmentToSwitchTo(SubmitFragment.class.getSimpleName(), SUBMIT_FRAGMENT_INDEX);
-    }
-
-    private void eventuallySetFragmentToSwitchTo(String fragmentClassName, int fragmentIndex) {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null && fragmentClassName.equals(extras.getString(FRAGMENT_TYPE)))
-            fragmentToSwitchTo = fragmentIndex;
-    }
-
-    private void inflateMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
-        menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
-    }
-
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
+
         private final List<String> fragmentTitles = new ArrayList<>();
 
         FragmentWithTitlePagerAdapter() {

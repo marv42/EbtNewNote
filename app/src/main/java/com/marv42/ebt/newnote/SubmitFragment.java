@@ -172,6 +172,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         setOnCheckedChangeListener();
         setTooltipText(locationButton, getString(R.string.get_location));
         setTooltipText(photoButton, getString(R.string.acquire));
+//        SharedPreferencesStringViewModel viewModel = viewModelProvider.get(SharedPreferencesStringViewModel.class);
+//        viewModel.getCountry(app, app.getString(R.string.pref_country_key)).observe(getViewLifecycleOwner(),
+//                observer -> {
+//            countryText.setText(observer);
+//        });
     }
 
     @Override
@@ -207,7 +212,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (isVisible())
             presentOcrResult(result);
         else {
-            sharedPreferencesHandler.set(R.string.pref_ocr_result, result);
+            sharedPreferencesHandler.set(R.string.pref_ocr_result_key, result);
             new OcrNotifier().showNotification(app);
         }
     }
@@ -480,8 +485,8 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         File photoFile = createImageFile();
         String photoPath = photoFile.getAbsolutePath();
         Uri photoUri = getUriForFile(activity, activity.getPackageName(), photoFile);
-        sharedPreferencesHandler.set(R.string.pref_photo_path, photoPath);
-        sharedPreferencesHandler.set(R.string.pref_photo_uri, photoUri.toString());
+        sharedPreferencesHandler.set(R.string.pref_photo_path_key, photoPath);
+        sharedPreferencesHandler.set(R.string.pref_photo_uri_key, photoUri.toString());
         intent.putExtra(EXTRA_OUTPUT, photoUri);
         activity.startActivityForResult(intent, IMAGE_CAPTURE_REQUEST_CODE);
     }
@@ -525,7 +530,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     private void checkOcrResult() {
-        String ocrResult = sharedPreferencesHandler.get(R.string.pref_ocr_result, "");
+        String ocrResult = sharedPreferencesHandler.get(R.string.pref_ocr_result_key, "");
         if (!TextUtils.isEmpty(ocrResult))
             presentOcrResult(ocrResult);
     }
@@ -533,7 +538,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void presentOcrResult(String ocrResult) {
         vibrate();
         showOcrResult(ocrResult);
-        sharedPreferencesHandler.set(R.string.pref_ocr_result, "");
+        sharedPreferencesHandler.set(R.string.pref_ocr_result_key, "");
     }
 
     private void vibrate() {

@@ -23,7 +23,9 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
@@ -58,16 +60,14 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     private static final String COMMENT = "comment";
     private static final int MENU_ITEM_EDIT = 0;
     private static final int MENU_ITEM_SHOW = 1;
-
+    @Inject
+    ViewModelProvider viewModelProvider;
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
-    AllResults allResults;
-    @Inject
     EncryptedPreferenceDataStore dataStore;
-    @Inject
-    SubmissionResultHandler submissionResultHandler;
     private ExpandableListView listView;
+    private ArrayList<SubmissionResult> results;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,49 +77,17 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     }
 
     @Override
-    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        if (submissionResult.mBillId > 0)
-            menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViewModels();
     }
 
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        switch (item.getItemId()) {
-            case MENU_ITEM_EDIT:
-                startNewNote(submissionResult.mNoteData);
-                return true;
-            case MENU_ITEM_SHOW:
-                showInBrowser(submissionResult.mBillId);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Activity activity = getActivity();
-        if (activity != null)
-            ((Callback) activity).onSubmittedFragmentAdded();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        submissionResultHandler.reset();
-        refreshResults();
-    }
-
-    private SubmissionResult getSubmissionResult(long packedPosition) {
-        int group = ExpandableListView.getPackedPositionGroup(packedPosition);
-        return allResults.getResults().get(group);
+    private void setupViewModels() {
+        ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
+        viewModel.getResults().observe(getViewLifecycleOwner(), observer -> {
+            results = observer;
+            refreshResults();
+        });
     }
 
     void refreshResults() {
@@ -141,31 +109,15 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     }
 
     private void scrollToLast() {
-        ArrayList<SubmissionResult> results = allResults.getResults();
         listView.setSelection(results.size());
     }
 
     @NotNull
-    private Boolean shouldShowImages() {
-        return dataStore.get(R.string.pref_settings_images, false);
-    }
-
-    @NotNull
     private List<Map<String, String>> getGroupData() {
-        ArrayList<SubmissionResult> results = allResults.getResults();
         List<Map<String, String>> groupData = new ArrayList<>();
         for (SubmissionResult sr : results)
             addGroupData(groupData, sr);
         return groupData;
-    }
-
-    @NotNull
-    private List<List<Map<String, String>>> getChildData() {
-        ArrayList<SubmissionResult> results = allResults.getResults();
-        List<List<Map<String, String>>> childData = new ArrayList<>();
-        for (SubmissionResult sr : results)
-            addChildData(childData, sr);
-        return childData;
     }
 
     private void addGroupData(List<Map<String, String>> groupData, SubmissionResult sr) {
@@ -190,6 +142,14 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         return groupMap;
     }
 
+    @NotNull
+    private List<List<Map<String, String>>> getChildData() {
+        List<List<Map<String, String>>> childData = new ArrayList<>();
+        for (SubmissionResult sr : results)
+            addChildData(childData, sr);
+        return childData;
+    }
+
     private void addChildData(List<List<Map<String, String>>> childData, SubmissionResult sr) {
         String reason = getReason(sr);
         String denomination = sr.mNoteData.mDenomination;
@@ -202,6 +162,23 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         String location = getString(R.string.location) + ": " + getLocation(sr.mNoteData);
         List<Map<String, String>> children = getChildMap(reason, note, comment, location);
         childData.add(children);
+    }
+
+    private String getReason(SubmissionResult result) {
+        Activity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        return result.isSuccessful(activity) ?
+                getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
+                        getColor(activity, R.color.success)) :
+                getColoredString(new ErrorMessage(activity).getErrorMessage(result.mReason),
+                        getColor(activity, R.color.failed));
+    }
+
+    private String getLocation(NoteData noteData) {
+        String postalCode = noteData.mPostalCode;
+        postalCode = postalCode.length() > 0 ? " (" + postalCode + ") " : " ";
+        return noteData.mCity + postalCode + noteData.mCountry;
     }
 
     @NotNull
@@ -224,6 +201,7 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
             return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
     }
 
+    @NotNull
     private int[] getGroupTo() {
         if (shouldShowImages())
             return new int[]{R.id.list_place_holder,
@@ -238,21 +216,35 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
                     R.id.list_result};
     }
 
-    private String getLocation(NoteData noteData) {
-        String postalCode = noteData.mPostalCode;
-        postalCode = postalCode.length() > 0 ? " (" + postalCode + ") " : " ";
-        return noteData.mCity + postalCode + noteData.mCountry;
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
+        if (submissionResult.mBillId > 0)
+            menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
 
-    private String getReason(SubmissionResult result) {
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        return result.isSuccessful(activity) ?
-                getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
-                        getColor(activity, R.color.success)) :
-                getColoredString(new ErrorMessage(activity).getErrorMessage(result.mReason),
-                        getColor(activity, R.color.failed));
+    private SubmissionResult getSubmissionResult(long packedPosition) {
+        int group = ExpandableListView.getPackedPositionGroup(packedPosition);
+        return results.get(group);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        switch (item.getItemId()) {
+            case MENU_ITEM_EDIT:
+                startNewNote(submissionResult.mNoteData);
+                return true;
+            case MENU_ITEM_SHOW:
+                showInBrowser(submissionResult.mBillId);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     private void startNewNote(NoteData noteData) {
@@ -276,6 +268,19 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     private void showInBrowser(int billId) {
         final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + billId);
         startActivity(new Intent(ACTION_VIEW, uri));
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Activity activity = getActivity();
+        if (activity != null)
+            ((Callback) activity).onSubmittedFragmentAdded();
+    }
+
+    @NotNull
+    private Boolean shouldShowImages() {
+        return dataStore.get(R.string.pref_settings_images, false);
     }
 
     public interface Callback {

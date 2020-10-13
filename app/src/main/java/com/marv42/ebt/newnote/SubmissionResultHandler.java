@@ -31,9 +31,9 @@ import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
 
 public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
 
-    private ThisApp app;
-    private AllResults allResults;
-    private ArrayList<SubmissionResult> notifiedResults = new ArrayList<>();
+    private final ThisApp app;
+    private final AllResults allResults;
+    private final ArrayList<SubmissionResult> notifiedResults = new ArrayList<>();
 
     @Inject
     public SubmissionResultHandler(@NonNull ThisApp app, @NonNull AllResults allResults) {
@@ -76,7 +76,7 @@ public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
         NotificationTexts notificationText = new NotificationTexts(app);
         final CharSequence contentTitle = notificationText.getContentTitle(notifiedResults);
         final CharSequence content = notificationText.getContent(allResults.getResults());
-        PendingIntent contentIntent = getPendingIntent(app, SubmittedFragment.class.getSimpleName());
-        return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, contentIntent);
+        PendingIntent intent = getPendingIntent(app, SubmittedFragment.class);
+        return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, intent);
     }
 }

@@ -10,12 +10,13 @@ package com.marv42.ebt.newnote;
 
 import android.text.TextUtils;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.inject.Inject;
 
@@ -24,13 +25,32 @@ import static com.google.gson.JsonParser.parseString;
 
 public class AllResults {
 
-    private ThisApp app;
+    private final ThisApp app;
+    private final ViewModelProvider viewModelProvider;
     private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
-    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore) {
+    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore,
+                      ViewModelProvider viewModelProvider) {
         this.app = app;
+        this.viewModelProvider= viewModelProvider;
         setResults(dataStore);
+        setResultsToViewModel();
+    }
+
+    protected void setResults(EncryptedPreferenceDataStore dataStore) {
+        String resultsFromPreferences = loadFromPreferences();
+        if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
+            return;
+        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
+        }.getType());
+        results.sort(new SubmissionResult.SubmissionComparator());
+        setSubListWithMaxNum(dataStore);
+    }
+
+    private String loadFromPreferences() {
+        return getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results_key), "");
     }
 
     private void setSubListWithMaxNum(EncryptedPreferenceDataStore dataStore) {
@@ -41,25 +61,24 @@ public class AllResults {
         results = new ArrayList<>(results.subList(startIndex, startIndex + howMany));
     }
 
+    private void setResultsToViewModel() {
+        ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
+        viewModel.setResults(results);
+    }
+
     void addResult(final SubmissionResult aResult) {
         results.add(aResult);
+        setResultsToViewModel();
         if (aResult.isSuccessful(app))
-            getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results),
-                    new Gson().toJson(results)).apply();
+            saveToPreferences();
+    }
+
+    private void saveToPreferences() {
+        getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results_key),
+                new Gson().toJson(results)).apply();
     }
 
     ArrayList<SubmissionResult> getResults() {
         return results;
-    }
-
-    private void setResults(EncryptedPreferenceDataStore dataStore) {
-        String resultsFromPreferences = getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results), "");
-        if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
-            return;
-        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
-        }.getType());
-        Collections.sort(results, new SubmissionResult.SubmissionComparator());
-        setSubListWithMaxNum(dataStore);
     }
 }

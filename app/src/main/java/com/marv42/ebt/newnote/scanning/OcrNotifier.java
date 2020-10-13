@@ -43,7 +43,7 @@ public class OcrNotifier {
     private NotificationCompat.Builder getNotificationBuilder(ThisApp app) {
         final String title = app.getString(R.string.ocr_result);
         final String content = app.getString(R.string.ocr_result_description);
-        PendingIntent contentIntent = getPendingIntent(app, SubmitFragment.class.getSimpleName());
-        return createBuilder(app, OCR_CHANNEL_ID, title, content, contentIntent);
+        PendingIntent intent = getPendingIntent(app, SubmitFragment.class);
+        return createBuilder(app, OCR_CHANNEL_ID, title, content, intent);
     }
 }
