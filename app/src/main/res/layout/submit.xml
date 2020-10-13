@@ -47,7 +47,7 @@
                     android:id="@+id/edit_text_city"
                     android:autofillHints=""
                     android:hint="@string/city_hint"
-                    android:nextFocusDown="@+id/edit_text_zip"
+                    android:nextFocusDown="@+id/edit_text_postal_code"
                     android:singleLine="true"
                     android:inputType="textAutoComplete" />
             </TableRow>
@@ -55,11 +55,11 @@
                 <TextView android:text="@string/postal_code" />
                 <!-- AutoCompleteTextView  -->
                 <EditText
-                    android:id="@+id/edit_text_zip"
+                    android:id="@+id/edit_text_postal_code"
                     android:autofillHints="postalCode"
                     android:hint="@string/postal_code_hint"
                     android:inputType="textPostalAddress"
-                    android:nextFocusDown="@+id/edit_text_printer"
+                    android:nextFocusDown="@+id/edit_text_short_code"
                     android:singleLine="true" />
                 <ImageButton
                     android:id="@+id/location_button"
@@ -147,7 +147,7 @@
             <TableRow>
                 <TextView android:text="@string/short_code" />
                 <EditText
-                    android:id="@+id/edit_text_printer"
+                    android:id="@+id/edit_text_short_code"
                     android:maxLength="6"
                     android:autofillHints=""
                     android:hint="@string/short_code_hint"

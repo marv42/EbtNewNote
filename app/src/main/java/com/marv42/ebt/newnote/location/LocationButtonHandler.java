@@ -20,8 +20,6 @@ import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Inject;
 
-import butterknife.OnClick;
-
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.widget.Toast.LENGTH_LONG;
@@ -30,8 +28,9 @@ import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
 
 public class LocationButtonHandler {
-    private ThisApp app;
-    private Activity activity;
+
+    private final ThisApp app;
+    private final Activity activity;
 
     @Inject
     public LocationButtonHandler(ThisApp app, Activity activity) {
