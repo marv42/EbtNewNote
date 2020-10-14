@@ -152,7 +152,7 @@
                     android:autofillHints=""
                     android:hint="@string/short_code_hint"
                     android:inputType="textCapCharacters"
-                    android:nextFocusDown="@+id/edit_text_serial"
+                    android:nextFocusDown="@+id/edit_text_serial_number"
                     android:singleLine="true" />
 <!--                TODO android:ellipsize="marquee"
                          https://stackoverflow.com/a/7328941/542235 -->
@@ -160,7 +160,7 @@
             <TableRow>
                 <TextView android:text="@string/serial_number" />
                 <EditText
-                    android:id="@+id/edit_text_serial"
+                    android:id="@+id/edit_text_serial_number"
                     android:autofillHints=""
                     android:maxLength="14"
                     android:hint="@string/serial_number_hint"
