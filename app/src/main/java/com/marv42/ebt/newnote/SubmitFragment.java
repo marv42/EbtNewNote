@@ -344,18 +344,18 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         binding.editTextCountry.addTextChangedListener(locationTextWatcher);
         binding.editTextCity.addTextChangedListener(locationTextWatcher);
         binding.editTextPostalCode.addTextChangedListener(locationTextWatcher);
-        binding.editTextCountry.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
-        binding.editTextCity.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
-        binding.editTextPostalCode.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
-        binding.editTextShortCode.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
-        binding.editTextSerialNumber.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
-        binding.editTextComment.addTextChangedListener(
-                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
+        binding.editTextCountry.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_country_key)));
+        binding.editTextCity.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_city_key)));
+        binding.editTextPostalCode.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
+        binding.editTextShortCode.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
+        binding.editTextSerialNumber.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
+        binding.editTextComment.setOnFocusChangeListener(
+                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
     }
 
     private void executeCommentSuggestion() {
