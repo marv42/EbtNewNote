@@ -5,15 +5,7 @@
  which accompanies this distribution, and is available at
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
+package com.marv42.ebt.newnote.data
 
-package com.marv42.ebt.newnote.data;
-
-public class NoteInsertionData {
-    public final int billId;
-    public final int status;
-
-    public NoteInsertionData(final int billId, final int status) {
-        this.billId = billId;
-        this.status = status;
-    }
+class NoteInsertionData(@JvmField val billId: Int, @JvmField val status: Int) {
 }

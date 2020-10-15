@@ -7,27 +7,9 @@
  */
 package com.marv42.ebt.newnote.data
 
-class NoteData(country: String, city: String, postalCode: String,
-               denomination: String, shortCode: String, serialNumber: String, comment: String) {
-    // TODO If we rename these, we have to change the values in shared preferences
-    @JvmField
-    val mCountry: String = country
+// TODO If we rename these, we have to change the values in shared preferences
+class NoteData(@JvmField val mCountry: String, @JvmField val mCity: String, @JvmField val mPostalCode: String,
+               @JvmField val mDenomination: String, @JvmField val mShortCode: String, @JvmField val mSerialNumber: String,
+               @JvmField val mComment: String) {
 
-    @JvmField
-    val mCity: String = city
-
-    @JvmField
-    val mPostalCode: String = postalCode
-
-    @JvmField
-    val mDenomination: String = denomination
-
-    @JvmField
-    val mShortCode: String = shortCode
-
-    @JvmField
-    val mSerialNumber: String = serialNumber
-
-    @JvmField
-    val mComment: String = comment
 }
