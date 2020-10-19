@@ -40,11 +40,10 @@ public class Notifications {
     public static NotificationChannel getNotificationChannel(String channelId, String name) {
         final NotificationChannel channel = new NotificationChannel(channelId, name, IMPORTANCE_DEFAULT);
 //        channel.setDescription("Channel description");
-        // TODO geht net
-        channel.enableLights(true);
+//        channel.enableLights(true);
         channel.setLightColor(YELLOW);
-        channel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-        channel.enableVibration(true);
+//        channel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+//        channel.enableVibration(true);
         return channel;
     }
 
