@@ -28,6 +28,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -81,6 +82,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -176,6 +183,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (binding.radio500.isChecked())
             return getString(R.string.eur500);
         return "";
+    }
+
+    private void setDenomination(String denomination) {
+        if (denomination.equals(getString(R.string.eur5)))
+            binding.radio5.setChecked(true);
+        if (denomination.equals(getString(R.string.eur10)))
+            binding.radio10.setChecked(true);
+        if (denomination.equals(getString(R.string.eur20)))
+            binding.radio20.setChecked(true);
+        if (denomination.equals(getString(R.string.eur50)))
+            binding.radio50.setChecked(true);
+        if (denomination.equals(getString(R.string.eur100)))
+            binding.radio100.setChecked(true);
+        if (denomination.equals(getString(R.string.eur200)))
+            binding.radio200.setChecked(true);
+        if (denomination.equals(getString(R.string.eur500)))
+            binding.radio500.setChecked(true);
     }
 
     private String getFixedShortCode() {
@@ -296,23 +320,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         viewModel.getComment().observe(lifecycleOwner, observer -> binding.editTextComment.setText(observer));
     }
 
-    private void setDenomination(String denomination) {
-        if (denomination.equals(getString(R.string.eur5)))
-            binding.radio5.setChecked(true);
-        if (denomination.equals(getString(R.string.eur10)))
-            binding.radio10.setChecked(true);
-        if (denomination.equals(getString(R.string.eur20)))
-            binding.radio20.setChecked(true);
-        if (denomination.equals(getString(R.string.eur50)))
-            binding.radio50.setChecked(true);
-        if (denomination.equals(getString(R.string.eur100)))
-            binding.radio100.setChecked(true);
-        if (denomination.equals(getString(R.string.eur200)))
-            binding.radio200.setChecked(true);
-        if (denomination.equals(getString(R.string.eur500)))
-            binding.radio500.setChecked(true);
-    }
-
     private void setOnCheckedChangeListener() {
         setRadioGroupListener(binding.radioGroup1, binding.radioGroup2);
         setRadioGroupListener(binding.radioGroup2, binding.radioGroup1);
@@ -332,16 +339,15 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == this.sharedPreferences)
-            if (key.equals(app.getString(R.string.pref_country_key)) ||
-                    key.equals(app.getString(R.string.pref_city_key)) ||
-                    key.equals(app.getString(R.string.pref_postal_code_key)))
+            if (key.equals(getString(R.string.pref_country_key)) ||
+                    key.equals(getString(R.string.pref_city_key)) ||
+                    key.equals(getString(R.string.pref_postal_code_key)))
                 setLocationFromSharedPreferences();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         setViewValuesFromPreferences();
         addTextChangedListeners();
         executeCommentSuggestion();
@@ -448,8 +454,13 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onPause() {
         removeTextChangedListeners();
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
     }
 
     private void removeTextChangedListeners() {
@@ -488,10 +499,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private class LocationTextWatcher implements TextWatcher {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {

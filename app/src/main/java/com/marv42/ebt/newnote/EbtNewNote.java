@@ -31,8 +31,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 public class EbtNewNote extends DaggerAppCompatActivity
-        implements SubmitFragment.Callback, SubmittedFragment.Callback, CommentSuggestion.Callback,
+        implements SubmitFragment.Callback, ResultsFragment.Callback, CommentSuggestion.Callback,
         ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
@@ -60,7 +58,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Inject
     SubmissionResultHandler submissionResultHandler;
     private SubmitFragment submitFragment = null;
-    private SubmittedFragment submittedFragment = null;
+    private ResultsFragment resultsFragment = null;
     private int fragmentToSwitchTo = -1;
     private String[] commentSuggestions;
     private boolean isDualPane = false;
@@ -88,7 +86,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
     }
 
-    @Nullable
     private void setDualPane() {
         ViewPager pager = findViewById(R.id.view_pager);
         if (pager == null)
@@ -100,7 +97,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (isDualPane) {
             final FragmentManager manager = getSupportFragmentManager();
             submitFragment = (SubmitFragment) manager.findFragmentById(R.id.submit_fragment);
-            submittedFragment = (SubmittedFragment) manager.findFragmentById(R.id.submitted_fragment);
+            resultsFragment = (ResultsFragment) manager.findFragmentById(R.id.submitted_fragment);
         } else {
             FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
             pager.setAdapter(adapter);
@@ -119,7 +116,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void instantiateFragments(FragmentWithTitlePagerAdapter adapter, ViewPager pager) {
         submitFragment = (SubmitFragment) adapter.instantiateItem(pager, SUBMIT_FRAGMENT_INDEX);
-        submittedFragment = (SubmittedFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
+        resultsFragment = (ResultsFragment) adapter.instantiateItem(pager, SUBMITTED_FRAGMENT_INDEX);
     }
 
     @Override
@@ -134,7 +131,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void checkFragmentToSwitchTo(Intent intent) {
         eventuallySetFragmentToSwitchTo(intent, SubmitFragment.class.getSimpleName(), SUBMIT_FRAGMENT_INDEX);
-        eventuallySetFragmentToSwitchTo(intent, SubmittedFragment.class.getSimpleName(), SUBMITTED_FRAGMENT_INDEX);
+        eventuallySetFragmentToSwitchTo(intent, ResultsFragment.class.getSimpleName(), SUBMITTED_FRAGMENT_INDEX);
     }
 
     private void eventuallySetFragmentToSwitchTo(Intent intent, String fragmentClassName, int fragmentIndex) {
@@ -252,9 +249,9 @@ public class EbtNewNote extends DaggerAppCompatActivity
                 if (fragment == null)
                     fragment = new SubmitFragment();
             } else if (position == SUBMITTED_FRAGMENT_INDEX) {
-                fragment = submittedFragment;
+                fragment = resultsFragment;
                 if (fragment == null)
-                    fragment = new SubmittedFragment();
+                    fragment = new ResultsFragment();
             } else
                 throw new IllegalArgumentException("position");
             return fragment;

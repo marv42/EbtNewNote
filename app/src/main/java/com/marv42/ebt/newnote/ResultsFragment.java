@@ -10,6 +10,7 @@ package com.marv42.ebt.newnote;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -46,7 +47,8 @@ import static androidx.core.content.ContextCompat.getColor;
 import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
 import static com.marv42.ebt.newnote.Utils.getColoredString;
 
-public class SubmittedFragment extends DaggerFragment implements LifecycleOwner {
+public class ResultsFragment extends DaggerFragment
+        implements SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
 
     protected static final String DENOMINATION_IMAGE = "denomination image";
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
@@ -64,8 +66,17 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     ViewModelProvider viewModelProvider;
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    // TODO @Inject MySharedPreferencesListener
     private ExpandableListView listView;
     private ArrayList<SubmissionResult> results;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -280,6 +291,21 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     @NotNull
     private Boolean shouldShowImages() {
         return dataStore.get(R.string.pref_settings_images, false);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == dataStore.getSharedPreferences())
+            if (key.equals(getString(R.string.pref_settings_images)))
+                refreshResults();
+    }
+
+    @Override
+    public void onDestroy() {
+        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
     }
 
     public interface Callback {

@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import static android.view.View.GONE;
-import static android.view.View.TEXT_ALIGNMENT_CENTER;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
-import static com.marv42.ebt.newnote.SubmittedFragment.DENOMINATION_IMAGE;
+import static com.marv42.ebt.newnote.ResultsFragment.DENOMINATION_IMAGE;
 
 public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 

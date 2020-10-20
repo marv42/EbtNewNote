@@ -36,5 +36,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Scope
 @Retention(RUNTIME)
-@interface SubmittedFragmentScope {
+@interface ResultsFragmentScope {
 }

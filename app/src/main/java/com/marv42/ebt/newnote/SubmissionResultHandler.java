@@ -76,7 +76,7 @@ public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
         NotificationTexts notificationText = new NotificationTexts(app);
         final CharSequence contentTitle = notificationText.getContentTitle(notifiedResults);
         final CharSequence content = notificationText.getContent(allResults.getResults());
-        PendingIntent intent = getPendingIntent(app, SubmittedFragment.class);
+        PendingIntent intent = getPendingIntent(app, ResultsFragment.class);
         return createBuilder(app, NOTE_SUBMISSION_CHANNEL_ID, contentTitle, content, intent);
     }
 }

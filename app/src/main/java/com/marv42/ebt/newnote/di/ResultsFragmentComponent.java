@@ -8,20 +8,20 @@
 
 package com.marv42.ebt.newnote.di;
 
-import com.marv42.ebt.newnote.SubmittedFragment;
+import com.marv42.ebt.newnote.ResultsFragment;
 
 import dagger.Module;
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 
 @Module
-abstract class SubmittedFragmentModule {
+abstract class ResultsFragmentModule {
 }
 
-@SubmittedFragmentScope
-@Subcomponent(modules = {SubmittedFragmentModule.class})
-public interface SubmittedFragmentComponent extends AndroidInjector<SubmittedFragment> {
+@ResultsFragmentScope
+@Subcomponent(modules = {ResultsFragmentModule.class})
+public interface ResultsFragmentComponent extends AndroidInjector<ResultsFragment> {
     @Subcomponent.Factory
-    abstract class Factory implements AndroidInjector.Factory<SubmittedFragment> {
+    abstract class Factory implements AndroidInjector.Factory<ResultsFragment> {
     }
 }

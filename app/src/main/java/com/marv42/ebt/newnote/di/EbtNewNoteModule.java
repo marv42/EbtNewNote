@@ -16,19 +16,16 @@ import androidx.lifecycle.ViewModelProvider;
 import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
-import com.marv42.ebt.newnote.ResultsViewModel;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmitFragment;
-import com.marv42.ebt.newnote.SubmittedFragment;
+import com.marv42.ebt.newnote.ResultsFragment;
 import com.marv42.ebt.newnote.ThisApp;
-
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = {SubmitFragmentComponent.class, SubmittedFragmentComponent.class,
+@Module(subcomponents = {SubmitFragmentComponent.class, ResultsFragmentComponent.class,
         SettingsComponent.class})
 abstract class EbtNewNoteModule {
 
@@ -73,7 +70,7 @@ abstract class EbtNewNoteModule {
     @ContributesAndroidInjector(modules = SubmitFragmentModule.class)
     abstract SubmitFragment contributeSubmitFragmentInjector();
 
-    @SubmittedFragmentScope
-    @ContributesAndroidInjector(modules = SubmittedFragmentModule.class)
-    abstract SubmittedFragment contributeSubmittedFragmentInjector();
+    @ResultsFragmentScope
+    @ContributesAndroidInjector(modules = ResultsFragmentModule.class)
+    abstract ResultsFragment contributeResultsFragmentInjector();
 }
