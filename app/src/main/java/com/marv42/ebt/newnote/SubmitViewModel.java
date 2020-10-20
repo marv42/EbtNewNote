@@ -9,84 +9,93 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Application;
-import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
-
 public class SubmitViewModel extends AndroidViewModel {
 
-    private final SharedPreferences preferences;
-    private SharedPreferencesStringLiveData countryLiveData;
-    private SharedPreferencesStringLiveData cityLiveData;
-    private SharedPreferencesStringLiveData postalCodeLiveData;
-    private SharedPreferencesStringLiveData denominationLiveData;
-    private SharedPreferencesStringLiveData shortCodeLiveData;
-    private SharedPreferencesStringLiveData serialNumberLiveData;
-    private SharedPreferencesStringLiveData commentLiveData;
-    private final String countryKey;
-    private final String cityKey;
-    private final String postalCodeKey;
-    private final String denominationKey;
-    private final String shortCodeKey;
-    private final String serialNumberKey;
-    private final String commentKey;
+    private MutableLiveData<String> country;
+    private MutableLiveData<String> city;
+    private MutableLiveData<String> postalCode;
+    private MutableLiveData<String> denomination;
+    private MutableLiveData<String> shortCode;
+    private MutableLiveData<String> serialNumber;
+    private MutableLiveData<String> comment;
 
     public SubmitViewModel(@NonNull Application application) {
         super(application);
-        preferences = getDefaultSharedPreferences(application);
-        countryKey = application.getString(R.string.pref_country_key);
-        cityKey = application.getString(R.string.pref_city_key);
-        postalCodeKey = application.getString(R.string.pref_postal_code_key);
-        denominationKey = application.getString(R.string.pref_denomination_key);
-        shortCodeKey = application.getString(R.string.pref_short_code_key);
-        serialNumberKey = application.getString(R.string.pref_serial_number_key);
-        commentKey = application.getString(R.string.pref_comment_key);
+    }
+
+    public void setCountry(String country) {
+        this.country.setValue(country);
     }
 
     public LiveData<String> getCountry() {
-        if (countryLiveData == null)
-            countryLiveData = new SharedPreferencesStringLiveData(preferences, countryKey, "");
-        return countryLiveData;
+        if (country == null)
+            country = new MutableLiveData<>();
+        return country;
+    }
+
+    public void setCity(String city) {
+        this.city.setValue(city);
     }
 
     public LiveData<String> getCity() {
-        if (cityLiveData == null)
-            cityLiveData = new SharedPreferencesStringLiveData(preferences, cityKey, "");
-        return cityLiveData;
+        if (city == null)
+            city = new MutableLiveData<>();
+        return city;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode.setValue(postalCode);
     }
 
     public LiveData<String> getPostalCode() {
-        if (postalCodeLiveData == null)
-            postalCodeLiveData = new SharedPreferencesStringLiveData(preferences, postalCodeKey, "");
-        return postalCodeLiveData;
+        if (postalCode == null)
+            postalCode = new MutableLiveData<>();
+        return postalCode;
+    }
+
+    public void setDenomination(String denomination) {
+        this.denomination.setValue(denomination);
     }
 
     public LiveData<String> getDenomination() {
-        if (denominationLiveData == null)
-            denominationLiveData = new SharedPreferencesStringLiveData(preferences, denominationKey, "");
-        return denominationLiveData;
+        if (denomination == null)
+            denomination = new MutableLiveData<>();
+        return denomination;
+    }
+
+    public void setShortCode(String shortCode) {
+        this.shortCode.setValue(shortCode);
     }
 
     public LiveData<String> getShortCode() {
-        if (shortCodeLiveData == null)
-            shortCodeLiveData = new SharedPreferencesStringLiveData(preferences, shortCodeKey, "");
-        return shortCodeLiveData;
+        if (shortCode == null)
+            shortCode = new MutableLiveData<>();
+        return shortCode;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber.setValue(serialNumber);
     }
 
     public LiveData<String> getSerialNumber() {
-        if (serialNumberLiveData == null)
-            serialNumberLiveData = new SharedPreferencesStringLiveData(preferences, serialNumberKey, "");
-        return serialNumberLiveData;
+        if (serialNumber == null)
+            serialNumber = new MutableLiveData<>();
+        return serialNumber;
+    }
+
+    public void setComment(String comment) {
+        this.comment.setValue(comment);
     }
 
     public LiveData<String> getComment() {
-        if (commentLiveData == null)
-            commentLiveData = new SharedPreferencesStringLiveData(preferences, commentKey, "");
-        return commentLiveData;
+        if (comment == null)
+            comment = new MutableLiveData<>();
+        return comment;
     }
 }

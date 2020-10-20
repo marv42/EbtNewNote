@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -56,12 +57,15 @@ import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
-public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback, LifecycleOwner {
+public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
+        SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
 
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
     @Inject
     ThisApp app;
+    @Inject
+    SharedPreferences sharedPreferences;
     @Inject
     ApiCaller apiCaller;
     @Inject
@@ -172,23 +176,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (binding.radio500.isChecked())
             return getString(R.string.eur500);
         return "";
-    }
-
-    private void setDenomination(String denomination) {
-        if (denomination.equals(getString(R.string.eur5)))
-            binding.radio5.setChecked(true);
-        if (denomination.equals(getString(R.string.eur10)))
-            binding.radio10.setChecked(true);
-        if (denomination.equals(getString(R.string.eur20)))
-            binding.radio20.setChecked(true);
-        if (denomination.equals(getString(R.string.eur50)))
-            binding.radio50.setChecked(true);
-        if (denomination.equals(getString(R.string.eur100)))
-            binding.radio100.setChecked(true);
-        if (denomination.equals(getString(R.string.eur200)))
-            binding.radio200.setChecked(true);
-        if (denomination.equals(getString(R.string.eur500)))
-            binding.radio500.setChecked(true);
     }
 
     private String getFixedShortCode() {
@@ -306,7 +293,24 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         viewModel.getDenomination().observe(lifecycleOwner, this::setDenomination);
         viewModel.getShortCode().observe(lifecycleOwner, observer -> binding.editTextShortCode.setText(observer));
         viewModel.getSerialNumber().observe(lifecycleOwner, observer -> binding.editTextSerialNumber.setText(observer));
-        viewModel.getComment().observe(lifecycleOwner, this::setComment);
+        viewModel.getComment().observe(lifecycleOwner, observer -> binding.editTextComment.setText(observer));
+    }
+
+    private void setDenomination(String denomination) {
+        if (denomination.equals(getString(R.string.eur5)))
+            binding.radio5.setChecked(true);
+        if (denomination.equals(getString(R.string.eur10)))
+            binding.radio10.setChecked(true);
+        if (denomination.equals(getString(R.string.eur20)))
+            binding.radio20.setChecked(true);
+        if (denomination.equals(getString(R.string.eur50)))
+            binding.radio50.setChecked(true);
+        if (denomination.equals(getString(R.string.eur100)))
+            binding.radio100.setChecked(true);
+        if (denomination.equals(getString(R.string.eur200)))
+            binding.radio200.setChecked(true);
+        if (denomination.equals(getString(R.string.eur500)))
+            binding.radio500.setChecked(true);
     }
 
     private void setOnCheckedChangeListener() {
@@ -326,17 +330,90 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == this.sharedPreferences)
+            if (key.equals(app.getString(R.string.pref_country_key)) ||
+                    key.equals(app.getString(R.string.pref_city_key)) ||
+                    key.equals(app.getString(R.string.pref_postal_code_key)))
+                setLocationFromSharedPreferences();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        setViewValuesFromPreferences();
         addTextChangedListeners();
         executeCommentSuggestion();
     }
 
-    private void setComment(String comment) {
+    void setViewValuesFromPreferences() {
+        setLocationFromSharedPreferences();
+        setDenominationFromPreferences();
+        setShortCodeFromPreferences();
+        setSerialNumberFromPreferences();
+        setCommentFromPreferences();
+    }
+
+    private void setLocationFromSharedPreferences() {
+        setCountryFromPreferences();
+        setCityFromPreferences();
+        setPostalCodeFromPreferences();
+    }
+
+    private void setCountryFromPreferences() {
+        String country = sharedPreferencesHandler.get(R.string.pref_country_key, "");
+        if (IsNotEqualToEditText(country, binding.editTextCountry)) {
+            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+            viewModel.setCountry(country);
+        }
+    }
+
+    private void setCityFromPreferences() {
+        String city = sharedPreferencesHandler.get(R.string.pref_city_key, "");
+        if (IsNotEqualToEditText(city, binding.editTextCity)) {
+            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+            viewModel.setCity(city);
+        }
+    }
+
+    private void setPostalCodeFromPreferences() {
+        String postalCode = sharedPreferencesHandler.get(R.string.pref_postal_code_key, "");
+        if (IsNotEqualToEditText(postalCode, binding.editTextPostalCode)) {
+            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+            viewModel.setPostalCode(postalCode);
+        }
+    }
+
+    private boolean IsNotEqualToEditText(String value, EditText editText) {
+        return !TextUtils.isEmpty(value) && !TextUtils.equals(value, editText.getText());
+    }
+
+    private void setDenominationFromPreferences() {
+        String denomination = sharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5));
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        viewModel.setDenomination(denomination);
+    }
+
+    private void setShortCodeFromPreferences() {
+        String shortCode = sharedPreferencesHandler.get(R.string.pref_short_code_key, "");
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        viewModel.setShortCode(shortCode);
+    }
+
+    private void setSerialNumberFromPreferences() {
+        String serialNumber = sharedPreferencesHandler.get(R.string.pref_serial_number_key, "");
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        viewModel.setSerialNumber(serialNumber);
+    }
+
+    private void setCommentFromPreferences() {
+        String comment = sharedPreferencesHandler.get(R.string.pref_comment_key, "");
         String additionalComment = dataStore.get(R.string.pref_settings_comment_key, "");
         if (comment.endsWith(additionalComment))
             comment = comment.substring(0, comment.length() - additionalComment.length());
-        binding.editTextComment.setText(comment);
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        viewModel.setComment(comment);
     }
 
     private void addTextChangedListeners() {
@@ -344,18 +421,18 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         binding.editTextCountry.addTextChangedListener(locationTextWatcher);
         binding.editTextCity.addTextChangedListener(locationTextWatcher);
         binding.editTextPostalCode.addTextChangedListener(locationTextWatcher);
-        binding.editTextCountry.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_country_key)));
-        binding.editTextCity.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_city_key)));
-        binding.editTextPostalCode.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
-        binding.editTextShortCode.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
-        binding.editTextSerialNumber.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
-        binding.editTextComment.setOnFocusChangeListener(
-                new SavePreferencesFocusListener(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
+        binding.editTextCountry.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
+        binding.editTextCity.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_city_key)));
+        binding.editTextPostalCode.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_postal_code_key)));
+        binding.editTextShortCode.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_short_code_key)));
+        binding.editTextSerialNumber.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
+        binding.editTextComment.addTextChangedListener(
+                new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
     }
 
     private void executeCommentSuggestion() {
@@ -371,6 +448,7 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Override
     public void onPause() {
         removeTextChangedListeners();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
     }
 
@@ -410,12 +488,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private class LocationTextWatcher implements TextWatcher {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
         @Override
         public void afterTextChanged(Editable s) {

@@ -58,12 +58,10 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     private static final String NOTE = "note";
     private static final String LOCATION = "location";
     private static final String COMMENT = "comment";
-    private static final int MENU_ITEM_EDIT = 0;
-    private static final int MENU_ITEM_SHOW = 1;
+    private static final int MENU_ITEM_EDIT = 1;
+    private static final int MENU_ITEM_SHOW = 2;
     @Inject
     ViewModelProvider viewModelProvider;
-    @Inject
-    SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
     EncryptedPreferenceDataStore dataStore;
     private ExpandableListView listView;
@@ -79,10 +77,10 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupViewModels();
+        setupViewModel();
     }
 
-    private void setupViewModels() {
+    private void setupViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         viewModel.getResults().observe(getViewLifecycleOwner(), observer -> {
             results = observer;
@@ -251,18 +249,19 @@ public class SubmittedFragment extends DaggerFragment implements LifecycleOwner 
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        setSharedPreferences(noteData);
+        setSubmitFragmentValues(noteData);
         ((Callback) activity).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
-    private void setSharedPreferences(NoteData noteData) {
-        sharedPreferencesHandler.set(getString(R.string.pref_country_key), noteData.mCountry);
-        sharedPreferencesHandler.set(getString(R.string.pref_city_key), noteData.mCity);
-        sharedPreferencesHandler.set(getString(R.string.pref_postal_code_key), noteData.mPostalCode);
-        sharedPreferencesHandler.set(getString(R.string.pref_denomination_key), noteData.mDenomination);
-        sharedPreferencesHandler.set(getString(R.string.pref_short_code_key), noteData.mShortCode);
-        sharedPreferencesHandler.set(getString(R.string.pref_serial_number_key), noteData.mSerialNumber);
-        sharedPreferencesHandler.set(getString(R.string.pref_comment_key), noteData.mComment);
+    private void setSubmitFragmentValues(NoteData noteData) {
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        viewModel.setCountry(noteData.mCountry);
+        viewModel.setCity(noteData.mCity);
+        viewModel.setPostalCode(noteData.mPostalCode);
+        viewModel.setDenomination(noteData.mDenomination);
+        viewModel.setShortCode(noteData.mShortCode);
+        viewModel.setSerialNumber(noteData.mSerialNumber);
+        viewModel.setComment(noteData.mComment);
     }
 
     private void showInBrowser(int billId) {

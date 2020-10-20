@@ -10,22 +10,24 @@ package com.marv42.ebt.newnote;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.EditText;
 
-class SavePreferencesFocusListener implements View.OnFocusChangeListener {
-
+class SavePreferencesTextWatcher implements TextWatcher {
     private final SharedPreferencesHandler sharedPreferencesHandler;
     private final String preferenceKey;
 
-    SavePreferencesFocusListener(SharedPreferencesHandler sharedPreferencesHandler, String preferenceKey) {
+    SavePreferencesTextWatcher(SharedPreferencesHandler sharedPreferencesHandler, String preferenceKey) {
         this.sharedPreferencesHandler = sharedPreferencesHandler;
         this.preferenceKey = preferenceKey;
     }
 
     @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus)
-            sharedPreferencesHandler.set(preferenceKey, ((EditText) v).getText().toString());
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        sharedPreferencesHandler.set(preferenceKey, s.toString());
     }
 }
