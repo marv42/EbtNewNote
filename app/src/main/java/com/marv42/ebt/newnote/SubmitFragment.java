@@ -304,13 +304,18 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     private void setupViewModel() {
         final LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-        viewModel.getCountry().observe(lifecycleOwner, observer -> binding.editTextCountry.setText(observer));
-        viewModel.getCity().observe(lifecycleOwner, observer -> binding.editTextCity.setText(observer));
-        viewModel.getPostalCode().observe(lifecycleOwner, observer -> binding.editTextPostalCode.setText(observer));
+        viewModel.getCountry().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextCountry, observer));
+        viewModel.getCity().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextCity, observer));
+        viewModel.getPostalCode().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextPostalCode, observer));
         viewModel.getDenomination().observe(lifecycleOwner, this::setDenomination);
-        viewModel.getShortCode().observe(lifecycleOwner, observer -> binding.editTextShortCode.setText(observer));
-        viewModel.getSerialNumber().observe(lifecycleOwner, observer -> binding.editTextSerialNumber.setText(observer));
-        viewModel.getComment().observe(lifecycleOwner, observer -> binding.editTextComment.setText(observer));
+        viewModel.getShortCode().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextShortCode, observer));
+        viewModel.getSerialNumber().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextSerialNumber, observer));
+        viewModel.getComment().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextComment, observer));
+    }
+
+    private void setTextIfNotEqual(EditText editText, String observer) {
+        if (!TextUtils.isEmpty(observer) && !TextUtils.equals(observer, editText.getText()))
+            editText.setText(observer);
     }
 
     private void setOnCheckedChangeListener() {
@@ -443,12 +448,10 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private class LocationTextWatcher implements TextWatcher {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
         @Override
         public void afterTextChanged(Editable s) {
