@@ -66,7 +66,6 @@ public class ResultsFragment extends DaggerFragment
     ViewModelProvider viewModelProvider;
     @Inject
     EncryptedPreferenceDataStore dataStore;
-    // TODO @Inject MySharedPreferencesListener
     private ExpandableListView listView;
     private ArrayList<SubmissionResult> results;
 

@@ -58,15 +58,12 @@ import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
-public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback,
-        SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
+public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback, LifecycleOwner {
 
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final int VIBRATION_MS = 150;
     @Inject
     ThisApp app;
-    @Inject
-    SharedPreferences sharedPreferences;
     @Inject
     ApiCaller apiCaller;
     @Inject
@@ -78,16 +75,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     @Inject
     EncryptedPreferenceDataStore dataStore;
     @Inject
+    MySharedPreferencesListener sharedPreferencesListener;
+    @Inject
     ViewModelProvider viewModelProvider;
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -337,15 +330,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == this.sharedPreferences)
-            if (key.equals(getString(R.string.pref_country_key)) ||
-                    key.equals(getString(R.string.pref_city_key)) ||
-                    key.equals(getString(R.string.pref_postal_code_key)))
-                setLocationFromSharedPreferences();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         setViewValuesFromPreferences();
@@ -354,45 +338,11 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     }
 
     void setViewValuesFromPreferences() {
-        setLocationFromSharedPreferences();
+        sharedPreferencesListener.setLocation();
         setDenominationFromPreferences();
         setShortCodeFromPreferences();
         setSerialNumberFromPreferences();
         setCommentFromPreferences();
-    }
-
-    private void setLocationFromSharedPreferences() {
-        setCountryFromPreferences();
-        setCityFromPreferences();
-        setPostalCodeFromPreferences();
-    }
-
-    private void setCountryFromPreferences() {
-        String country = sharedPreferencesHandler.get(R.string.pref_country_key, "");
-        if (IsNotEqualToEditText(country, binding.editTextCountry)) {
-            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-            viewModel.setCountry(country);
-        }
-    }
-
-    private void setCityFromPreferences() {
-        String city = sharedPreferencesHandler.get(R.string.pref_city_key, "");
-        if (IsNotEqualToEditText(city, binding.editTextCity)) {
-            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-            viewModel.setCity(city);
-        }
-    }
-
-    private void setPostalCodeFromPreferences() {
-        String postalCode = sharedPreferencesHandler.get(R.string.pref_postal_code_key, "");
-        if (IsNotEqualToEditText(postalCode, binding.editTextPostalCode)) {
-            SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-            viewModel.setPostalCode(postalCode);
-        }
-    }
-
-    private boolean IsNotEqualToEditText(String value, EditText editText) {
-        return !TextUtils.isEmpty(value) && !TextUtils.equals(value, editText.getText());
     }
 
     private void setDenominationFromPreferences() {
@@ -455,12 +405,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
     public void onPause() {
         removeTextChangedListeners();
         super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onDestroy();
     }
 
     private void removeTextChangedListeners() {

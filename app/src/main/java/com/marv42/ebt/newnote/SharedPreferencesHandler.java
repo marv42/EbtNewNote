@@ -23,6 +23,10 @@ public class SharedPreferencesHandler {
         this.sharedPreferences = sharedPreferences;
     }
 
+    SharedPreferences getSharedPreferences() {
+        return sharedPreferences;
+    }
+
     <T> T get(int keyId, T defValue) {
         return get(app.getString(keyId), defValue);
     }

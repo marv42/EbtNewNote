@@ -56,6 +56,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
+    MySharedPreferencesListener sharedPreferencesListener;
+    @Inject
     SubmissionResultHandler submissionResultHandler;
     private SubmitFragment submitFragment = null;
     private ResultsFragment resultsFragment = null;
@@ -69,6 +71,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         setLayout();
         setDualPane();
         setFragments();
+        sharedPreferencesListener.register();
     }
 
     private void setLayout() {
@@ -224,6 +227,12 @@ public class EbtNewNote extends DaggerAppCompatActivity
             submitFragment.setCommentsAdapter(suggestions);
         else
             commentSuggestions = suggestions;
+    }
+
+    @Override
+    protected void onDestroy() {
+        sharedPreferencesListener.unregister();
+        super.onDestroy();
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {

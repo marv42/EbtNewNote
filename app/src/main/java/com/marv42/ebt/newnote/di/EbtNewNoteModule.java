@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.di;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,9 +17,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.MySharedPreferencesListener;
+import com.marv42.ebt.newnote.ResultsFragment;
+import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmitFragment;
-import com.marv42.ebt.newnote.ResultsFragment;
 import com.marv42.ebt.newnote.ThisApp;
 
 import dagger.Module;
@@ -31,7 +34,7 @@ abstract class EbtNewNoteModule {
 
     @Provides
     @ActivityScope
-    //    @Named("Activity")
+//    @Named("Activity")
     static Activity provideActivity(@NonNull EbtNewNote activity) {
         return activity;
     }
@@ -50,6 +53,14 @@ abstract class EbtNewNoteModule {
     @ActivityScope
     static ViewModelProvider provideViewModelProvider(@NonNull EbtNewNote activity) {
         return new ViewModelProvider(activity);
+    }
+
+    @Provides
+    @ActivityScope
+    static MySharedPreferencesListener provideMySharedPreferencesListener(
+            @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore,
+            @NonNull SharedPreferencesHandler sharedPreferencesHandler, @NonNull ViewModelProvider viewModelProvider) {
+        return new MySharedPreferencesListener(app, dataStore, sharedPreferencesHandler, viewModelProvider);
     }
 
     @Provides
