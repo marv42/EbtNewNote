@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
+import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.HttpCaller;
 import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
@@ -40,17 +41,19 @@ import static androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
 public class OcrHandler extends AsyncTask<Void, Void, String> {
+
     private static final String OCR_HOST = "api.ocr.space";
     private static final String OCR_URL = "https://" + OCR_HOST + "/parse/image";
     private static final String WRONG_OCR_KEY_MESSAGE = "R.string.http_error " + OCR_HOST + ", R.string.response_code: 403";
-    private Callback callback;
-    private String photoPath;
-    private Uri photoUri;
-    private ContentResolver contentResolver;
-    private String apiKey;
-    public OcrHandler(@NonNull SubmitFragment fragment, String photoPath, Uri photoUri,
+    private final Callback callback;
+    private final String photoPath;
+    private final Uri photoUri;
+    private final ContentResolver contentResolver;
+    private final String apiKey;
+
+    public OcrHandler(@NonNull Callback callback, String photoPath, Uri photoUri,
                       @NonNull ContentResolver contentResolver, @NonNull String apiKey) {
-        callback = fragment;
+        this.callback = callback;
         this.photoPath = photoPath;
         this.photoUri = photoUri;
         this.contentResolver = contentResolver;

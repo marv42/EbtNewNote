@@ -8,13 +8,21 @@
 
 package com.marv42.ebt.newnote;
 
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.text.Editable;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -26,10 +34,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.marv42.ebt.newnote.exceptions.ErrorMessage;
+import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
+import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
+import com.marv42.ebt.newnote.scanning.OcrNotifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +51,15 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
 
+import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
+import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragment.Callback, CommentSuggestion.Callback,
-        ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
+        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
@@ -51,6 +67,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
     private static final int SUBMITTED_FRAGMENT_INDEX = 1;
+    private static final int VIBRATION_MS = 150;
     @Inject
     EncryptedPreferenceDataStore dataStore;
     @Inject
@@ -59,6 +76,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
     MySharedPreferencesListener sharedPreferencesListener;
     @Inject
     SubmissionResultHandler submissionResultHandler;
+    @Inject
+    ViewModelProvider viewModelProvider;
     private SubmitFragment submitFragment = null;
     private ResultsFragment resultsFragment = null;
     private int fragmentToSwitchTo = -1;
@@ -170,7 +189,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
-        new OcrHandler(submitFragment, photoPath, photoUri, getContentResolver(), apiKey).execute();
+        new OcrHandler(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
     }
 
     @Override
@@ -233,6 +252,35 @@ public class EbtNewNote extends DaggerAppCompatActivity
     protected void onDestroy() {
         sharedPreferencesListener.unregister();
         super.onDestroy();
+    }
+
+    @Override
+    public void onOcrResult(String result) throws NoNotificationManagerException {
+        if (result.isEmpty())
+            OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
+        else if (result.startsWith(ERROR))
+            OcrNotifier.showDialog(this, new ErrorMessage(this).getErrorMessage(result));
+        else {
+            vibrate();
+            replaceShortCodeOrSerialNumber(result);
+        }
+    }
+
+    private void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        if (v != null)
+            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
+    }
+
+    private void replaceShortCodeOrSerialNumber(String ocrResult) {
+        final boolean serialNumberOrShortCode = ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
+        submitFragment.checkClipboardManager(serialNumberOrShortCode);
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        if (serialNumberOrShortCode)
+            viewModel.setSerialNumber(ocrResult);
+        else
+            viewModel.setShortCode(ocrResult);
+        Toast.makeText(this, getString(R.string.ocr_return), LENGTH_LONG).show();
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {

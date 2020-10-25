@@ -148,7 +148,6 @@
     <string name="pref_comment_key">pref_comment</string>
     <string name="pref_login_values_ok_key">pref_login_values_ok</string>
     <string name="pref_results_key">pref_results</string>
-    <string name="pref_ocr_result_key">pref_ocr_result</string>
     <string name="pref_photo_path_key">pref_photo_path</string>
     <string name="pref_photo_uri_key">pref_photo_uri</string>
 

@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -28,7 +27,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -51,6 +49,7 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.VIBRATOR_SERVICE;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.widget.Toast.LENGTH_LONG;
@@ -58,10 +57,9 @@ import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
-public class SubmitFragment extends DaggerFragment implements OcrHandler.Callback, LifecycleOwner {
+public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
-    private static final int VIBRATION_MS = 150;
     @Inject
     ThisApp app;
     @Inject
@@ -228,64 +226,23 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         if (activity == null)
             throw new IllegalStateException("No activity");
         LoginChecker.checkLoginInfo(activity);
-        checkOcrResult();
         ((Callback) activity).onSubmitFragmentAdded();
     }
 
-    private void checkOcrResult() {
-        String ocrResult = sharedPreferencesHandler.get(R.string.pref_ocr_result_key, "");
-        if (!TextUtils.isEmpty(ocrResult))
-            presentOcrResult(ocrResult);
-    }
-
-    private void presentOcrResult(String ocrResult) {
-        vibrate();
-        showOcrResult(ocrResult);
-        sharedPreferencesHandler.set(R.string.pref_ocr_result_key, "");
-    }
-
-    private void vibrate() {
-        Vibrator v = (Vibrator) app.getSystemService(VIBRATOR_SERVICE);
-        if (v != null)
-            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
-    }
-
-    private void showOcrResult(String ocrResult) {
-        Activity activity = getActivity();
-        if (ocrResult.isEmpty())
-            OcrNotifier.showDialog(activity, getString(R.string.ocr_dialog_empty));
-        else if (ocrResult.startsWith(ERROR))
-            OcrNotifier.showDialog(activity, new ErrorMessage(activity).getErrorMessage(ocrResult));
-        else
-            replaceShortCodeOrSerialNumber(ocrResult);
-    }
-
-    private void replaceShortCodeOrSerialNumber(String ocrResult) {
-        if (ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER)
-            replaceText(ocrResult, binding.editTextSerialNumber);
-        else
-            replaceText(ocrResult, binding.editTextShortCode);
-        Toast.makeText(getActivity(), getString(R.string.ocr_return), LENGTH_LONG).show();
-    }
-
-    private void replaceText(String ocrResult, EditText editText) {
-        checkClipboardManager(editText);
-        editText.setText(ocrResult);
-    }
-
-    private void checkClipboardManager(EditText editText) {
+    void checkClipboardManager(boolean serialNumberOrShortCode) {
         try {
-            putToClipboard(editText.getText());
+            putToClipboard(serialNumberOrShortCode);
         } catch (NoClipboardManagerException e) {
             e.printStackTrace();
         }
     }
 
-    private void putToClipboard(Editable editable) throws NoClipboardManagerException {
-        ClipboardManager manager = (ClipboardManager) app.getSystemService(Context.CLIPBOARD_SERVICE);
+    private void putToClipboard(boolean serialNumberOrShortCode) throws NoClipboardManagerException {
+        EditText editText = serialNumberOrShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
+        ClipboardManager manager = (ClipboardManager) app.getSystemService(CLIPBOARD_SERVICE);
         if (manager == null)
             throw new NoClipboardManagerException();
-        String text = editable.toString();
+        String text = editText.getText().toString();
         if (!text.isEmpty()) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
             manager.setPrimaryClip(data);
@@ -425,16 +382,6 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
         super.onDestroyView();
     }
 
-    @Override
-    public void onOcrResult(String result) throws NoNotificationManagerException {
-        if (isVisible())
-            presentOcrResult(result);
-        else {
-            sharedPreferencesHandler.set(R.string.pref_ocr_result_key, result);
-            new OcrNotifier().showNotification(app);
-        }
-    }
-
     void setCommentsAdapter(String[] suggestions) {
         Activity activity = getActivity();
         if (activity != null)
@@ -448,10 +395,12 @@ public class SubmitFragment extends DaggerFragment implements OcrHandler.Callbac
 
     private class LocationTextWatcher implements TextWatcher {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {
