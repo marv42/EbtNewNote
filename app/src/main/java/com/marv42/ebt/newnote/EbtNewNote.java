@@ -198,7 +198,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     @Override
-    public void onSubmittedFragmentAdded() {
+    public void onResultsFragmentAdded() {
         checkSwitchFragment();
     }
 

@@ -25,45 +25,57 @@ import static com.google.gson.JsonParser.parseString;
 
 public class AllResults {
 
+    private static final int MAX_LOAD_NUM = 9999;
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
-    private ArrayList<SubmissionResult> results = new ArrayList<>();
+    private final EncryptedPreferenceDataStore dataStore;
+    private ArrayList<SubmissionResult> results;
 
     @Inject
     public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore,
                       ViewModelProvider viewModelProvider) {
         this.app = app;
         this.viewModelProvider= viewModelProvider;
-        setResults(dataStore);
+        this.dataStore = dataStore;
+        initResults();
         setResultsToViewModel();
     }
 
-    protected void setResults(EncryptedPreferenceDataStore dataStore) {
+    private void initResults() {
         String resultsFromPreferences = loadFromPreferences();
         if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
             return;
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
         results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
         }.getType());
-        results.sort(new SubmissionResult.SubmissionComparator());
-        setSubListWithMaxNum(dataStore);
+        results = sortAndFilter(results, MAX_LOAD_NUM);
     }
 
     private String loadFromPreferences() {
         return getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results_key), "");
     }
 
-    private void setSubListWithMaxNum(EncryptedPreferenceDataStore dataStore) {
-        String defValue = app.getResources().getString(R.string.max_show_num);
-        int maxShowNum = Integer.parseInt(dataStore.get(R.string.pref_settings_submitted_key, defValue));
-        int howMany = Math.min(maxShowNum, results.size());
-        int startIndex = results.size() < maxShowNum ? 0 : results.size() - maxShowNum;
-        results = new ArrayList<>(results.subList(startIndex, startIndex + howMany));
+    private static ArrayList<SubmissionResult> sortAndFilter(ArrayList<SubmissionResult> results, int maxNum) {
+        results.sort(new SubmissionResult.SubmissionComparator());
+        return getSubListWithMaxNum(results, maxNum);
+    }
+
+    private static ArrayList<SubmissionResult> getSubListWithMaxNum(ArrayList<SubmissionResult> results, int maxNum) {
+        int howMany = Math.min(maxNum, results.size());
+        int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
+        return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
     }
 
     private void setResultsToViewModel() {
+        int maxShowNum = getMaxShowNum();
+        ArrayList<SubmissionResult> resultsToShow = sortAndFilter(results, maxShowNum);
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
-        viewModel.setResults(results);
+        viewModel.setResults(resultsToShow);
+    }
+
+    private int getMaxShowNum() {
+        String defaultValue = app.getResources().getString(R.string.max_show_num);
+        return Integer.parseInt(dataStore.get(R.string.pref_settings_submitted_key, defaultValue));
     }
 
     void addResult(final SubmissionResult aResult) {

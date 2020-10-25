@@ -98,7 +98,7 @@ public class ResultsFragment extends DaggerFragment
         });
     }
 
-    void refreshResults() {
+    private void refreshResults() {
         List<Map<String, String>> groupData = getGroupData();
         List<List<Map<String, String>>> childData = getChildData();
         String[] groupFrom = getGroupFrom();
@@ -284,7 +284,7 @@ public class ResultsFragment extends DaggerFragment
         super.onActivityCreated(savedInstanceState);
         Activity activity = getActivity();
         if (activity != null)
-            ((Callback) activity).onSubmittedFragmentAdded();
+            ((Callback) activity).onResultsFragmentAdded();
     }
 
     @NotNull
@@ -295,8 +295,13 @@ public class ResultsFragment extends DaggerFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == dataStore.getSharedPreferences())
-            if (key.equals(getString(R.string.pref_settings_images)))
+            if (key.equals(getString(R.string.pref_settings_images)) ||
+                    key.equals(getString(R.string.pref_settings_submitted_key)) )
+            {
+                ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
+                results = viewModel.getResults().getValue();
                 refreshResults();
+            }
     }
 
     @Override
@@ -308,7 +313,7 @@ public class ResultsFragment extends DaggerFragment
     }
 
     public interface Callback {
-        void onSubmittedFragmentAdded();
+        void onResultsFragmentAdded();
 
         void switchFragment(int index);
     }
