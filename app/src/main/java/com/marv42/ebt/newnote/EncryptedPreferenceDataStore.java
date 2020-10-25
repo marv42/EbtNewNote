@@ -32,11 +32,11 @@ import static androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncry
 import static androidx.security.crypto.MasterKey.DEFAULT_MASTER_KEY_ALIAS;
 
 public class EncryptedPreferenceDataStore extends PreferenceDataStore {
+
     private static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "ebt_new_note_encrypted_shared_prefs";
 //    private static final String MASTER_KEY_ALIAS = "ebt_new_note_master_key";
     private static final int KEY_SIZE = 256;
-
-    private ThisApp app;
+    private final ThisApp app;
     private SharedPreferences sharedPreferences;
 
     @Inject

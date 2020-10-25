@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class ResultsViewModel extends ViewModel {
 
-    private MutableLiveData<ArrayList<SubmissionResult>> results = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<SubmissionResult>> results = new MutableLiveData<>();
 
     public ResultsViewModel() {
         super();
@@ -25,7 +25,7 @@ public class ResultsViewModel extends ViewModel {
         return results;
     }
 
-    public void setResults(ArrayList<SubmissionResult> results) {
-        this.results.setValue(results);
+    public void setResults(ArrayList<SubmissionResult> aResults) {
+        results.setValue(aResults);
     }
 }

@@ -16,9 +16,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ErrorMessage {
+
     public static final String ERROR = "ERROR";
 
-    private Context context;
+    private final Context context;
 
     public ErrorMessage(Context context) {
         this.context = context;

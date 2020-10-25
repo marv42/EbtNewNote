@@ -35,14 +35,14 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 
     public static final int DENOMINATION_IMAGE_WIDTH = 55;
     public static final int DENOMINATION_IMAGE_MARGIN = 10;
-    private LayoutInflater layoutInflater;
-    private boolean showImages;
-    private List<? extends Map<String, ?>> groupData;
-    private String[] groupFrom;
-    private int[] groupTo;
-    private List<? extends List<? extends Map<String, ?>>> childData;
-    private String[] childFrom;
-    private int[] childTo;
+    private final LayoutInflater layoutInflater;
+    private final boolean showImages;
+    private final List<? extends Map<String, ?>> groupData;
+    private final String[] groupFrom;
+    private final int[] groupTo;
+    private final List<? extends List<? extends Map<String, ?>>> childData;
+    private final String[] childFrom;
+    private final int[] childTo;
 
     MyExpandableListAdapter(LayoutInflater layoutInflater, boolean showImages,
                             List<? extends Map<String, ?>> groupData,

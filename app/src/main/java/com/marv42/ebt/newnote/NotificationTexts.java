@@ -23,7 +23,7 @@ import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class NotificationTexts {
 
-    private ThisApp app;
+    private final ThisApp app;
 
     public NotificationTexts(@NonNull ThisApp app) {
         this.app = app;

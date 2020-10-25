@@ -15,7 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JsonHelper {
-    private JSONObject json;
+
+    private final JSONObject json;
 
     public static JSONObject getJsonObject(String key, String value) throws JSONException {
         return new JSONObject("{\"" + key + "\":\"" + value + "\"}");

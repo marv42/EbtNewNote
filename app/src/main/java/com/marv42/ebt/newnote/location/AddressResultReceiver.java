@@ -15,6 +15,7 @@ import android.os.ResultReceiver;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.marv42.ebt.newnote.SubmitViewModel;
 import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
@@ -27,7 +28,7 @@ import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RESULT_D
 
 public class AddressResultReceiver extends ResultReceiver {
 
-    private Context context;
+    private final Context context;
 
     public AddressResultReceiver(Context context, Handler handler) {
         super(handler);

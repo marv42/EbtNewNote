@@ -30,6 +30,7 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 
 public class ApiCaller {
+
     private static final String EBT_API = "https://api.eurobilltracker.com/";
     private static final String SESSION_ID_ELEMENT = "sessionid";
     private static final String USER_NAME_ELEMENT = "username";
@@ -40,7 +41,7 @@ public class ApiCaller {
     private static final String MY_CITY_ELEMENT = "my_city";
     private static final String MY_ZIP_ELEMENT = "my_zip";
 
-    private EncryptedPreferenceDataStore dataStore;
+    private final EncryptedPreferenceDataStore dataStore;
 
     @Inject
     public ApiCaller(EncryptedPreferenceDataStore dataStore) {
