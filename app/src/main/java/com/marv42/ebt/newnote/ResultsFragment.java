@@ -66,6 +66,8 @@ public class ResultsFragment extends DaggerFragment
     ViewModelProvider viewModelProvider;
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    @Inject
+    AllResults allResults;
     private ExpandableListView listView;
     private ArrayList<SubmissionResult> results;
 
@@ -298,6 +300,7 @@ public class ResultsFragment extends DaggerFragment
             if (key.equals(getString(R.string.pref_settings_images)) ||
                     key.equals(getString(R.string.pref_settings_submitted_key)) )
             {
+                allResults.setResultsToViewModel();
                 ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
                 results = viewModel.getResults().getValue();
                 refreshResults();

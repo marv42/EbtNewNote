@@ -66,7 +66,7 @@ public class AllResults {
         return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
     }
 
-    private void setResultsToViewModel() {
+    void setResultsToViewModel() {
         int maxShowNum = getMaxShowNum();
         ArrayList<SubmissionResult> resultsToShow = sortAndFilter(results, maxShowNum);
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);

@@ -110,7 +110,7 @@
     <string name="settings_comment_title">Kommentar-Zusatz</string>
     <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>
     <string name="settings_submitted_title">Anzahl der Scheine</string>
-    <string name="settings_submitted_summary">Maximale Anzahl der Scheine im \'&submitted_fragment_title;\'-Tab beim Öffnen der App</string>
+    <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'&submitted_fragment_title;\'-Tab</string>
     <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
     <string name="settings_ocr_summary_no_key">Bitte besorge dir deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
     <string name="logged_in">Erfolgreich eingeloggt</string>

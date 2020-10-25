@@ -122,7 +122,7 @@
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
-    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&submitted_fragment_title;\' tab when starting the app</string>
+    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&submitted_fragment_title;\' tab</string>
     <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
