@@ -56,6 +56,8 @@ public class AllResults {
     }
 
     private static ArrayList<SubmissionResult> sortAndFilter(ArrayList<SubmissionResult> results, int maxNum) {
+        if (results == null || results.isEmpty())
+            return new ArrayList<>();
         results.sort(new SubmissionResult.SubmissionComparator());
         return getSubListWithMaxNum(results, maxNum);
     }
