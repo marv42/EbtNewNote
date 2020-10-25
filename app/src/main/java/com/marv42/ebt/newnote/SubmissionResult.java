@@ -17,7 +17,8 @@ import java.util.Comparator;
 import static androidx.core.content.ContextCompat.getColor;
 import static com.marv42.ebt.newnote.Utils.getColoredString;
 
-class SubmissionResult {
+public class SubmissionResult {
+
     // TODO If we rename these, we have to change the values in shared preferences
     final NoteData mNoteData;
     final String mReason;
@@ -38,6 +39,7 @@ class SubmissionResult {
     }
 
     boolean isSuccessful(Context context) {
+        // TODO consider language changes
         return mReason.equals(context.getString(R.string.has_been_entered)) ||
                 mReason.equals(context.getString(R.string.got_hit));
     }
