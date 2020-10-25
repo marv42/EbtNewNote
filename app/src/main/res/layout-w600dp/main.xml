@@ -31,7 +31,7 @@
             android:textAllCaps="true" />
 <!--        TODO <View android:id="@+id/submitted_holder" -->
         <androidx.fragment.app.FragmentContainerView
-            android:name="com.marv42.ebt.newnote.SubmittedFragment"
+            android:name="com.marv42.ebt.newnote.ResultsFragment"
             android:id="@+id/submitted_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
