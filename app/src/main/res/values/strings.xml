@@ -151,10 +151,6 @@
     <string name="pref_photo_path_key">pref_photo_path</string>
     <string name="pref_photo_uri_key">pref_photo_uri</string>
 
-    <!-- keyboard -->
-    <string name="label_next_key">Next</string>
-    <string name="label_done_key">Done</string>
-
     <!-- permissions -->
     <string name="no_permission">Permissions not granted</string>
     <string name="permission">Permissions granted</string>

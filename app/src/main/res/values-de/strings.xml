@@ -118,10 +118,6 @@
     <string name="wrong_login_info">Ungültige EBT-Konto-Zugangsdaten</string>
     <string name="redirect_to_settings">&redirect_to_settings;</string>
 
-    <!-- keyboard -->
-    <string name="label_next_key">Nächstes</string>
-    <string name="label_done_key">Fertig</string>
-
     <!-- permissions -->
     <string name="no_permission">Erlaubnis nicht gewährt</string>
     <string name="permission">Erlaubnis gewährt</string>
