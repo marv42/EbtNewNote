@@ -16,6 +16,7 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.TextView;
 
 public class About implements OnMenuItemClickListener {
+
     private final Context context;
 
     About(Context context) {

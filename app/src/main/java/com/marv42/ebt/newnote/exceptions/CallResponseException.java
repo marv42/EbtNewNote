@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.exceptions;
 
 public class CallResponseException extends Throwable {
+
     public CallResponseException(String s) {
         super(s);
     }

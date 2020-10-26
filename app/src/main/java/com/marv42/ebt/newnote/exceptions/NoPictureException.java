@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.exceptions;
 
 public class NoPictureException extends Throwable {
+
     public NoPictureException(String s) {
         super(s);
     }

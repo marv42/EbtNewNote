@@ -11,8 +11,8 @@ package com.marv42.ebt.newnote;
 import androidx.annotation.ColorInt;
 
 public class Utils {
-    public static final int SECONDS_IN_NANOSECONDS = 1000 * 1000 * 1000;
 
+    public static final int SECONDS_IN_NANOSECONDS = 1000 * 1000 * 1000;
     public static final int DAYS_IN_MS = 1000 * 60 * 60 * 24;
 
     public static String getColoredString(String text, @ColorInt int color) {

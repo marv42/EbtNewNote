@@ -21,6 +21,7 @@ import static android.location.LocationManager.NETWORK_PROVIDER;
 import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 
 public class LocationProviderChangedReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {

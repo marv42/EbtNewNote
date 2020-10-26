@@ -22,6 +22,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class HttpCaller {
+
     private String getServer(Request request) {
         return request.url().host();
     }

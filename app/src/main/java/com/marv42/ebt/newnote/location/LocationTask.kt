@@ -25,24 +25,12 @@ import kotlin.coroutines.CoroutineContext
 
 class LocationTask(private val app: ThisApp) : CoroutineScope {
 
-    companion object {
-        private const val MAX_TIME_LAST_KNOWN_NS = 30L * Utils.SECONDS_IN_NANOSECONDS
-        private const val WAIT_TIME_MS = 4 * 1000.toLong()
-        private const val MIN_DISTANCE_UPDATES_M = 500f
-        private const val MIN_TIME_UPDATES_MS = 10 * 1000.toLong()
-    }
-
-//    override val coroutineContext: CoroutineContext = app as CoroutineContext
     private val locationManager: LocationManager = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var location: Location? = null
 
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-
-//    fun cancel() {
-//        job.cancel()
-//    }
 
     fun execute() = launch {
         val result = doInBackground()
@@ -100,5 +88,12 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
             Toast.makeText(app, app.getString(result), Toast.LENGTH_LONG).show()
         if (location != null)
             app.onLocation(location)
+    }
+
+    companion object {
+        private const val MAX_TIME_LAST_KNOWN_NS = 30L * Utils.SECONDS_IN_NANOSECONDS
+        private const val WAIT_TIME_MS = 4 * 1000.toLong()
+        private const val MIN_DISTANCE_UPDATES_M = 500f
+        private const val MIN_TIME_UPDATES_MS = 10 * 1000.toLong()
     }
 }

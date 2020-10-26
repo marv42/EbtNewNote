@@ -20,6 +20,7 @@ import dagger.Provides;
 
 @Module
 abstract class SubmitFragmentModule {
+
     @Provides
     @SubmitFragmentScope
     static LocationButtonHandler provideLocationButtonHandler(@NonNull ThisApp app, @NonNull Activity activity) {

@@ -17,6 +17,7 @@ import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIA
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class PatternAnalyzer {
+
     static String findPattern(String s) {
         Matcher matcher = getMatcher(s);
         if (matcher.find())

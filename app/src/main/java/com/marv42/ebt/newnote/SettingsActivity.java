@@ -39,6 +39,7 @@ import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
 
 public class SettingsActivity extends DaggerAppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

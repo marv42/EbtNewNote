@@ -27,7 +27,8 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
     private val scope = MainScope()
 
     fun execute() {
-        scope.executeAsyncTask(onPreExecute = {
+        scope.executeAsyncTask(
+           onPreExecute = {
         }, doInBackground = {
             doInBackground()
         }, onPostExecute = {
@@ -51,9 +52,12 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
 
     private fun getHttpCallErrorMessage(e: HttpCallException): String {
         var errorMessage = e.message
-        if (errorMessage == null) errorMessage = "R.string.http_error"
-        if (errorMessage == WRONG_OCR_KEY_MESSAGE) errorMessage += ".\n\nR.string.ocr_wrong_key."
-        if (!errorMessage.startsWith("R.string.http_error")) errorMessage = "R.string.http_error: $errorMessage"
+        if (errorMessage == null)
+            errorMessage = "R.string.http_error"
+        if (errorMessage == WRONG_OCR_KEY_MESSAGE)
+            errorMessage += ".\n\nR.string.ocr_wrong_key."
+        if (!errorMessage.startsWith("R.string.http_error"))
+            errorMessage = "R.string.http_error: $errorMessage"
         return ErrorMessage.ERROR + errorMessage
     }
 
@@ -85,7 +89,8 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
     }
 
     private val orientation: Int
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) orientationFromMediaStore else orientationFromExif
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            orientationFromMediaStore else orientationFromExif
 
     @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromMediaStore: Int
@@ -100,7 +105,8 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     val columnIndex = cursor.getColumnIndex(columns[0])
-                    if (columnIndex >= 0) orientation = cursor.getInt(columnIndex)
+                    if (columnIndex >= 0)
+                        orientation = cursor.getInt(columnIndex)
                 }
                 cursor.close()
             }

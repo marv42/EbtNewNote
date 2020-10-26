@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import okhttp3.Request;
 
 public class CountryCode {
+
     private static final String COUNTRIES_URL = "https://restcountries.eu/rest/v2/alpha/";
     private static final String NAME_ELEMENT = "name";
 

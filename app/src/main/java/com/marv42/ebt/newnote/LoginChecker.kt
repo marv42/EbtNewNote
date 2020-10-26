@@ -25,7 +25,8 @@ class LoginChecker(private val app: ThisApp, private val apiCaller: ApiCaller) {
     private val scope = MainScope()
 
     fun execute() {
-        scope.executeAsyncTask(onPreExecute = {
+        scope.executeAsyncTask(
+           onPreExecute = {
             onPreExecute()
         }, doInBackground = {
             doInBackground()

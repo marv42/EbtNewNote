@@ -8,6 +8,7 @@
 package com.marv42.ebt.newnote.data
 
 class LoginInfo {
+
     @JvmField
     val sessionId: String
     @JvmField

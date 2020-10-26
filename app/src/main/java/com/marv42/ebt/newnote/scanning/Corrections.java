@@ -20,13 +20,14 @@ import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getDigitMap;
 import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getLetterMap;
 
 public class Corrections {
+
+    public static final int LENGTH_THRESHOLD_SERIAL_NUMBER = 8;
+
     static String correct(String s) {
         s = correctChars(s);
         s = findPattern(s);
         return s.toUpperCase();
     }
-
-    public static final int LENGTH_THRESHOLD_SERIAL_NUMBER = 8;
 
     @NotNull
     private static String correctChars(String s) {
@@ -60,17 +61,18 @@ public class Corrections {
 
     @NotNull
     private static String correctDigit(String s, int i) {
-        Map<String, String> char2digit = getDigitMap();
-        if (! s.substring(i, i+1).matches("\\d"))
-            s = correctCharInString(s, i, char2digit);
-        return s;
+        return correctDigitOrLetter(s, i, getDigitMap(), "\\d");
     }
 
     @NotNull
     private static String correctLetter(String s, int i) {
-        Map<String, String> char2letter = getLetterMap();
-        if (! s.substring(i, i+1).matches("\\w"))
-            s = correctCharInString(s, i, char2letter);
+        return correctDigitOrLetter(s, i, getLetterMap(), "\\w");
+    }
+
+    @NotNull
+    private static String correctDigitOrLetter(String s, int i, Map<String, String> char2something, String regex) {
+        if (!s.substring(i, i + 1).matches(regex))
+            s = correctCharInString(s, i, char2something);
         return s;
     }
 

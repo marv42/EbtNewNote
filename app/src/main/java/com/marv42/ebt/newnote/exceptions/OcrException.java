@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.exceptions;
 
 public class OcrException extends Throwable {
+
     public OcrException(String s) {
         super(s);
     }

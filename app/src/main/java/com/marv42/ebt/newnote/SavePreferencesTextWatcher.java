@@ -12,6 +12,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 
 class SavePreferencesTextWatcher implements TextWatcher {
+
     private final SharedPreferencesHandler sharedPreferencesHandler;
     private final String preferenceKey;
 

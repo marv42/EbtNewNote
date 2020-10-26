@@ -19,8 +19,8 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.marv42.ebt.newnote.CountryCode;
 import com.marv42.ebt.newnote.HttpCaller;
-import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoIntentException;
@@ -34,20 +34,19 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 
 import static com.marv42.ebt.newnote.BuildConfig.APPLICATION_ID;
-import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_ERROR;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_SUCCESS;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
 public class FetchAddressIntentService extends IntentService {
+
     public static final String TAG = FetchAddressIntentService.class.getSimpleName();
     public static final String RECEIVER = APPLICATION_ID + ".RECEIVER";
     public static final String RESULT_DATA_KEY = APPLICATION_ID + ".RESULT_DATA_KEY";
     public static final String LOCATION_DATA_EXTRA = APPLICATION_ID + ".LOCATION_DATA_EXTRA";
-
     private static final String GEOCODING_HOST = "geocode.arcgis.com";
     private static final String GEOCODING_URL = "https://" + GEOCODING_HOST + "/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
     private static final String ADDRESS_ELEMENT = "address";
-
     private ResultReceiver receiver;
     private String result;
     private int resultCode = RESULT_CODE_ERROR;
@@ -119,7 +118,7 @@ public class FetchAddressIntentService extends IntentService {
 
     @NotNull
     private JSONObject getAddressElement(JSONObject json) throws CallResponseException {
-        if (! json.has(ADDRESS_ELEMENT))
+        if (!json.has(ADDRESS_ELEMENT))
             throw new CallResponseException("no '" + ADDRESS_ELEMENT + "' element");
         JSONObject jsonAddress = json.optJSONObject(ADDRESS_ELEMENT);
         if (jsonAddress == null)

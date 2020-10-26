@@ -8,6 +8,7 @@
 package com.marv42.ebt.newnote.data
 
 class LocationValues {
+
     @JvmField
     val country: String
     @JvmField

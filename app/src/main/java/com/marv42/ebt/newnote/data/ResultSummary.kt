@@ -8,6 +8,7 @@
 package com.marv42.ebt.newnote.data
 
 class ResultSummary(@JvmField val hits: Int, @JvmField val successful: Int, @JvmField val failed: Int) {
+
     val total: Int
         get() = hits + successful + failed
 }

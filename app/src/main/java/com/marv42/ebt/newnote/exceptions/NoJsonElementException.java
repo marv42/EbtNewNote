@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.exceptions;
 
 public class NoJsonElementException extends Exception {
+
     public NoJsonElementException(String s) {
         super(s);
     }

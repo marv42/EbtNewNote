@@ -40,9 +40,9 @@ import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER
 @AcraMailSender(mailTo = "marv42+acra@gmail.com")
 @AcraToast(resText = R.string.crash_text)
 public class ThisApp extends DaggerApplication {
+
     public static final int RESULT_CODE_SUCCESS = 0;
     public static final int RESULT_CODE_ERROR = 1;
-
     BroadcastReceiver broadcastReceiver;
 
     @Override

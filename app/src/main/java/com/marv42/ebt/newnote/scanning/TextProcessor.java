@@ -23,10 +23,11 @@ import org.json.JSONObject;
 import static com.marv42.ebt.newnote.scanning.Corrections.correct;
 
 public class TextProcessor {
+
     private static final String PARSED_TEXT_ELEMENT = "ParsedText";
     private static final String FILE_PARSE_EXIT_CODE_ELEMENT = "FileParseExitCode";
     private static final String OCR_EXIT_CODE_ELEMENT = "OCRExitCode";
-    private static final String PARSED_RESULT_ELEMENT = "ParsedResults";
+    private static final String PARSED_RESULTS_ELEMENT = "ParsedResults";
     private static final String ERROR_MESSAGE_ELEMENT = "ErrorMessage";
     private static final String ERROR_DETAILS_ELEMENT = "ErrorDetails";
 
@@ -54,7 +55,7 @@ public class TextProcessor {
     private static String extractResult(JSONObject json) throws OcrException, NoJsonElementException, CallResponseException {
         int exitCode = new JsonHelper(json).getElement(int.class, OCR_EXIT_CODE_ELEMENT);
         if (exitCode == 1 || exitCode == 2) {
-            JSONArray parsedResults = new JsonHelper(json).getElement(JSONArray.class, PARSED_RESULT_ELEMENT);
+            JSONArray parsedResults = new JsonHelper(json).getElement(JSONArray.class, PARSED_RESULTS_ELEMENT);
             return getResult(parsedResults);
         }
         if (exitCode == 3 || exitCode == 4) {

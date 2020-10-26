@@ -11,5 +11,4 @@ package com.marv42.ebt.newnote.data
 class NoteData(@JvmField val mCountry: String, @JvmField val mCity: String, @JvmField val mPostalCode: String,
                @JvmField val mDenomination: String, @JvmField val mShortCode: String, @JvmField val mSerialNumber: String,
                @JvmField val mComment: String) {
-
 }

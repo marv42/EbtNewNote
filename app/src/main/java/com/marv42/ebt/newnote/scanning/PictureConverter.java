@@ -29,8 +29,8 @@ import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270;
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90;
 
 class PictureConverter {
-    private static final double TARGET_SIZE_BYTE = 1024 * 1024; // 1024 MB
 
+    private static final double TARGET_SIZE_BYTE = 1024 * 1024; // 1024 MB
     private final String path;
     private final int orientation;
 

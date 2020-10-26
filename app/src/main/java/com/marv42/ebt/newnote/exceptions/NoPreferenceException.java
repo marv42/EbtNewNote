@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote.exceptions;
 
 public class NoPreferenceException extends Throwable {
+
     public NoPreferenceException(String s) {
         super(s);
     }
