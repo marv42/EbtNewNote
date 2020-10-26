@@ -29,8 +29,8 @@ public class SubmitViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public void setCountry(String country) {
-        this.country.setValue(country);
+    public void setCountry(String aCountry) {
+        country.setValue(aCountry);
     }
 
     public LiveData<String> getCountry() {
@@ -39,8 +39,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return country;
     }
 
-    public void setCity(String city) {
-        this.city.setValue(city);
+    public void setCity(String aCity) {
+        city.setValue(aCity);
     }
 
     public LiveData<String> getCity() {
@@ -49,8 +49,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return city;
     }
 
-    public void setPostalCode(String postalCode) {
-        this.postalCode.setValue(postalCode);
+    public void setPostalCode(String aPostalCode) {
+        postalCode.setValue(aPostalCode);
     }
 
     public LiveData<String> getPostalCode() {
@@ -59,8 +59,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return postalCode;
     }
 
-    public void setDenomination(String denomination) {
-        this.denomination.setValue(denomination);
+    public void setDenomination(String aDomination) {
+        denomination.setValue(aDomination);
     }
 
     public LiveData<String> getDenomination() {
@@ -69,8 +69,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return denomination;
     }
 
-    public void setShortCode(String shortCode) {
-        this.shortCode.setValue(shortCode);
+    public void setShortCode(String aShortCode) {
+        shortCode.setValue(aShortCode);
     }
 
     public LiveData<String> getShortCode() {
@@ -79,8 +79,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return shortCode;
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber.setValue(serialNumber);
+    public void setSerialNumber(String aSerialNumber) {
+        serialNumber.setValue(aSerialNumber);
     }
 
     public LiveData<String> getSerialNumber() {
@@ -89,8 +89,8 @@ public class SubmitViewModel extends AndroidViewModel {
         return serialNumber;
     }
 
-    public void setComment(String comment) {
-        this.comment.setValue(comment);
+    public void setComment(String aComment) {
+        comment.setValue(aComment);
     }
 
     public LiveData<String> getComment() {
