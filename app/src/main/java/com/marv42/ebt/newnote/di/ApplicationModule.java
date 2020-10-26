@@ -11,16 +11,12 @@ package com.marv42.ebt.newnote.di;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
 
-import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
-import com.marv42.ebt.newnote.ResultsViewModel;
 import com.marv42.ebt.newnote.SettingsActivity;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
-import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;
@@ -34,6 +30,15 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 @Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
 
+//    @Singleton
+//    abstract Context bindContext(ThisApp app);
+    // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
+//    @Provides
+//    @Singleton
+//    static Context provideContext(@NonNull ThisApp app) {
+//        return app.getApplicationContext();
+//    }
+
     @Provides
     @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull ThisApp app) {
@@ -46,15 +51,6 @@ abstract class ApplicationModule {
             @NonNull ThisApp app, @NonNull SharedPreferences sharedPreferences) {
         return new SharedPreferencesHandler(app, sharedPreferences);
     }
-
-//    @Singleton
-//    abstract Context bindContext(ThisApp app);
-    // prefer static over virtual: https://developer.android.com/training/articles/perf-tips.html#PreferStatic
-//    @Provides
-//    @Singleton
-//    static Context provideContext(@NonNull ThisApp app) {
-//        return app.getApplicationContext();
-//    }
 
     @Provides
     @Singleton

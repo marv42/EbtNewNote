@@ -11,10 +11,7 @@ package com.marv42.ebt.newnote;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -36,12 +33,9 @@ import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.databinding.SubmitBinding;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
-import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.location.LocationButtonHandler;
 import com.marv42.ebt.newnote.scanning.CameraStarter;
-import com.marv42.ebt.newnote.scanning.OcrHandler;
-import com.marv42.ebt.newnote.scanning.OcrNotifier;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,12 +44,8 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerFragment;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Context.VIBRATOR_SERVICE;
-import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
-import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
-import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 
 public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
