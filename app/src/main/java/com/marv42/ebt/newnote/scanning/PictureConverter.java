@@ -18,7 +18,6 @@ import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import static android.graphics.Bitmap.CompressFormat.PNG;
 import static android.graphics.Bitmap.createBitmap;
@@ -40,28 +39,20 @@ class PictureConverter {
     }
 
     String convert() throws NoPictureException {
-        Bitmap image = getImage();
+        Bitmap bitmap = getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        if (! image.compress(PNG, 100 /*ignored for PNG*/, stream))
+        if (!bitmap.compress(PNG, 100 /*ignored for PNG*/, stream))
             throw new NoPictureException("R.string.error_compressing_picture");
         byte[] bytes = stream.toByteArray();
-        int allocationByteCount = image.getAllocationByteCount();
+        int allocationByteCount = bitmap.getAllocationByteCount();
         if (allocationByteCount > TARGET_SIZE_BYTE) {
-            ByteArrayOutputStream streamOfScaled = scaleImage(image, allocationByteCount);
+            ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, allocationByteCount);
             bytes = streamOfScaled.toByteArray();
         }
         return Base64.encodeToString(bytes, NO_WRAP);
     }
 
-    private Bitmap getImage() throws NoPictureException {
-        try {
-            return getBitmap();
-        } catch (IOException e) {
-            throw new NoPictureException("R.string.error_reading_picture: " + e.getMessage());
-        }
-    }
-
-    private Bitmap getBitmap() throws IOException {
+    private Bitmap getBitmap() {
         Bitmap image = BitmapFactory.decodeFile(path);
         final int width = image.getWidth();
         final int height = image.getHeight();
@@ -70,7 +61,7 @@ class PictureConverter {
     }
 
     @NotNull
-    private Matrix rotateImage() throws IOException {
+    private Matrix rotateImage() {
         int degrees = getDegrees();
         Matrix matrix = new Matrix();
         matrix.postRotate(degrees);
@@ -91,7 +82,7 @@ class PictureConverter {
         final int scaledHeight = (int) (scalingFactor * image.getHeight());
         Bitmap scaledImage = createScaledBitmap(image, scaledWidth, scaledHeight, false);
         ByteArrayOutputStream streamOfScaled = new ByteArrayOutputStream();
-        if (! scaledImage.compress(PNG, 100, streamOfScaled))
+        if (!scaledImage.compress(PNG, 100, streamOfScaled))
             throw new NoPictureException("R.string.error_compressing_picture");
         return streamOfScaled;
     }
