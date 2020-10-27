@@ -19,18 +19,11 @@ import org.jetbrains.annotations.NotNull;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.graphics.Color.RED;
 import static android.graphics.Color.YELLOW;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
 
 public class Notifications {
 
-    public static final String OCR_CHANNEL_ID = "ebt_ocr_channel";
-    public static final String OCR_CHANNEL_NAME = "OCR Result Notification Channel";
-    public static final int OCR_NOTIFICATION_ID = 2;
     static final int NOTE_NOTIFICATION_ID = 1;
     static final String NOTE_SUBMISSION_CHANNEL_ID = "default";
     static final String NOTE_SUBMISSION_CHANNEL_NAME = "Note Submission Result Notification Channel";
