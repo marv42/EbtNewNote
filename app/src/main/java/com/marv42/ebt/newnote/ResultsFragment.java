@@ -92,6 +92,55 @@ public class ResultsFragment extends DaggerFragment
         setupViewModel();
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Activity activity = getActivity();
+        if (activity != null)
+            ((Callback) activity).onResultsFragmentAdded();
+    }
+
+    @Override
+    public void onDestroy() {
+        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
+        if (submissionResult.mBillId > 0)
+            menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        switch (item.getItemId()) {
+            case MENU_ITEM_EDIT:
+                startNewNote(submissionResult.mNoteData);
+                return true;
+            case MENU_ITEM_SHOW:
+                showInBrowser(submissionResult.mBillId);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == dataStore.getSharedPreferences())
+            if (key.equals(getString(R.string.pref_settings_images)))
+                refreshResults();
+    }
+
     private void setupViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         viewModel.getResults().observe(getViewLifecycleOwner(), observer -> {
@@ -226,35 +275,9 @@ public class ResultsFragment extends DaggerFragment
                     R.id.list_result};
     }
 
-    @Override
-    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        if (submissionResult.mBillId > 0)
-            menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
-    }
-
     private SubmissionResult getSubmissionResult(long packedPosition) {
         int group = ExpandableListView.getPackedPositionGroup(packedPosition);
         return results.get(group);
-    }
-
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        switch (item.getItemId()) {
-            case MENU_ITEM_EDIT:
-                startNewNote(submissionResult.mNoteData);
-                return true;
-            case MENU_ITEM_SHOW:
-                showInBrowser(submissionResult.mBillId);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
     }
 
     private void startNewNote(NoteData noteData) {
@@ -281,38 +304,9 @@ public class ResultsFragment extends DaggerFragment
         startActivity(new Intent(ACTION_VIEW, uri));
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Activity activity = getActivity();
-        if (activity != null)
-            ((Callback) activity).onResultsFragmentAdded();
-    }
-
     @NotNull
     private Boolean shouldShowImages() {
         return dataStore.get(R.string.pref_settings_images, false);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == dataStore.getSharedPreferences())
-            if (key.equals(getString(R.string.pref_settings_images)) ||
-                    key.equals(getString(R.string.pref_settings_submitted_key)) )
-            {
-                allResults.setResultsToViewModel();
-                ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
-                results = viewModel.getResults().getValue();
-                refreshResults();
-            }
-    }
-
-    @Override
-    public void onDestroy() {
-        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-        if (sharedPreferences != null)
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onDestroy();
     }
 
     public interface Callback {

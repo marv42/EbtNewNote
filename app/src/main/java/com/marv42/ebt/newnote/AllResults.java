@@ -8,6 +8,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -23,13 +24,13 @@ import javax.inject.Inject;
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.google.gson.JsonParser.parseString;
 
-public class AllResults {
+public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int MAX_LOAD_NUM = 9999;
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
     private final EncryptedPreferenceDataStore dataStore;
-    private ArrayList<SubmissionResult> results;
+    private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
     public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore,
@@ -39,6 +40,14 @@ public class AllResults {
         this.dataStore = dataStore;
         initResults();
         setResultsToViewModel();
+        registerOnSharedPreferenceListener();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == dataStore.getSharedPreferences())
+            if (key.equals(app.getString(R.string.pref_settings_submitted_key)))
+                setResultsToViewModel();
     }
 
     private void initResults() {
@@ -66,6 +75,12 @@ public class AllResults {
         int howMany = Math.min(maxNum, results.size());
         int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
         return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
+    }
+
+    private void registerOnSharedPreferenceListener() {
+        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     void setResultsToViewModel() {
