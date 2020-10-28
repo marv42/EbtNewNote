@@ -68,10 +68,10 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         if (results == null || results.isEmpty())
             return new ArrayList<>();
         results.sort(new SubmissionResult.SubmissionComparator());
-        return getSubListWithMaxNum(results, maxNum);
+        return getMaxNumResults(results, maxNum);
     }
 
-    private static ArrayList<SubmissionResult> getSubListWithMaxNum(ArrayList<SubmissionResult> results, int maxNum) {
+    private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
         int howMany = Math.min(maxNum, results.size());
         int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
         return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
@@ -85,7 +85,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
 
     void setResultsToViewModel() {
         int maxShowNum = getMaxShowNum();
-        ArrayList<SubmissionResult> resultsToShow = sortAndFilter(results, maxShowNum);
+        ArrayList<SubmissionResult> resultsToShow = getMaxNumResults(results, maxShowNum);
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         viewModel.setResults(resultsToShow);
     }
