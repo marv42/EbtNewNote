@@ -88,7 +88,7 @@
     <string name="acquire">Foto machen und Werte auslesen</string>
     <string name="no_comment_suggestions">Keine Kommentar-Vorschläge</string>
     <string name="comment_suggestions_error">Fehler beim Besorgen von Kommentar-Vorschlägen</string>
-    <string name="comment_suggestions_set">Kommentar-Vorschläge besorgt\n(Sichtbar, wenn etwas eingetagen wird)</string>
+    <string name="comment_suggestions_set">Kommentar-Vorschläge verfügbar</string>
 
     <!-- settings -->
     <string name="settings">Einstellungen</string>

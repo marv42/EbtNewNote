@@ -100,7 +100,7 @@
     <string name="acquire">Take Photo and Acquire Values</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
     <string name="comment_suggestions_error">Error getting comment suggestions</string>
-    <string name="comment_suggestions_set">Comment suggestions set\n(Start typing to see them)</string>
+    <string name="comment_suggestions_set">Comment suggestions set</string>
 
     <!-- settings -->
     <string name="settings">Settings</string>
