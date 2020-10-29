@@ -5,12 +5,6 @@
  which accompanies this distribution, and is available at
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
+package com.marv42.ebt.newnote.exceptions
 
-package com.marv42.ebt.newnote.exceptions;
-
-public class NoPreferenceException extends Throwable {
-
-    public NoPreferenceException(String s) {
-        super(s);
-    }
-}
+class OcrException(s: String?) : Throwable(s)

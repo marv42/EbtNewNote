@@ -5,12 +5,6 @@
  which accompanies this distribution, and is available at
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
+package com.marv42.ebt.newnote.exceptions
 
-package com.marv42.ebt.newnote.exceptions;
-
-public class NoPictureException extends Throwable {
-
-    public NoPictureException(String s) {
-        super(s);
-    }
-}
+class CallResponseException(s: String?) : Throwable(s)
