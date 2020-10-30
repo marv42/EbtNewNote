@@ -121,7 +121,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                     checkCommentSummary();
                 if (key.equals(getString(R.string.pref_settings_ocr_key)))
                     checkOcrSummary();
-                if (key.equals(getString(R.string.pref_settings_submitted_key)))
+                if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
                     checkSubmittedSummary();
             }
         }
@@ -227,7 +227,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void checkSubmittedSummary() {
             try {
-                EditTextPreference preference = getPreference(R.string.pref_settings_submitted_key);
+                EditTextPreference preference = getPreference(R.string.pref_settings_show_submitted_key);
                 setSubmittedSummary(preference);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
@@ -236,7 +236,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setSubmittedSummary(EditTextPreference preference) {
-            String submitted = dataStore.get(R.string.pref_settings_submitted_key, "");
+            String submitted = dataStore.get(R.string.pref_settings_show_submitted_key, "");
             String summary = getString(R.string.settings_submitted_summary);
             if (!TextUtils.isEmpty(submitted))
                 summary += getString(R.string.settings_currently) + " " + submitted.trim();

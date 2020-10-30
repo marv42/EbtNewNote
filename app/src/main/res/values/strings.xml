@@ -138,7 +138,7 @@
     <string name="pref_settings_comment_key">pref_settings_comment</string>
     <string name="pref_settings_ocr_key">pref_settings_ocr</string>
     <string name="pref_settings_images">pref_settings_images</string>
-    <string name="pref_settings_submitted_key">pref_settings_submitted</string>
+    <string name="pref_settings_show_submitted_key">pref_settings_submitted</string>
     <string name="pref_country_key">pref_country</string>
     <string name="pref_city_key">pref_city</string>
     <string name="pref_postal_code_key">pref_postal_code</string>

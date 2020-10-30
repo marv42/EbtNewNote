@@ -80,6 +80,8 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
             value = (T) getString(key, (String) defValue);
         else if (defValue instanceof Boolean)
             value = (T) (Boolean) getBoolean(key, (Boolean) defValue);
+        else if (defValue instanceof Integer)
+            value = (T) (Integer) getInt(key, (Integer) defValue);
         else
             throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
         if (value == null)

@@ -26,6 +26,7 @@ import static com.google.gson.JsonParser.parseString;
 
 public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG = AllResults.class.getSimpleName();
     private static final int MAX_LOAD_NUM = 9999;
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
@@ -46,7 +47,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == dataStore.getSharedPreferences())
-            if (key.equals(app.getString(R.string.pref_settings_submitted_key)))
+            if (key.equals(app.getString(R.string.pref_settings_show_submitted_key)))
                 setResultsToViewModel();
     }
 
@@ -57,18 +58,18 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
         results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
         }.getType());
-        results = sortAndFilter(results, MAX_LOAD_NUM);
+        sortAndFilterResults();
     }
 
     private String loadFromPreferences() {
         return getDefaultSharedPreferences(app).getString(app.getString(R.string.pref_results_key), "");
     }
 
-    private static ArrayList<SubmissionResult> sortAndFilter(ArrayList<SubmissionResult> results, int maxNum) {
+    private void sortAndFilterResults() {
         if (results == null || results.isEmpty())
-            return new ArrayList<>();
+            return;
         results.sort(new SubmissionResult.SubmissionComparator());
-        return getMaxNumResults(results, maxNum);
+        results = getMaxNumResults(results, AllResults.MAX_LOAD_NUM);
     }
 
     private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
@@ -91,8 +92,9 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     }
 
     private int getMaxShowNum() {
-        String defaultValue = app.getResources().getString(R.string.max_show_num);
-        return Integer.parseInt(dataStore.get(R.string.pref_settings_submitted_key, defaultValue));
+        String maxShowNum = app.getResources().getString(R.string.max_show_num);
+        Integer defaultValue = Integer.parseInt(maxShowNum);
+        return dataStore.get(R.string.pref_settings_show_submitted_key, defaultValue);
     }
 
     void addResult(final SubmissionResult aResult) {
