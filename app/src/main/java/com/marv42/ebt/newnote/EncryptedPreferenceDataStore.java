@@ -80,8 +80,8 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
             value = (T) getString(key, (String) defValue);
         else if (defValue instanceof Boolean)
             value = (T) (Boolean) getBoolean(key, (Boolean) defValue);
-        else if (defValue instanceof Integer)
-            value = (T) (Integer) getInt(key, (Integer) defValue);
+//        else if (defValue instanceof Integer)
+//            value = (T) (Integer) getInt(key, (Integer) defValue);
         else
             throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
         if (value == null)
@@ -89,18 +89,20 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
         return value;
     }
 
-    <T> void set(int keyId, T value) {
-        set(app.getString(keyId), value);
-    }
+//    <T> void set(int keyId, T value) {
+//        set(app.getString(keyId), value);
+//    }
 
-    <T> void set(String key, T value) {
-        if (value instanceof String)
-            putString(key, (String) value);
-        else if (value instanceof Boolean)
-            putBoolean(key, (Boolean) value);
-        else
-            throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
-    }
+//    <T> void set(String key, T value) {
+//        if (value instanceof String)
+//            putString(key, (String) value);
+//        else if (value instanceof Boolean)
+//            putBoolean(key, (Boolean) value);
+//        else if (value instanceof Integer)
+//            putInt(key, (Integer) value);
+//        else
+//            throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
+//    }
 
     @Nullable
     @Override

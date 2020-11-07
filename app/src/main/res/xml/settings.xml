@@ -34,7 +34,7 @@
             android:title="@string/settings_images_title"
             android:summary="@string/settings_images_summary"
             android:defaultValue="true"/>
-        <androidx.preference.EditTextPreference
+        <com.marv42.ebt.newnote.IntEditTextPreference
             android:key="@string/pref_settings_show_submitted_key"
             android:title="@string/settings_submitted_title"
             android:summary="@string/settings_submitted_summary"

@@ -26,22 +26,26 @@ import static com.google.gson.JsonParser.parseString;
 
 public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = AllResults.class.getSimpleName();
-    private static final int MAX_LOAD_NUM = 9999;
+    static final int MAX_LOAD_NUM = 9999;
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
     private final EncryptedPreferenceDataStore dataStore;
     private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
-    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore,
-                      ViewModelProvider viewModelProvider) {
+    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore, ViewModelProvider viewModelProvider) {
         this.app = app;
-        this.viewModelProvider= viewModelProvider;
+        this.viewModelProvider = viewModelProvider;
         this.dataStore = dataStore;
         initResults();
         setResultsToViewModel();
         registerOnSharedPreferenceListener();
+    }
+
+    private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
+        int howMany = Math.min(maxNum, results.size());
+        int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
+        return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
     }
 
     @Override
@@ -69,13 +73,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         if (results == null || results.isEmpty())
             return;
         results.sort(new SubmissionResult.SubmissionComparator());
-        results = getMaxNumResults(results, AllResults.MAX_LOAD_NUM);
-    }
-
-    private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
-        int howMany = Math.min(maxNum, results.size());
-        int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
-        return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
+        results = getMaxNumResults(results, MAX_LOAD_NUM);
     }
 
     private void registerOnSharedPreferenceListener() {
@@ -84,7 +82,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
-    void setResultsToViewModel() {
+    private void setResultsToViewModel() {
         int maxShowNum = getMaxShowNum();
         ArrayList<SubmissionResult> resultsToShow = getMaxNumResults(results, maxShowNum);
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
@@ -92,9 +90,8 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     }
 
     private int getMaxShowNum() {
-        String maxShowNum = app.getResources().getString(R.string.max_show_num);
-        Integer defaultValue = Integer.parseInt(maxShowNum);
-        return dataStore.get(R.string.pref_settings_show_submitted_key, defaultValue);
+        String defaultValue = app.getResources().getString(R.string.max_show_num);
+        return Integer.parseInt(dataStore.get(R.string.pref_settings_show_submitted_key, defaultValue));
     }
 
     void addResult(final SubmissionResult aResult) {

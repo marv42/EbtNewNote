@@ -241,8 +241,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (!TextUtils.isEmpty(submitted))
                 summary += getString(R.string.settings_currently) + " " + submitted.trim();
             preference.setSummary(summary);
-            preference.setOnBindEditTextListener(editText ->
-                    editText.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL));
+            preference.setOnBindEditTextListener(editText -> editText.setInputType(TYPE_CLASS_NUMBER));
         }
 
         private boolean isEmailAndPasswordSet() {
