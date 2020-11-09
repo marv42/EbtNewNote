@@ -93,6 +93,7 @@
     <!-- settings -->
     <string name="settings">Einstellungen</string>
     <string name="settings_category_ebt_account">EBT-Konto-Zugangsdaten</string>
+    <string name="settings_category_ebt_account_summary">Noch kein EBT-Konto?\nHier bekommst du eins</string>
     <string name="invalid_login">Ungültige Zugangsdaten</string>
     <string name="settings_email_title">E-Mail-Adresse</string>
     <string name="settings_email_summary">E-Mail-Adresse zum Einloggen in das EBT-Konto</string>

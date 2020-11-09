@@ -11,6 +11,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_ebt_account">
+        <Preference
+            android:summary="@string/settings_category_ebt_account_summary">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/create_ebt_account_url" />
+        </Preference>
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_email_key"
             android:title="@string/settings_email_title"
