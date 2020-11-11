@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE resources [
-    <!ENTITY submitted_fragment_title "Gesendet">
+    <!ENTITY submitted_fragment_title "Ergebnisse">
     <!ENTITY redirect_to_settings "\n\nDu wirst nun zu den Einstellungen weitergeleitet">
     ]>
 <!--
