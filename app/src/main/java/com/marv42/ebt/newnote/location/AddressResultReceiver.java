@@ -15,9 +15,8 @@ import android.os.ResultReceiver;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.marv42.ebt.newnote.SubmitViewModel;
-import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 
 import static android.widget.Toast.LENGTH_LONG;
@@ -43,7 +42,7 @@ public class AddressResultReceiver extends ResultReceiver {
         }
         String addressOutput = resultData.getString(RESULT_DATA_KEY);
         if (addressOutput == null) {
-            Toast.makeText(context, context.getString(R.string.internal_error),LENGTH_LONG).show();
+            Toast.makeText(context, R.string.internal_error, LENGTH_LONG).show();
             return;
         }
         putLocationValues(addressOutput);

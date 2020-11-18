@@ -15,8 +15,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import android.os.SystemClock
 import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.ThisApp
 import com.marv42.ebt.newnote.Utils
@@ -38,7 +38,7 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun doInBackground() : Int {
+    private suspend fun doInBackground(): Int {
         if (!Geocoder.isPresent())
             return R.string.location_no_geocoder
         val locationListener = locationListener
@@ -67,8 +67,11 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
             val lastKnownNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             return if (lastKnownGpsLocation != null && lastKnownNetworkLocation != null) {
                 if (lastKnownNetworkLocation.accuracy > lastKnownGpsLocation.accuracy)
-                    lastKnownNetworkLocation else lastKnownGpsLocation
-            } else lastKnownGpsLocation ?: lastKnownNetworkLocation!!
+                    lastKnownNetworkLocation
+                else
+                    lastKnownGpsLocation
+            } else
+                lastKnownGpsLocation ?: lastKnownNetworkLocation!!
         }
 
     private val locationListener: LocationListener
@@ -85,7 +88,7 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
 
     private fun onPostExecute(result: Int?) {
         if (result != null)
-            Toast.makeText(app, app.getString(result), Toast.LENGTH_LONG).show()
+            Toast.makeText(app, result, LENGTH_LONG).show()
         if (location != null)
             app.onLocation(location)
     }

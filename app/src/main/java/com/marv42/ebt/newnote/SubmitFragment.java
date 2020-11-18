@@ -77,6 +77,45 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         return binding.getRoot();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViewModel();
+        setOnCheckedChangeListener();
+        setTooltipText(binding.locationButton, getString(R.string.get_location));
+        setTooltipText(binding.photoButton, getString(R.string.acquire));
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        FragmentActivity activity = getActivity();
+        if (activity == null)
+            throw new IllegalStateException("No activity");
+        LoginChecker.checkLoginInfo(activity);
+        ((Callback) activity).onSubmitFragmentAdded();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setViewValuesFromPreferences();
+        addTextChangedListeners();
+        executeCommentSuggestion();
+    }
+
+    @Override
+    public void onPause() {
+        removeTextChangedListeners();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        super.onDestroyView();
+    }
+
     private void setOnClickListeners() {
         binding.locationButton.setOnClickListener(v -> locationButtonClicked());
         binding.photoButton.setOnClickListener(v -> takePhoto());
@@ -101,7 +140,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     }
 
     void submitButtonClicked() {
-        Toast.makeText(getActivity(), getString(R.string.submitting), LENGTH_LONG).show();
+        Toast.makeText(getActivity(), R.string.submitting, LENGTH_LONG).show();
         submitNoteData();
         binding.editTextShortCode.setText("");
         binding.editTextSerialNumber.setText("");
@@ -209,16 +248,6 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         return shortCode;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        FragmentActivity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
-        LoginChecker.checkLoginInfo(activity);
-        ((Callback) activity).onSubmitFragmentAdded();
-    }
-
     void checkClipboardManager(boolean serialNumberOrShortCode) {
         try {
             putToClipboard(serialNumberOrShortCode);
@@ -228,6 +257,8 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     }
 
     private void putToClipboard(boolean serialNumberOrShortCode) throws NoClipboardManagerException {
+        if (binding == null)
+            return; // TODO save (and replace) the text later
         EditText editText = serialNumberOrShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
         ClipboardManager manager = (ClipboardManager) app.getSystemService(CLIPBOARD_SERVICE);
         if (manager == null)
@@ -236,16 +267,8 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         if (!text.isEmpty()) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
             manager.setPrimaryClip(data);
+            Toast.makeText(getActivity(), R.string.content_in_clipboard, LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupViewModel();
-        setOnCheckedChangeListener();
-        setTooltipText(binding.locationButton, getString(R.string.get_location));
-        setTooltipText(binding.photoButton, getString(R.string.acquire));
     }
 
     private void setupViewModel() {
@@ -279,14 +302,6 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
             }
             radioChangingDone = true;
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        setViewValuesFromPreferences();
-        addTextChangedListeners();
-        executeCommentSuggestion();
     }
 
     void setViewValuesFromPreferences() {
@@ -353,23 +368,11 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
                         getPostalCode()));
     }
 
-    @Override
-    public void onPause() {
-        removeTextChangedListeners();
-        super.onPause();
-    }
-
     private void removeTextChangedListeners() {
         binding.editTextCountry.removeTextChangedListener(locationTextWatcher);
         binding.editTextCity.removeTextChangedListener(locationTextWatcher);
         binding.editTextPostalCode.removeTextChangedListener(locationTextWatcher);
         locationTextWatcher = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        binding = null;
-        super.onDestroyView();
     }
 
     void setCommentsAdapter(String[] suggestions) {

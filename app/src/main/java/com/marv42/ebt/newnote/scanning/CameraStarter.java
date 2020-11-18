@@ -59,7 +59,7 @@ public class CameraStarter {
             throw new IllegalStateException("No activity");
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(activity.getPackageManager()) == null) {
-            Toast.makeText(activity, activity.getString(R.string.no_camera_activity), LENGTH_LONG).show();
+            Toast.makeText(activity, R.string.no_camera_activity, LENGTH_LONG).show();
             return false;
         }
         if (checkSelfPermission(activity, CAMERA) != PERMISSION_GRANTED) {

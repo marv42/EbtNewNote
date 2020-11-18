@@ -46,7 +46,7 @@ public class LocationButtonHandler {
         if (!locationIsEnabled())
             return;
         if (checkSelfPermission(app, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED)
-            Toast.makeText(activity, app.getString(R.string.location_no_gps), LENGTH_LONG).show();
+            Toast.makeText(activity, R.string.location_no_gps, LENGTH_LONG).show();
         app.startLocationTask();
     }
 
@@ -65,7 +65,7 @@ public class LocationButtonHandler {
     private boolean locationIsEnabled() {
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null && !locationManager.isLocationEnabled()) {
-            Toast.makeText(activity, app.getString(R.string.location_not_enabled), LENGTH_LONG).show();
+            Toast.makeText(activity, R.string.location_not_enabled, LENGTH_LONG).show();
             app.startLocationProviderChangedReceiver();
             return false;
         }

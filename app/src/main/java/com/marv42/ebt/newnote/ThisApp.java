@@ -71,7 +71,7 @@ public class ThisApp extends DaggerApplication {
     }
 
     public void startLocationTask() {
-        Toast.makeText(this, getString(R.string.location_start), LENGTH_LONG).show();
+        Toast.makeText(this, R.string.location_start, LENGTH_LONG).show();
         new LocationTask(this).execute();
     }
 

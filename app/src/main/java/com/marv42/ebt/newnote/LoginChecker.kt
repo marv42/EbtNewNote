@@ -11,6 +11,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
@@ -36,7 +37,7 @@ class LoginChecker(private val app: ThisApp, private val apiCaller: ApiCaller) {
     }
 
     private fun onPreExecute() {
-        Toast.makeText(app, app.getString(R.string.trying_login), Toast.LENGTH_LONG).show()
+        Toast.makeText(app, R.string.trying_login, LENGTH_LONG).show()
     }
 
     private fun doInBackground(): String {
@@ -79,7 +80,7 @@ ${app.getString(R.string.hello)} ${loginInfo.userName}"""
         var text = result
         if (text.startsWith(ErrorMessage.ERROR))
             text = ErrorMessage(app).getErrorMessage(text)
-        Toast.makeText(app, text, Toast.LENGTH_LONG).show()
+        Toast.makeText(app, text, LENGTH_LONG).show()
     }
 
     companion object {

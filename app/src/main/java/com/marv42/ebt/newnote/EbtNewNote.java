@@ -8,21 +8,15 @@
 
 package com.marv42.ebt.newnote;
 
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.Editable;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -39,8 +33,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
-import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
-import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
 
@@ -185,7 +177,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void processPhoto() {
-        Toast.makeText(this, getString(R.string.processing), LENGTH_LONG).show();
+        Toast.makeText(this, R.string.processing, LENGTH_LONG).show();
         String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
@@ -197,10 +189,10 @@ public class EbtNewNote extends DaggerAppCompatActivity
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length == 0 || grantResults[0] != PERMISSION_GRANTED) {
-            Toast.makeText(this, getString(R.string.no_permission), LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_permission, LENGTH_LONG).show();
             return;
         }
-        Toast.makeText(this, getString(R.string.permission), LENGTH_LONG).show();
+        Toast.makeText(this, R.string.permission, LENGTH_LONG).show();
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
             submitFragment.locationButtonClicked();
         else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
@@ -255,7 +247,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     @Override
-    public void onOcrResult(String result) throws NoNotificationManagerException {
+    public void onOcrResult(@NonNull String result) {
         if (result.isEmpty())
             OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
         else if (result.startsWith(ERROR))
@@ -280,7 +272,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
             viewModel.setSerialNumber(ocrResult);
         else
             viewModel.setShortCode(ocrResult);
-        Toast.makeText(this, getString(R.string.ocr_return), LENGTH_LONG).show();
+        Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
