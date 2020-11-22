@@ -160,7 +160,8 @@
     <!-- photo -->
     <string name="no_camera_activity">No activity for taking pictures</string>
     <string name="processing">Photo is being processed…</string>
-    <string name="ocr_return">Photo processing result set\nFormer content is in the clipboard now</string>
+    <string name="ocr_return">Photo processing result set</string>
+    <string name="content_in_clipboard">Overwritten content is in the clipboard now</string>
     <string name="ocr_dialog_title">Character Recognition Result</string>
     <string name="ocr_dialog_empty">Nothing found</string>
 

@@ -126,7 +126,8 @@
     <!-- photo -->
     <string name="no_camera_activity">Keine Kamera-App</string>
     <string name="processing">Foto wird verarbeitet…</string>
-    <string name="ocr_return">Foto-Verarbeitungs-Ergebnis wurde eingetragen\nVorheriger Eintrag ist in der Zwischenablage</string>
+    <string name="ocr_return">Foto-Verarbeitungs-Ergebnis wurde eingetragen</string>
+    <string name="content_in_clipboard">Vorheriger Eintrag ist in der Zwischenablage</string>
     <string name="ocr_dialog_title">Texterkennungs-Ergebnis</string>
     <string name="ocr_dialog_empty">Nichts gefunden</string>
 
