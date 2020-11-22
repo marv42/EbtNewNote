@@ -124,7 +124,7 @@ public class CameraStarter {
     @NotNull
     private File createTempPhotoFile(File tempFolder) throws NoPictureException {
         try {
-            return createTempFile("bill_", ".png", tempFolder);
+            return createTempFile("bill_", ".jpg", tempFolder);
         } catch (IOException e) {
             throw new NoPictureException("R.string.error_creating_file: " + e.getMessage());
         }
