@@ -13,6 +13,7 @@ import android.os.Build
 import android.provider.MediaStore.MediaColumns
 import androidx.annotation.RequiresApi
 import androidx.exifinterface.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface.*
 import com.marv42.ebt.newnote.HttpCaller
 import com.marv42.ebt.newnote.exceptions.*
 import com.marv42.ebt.newnote.executeAsyncTask
@@ -89,17 +90,23 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
     }
 
     private val orientation: Int
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            orientationFromMediaStore else orientationFromExif
+        get() = when {
+            orientationFromExif != ORIENTATION_UNDEFINED -> orientationFromExif
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> orientationFromMediaStore
+            else -> ORIENTATION_UNDEFINED
+        }
 
     @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromMediaStore: Int
-        get() = if (photoUri != null) orientationFromCursor else ExifInterface.ORIENTATION_UNDEFINED
+        get() = if (photoUri != null)
+            orientationFromCursor
+        else
+            ORIENTATION_UNDEFINED
 
     @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromCursor: Int
         get() {
-            var orientation = ExifInterface.ORIENTATION_UNDEFINED
+            var orientation = ORIENTATION_UNDEFINED
             val columns = arrayOf(MediaColumns.ORIENTATION)
             val cursor = contentResolver.query(photoUri!!, columns, null, null, null)
             if (cursor != null) {
@@ -118,14 +125,14 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
         get() =
             try {
                 val exif = ExifInterface(photoPath)
-                exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                exif.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)
             } catch (e: IOException) {
                 ExifInterface.ORIENTATION_UNDEFINED
             }
 
     interface Callback {
         @Throws(NoNotificationManagerException::class)
-        fun onOcrResult(result: String?)
+        fun onOcrResult(result: String)
     }
 
     companion object {
