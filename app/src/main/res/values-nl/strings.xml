@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE resources [
-    <!ENTITY submitted_fragment_title "Results">
-    <!ENTITY redirect_to_settings "\n\nYou are being redirected to the settings">
+    <!ENTITY submitted_fragment_title "Resultaat">
+    <!ENTITY redirect_to_settings "\n\nJe word nu doorverwezen naar de instellingen">
     ]>
 <!--
   Copyright (c) 2010 - 2020 Marvin Horter.
@@ -13,148 +13,143 @@
 
 <resources>
     <!-- app -->
-    <string name="crash_text">EBT New Note crashed\nSend a report to the developer</string>
+    <string name="crash_text">EBT New Note is gecrasht\nStuur een foutenrapport naar de ontwikkelaar</string>
 
-    <string name="submit_fragment_title">New Note</string>
+    <string name="submit_fragment_title">Nieuw Biljet</string>
     <string name="submitted_fragment_title">&submitted_fragment_title;</string>
 
     <!-- general -->
-    <string name="ok">OK</string>
-    <string name="hello">Hello</string>
+    <string name="hello">Hallo</string>
 
     <!-- notes -->
-    <string name="note">Note</string>
+    <string name="note">Biljet</string>
     <plurals name="xNotes">
-        <item quantity="one">Note</item>
-        <item quantity="other">%d notes</item>
+        <item quantity="one">Biljet</item>
+        <item quantity="other">%d biljetten</item>
     </plurals>
-    <string name="hit">Hit</string>
     <plurals name="xHits">
-        <item quantity="one">A hit</item>
+        <item quantity="one">Een hit</item>
         <item quantity="other">%d hits</item>
     </plurals>
 
     <!-- submitted fragment -->
-    <string name="edit_data">edit for resubmission</string>
-    <string name="show_in_browser">show on EBT web site</string>
+    <string name="edit_data">opnieuw in te dienen bewerking</string>
+    <string name="show_in_browser">tonen op de EBT website</string>
 
     <!-- notification -->
-    <string name="insertion">Insertion</string>
-    <string name="submitting">Submitting data to EBT…</string>
-    <string name="failed">failed</string>
-    <string name="successful">successful</string>
-    <string name="sent">sent</string>
-    <string name="total">Total</string>
+    <string name="insertion">Invoeging</string>
+    <string name="submitting">Gegevens worden naar EBT verzonden…</string>
+    <string name="failed">mislukt</string>
+    <string name="successful">geslaagd</string>
+    <string name="sent">verzonden</string>
+    <string name="total">Totaal</string>
 
     <!-- exceptions -->
-    <string name="http_error">Error communicating to the server</string>
-    <string name="server_error">Unusable response from the server</string>
-    <string name="ocr_error">OCR error</string>
+    <string name="http_error">Fout tijdens communicatie met de server</string>
+    <string name="server_error">Onbruikbare reactie van de server</string>
+    <string name="ocr_error">Karakter herkenning mislukt</string>
 
     <!-- server responses -->
-    <string name="error_no_connection">Insufficient internet connection contacting</string>
-    <string name="response_code">HTTP status code</string>
-    <string name="no_json">Not in valid JSON format</string>
-    <string name="internal_error">Internal error</string>
+    <string name="error_no_connection">Ontoereikende connectiviteit met het internet</string>
+    <string name="no_json">Ongeldig JSON format</string>
+    <string name="internal_error">Interne fout</string>
 
     <!-- note status -->
-    <string name="has_been_entered">Note entered into the system</string>
-    <string name="got_hit">Congratulations! You have got a hit. This note has already been entered</string>
-    <string name="invalid_denomination">Invalid denomination</string>
-    <string name="invalid_country">Invalid country</string>
-    <string name="no_serial_number">No serial number</string>
-    <string name="invalid_serial_number">Invalid serial number</string>
-    <string name="invalid_short_code">Invalid short code</string>
-    <string name="city_missing">No city or postal code</string>
-    <string name="already_entered">You have already entered this note</string>
-    <string name="already_entered_serial_number">You have already entered this serial number</string>
-    <string name="inconsistent">Serial number or printer code invalid for this denomination</string>
+    <string name="has_been_entered">Ingevoerd biljet</string>
+    <string name="got_hit">Gefeliciteerd, je hebt een hit! Dit biljet is al eens eerder ingevoerd!</string>
+    <string name="invalid_denomination">Onjuiste geldwaarde</string>
+    <string name="invalid_country">Land is niet correct</string>
+    <string name="no_serial_number">Geen serienummer opgegeven</string>
+    <string name="invalid_serial_number">Onjuist serienummer</string>
+    <string name="invalid_short_code">Ongeldige short code</string>
+    <string name="city_missing">De stad of postcode ontbreekt</string>
+    <string name="already_entered">Je hebt dit biljet al ingevoerd</string>
+    <string name="already_entered_serial_number">Je hebt dit serienummer eerder gebruikt</string>
+    <string name="inconsistent">Serienummer of short code ongeldig voor een biljet van deze waarde</string>
 
     <!-- new note -->
-    <string name="city">City</string>
-    <string name="city_hint">e.g. Berlin</string>
-    <string name="country">Country</string>
-    <string name="country_hint">e.g. Germany</string>
-    <string name="postal_code">Postal Code</string>
-    <string name="postal_code_hint">e.g. 10557</string>
-    <string name="get_location">Get Current Location</string>
-    <string name="denomination">Denomination</string>
-    <string name="short_code">Short Code</string>
-    <string name="short_code_hint">e.g. A123B4 (or C5D6)</string>
-    <string name="serial_number">Serial Number</string>
-    <string name="serial_number_hint">e.g. AB1234567890</string>
-    <string name="comment">Comment</string>
-    <string name="comment_hint">e.g.: Where did you get the note from? …</string>
-    <string name="submit">Submit Data to EBT</string>
-    <string name="acquire">Take Photo and Acquire Values</string>
-    <string name="no_comment_suggestions">No comment suggestions</string>
-    <string name="comment_suggestions_error">Error getting comment suggestions</string>
-    <string name="comment_suggestions_set">Comment suggestions set</string>
+    <string name="city">Stad</string>
+    <string name="city_hint">bijv. Amsterdam</string>
+    <string name="country">Land</string>
+    <string name="country_hint">bijv. The Netherlands</string>
+    <string name="postal_code">Postcode</string>
+    <string name="postal_code_hint">bijv. 1234AB</string>
+    <string name="get_location">Zoek huidige locatie</string>
+    <string name="denomination">Waarde</string>
+    <string name="short_code_hint">bijv. A123B4 (of C5D6)</string>
+    <string name="serial_number">Serienummer</string>
+    <string name="serial_number_hint">bijv. AB1234567890</string>
+    <string name="comment">Opmerking</string>
+    <string name="comment_hint">Bijvoorbeeld waar je dit biljet ontvangen hebt…</string>
+    <string name="submit">Verzenden naar EBT</string>
+    <string name="acquire">Maak een foto en voer daarop tekstherkenning uit</string>
+    <string name="no_comment_suggestions">Geen suggesties voor opmerking</string>
+    <string name="comment_suggestions_error">Fout bij ophalen van suggesties voor de opmerking</string>
+    <string name="comment_suggestions_set">Opmerking suggesties instellen</string>
 
     <!-- settings -->
-    <string name="settings">Settings</string>
-    <string name="settings_category_ebt_account">EBT account settings</string>
-    <string name="settings_category_ebt_account_summary">Don\'t have an EBT account yet?\nTap here to create one</string>
-    <string name="invalid_login">Invalid login</string>
-    <string name="settings_email_title">Email address</string>
-    <string name="settings_email_summary">Email address to log in to your EBT account</string>
-    <string name="settings_currently">, currently:</string>
-    <string name="settings_currently_not_set">, currently not set</string>
-    <string name="settings_password_title">Password</string>
-    <string name="settings_password_summary">Password of your EBT account</string>
-    <string name="settings_category_ocr">OCR settings</string>
-    <string name="settings_ocr_title">OCR service key</string>
-    <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used</string>
-    <string name="settings_category_display">Display settings</string>
-    <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show denomination images in the \'&submitted_fragment_title;\' tab</string>
-    <string name="settings_category_advanced">Experimental settings</string>
-    <string name="settings_comment_title">Additional comment</string>
-    <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
-    <string name="settings_submitted_title">Number of notes</string>
-    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&submitted_fragment_title;\' tab</string>
-    <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
-    <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
-    <string name="logged_in">Login successful</string>
-    <string name="trying_login">Trying to log in to EBT…</string>
-    <string name="wrong_login_info">No valid EBT login information</string>
+    <string name="settings">Instellingen</string>
+    <string name="settings_category_ebt_account">EBT account instellingen</string>
+    <string name="settings_category_ebt_account_summary">Heb je nog geen EBT account?\nDruk hier om er een te maken</string>
+    <string name="invalid_login">Onjuiste login</string>
+    <string name="settings_email_title">E-mail adres</string>
+    <string name="settings_email_summary">E-mail adres om mee in te loggen bij EBT</string>
+    <string name="settings_currently">, thans:</string>
+    <string name="settings_currently_not_set">, nog niet ingesteld</string>
+    <string name="settings_password_title">Toegangscode</string>
+    <string name="settings_password_summary">Toegangscode van je EBT account</string>
+    <string name="settings_category_ocr">Instellingen voor tekstherkenning</string>
+    <string name="settings_ocr_summary">Om de gefotografeerde tekst te analyseren wordt een OCR-dienst in de cloud gebruikt</string>
+    <string name="settings_category_display">Weergave instellingen</string>
+    <string name="settings_images_title">Afbeeldingen van biljetwaarden</string>
+    <string name="settings_images_summary">Toon afbeeldingen van biljetwaarden in het \'&submitted_fragment_title;\' scherm</string>
+    <string name="settings_category_advanced">Experimentele instellingen</string>
+    <string name="settings_comment_title">Vaste opmerking</string>
+    <string name="settings_comment_summary">Deze tekst wordt automatisch achter de opmerking toegevoegd van ieder biljet dat je indient</string>
+    <string name="settings_submitted_title">Aantal biljetten</string>
+    <string name="settings_submitted_summary">Maximaal aantal biljetten om te tonen in het \'&submitted_fragment_title;\' scherm</string>
+    <string name="get_ocr_key">&redirect_to_settings; om een OCR service key te krijgen of in te voeren.</string>
+    <string name="settings_ocr_summary_no_key">Verkrijg je persoonlijke, niet overdraadbare OCR service key op</string>
+    <string name="logged_in">Login gelukt</string>
+    <string name="trying_login">Aan het inloggen bij EBT…</string>
+    <string name="wrong_login_info">Geen geldige EBT login informatie</string>
     <string name="redirect_to_settings">&redirect_to_settings;</string>
 
     <!-- permissions -->
-    <string name="no_permission">Permissions not granted</string>
-    <string name="permission">Permissions granted</string>
+    <string name="no_permission">Onvoldoende rechten toegekend</string>
+    <string name="permission">Toegang verleend</string>
 
     <!-- photo -->
-    <string name="no_camera_activity">No activity for taking pictures</string>
-    <string name="processing">Photo is being processed…</string>
-    <string name="ocr_return">Photo processing result set</string>
-    <string name="content_in_clipboard">Overwritten content is in the clipboard now</string>
-    <string name="ocr_dialog_title">Character Recognition Result</string>
-    <string name="ocr_dialog_empty">Nothing found</string>
+    <string name="no_camera_activity">Foto\'s maken niet mogelijk wegens ontbrekende aktiviteit</string>
+    <string name="processing">Foto wordt verwerkt…</string>
+    <string name="ocr_return">Resultaat na verwerking van foto</string>
+    <string name="content_in_clipboard">Overschreven informatie is verplaatst naar het klembord</string>
+    <string name="ocr_dialog_title">Resultaat tekstherkenning</string>
+    <string name="ocr_dialog_empty">Niets gevonden</string>
 
     <!-- location -->
-    <string name="location">Location</string>
-    <string name="location_none">No location information available</string>
-    <string name="location_not_enabled">Location is not enabled\nPlease enable location in the system setting</string>
-    <string name="location_no_gps">Fine location is not enabled\nConsider activating GPS</string>
-    <string name="location_start">Gathering location information…</string>
-    <string name="location_got">Got a current location</string>
-    <string name="location_last_known">Got the last known location</string>
-    <string name="location_no_geocoder">No Geocoder backend service\nCould not transform latitude/longitude into postal address</string>
-    <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
+    <string name="location">Lokatie</string>
+    <string name="location_none">Lokatie informatie niet beschikbaar</string>
+    <string name="location_not_enabled">Lokatie herkenning is niet ingeschakeld\nSchakel plaatsbepaling in, in de Android instellingen app</string>
+    <string name="location_no_gps">Exacte lokatie herkenning is niet ingeschakeld\nOverweeg plaatsbepaling via zowel GPS, WiFi en Bluetooth in te schakelen</string>
+    <string name="location_start">Lokatie wordt berekend…</string>
+    <string name="location_got">Huidige lokatie verkregen</string>
+    <string name="location_last_known">De laatst bekende lokatie is verkregen</string>
+    <string name="location_no_geocoder">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
+    <string name="location_no_address">Voor de huidige lokatie kon geen postadres worden gevonden</string>
 
     <!-- about -->
-    <string name="about">About</string>
-    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (www.eurobilltracker.com), a web site for tracking Euro bills\n\nDeveloper contact: marv42+ebtnn@gmail.com</string>
-    <string name="version">Version %1$s</string>
+    <string name="about">Over</string>
+    <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (www.eurobilltracker.com), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: marv42+ebtnn@gmail.com</string>
+    <string name="version">Versie %1$s</string>
 
     <!-- OCR -->
-    <string name="error_reading_picture">Error reading picture file</string>
-    <string name="error_compressing_picture">Error converting picture</string>
-    <string name="error_creating_file">Error creating picture file</string>
-    <string name="error_reading_preferences">Error reading OCR service key</string>
-    <string name="ocr_no_service_key">No OCR service key</string>
-    <string name="ocr_result">OCR result</string>
-    <string name="ocr_result_description">OCR has finished\nSee the result</string>
-    <string name="ocr_wrong_key">Please check your OCR service key</string>
+    <string name="error_reading_picture">Probleem bij het lezen van het foto bestand</string>
+    <string name="error_compressing_picture">Fout tijdens het converteren van de afbeelding</string>
+    <string name="error_creating_file">Fout bij het maken van het foto bestand</string>
+    <string name="error_reading_preferences">Fout bij het lezen van de OCR service key</string>
+    <string name="ocr_no_service_key">Geen OCR service key</string>
+    <string name="ocr_result">Resultaat van de tekstherkenning</string>
+    <string name="ocr_result_description">OCR tekstherkenningsproces afgerond\nResultaat tonen</string>
+    <string name="ocr_wrong_key">Controleer of je OCR service key goed is ingevoerd</string>
 </resources>
