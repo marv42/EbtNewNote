@@ -75,8 +75,8 @@
     <string name="country">Land</string>
     <string name="country_hint">auf Englisch, z.B. Germany</string>
     <string name="postal_code">Postleitzahl</string>
-    <string name="get_location">Aktuellen Standort besorgen</string>
     <string name="postal_code_hint">z.B. 10557</string>
+    <string name="get_location">Aktuellen Standort besorgen</string>
     <string name="denomination">Nennwert</string>
     <string name="short_code">Plattencode</string>
     <string name="short_code_hint">z.B. A123B4 (or C5D6)</string>
@@ -144,7 +144,7 @@
 
     <!-- about -->
     <string name="about">Info</string>
-    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (www.eurobilltracker.com), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: marv42+ebtnn@gmail.com</string>
+    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (%s), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: %s\nMithilfe: %s</string>
 
     <!-- OCR -->
     <string name="error_reading_picture">Fehler beim Lesen der Foto-Datei</string>

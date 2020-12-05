@@ -140,7 +140,7 @@
 
     <!-- about -->
     <string name="about">Over</string>
-    <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (www.eurobilltracker.com), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: marv42+ebtnn@gmail.com</string>
+    <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (%s), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: %s\nBijdragers: %s</string>
     <string name="version">Versie %1$s</string>
 
     <!-- OCR -->

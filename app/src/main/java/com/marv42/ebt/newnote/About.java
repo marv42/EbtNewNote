@@ -39,7 +39,10 @@ public class About implements OnMenuItemClickListener {
                 String.format(context.getString(R.string.version), versionNumber));
         ((TextView) dialog.findViewById(R.id.about_text)).setText(
                 String.format("%1$s %2$s", context.getString(R.string.app_name),
-                        context.getString(R.string.about_text)));
+                        context.getString(R.string.about_text,
+                                context.getString(R.string.www_ebt),
+                                context.getString(R.string.developer),
+                                context.getString(R.string.contributors))));
         dialog.show();
         return true;
     }

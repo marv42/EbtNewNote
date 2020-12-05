@@ -178,7 +178,10 @@
 
     <!-- about -->
     <string name="about">About</string>
-    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (www.eurobilltracker.com), a web site for tracking Euro bills\n\nDeveloper contact: marv42+ebtnn@gmail.com</string>
+    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (%s), a web site for tracking Euro bills\n\nDeveloper contact: %s\nContributors: %s</string>
+    <string name="www_ebt">www.eurobilltracker.com</string>
+    <string name="developer">marv42+ebtnn@gmail.com</string>
+    <string name="contributors">Carnager</string>
     <string name="version">Version %1$s</string>
 
     <!-- OCR -->
