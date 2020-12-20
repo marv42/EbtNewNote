@@ -9,8 +9,8 @@
 buildscript {
     ext {
         sdkVersion = 30
-        buildToolsVersion = '30.0.2'
-        kotlinVersion = '1.4.10'
+        buildToolsVersion = '30.0.3'
+        kotlinVersion = '1.4.20'
         errorproneVersion = '2.4.0'
     }
     repositories {
