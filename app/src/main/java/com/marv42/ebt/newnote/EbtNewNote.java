@@ -107,12 +107,12 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setFragments() {
-        ViewPager pager = findViewById(R.id.view_pager);
         if (isDualPane) {
             final FragmentManager manager = getSupportFragmentManager();
             submitFragment = (SubmitFragment) manager.findFragmentById(R.id.submit_fragment);
             resultsFragment = (ResultsFragment) manager.findFragmentById(R.id.submitted_fragment);
         } else {
+            ViewPager pager = findViewById(R.id.view_pager);
             FragmentWithTitlePagerAdapter adapter = new FragmentWithTitlePagerAdapter();
             pager.setAdapter(adapter);
             setupTabLayout(pager);
@@ -219,17 +219,18 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void checkSwitchFragment(int fragmentIndex) {
-        if (!isDualPane)
-            if (fragmentToSwitchTo == fragmentIndex) {
-                switchFragment(fragmentIndex);
-                fragmentToSwitchTo = -1;
-            }
+        if (fragmentToSwitchTo == fragmentIndex) {
+            switchFragment(fragmentIndex);
+            fragmentToSwitchTo = -1;
+        }
     }
 
     @Override
     public void switchFragment(int fragmentIndex) {
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setCurrentItem(fragmentIndex);
+        if (!isDualPane) {
+            ViewPager viewPager = findViewById(R.id.view_pager);
+            viewPager.setCurrentItem(fragmentIndex);
+        }
     }
 
     @Override
