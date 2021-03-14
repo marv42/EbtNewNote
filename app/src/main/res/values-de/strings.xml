@@ -155,4 +155,5 @@
     <string name="ocr_result">Texterkennungs-Ergebnis</string>
     <string name="ocr_result_description">Texterkennung beendet\nErgebnis betrachten</string>
     <string name="ocr_wrong_key">Bitte den Texterkennungs-Service-Registrierungs-Code überprüfen</string>
+    <string name="ocr_multiple_results">Mehrere Texterkennungs-Ergebnisse gefunden</string>
 </resources>

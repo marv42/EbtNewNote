@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -48,6 +49,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
+import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragment.Callback, CommentSuggestion.Callback,
@@ -75,6 +77,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private int fragmentToSwitchTo = -1;
     private String[] commentSuggestions;
     private boolean isDualPane = false;
+    private String ocrResult = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,19 +256,36 @@ public class EbtNewNote extends DaggerAppCompatActivity
             OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
         else if (result.startsWith(ERROR))
             OcrNotifier.showDialog(this, new ErrorMessage(this).getErrorMessage(result));
+        else
+            checkMultipleOcrResults(result);
+    }
+
+    private void checkMultipleOcrResults(@NonNull String result) {
+        if (result.contains(NEW_LINE))
+            letUserChoose(result);
         else {
+            ocrResult = result;
             vibrate();
-            replaceShortCodeOrSerialNumber(result);
+            replaceShortCodeOrSerialNumber();
+            Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
         }
     }
 
-    private void vibrate() {
-        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        if (v != null)
-            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
+    private void letUserChoose(String ocrResults) {
+        String[] allResults = ocrResults.split(NEW_LINE);
+        ocrResult = "";
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.ocr_multiple_results)
+            // TODO builder.setMessage(R.string.ocr_multiple_results)  https://developer.android.com/guide/topics/ui/dialogs.html#AddingAList
+            .setItems(allResults, (dialog, item) -> {
+                ocrResult = allResults[item];
+                replaceShortCodeOrSerialNumber();
+            })
+            .create()
+            .show();
     }
 
-    private void replaceShortCodeOrSerialNumber(String ocrResult) {
+    private void replaceShortCodeOrSerialNumber() {
         final boolean serialNumberOrShortCode = ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
         submitFragment.checkClipboardManager(serialNumberOrShortCode);
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
@@ -273,7 +293,12 @@ public class EbtNewNote extends DaggerAppCompatActivity
             viewModel.setSerialNumber(ocrResult);
         else
             viewModel.setShortCode(ocrResult);
-        Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
+    }
+
+    private void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        if (v != null)
+            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
     }
 
     private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {

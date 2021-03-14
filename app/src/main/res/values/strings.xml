@@ -193,4 +193,5 @@
     <string name="ocr_result">OCR result</string>
     <string name="ocr_result_description">OCR has finished\nSee the result</string>
     <string name="ocr_wrong_key">Please check your OCR service key</string>
+    <string name="ocr_multiple_results">Multiple OCR results found</string>
 </resources>

@@ -68,7 +68,7 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
             val formBody = formBody
             val request = Request.Builder().url(OCR_URL).post(formBody).build()
             val body = HttpCaller().call(request)
-            return TextProcessor.getOcrResult(body)
+            return TextProcessor().getOcrResult(body)
         }
 
     @get:Throws(NoPictureException::class)

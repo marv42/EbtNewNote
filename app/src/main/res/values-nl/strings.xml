@@ -152,4 +152,5 @@
     <string name="ocr_result">Resultaat van de tekstherkenning</string>
     <string name="ocr_result_description">OCR tekstherkenningsproces afgerond\nResultaat tonen</string>
     <string name="ocr_wrong_key">Controleer of je OCR service key goed is ingevoerd</string>
+    <string name="ocr_multiple_results">Meerdere resultaten na OCR tekstherkenning</string>
 </resources>
