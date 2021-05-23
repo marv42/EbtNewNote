@@ -78,7 +78,7 @@ public class CameraStarter {
                 .setTitle(R.string.ocr_no_service_key)
                 .setMessage(activity.getString(R.string.settings_ocr_summary) + "." +
                         activity.getString(R.string.redirect_to_settings) + activity.getString(R.string.get_ocr_key))
-                .setPositiveButton(activity.getString(R.string.ok),
+                .setPositiveButton(activity.getString(android.R.string.ok),
                         (dialog, which) -> {
                             activity.startActivity(new Intent(activity.getApplicationContext(),
                                     SettingsActivity.class));

@@ -88,9 +88,10 @@ ${app.getString(R.string.hello)} ${loginInfo.userName}"""
         fun checkLoginInfo(activity: FragmentActivity) {
             val app = activity.application
             if (!PreferenceManager.getDefaultSharedPreferences(app).getBoolean(app.getString(R.string.pref_login_values_ok_key), false)) {
-                AlertDialog.Builder(activity).setTitle(app.getString(R.string.invalid_login))
+                AlertDialog.Builder(activity)
+                        .setTitle(app.getString(R.string.invalid_login))
                         .setMessage(app.getString(R.string.wrong_login_info) + "." + app.getString(R.string.redirect_to_settings) + ".")
-                        .setPositiveButton(app.getString(R.string.ok)
+                        .setPositiveButton(app.getString(android.R.string.ok)
                         ) { dialog: DialogInterface, _: Int ->
                             activity.startActivity(Intent(activity.applicationContext,
                                     SettingsActivity::class.java))

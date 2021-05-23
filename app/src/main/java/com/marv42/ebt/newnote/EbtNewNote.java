@@ -275,14 +275,16 @@ public class EbtNewNote extends DaggerAppCompatActivity
         String[] allResults = ocrResults.split(NEW_LINE);
         ocrResult = "";
         new AlertDialog.Builder(this)
-            .setTitle(R.string.ocr_multiple_results)
-            // TODO builder.setMessage(R.string.ocr_multiple_results)  https://developer.android.com/guide/topics/ui/dialogs.html#AddingAList
-            .setItems(allResults, (dialog, item) -> {
-                ocrResult = allResults[item];
-                replaceShortCodeOrSerialNumber();
-            })
-            .create()
-            .show();
+                .setTitle(R.string.ocr_multiple_results)
+                // TODO builder.setMessage(R.string.ocr_multiple_results)  https://developer.android.com/guide/topics/ui/dialogs.html#AddingAList
+                .setItems(allResults, (dialog, item) -> {
+                    ocrResult = allResults[item];
+                    replaceShortCodeOrSerialNumber();
+                })
+                .setCancelable(false)
+                .setNegativeButton(getString(android.R.string.cancel), null)
+                .create()
+                .show();
     }
 
     private void replaceShortCodeOrSerialNumber() {
@@ -301,7 +303,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
             v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
     }
 
-    private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {
+    private class FragmentWithTitlePagerAdapter extends FragmentPagerAdapter {  // TODO
 
         private final List<String> fragmentTitles = new ArrayList<>();
 

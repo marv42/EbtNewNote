@@ -10,7 +10,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def versionMajor = 0
-def versionMinor = 50
+def versionMinor = 51
 def versionPatch = 0
 
 android {
@@ -75,10 +75,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0-M1"
     implementation "ch.acra:acra-mail:$acraVersion"
     implementation "ch.acra:acra-toast:$acraVersion"
-    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.appcompat:appcompat:1.3.0"
 //    implementation "androidx.constraintlayout:constraintlayout:2.0.2"
     implementation "androidx.exifinterface:exifinterface:1.3.2"
-    implementation "androidx.fragment:fragment-ktx:1.3.1"
+    implementation "androidx.fragment:fragment-ktx:1.3.4"
 //    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.preference:preference-ktx:1.1.1"
     implementation "androidx.security:security-crypto:1.1.0-alpha03"
