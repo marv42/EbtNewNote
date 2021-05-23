@@ -21,6 +21,7 @@ class ReplacementMaps {
         return Stream.of(new String[][]{
                 // {"$", "S"},
                 // {"$", "5"},
+                {"Å", "A"},
                 {"K", "X"},
                 {"%", "X"},
                 {"@", "0"},
@@ -35,7 +36,8 @@ class ReplacementMaps {
                 {")", "7"},
                 {"f", "7"},
                 {"a", "8"},
-                {"&", "8"}
+                {"&", "8"},
+                {"+", "9"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -63,6 +65,7 @@ class ReplacementMaps {
                 {"i", "1"},
                 {"\"", "11"},
                 {"I", "1"},
+                {"Q", "1"},
                 {"t", "1"},
                 {"R", "2"},
                 {"Z", "2"},
