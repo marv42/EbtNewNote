@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-    <!ENTITY submitted_fragment_title "Ergebnisse">
-    <!ENTITY redirect_to_settings "\n\nDu wirst nun zu den Einstellungen weitergeleitet">
-    ]>
 <!--
-  Copyright (c) 2010 - 2020 Marvin Horter.
+  Copyright (c) 2010 - 2021 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
   -->
 
+<!DOCTYPE resources [
+    <!ENTITY results_fragment_title "Ergebnisse">
+    <!ENTITY redirect_to_settings "\n\nDu wirst nun zu den Einstellungen weitergeleitet">
+    ]>
+
 <resources>
     <!-- app -->
     <string name="crash_text">EBT New Note ist abgestürzt\nFehlerbericht an den Entwickler senden</string>
 
     <string name="submit_fragment_title">Neuer Schein</string>
-    <string name="submitted_fragment_title">&submitted_fragment_title;</string>
+    <string name="results_fragment_title">&results_fragment_title;</string>
+    <string name="no_data">Hier werden die Ergebnisse angezeigt, sobald du Daten an EBT gesendet hast</string>
 
     <!-- general -->
     <string name="hello">Hallo</string>
@@ -76,7 +78,7 @@
     <string name="country_hint">auf Englisch, z.B. Germany</string>
     <string name="postal_code">Postleitzahl</string>
     <string name="postal_code_hint">z.B. 10557</string>
-    <string name="get_location">Aktuellen Standort besorgen</string>
+    <string name="get_location">den aktuellen Standort vom Gerät besorgen</string>
     <string name="denomination">Nennwert</string>
     <string name="short_code">Plattencode</string>
     <string name="short_code_hint">z.B. A123B4 (or C5D6)</string>
@@ -85,7 +87,7 @@
     <string name="comment">Kommentar</string>
     <string name="comment_hint">z.B.: Woher hast du den Schein? …</string>
     <string name="submit">An EBT senden</string>
-    <string name="acquire">Foto machen und Werte auslesen</string>
+    <string name="acquire">ein Foto machen und die Werte auslesen</string>
     <string name="no_comment_suggestions">Keine Kommentar-Vorschläge</string>
     <string name="comment_suggestions_error">Fehler beim Besorgen von Kommentar-Vorschlägen</string>
     <string name="comment_suggestions_set">Kommentar-Vorschläge verfügbar</string>
@@ -106,12 +108,12 @@
     <string name="settings_ocr_summary">Um die Fotos auszuwerten wird ein Online-Texterkennungs-Service (OCR, optical character recognition) verwendet</string>
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
-    <string name="settings_images_summary">Nennwert-Bilder im \'&submitted_fragment_title;\'-Tab anzeigen</string>
+    <string name="settings_images_summary">Nennwert-Bilder im \'&results_fragment_title;\'-Tab anzeigen</string>
     <string name="settings_category_advanced">Experimentelle Einstellungen</string>
     <string name="settings_comment_title">Kommentar-Zusatz</string>
     <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>
     <string name="settings_submitted_title">Anzahl der Scheine</string>
-    <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'&submitted_fragment_title;\'-Tab</string>
+    <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'&results_fragment_title;\'-Tab</string>
     <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
     <string name="settings_ocr_summary_no_key">Bitte besorge dir deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
     <string name="logged_in">Erfolgreich eingeloggt</string>

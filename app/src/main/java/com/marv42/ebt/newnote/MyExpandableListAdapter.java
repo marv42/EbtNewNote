@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import static android.view.View.GONE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
-import static com.marv42.ebt.newnote.ResultsFragment.DENOMINATION_IMAGE;
+import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION_IMAGE;
 
 public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 

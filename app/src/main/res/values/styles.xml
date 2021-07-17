@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2020 Marvin Horter.
+  Copyright (c) 2010 - 2021 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -11,5 +11,16 @@
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="colorAccent">@color/holo_orange_light</item>
 <!--        TODO <item name="colorForHyperlinks">@color/holo_blue_light</item>-->
+    </style>
+
+<!--    <style name="HorizontalDivider">-->
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:layout_height">1dp</item>-->
+<!--        <item name="android:background">?android:attr/listDivider</item>-->
+<!--    </style>-->
+    <style name="VerticalDivider">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 </resources>

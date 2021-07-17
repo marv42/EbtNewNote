@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-    <!ENTITY submitted_fragment_title "Resultaat">
-    <!ENTITY redirect_to_settings "\n\nJe word nu doorverwezen naar de instellingen">
-    ]>
 <!--
-  Copyright (c) 2010 - 2020 Marvin Horter.
+  Copyright (c) 2010 - 2021 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
   -->
 
+<!DOCTYPE resources [
+    <!ENTITY results_fragment_title "Resultaat">
+    <!ENTITY redirect_to_settings "\n\nJe word nu doorverwezen naar de instellingen">
+    ]>
+
 <resources>
     <!-- app -->
     <string name="crash_text">EBT New Note is gecrasht\nStuur een foutenrapport naar de ontwikkelaar</string>
 
     <string name="submit_fragment_title">Nieuw Biljet</string>
-    <string name="submitted_fragment_title">&submitted_fragment_title;</string>
+    <string name="results_fragment_title">&results_fragment_title;</string>
 
     <!-- general -->
     <string name="hello">Hallo</string>
@@ -74,7 +75,7 @@
     <string name="country_hint">bijv. The Netherlands</string>
     <string name="postal_code">Postcode</string>
     <string name="postal_code_hint">bijv. 1234AB</string>
-    <string name="get_location">Zoek huidige locatie</string>
+    <string name="get_location">zoek huidige locatie</string>
     <string name="denomination">Waarde</string>
     <string name="short_code_hint">bijv. A123B4 (of C5D6)</string>
     <string name="serial_number">Serienummer</string>
@@ -82,7 +83,7 @@
     <string name="comment">Opmerking</string>
     <string name="comment_hint">Bijvoorbeeld waar je dit biljet ontvangen hebt…</string>
     <string name="submit">Verzenden naar EBT</string>
-    <string name="acquire">Maak een foto en voer daarop tekstherkenning uit</string>
+    <string name="acquire">maak een foto en voer daarop tekstherkenning uit</string>
     <string name="no_comment_suggestions">Geen suggesties voor opmerking</string>
     <string name="comment_suggestions_error">Fout bij ophalen van suggesties voor de opmerking</string>
     <string name="comment_suggestions_set">Opmerking suggesties instellen</string>
@@ -102,12 +103,12 @@
     <string name="settings_ocr_summary">Om de gefotografeerde tekst te analyseren wordt een OCR-dienst in de cloud gebruikt</string>
     <string name="settings_category_display">Weergave instellingen</string>
     <string name="settings_images_title">Afbeeldingen van biljetwaarden</string>
-    <string name="settings_images_summary">Toon afbeeldingen van biljetwaarden in het \'&submitted_fragment_title;\' scherm</string>
+    <string name="settings_images_summary">Toon afbeeldingen van biljetwaarden in het \'&results_fragment_title;\' scherm</string>
     <string name="settings_category_advanced">Experimentele instellingen</string>
     <string name="settings_comment_title">Vaste opmerking</string>
     <string name="settings_comment_summary">Deze tekst wordt automatisch achter de opmerking toegevoegd van ieder biljet dat je indient</string>
     <string name="settings_submitted_title">Aantal biljetten</string>
-    <string name="settings_submitted_summary">Maximaal aantal biljetten om te tonen in het \'&submitted_fragment_title;\' scherm</string>
+    <string name="settings_submitted_summary">Maximaal aantal biljetten om te tonen in het \'&results_fragment_title;\' scherm</string>
     <string name="get_ocr_key">&redirect_to_settings; om een OCR service key te krijgen of in te voeren.</string>
     <string name="settings_ocr_summary_no_key">Verkrijg je persoonlijke, niet overdraadbare OCR service key op</string>
     <string name="logged_in">Login gelukt</string>

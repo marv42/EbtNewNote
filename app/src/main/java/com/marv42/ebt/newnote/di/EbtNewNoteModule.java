@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
 package com.marv42.ebt.newnote.di;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,7 +17,8 @@ import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.MySharedPreferencesListener;
-import com.marv42.ebt.newnote.ResultsFragment;
+import com.marv42.ebt.newnote.ResultsFragmentData;
+import com.marv42.ebt.newnote.ResultsFragmentEmpty;
 import com.marv42.ebt.newnote.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmitFragment;
@@ -28,8 +28,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = {SubmitFragmentComponent.class, ResultsFragmentComponent.class,
-        SettingsComponent.class})
+@Module(subcomponents = {SubmitFragmentComponent.class, SettingsComponent.class,
+        ResultsEmptyFragmentComponent.class, ResultsDataFragmentComponent.class })
 abstract class EbtNewNoteModule {
 
     @Provides
@@ -82,6 +82,10 @@ abstract class EbtNewNoteModule {
     abstract SubmitFragment contributeSubmitFragmentInjector();
 
     @ResultsFragmentScope
-    @ContributesAndroidInjector(modules = ResultsFragmentModule.class)
-    abstract ResultsFragment contributeResultsFragmentInjector();
+    @ContributesAndroidInjector(modules = ResultsEmptyFragmentModule.class)
+    abstract ResultsFragmentEmpty contributeResultsEmptyFragmentInjector();
+
+    @ResultsFragmentScope
+    @ContributesAndroidInjector(modules = ResultsDataFragmentModule.class)
+    abstract ResultsFragmentData contributeResultsDataFragmentInjector();
 }
