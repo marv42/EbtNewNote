@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2020 Marvin Horter.
+  Copyright (c) 2010 - 2021 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -8,13 +8,14 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:scrollbars="none">
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:scrollbars="vertical">
         <!--android:layout_margin="20dp"-->
         <TextView
@@ -64,6 +65,7 @@
                 <ImageButton
                     android:id="@+id/location_button"
                     android:contentDescription="@string/get_location"
+                    android:tooltipText="@string/get_location"
                     android:src="@android:drawable/ic_menu_mylocation" />
             </TableRow>
         </TableLayout>
@@ -74,9 +76,9 @@
             android:text="@string/note"
             android:textAllCaps="true" />
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -166,17 +168,19 @@
                     android:hint="@string/serial_number_hint"
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_comment"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    tools:ignore="TextFields" />
                 <ImageButton
                     android:id="@+id/photo_button"
                     android:src="@android:drawable/ic_menu_camera"
-                    android:contentDescription="@string/acquire" />
+                    android:contentDescription="@string/acquire"
+                    android:tooltipText="@string/acquire" />
             </TableRow>
         </TableLayout>
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
             <TextView
                 android:text="@string/comment"
                 android:layout_width="wrap_content"
