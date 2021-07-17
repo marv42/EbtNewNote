@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -55,8 +55,6 @@ public class MySharedPreferencesListener implements SharedPreferences.OnSharedPr
                     key.equals(context.getString(R.string.pref_city_key)) ||
                     key.equals(context.getString(R.string.pref_postal_code_key)))
                 setLocation();
-//        if (sharedPreferences == dataStore.getSharedPreferences())
-//            if (key.equals(context.getString(R.string.pref_settings_images)))
     }
 
     void setLocation() {

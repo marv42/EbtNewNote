@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -42,12 +42,6 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         registerOnSharedPreferenceListener();
     }
 
-    private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
-        int howMany = Math.min(maxNum, results.size());
-        int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
-        return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
-    }
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == dataStore.getSharedPreferences())
@@ -55,13 +49,19 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
                 setResultsToViewModel();
     }
 
+    void addResult(final SubmissionResult aResult) {
+        results.add(aResult);
+        setResultsToViewModel();
+        if (aResult.isSuccessful(app))
+            saveToPreferences();
+    }
+
     private void initResults() {
         String resultsFromPreferences = loadFromPreferences();
         if (resultsFromPreferences == null || TextUtils.isEmpty(resultsFromPreferences))
             return;
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
-        }.getType());
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {}.getType());
         sortAndFilterResults();
     }
 
@@ -74,6 +74,12 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             return;
         results.sort(new SubmissionResult.SubmissionComparator());
         results = getMaxNumResults(results, MAX_LOAD_NUM);
+    }
+
+    private static ArrayList<SubmissionResult> getMaxNumResults(ArrayList<SubmissionResult> results, int maxNum) {
+        int howMany = Math.min(maxNum, results.size());
+        int startIndex = results.size() < maxNum ? 0 : results.size() - maxNum;
+        return new ArrayList<>(results.subList(startIndex, startIndex + howMany));
     }
 
     private void registerOnSharedPreferenceListener() {
@@ -92,13 +98,6 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     private int getMaxShowNum() {
         String defaultValue = app.getResources().getString(R.string.max_show_num);
         return Integer.parseInt(dataStore.get(R.string.pref_settings_show_submitted_key, defaultValue));
-    }
-
-    void addResult(final SubmissionResult aResult) {
-        results.add(aResult);
-        setResultsToViewModel();
-        if (aResult.isSuccessful(app))
-            saveToPreferences();
     }
 
     private void saveToPreferences() {

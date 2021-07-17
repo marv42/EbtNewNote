@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -78,8 +78,7 @@ public class Corrections {
 
     @NotNull
     private static String correctCharInString(String s, int i, Map<String, String> char2something) {
-        s = s.substring(0, i) + correctCharacter(s.charAt(i), char2something) + s.substring(i + 1);
-        return s;
+        return s.substring(0, i) + correctCharacter(s.charAt(i), char2something) + s.substring(i + 1);
     }
 
     private static String correctCharacter(char c, Map<String, String> char2char) {
