@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-    <!ENTITY submitted_fragment_title "Results">
-    <!ENTITY redirect_to_settings "\n\nYou are being redirected to the settings">
-    ]>
 <!--
-  Copyright (c) 2010 - 2020 Marvin Horter.
+  Copyright (c) 2010 - 2021 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
   -->
+
+<!DOCTYPE resources [
+    <!ENTITY results_fragment_title "Results">
+    <!ENTITY redirect_to_settings "\n\nYou are being redirected to the settings">
+    ]>
 
 <resources>
     <!-- cf. https://material.io/design/communication/writing.html#principles -->
@@ -20,7 +21,8 @@
     <string name="crash_text">EBT New Note crashed\nSend a report to the developer</string>
 
     <string name="submit_fragment_title">New Note</string>
-    <string name="submitted_fragment_title">&submitted_fragment_title;</string>
+    <string name="results_fragment_title">&results_fragment_title;</string>
+    <string name="no_data">This is where the results of your note data submissions will appear</string>
 
     <!-- general -->
     <string name="hello">Hello</string>
@@ -80,7 +82,7 @@
     <string name="country_hint">e.g. Germany</string>
     <string name="postal_code">Postal Code</string>
     <string name="postal_code_hint">e.g. 10557</string>
-    <string name="get_location">Get Current Location</string>
+    <string name="get_location">get the current location from the device</string>
     <string name="denomination">Denomination</string>
     <string name="eur5">5 €</string>
     <string name="eur10">10 €</string>
@@ -96,7 +98,7 @@
     <string name="comment">Comment</string>
     <string name="comment_hint">e.g.: Where did you get the note from? …</string>
     <string name="submit">Submit Data to EBT</string>
-    <string name="acquire">Take Photo and Acquire Values</string>
+    <string name="acquire">take a photo and acquire the values</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
     <string name="comment_suggestions_error">Error getting comment suggestions</string>
     <string name="comment_suggestions_set">Comment suggestions set</string>
@@ -118,12 +120,12 @@
     <string name="settings_ocr_summary">In order to analyze the photos, an online OCR (optical character recognition) service is used</string>
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show denomination images in the \'&submitted_fragment_title;\' tab</string>
+    <string name="settings_images_summary">Show denomination images in the \'&results_fragment_title;\' tab</string>
     <string name="settings_category_advanced">Experimental settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
-    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&submitted_fragment_title;\' tab</string>
+    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&results_fragment_title;\' tab</string>
     <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
