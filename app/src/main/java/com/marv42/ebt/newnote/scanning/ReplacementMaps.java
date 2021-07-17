@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -19,13 +19,12 @@ class ReplacementMaps {
     @NotNull
     static Map<String, String> getAmbiguousMap() {
         return Stream.of(new String[][]{
-                // {"$", "S"},
-                // {"$", "5"},
                 {"Å", "A"},
                 {"K", "X"},
                 {"%", "X"},
                 {"@", "0"},
                 {"Ö", "0"},
+                {",", "1"},
                 {"i", "1"},
                 {"t", "1"},
                 {"#", "4"},
@@ -49,6 +48,7 @@ class ReplacementMaps {
                 {"É", "E"},
                 {"4", "N"},
                 {"0", "D"}, // is O legit?
+                {"$", "S"},
                 {"1", "U"},
                 {"K", "X"},
                 {"2", "Z"}
@@ -62,6 +62,7 @@ class ReplacementMaps {
                 {"D", "0"},
                 {"O", "0"},
                 {"o", "0"},
+                {"P", "0"},
                 {"i", "1"},
                 {"\"", "11"},
                 {"I", "1"},
@@ -72,6 +73,7 @@ class ReplacementMaps {
                 // {"s", "3"},
                 // {"s", "5"},
                 {"S", "5"},
+                {"$", "5"},
                 {"T", "7"},
                 {"Y", "7"},
                 {"a", "8"},
