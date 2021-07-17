@@ -6,4 +6,5 @@ app/build/
 app/libs/
 build/
 gradle
-app/src/main/java/com/marv42/ebt/newnote/scanning/Keys.java
+gradlew
+.gitignore
