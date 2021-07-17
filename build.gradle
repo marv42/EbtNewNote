@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2020 Marvin Horter.
+ Copyright (c) 2010 - 2021 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -10,15 +10,16 @@ buildscript {
     ext {
         sdkVersion = 30
         buildToolsVersion = '30.0.3'
-        kotlinVersion = '1.4.31'
+        kotlinVersion = '1.5.21'
         errorproneVersion = '2.4.0'
     }
     repositories {
-        jcenter()
+        mavenCentral()
+        // jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -40,7 +41,8 @@ afterEvaluate {
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
+        // jcenter()
         google()
     }
 
