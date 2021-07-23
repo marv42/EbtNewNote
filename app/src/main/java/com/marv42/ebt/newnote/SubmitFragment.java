@@ -82,12 +82,13 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         super.onViewCreated(view, savedInstanceState);
         setupViewModel();
         setOnCheckedChangeListener();
+        addTextChangedListeners();
         setTooltipText(binding.locationButton, getString(R.string.get_location));
         setTooltipText(binding.photoButton, getString(R.string.acquire));
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {  // TODO
         super.onActivityCreated(savedInstanceState);
         FragmentActivity activity = getActivity();
         if (activity == null)
@@ -100,18 +101,12 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     public void onResume() {
         super.onResume();
         setViewValuesFromPreferences();
-        addTextChangedListeners();
         executeCommentSuggestion();
     }
 
     @Override
-    public void onPause() {
-        removeTextChangedListeners();
-        super.onPause();
-    }
-
-    @Override
     public void onDestroyView() {
+        removeTextChangedListeners();
         binding = null;
         super.onDestroyView();
     }
