@@ -106,7 +106,7 @@
     <!-- settings -->
     <string name="settings">Settings</string>
     <string name="settings_category_ebt_account">EBT account settings</string>
-    <string name="settings_category_ebt_account_summary">Don\'t have an EBT account yet?\nTap here to create one</string>
+    <string name="settings_ebt_account_summary">Don\'t have an EBT account yet?\nTap here to create one</string>
     <string name="create_ebt_account_url">https://en.eurobilltracker.com/signup/</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>

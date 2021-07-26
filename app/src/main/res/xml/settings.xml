@@ -12,7 +12,7 @@
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_ebt_account">
         <Preference
-            android:summary="@string/settings_category_ebt_account_summary">
+            android:summary="@string/settings_ebt_account_summary">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="@string/create_ebt_account_url" />
@@ -21,6 +21,7 @@
             android:key="@string/pref_settings_email_key"
             android:title="@string/settings_email_title"
             android:summary="@string/settings_email_summary"/>
+<!--        TODO PasswordVisibilityEditTextPreference -->
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_password_key"
             android:title="@string/settings_password_title"

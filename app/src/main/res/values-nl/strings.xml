@@ -91,7 +91,7 @@
     <!-- settings -->
     <string name="settings">Instellingen</string>
     <string name="settings_category_ebt_account">EBT account instellingen</string>
-    <string name="settings_category_ebt_account_summary">Heb je nog geen EBT account?\nDruk hier om er een te maken</string>
+    <string name="settings_ebt_account_summary">Heb je nog geen EBT account?\nDruk hier om er een te maken</string>
     <string name="invalid_login">Onjuiste login</string>
     <string name="settings_email_title">E-mail adres</string>
     <string name="settings_email_summary">E-mail adres om mee in te loggen bij EBT</string>
