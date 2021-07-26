@@ -105,26 +105,26 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (sharedPreferences == dataStore.getSharedPreferences()) {
-                String emailKey = getString(R.string.pref_settings_email_key);
-                String passwordKey = getString(R.string.pref_settings_password_key);
-                if (key.equals(emailKey))
-                    checkEmailSummary();
-                if (key.equals(passwordKey))
-                    checkPasswordSummary();
-                if ((key.equals(emailKey) || key.equals(passwordKey)) &&
-                        isEmailAndPasswordSet()) {
-                    Activity activity = getActivity();
-                    if (activity != null)
-                        new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
-                }
-                if (key.equals(getString(R.string.pref_settings_comment_key)))
-                    checkCommentSummary();
-                if (key.equals(getString(R.string.pref_settings_ocr_key)))
-                    checkOcrSummary();
-                if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
-                    checkSubmittedSummary();
+            if (sharedPreferences != dataStore.getSharedPreferences())
+                return;
+            String emailKey = getString(R.string.pref_settings_email_key);
+            String passwordKey = getString(R.string.pref_settings_password_key);
+            if (key.equals(emailKey))
+                checkEmailSummary();
+            if (key.equals(passwordKey))
+                checkPasswordSummary();
+            if ((key.equals(emailKey) || key.equals(passwordKey)) &&
+                    isEmailAndPasswordSet()) {
+                Activity activity = getActivity();
+                if (activity != null)
+                    new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
             }
+            if (key.equals(getString(R.string.pref_settings_comment_key)))
+                checkCommentSummary();
+            if (key.equals(getString(R.string.pref_settings_ocr_key)))
+                checkOcrSummary();
+            if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
+                checkSubmittedSummary();
         }
 
         @NonNull
