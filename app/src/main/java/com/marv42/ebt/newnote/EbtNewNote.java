@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -162,8 +163,15 @@ public class EbtNewNote extends DaggerAppCompatActivity
                 if (isDualPane)
                     replaceResultsFragment();
                 else
-                    setupViewPager(); // TODO we only need to invalidate the view with the ResultsFragmentEmpty, not the one with the SubmitFragment
+                    invalidateResultsView();
         });
+    }
+
+    private void invalidateResultsView() {
+        ViewPager2 pager = findViewById(R.id.view_pager);
+        RecyclerView.Adapter<?> adapter = pager.getAdapter();
+        if (adapter != null)
+            adapter.notifyItemChanged(RESULTS_FRAGMENT_INDEX);
     }
 
     private void replaceResultsFragment() {
