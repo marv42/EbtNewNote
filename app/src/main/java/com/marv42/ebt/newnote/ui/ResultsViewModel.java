@@ -6,10 +6,12 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.ui;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.marv42.ebt.newnote.SubmissionResult;
 
 import java.util.ArrayList;
 
