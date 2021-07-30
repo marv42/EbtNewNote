@@ -19,6 +19,7 @@ import com.marv42.ebt.newnote.data.LoginInfo
 import com.marv42.ebt.newnote.exceptions.CallResponseException
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.HttpCallException
+import com.marv42.ebt.newnote.preferences.SettingsActivity
 import kotlinx.coroutines.*
 
 class LoginChecker(private val app: ThisApp, private val apiCaller: ApiCaller) {

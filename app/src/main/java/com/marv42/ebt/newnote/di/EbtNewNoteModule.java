@@ -15,11 +15,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.EbtNewNote;
-import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
-import com.marv42.ebt.newnote.MySharedPreferencesListener;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.ResultsFragmentData;
 import com.marv42.ebt.newnote.ResultsFragmentEmpty;
-import com.marv42.ebt.newnote.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.ThisApp;

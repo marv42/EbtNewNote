@@ -6,7 +6,7 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.content.Context;
 import android.util.AttributeSet;

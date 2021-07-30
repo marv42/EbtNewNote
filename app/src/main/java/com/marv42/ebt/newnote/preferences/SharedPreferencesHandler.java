@@ -6,9 +6,11 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.content.SharedPreferences;
+
+import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Inject;
 
@@ -27,7 +29,7 @@ public class SharedPreferencesHandler {
         return sharedPreferences;
     }
 
-    <T> T get(int keyId, T defValue) {
+    public <T> T get(int keyId, T defValue) {
         return get(app.getString(keyId), defValue);
     }
 

@@ -6,7 +6,7 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,7 +23,12 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.marv42.ebt.newnote.ApiCaller;
+import com.marv42.ebt.newnote.LoginChecker;
+import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.NoPreferenceException;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.scanning.Keys;
 
 import javax.inject.Inject;
@@ -78,6 +83,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
             if (sharedPreferences != null)
                 sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+            setInputType();
             checkOcrKey();
             checkEmailSummary();
             checkPasswordSummary();
@@ -127,6 +133,22 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 checkSubmittedSummary();
         }
 
+        private void setInputType() {
+            setOnBindListeners(R.string.pref_settings_email_key, TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            setOnBindListeners(R.string.pref_settings_password_key, TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD);
+            setOnBindListeners(R.string.pref_settings_show_submitted_key, TYPE_CLASS_NUMBER);
+        }
+
+        private void setOnBindListeners(int resourceId, int type) {
+            try {
+                EditTextPreference preference = getPreference(resourceId);
+                preference.setOnBindEditTextListener(editText -> editText.setInputType(type));
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
         @NonNull
         private EditTextPreference getPreference(int resourceId) throws NoPreferenceException {
             String key = getString(resourceId);
@@ -165,8 +187,6 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (!TextUtils.isEmpty(email))
                 summary += getString(R.string.settings_currently) + " " + email.trim();
             preference.setSummary(summary);
-            preference.setOnBindEditTextListener(editText ->
-                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS));
         }
 
         private void checkPasswordSummary() {
@@ -184,8 +204,6 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_password_key, "")))
                 summary += getString(R.string.settings_currently_not_set);
             preference.setSummary(summary);
-            preference.setOnBindEditTextListener(editText ->
-                    editText.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD));
         }
 
         private void checkCommentSummary() {
@@ -243,7 +261,6 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if (!TextUtils.isEmpty(submitted))
                 summary += getString(R.string.settings_currently) + " " + submitted.trim();
             preference.setSummary(summary);
-            preference.setOnBindEditTextListener(editText -> editText.setInputType(TYPE_CLASS_NUMBER));
         }
 
         private boolean isEmailAndPasswordSet() {

@@ -6,17 +6,19 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.text.Editable;
 import android.text.TextWatcher;
 
-class SavePreferencesTextWatcher implements TextWatcher {
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
+
+public class SavePreferencesTextWatcher implements TextWatcher {
 
     private final SharedPreferencesHandler sharedPreferencesHandler;
     private final String preferenceKey;
 
-    SavePreferencesTextWatcher(SharedPreferencesHandler sharedPreferencesHandler, String preferenceKey) {
+    public SavePreferencesTextWatcher(SharedPreferencesHandler sharedPreferencesHandler, String preferenceKey) {
         this.sharedPreferencesHandler = sharedPreferencesHandler;
         this.preferenceKey = preferenceKey;
     }

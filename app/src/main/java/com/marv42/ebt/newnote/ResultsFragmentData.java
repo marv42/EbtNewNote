@@ -30,6 +30,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.ui.ResultsViewModel;
+import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-
-import dagger.android.support.DaggerFragment;
 
 import static android.content.Intent.ACTION_VIEW;
 import static androidx.core.content.ContextCompat.getColor;

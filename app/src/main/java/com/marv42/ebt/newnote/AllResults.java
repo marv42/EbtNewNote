@@ -16,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.ui.ResultsViewModel;
 
 import java.util.ArrayList;
 
@@ -26,7 +28,7 @@ import static com.google.gson.JsonParser.parseString;
 
 public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    static final int MAX_LOAD_NUM = 9999;
+    public static final int MAX_LOAD_NUM = 9999;
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
     private final EncryptedPreferenceDataStore dataStore;

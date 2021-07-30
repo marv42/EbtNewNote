@@ -6,13 +6,17 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import androidx.lifecycle.ViewModelProvider;
+
+import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.ThisApp;
+import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
 import javax.inject.Inject;
 
@@ -57,7 +61,7 @@ public class MySharedPreferencesListener implements SharedPreferences.OnSharedPr
                 setLocation();
     }
 
-    void setLocation() {
+    public void setLocation() {
         setCountry();
         setCity();
         setPostalCode();

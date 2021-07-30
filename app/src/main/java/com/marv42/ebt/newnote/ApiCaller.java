@@ -16,6 +16,7 @@ import com.marv42.ebt.newnote.data.NoteInsertionData;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoJsonElementException;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;

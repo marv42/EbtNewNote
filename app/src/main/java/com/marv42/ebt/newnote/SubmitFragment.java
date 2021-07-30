@@ -35,7 +35,12 @@ import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.location.LocationButtonHandler;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
+import com.marv42.ebt.newnote.preferences.SavePreferencesTextWatcher;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.CameraStarter;
+import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -85,14 +90,8 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         addTextChangedListeners();
         setTooltipText(binding.locationButton, getString(R.string.get_location));
         setTooltipText(binding.photoButton, getString(R.string.acquire));
-    }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {  // TODO
-        super.onActivityCreated(savedInstanceState);
-        FragmentActivity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
+        FragmentActivity activity = requireActivity();
         LoginChecker.checkLoginInfo(activity);
         ((Callback) activity).onSubmitFragmentAdded();
     }
@@ -237,9 +236,9 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     @NotNull
     private String fixLeadingZeros(String shortCode) {
         if (shortCode.length() == 4)
-            shortCode = shortCode.substring(0, 1) + "00" + shortCode.substring(1);
+            shortCode = shortCode.charAt(0) + "00" + shortCode.substring(1);
         else if (shortCode.length() == 5)
-            shortCode = shortCode.substring(0, 1) + "0" + shortCode.substring(1);
+            shortCode = shortCode.charAt(0) + "0" + shortCode.substring(1);
         return shortCode;
     }
 
@@ -356,7 +355,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     private void executeCommentSuggestion() {
         if (!sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
-        new CommentSuggestion(apiCaller, (EbtNewNote) getActivity(), dataStore)
+        new CommentSuggestion(apiCaller, (EbtNewNote) requireActivity(), dataStore)
                 .execute(new LocationValues(
                         getCountry(),
                         getCity(),

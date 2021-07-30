@@ -6,7 +6,7 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-package com.marv42.ebt.newnote;
+package com.marv42.ebt.newnote.preferences;
 
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDataStore;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
+
+import com.marv42.ebt.newnote.ThisApp;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -64,12 +66,12 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
                 .build();
     }
 
-    SharedPreferences getSharedPreferences() {
+    public SharedPreferences getSharedPreferences() {
         return sharedPreferences;
     }
 
     @NonNull
-    <T> T get(int keyId, T defValue) {
+    public <T> T get(int keyId, T defValue) {
         return get(app.getString(keyId), defValue);
     }
 
@@ -83,7 +85,7 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
 //        else if (defValue instanceof Integer)
 //            value = (T) (Integer) getInt(key, (Integer) defValue);
         else
-            throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
+            throw new IllegalArgumentException("defValue " + defValue + " is instance of unhandled class");
         if (value == null)
             return defValue;
         return value;

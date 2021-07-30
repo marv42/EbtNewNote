@@ -36,8 +36,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
+import com.marv42.ebt.newnote.preferences.SettingsActivity;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
+import com.marv42.ebt.newnote.ui.ResultsViewModel;
+import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
 import javax.inject.Inject;
 

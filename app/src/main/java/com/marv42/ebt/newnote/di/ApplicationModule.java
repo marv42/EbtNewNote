@@ -14,9 +14,9 @@ import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
-import com.marv42.ebt.newnote.EncryptedPreferenceDataStore;
-import com.marv42.ebt.newnote.SettingsActivity;
-import com.marv42.ebt.newnote.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SettingsActivity;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.ThisApp;
 
 import javax.inject.Singleton;

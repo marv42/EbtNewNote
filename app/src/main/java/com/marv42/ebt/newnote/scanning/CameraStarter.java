@@ -21,8 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 
 import com.marv42.ebt.newnote.R;
-import com.marv42.ebt.newnote.SettingsActivity;
-import com.marv42.ebt.newnote.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.preferences.SettingsActivity;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 
 import org.jetbrains.annotations.NotNull;
