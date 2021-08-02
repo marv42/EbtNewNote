@@ -61,7 +61,7 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
     }
 
     @get:SuppressLint("MissingPermission")
-    private val lastKnownLocation: Location
+    private val lastKnownLocation: Location?
         get() {
             val lastKnownGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             val lastKnownNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -71,7 +71,7 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
                 else
                     lastKnownGpsLocation
             } else
-                lastKnownGpsLocation ?: lastKnownNetworkLocation!!
+                lastKnownGpsLocation ?: lastKnownNetworkLocation
         }
 
     private val locationListener: LocationListener
