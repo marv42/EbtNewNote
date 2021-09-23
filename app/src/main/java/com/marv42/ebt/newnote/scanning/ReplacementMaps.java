@@ -19,11 +19,9 @@ class ReplacementMaps {
     @NotNull
     static Map<String, String> getAmbiguousMap() {
         return Stream.of(new String[][]{
-                {"Å", "A"},
                 {"K", "X"},
                 {"%", "X"},
                 {"@", "0"},
-                {"Ö", "0"},
                 {",", "1"},
                 {"i", "1"},
                 {"t", "1"},
@@ -45,12 +43,10 @@ class ReplacementMaps {
         return Stream.of(new String[][]{
                 {"8", "A"},
                 {"3", "B"},
-                {"É", "E"},
                 {"4", "N"},
-                {"0", "D"}, // is O legit?
+                {"0", "O"}, // or D :-/
                 {"$", "S"},
                 {"1", "U"},
-                {"K", "X"},
                 {"2", "Z"}
                 // {"1", "Z"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
