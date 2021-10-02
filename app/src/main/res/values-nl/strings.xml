@@ -99,8 +99,11 @@
     <string name="settings_currently_not_set">, nog niet ingesteld</string>
     <string name="settings_password_title">Toegangscode</string>
     <string name="settings_password_summary">Toegangscode van je EBT account</string>
-    <string name="settings_category_ocr">Instellingen voor tekstherkenning</string>
+    <string name="settings_category_apis"></string>
+    <string name="settings_ocr_title"></string>
     <string name="settings_ocr_summary">Om de gefotografeerde tekst te analyseren wordt een OCR-dienst in de cloud gebruikt</string>
+    <string name="settings_country_title"></string>
+    <string name="settings_country_summary"></string>
     <string name="settings_category_display">Weergave instellingen</string>
     <string name="settings_images_title">Afbeeldingen van biljetwaarden</string>
     <string name="settings_images_summary">Toon afbeeldingen van biljetwaarden in het \'&results_fragment_title;\' scherm</string>
@@ -111,6 +114,7 @@
     <string name="settings_submitted_summary">Maximaal aantal biljetten om te tonen in het \'&results_fragment_title;\' scherm</string>
     <string name="get_ocr_key">&redirect_to_settings; om een OCR service key te krijgen of in te voeren.</string>
     <string name="settings_ocr_summary_no_key">Verkrijg je persoonlijke, niet overdraadbare OCR service key op</string>
+    <string name="settings_country_summary_no_key"></string>
     <string name="logged_in">Login gelukt</string>
     <string name="trying_login">Aan het inloggen bij EBT…</string>
     <string name="wrong_login_info">Geen geldige EBT login informatie</string>
@@ -138,10 +142,11 @@
     <string name="location_last_known">De laatst bekende lokatie is verkregen</string>
     <string name="location_no_geocoder">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
     <string name="location_no_address">Voor de huidige lokatie kon geen postadres worden gevonden</string>
+    <string name="location_no_country"></string>
 
     <!-- about -->
     <string name="about">Over</string>
-    <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (%s), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: %s\nBijdragers: %s</string>
+    <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (%1$s), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: %2$s\nBijdragers: %3$s</string>
     <string name="version">Versie %1$s</string>
 
     <!-- OCR -->
