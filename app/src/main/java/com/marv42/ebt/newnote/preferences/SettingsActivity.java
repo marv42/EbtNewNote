@@ -85,10 +85,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             setInputType();
             checkOcrKey();
+            checkCountryKey();
             checkEmailSummary();
             checkPasswordSummary();
             checkCommentSummary();
             checkOcrSummary();
+            checkCountrySummary();
             checkSubmittedSummary();
         }
 
@@ -129,6 +131,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 checkCommentSummary();
             if (key.equals(getString(R.string.pref_settings_ocr_key)))
                 checkOcrSummary();
+            if (key.equals(getString(R.string.pref_settings_country_key)))
+                checkCountrySummary();
             if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
                 checkSubmittedSummary();
         }
@@ -164,6 +168,19 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty()) {
                     EditTextPreference preference = getPreference(R.string.pref_settings_ocr_key);
                     preference.setText(Keys.OCR_SERVICE);
+                }
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        private void checkCountryKey() {
+            try {
+                String countryKey = dataStore.get(R.string.pref_settings_country_key, "");
+                if (countryKey.isEmpty() && !Keys.COUNTRY_SERVICE.isEmpty()) {
+                    EditTextPreference preference = getPreference(R.string.pref_settings_country_key);
+                    preference.setText(Keys.COUNTRY_SERVICE);
                 }
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
@@ -241,6 +258,27 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
                 preference.setIntent(new Intent().setAction(ACTION_VIEW)
                         .setData(Uri.parse(ocrServiceUrl)));
+            }
+            preference.setSummary(summary);
+        }
+
+        private void checkCountrySummary() {
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_country_key);
+                setCountrySummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        private void setCountrySummary(EditTextPreference preference) {
+            String summary = getString(R.string.settings_country_summary);
+            if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_country_key, ""))) {
+                String countryServiceUrl = getString(R.string.settings_country_service_url);
+                summary += " " + getString(R.string.settings_country_summary_no_key) + " " + countryServiceUrl;
+                preference.setIntent(new Intent().setAction(ACTION_VIEW)
+                        .setData(Uri.parse(countryServiceUrl)));
             }
             preference.setSummary(summary);
         }

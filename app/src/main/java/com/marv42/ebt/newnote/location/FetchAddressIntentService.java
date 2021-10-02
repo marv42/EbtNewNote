@@ -8,7 +8,11 @@
 
 package com.marv42.ebt.newnote.location;
 
-import android.app.IntentService;
+import static com.marv42.ebt.newnote.BuildConfig.APPLICATION_ID;
+import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_ERROR;
+import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_SUCCESS;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
+
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -25,20 +29,19 @@ import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoIntentException;
 import com.marv42.ebt.newnote.exceptions.NoLocationException;
+import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
+import dagger.android.DaggerIntentService;
 import okhttp3.FormBody;
 import okhttp3.Request;
 
-import static com.marv42.ebt.newnote.BuildConfig.APPLICATION_ID;
-import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_ERROR;
-import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_SUCCESS;
-import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
-
-public class FetchAddressIntentService extends IntentService {
+public class FetchAddressIntentService extends DaggerIntentService {
 
     public static final String TAG = FetchAddressIntentService.class.getSimpleName();
     public static final String RECEIVER = APPLICATION_ID + ".RECEIVER";
@@ -50,9 +53,16 @@ public class FetchAddressIntentService extends IntentService {
     private ResultReceiver receiver;
     private String result;
     private int resultCode = RESULT_CODE_ERROR;
+    @Inject
+    EncryptedPreferenceDataStore dataStore;
 
     public FetchAddressIntentService() {
         super(TAG);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
@@ -93,7 +103,13 @@ public class FetchAddressIntentService extends IntentService {
         String countryCode = jsonAddress.optString("CountryCode");
         String city = jsonAddress.optString("City");
         String postalCode = jsonAddress.optString("Postal");
-        String countryName = new CountryCode().convert(countryCode);
+        String countryName = ERROR + getString(R.string.location_no_country);
+        try {
+            String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
+            countryName = new CountryCode().convert(countryCode, apiKey);
+        } catch (HttpCallException | CallResponseException e) {
+            e.printStackTrace();
+        }
         return new LocationValues(countryName, city, postalCode);
     }
 

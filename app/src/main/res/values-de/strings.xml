@@ -103,9 +103,11 @@
     <string name="settings_currently_not_set">, nicht gesetzt</string>
     <string name="settings_password_title">Passwort</string>
     <string name="settings_password_summary">Passwort des EBT-Kontos</string>
-    <string name="settings_category_ocr">Texterkennungs-Einstellungen</string>
+    <string name="settings_category_apis">Service-Codes-Einstellungen</string>
     <string name="settings_ocr_title">Texterkennungs-Service-\nRegistrierungs-Code</string>
     <string name="settings_ocr_summary">Um die Fotos auszuwerten wird ein Online-Texterkennungs-Service (OCR, optical character recognition) verwendet</string>
+    <string name="settings_country_title">Ländernamen-Auflösungs-Service-Code</string>
+    <string name="settings_country_summary">Um Ländernamen aufzulösen wird ein Online-Service verwendet</string>
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
     <string name="settings_images_summary">Nennwert-Bilder im \'&results_fragment_title;\'-Tab anzeigen</string>
@@ -116,6 +118,7 @@
     <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'&results_fragment_title;\'-Tab</string>
     <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
     <string name="settings_ocr_summary_no_key">Bitte besorge dir deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
+    <string name="settings_country_summary_no_key">Bitte besorge dir deinen persönlichen Ländernamen-Auflösungs-Service-Registrierungs-Code bei</string>
     <string name="logged_in">Erfolgreich eingeloggt</string>
     <string name="trying_login">EBT-Zugangsdaten werden geprüft…</string>
     <string name="wrong_login_info">Ungültige EBT-Konto-Zugangsdaten</string>
@@ -143,10 +146,11 @@
     <string name="location_last_known">Zuletzt bekannter Standort wurde eingesetzt</string>
     <string name="location_no_geocoder">Kein Geocoding-Service vorhanden\nKoordinaten konnten nicht in Adresse umgewandelt werden</string>
     <string name="location_no_address">Geocoder konnte keine Adresse für den Standort ausmachen</string>
+    <string name="location_no_country">Name des Landes konnte nicht aufgelöst werden</string>
 
     <!-- about -->
     <string name="about">Info</string>
-    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (%s), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: %s\nMithilfe: %s</string>
+    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (%1$s), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: %2$s\nUnterstützung: %3$s</string>
 
     <!-- OCR -->
     <string name="error_reading_picture">Fehler beim Lesen der Foto-Datei</string>

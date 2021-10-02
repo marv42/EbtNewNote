@@ -25,6 +25,7 @@
         android:name=".ThisApp"
         android:theme="@style/AppTheme"
         android:allowBackup="false"
+        android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".EbtNewNote"

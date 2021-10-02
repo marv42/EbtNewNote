@@ -28,11 +28,15 @@
             android:summary="@string/settings_password_summary"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
-        android:title="@string/settings_category_ocr">
+        android:title="@string/settings_category_apis">
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_ocr_key"
             android:title="@string/settings_ocr_title"
             android:summary="@string/settings_ocr_summary"/>
+        <androidx.preference.EditTextPreference
+            android:key="@string/pref_settings_country_key"
+            android:title="@string/settings_country_title"
+            android:summary="@string/settings_country_summary"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_display">
