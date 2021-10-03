@@ -252,12 +252,18 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setOcrSummary(EditTextPreference preference) {
-            String summary = getString(R.string.settings_ocr_summary);
-            if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_ocr_key, ""))) {
-                String ocrServiceUrl = getString(R.string.settings_ocr_service_url);
-                summary += " " + getString(R.string.settings_ocr_summary_no_key) + " " + ocrServiceUrl;
+            setSummary(preference, R.string.settings_ocr_summary, R.string.pref_settings_ocr_key,
+                    R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
+        }
+
+        private void setSummary(EditTextPreference preference, int resourceIdSummary,
+                                int resourceIdKey, int resourceIdUrl, int resourceIdSummaryNoKey) {
+            String summary = getString(resourceIdSummary);
+            if (TextUtils.isEmpty(dataStore.get(resourceIdKey, ""))) {
+                String serviceUrl = getString(resourceIdUrl);
+                summary += " " + getString(resourceIdSummaryNoKey) + " " + serviceUrl;
                 preference.setIntent(new Intent().setAction(ACTION_VIEW)
-                        .setData(Uri.parse(ocrServiceUrl)));
+                        .setData(Uri.parse(serviceUrl)));
             }
             preference.setSummary(summary);
         }
@@ -273,14 +279,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setCountrySummary(EditTextPreference preference) {
-            String summary = getString(R.string.settings_country_summary);
-            if (TextUtils.isEmpty(dataStore.get(R.string.pref_settings_country_key, ""))) {
-                String countryServiceUrl = getString(R.string.settings_country_service_url);
-                summary += " " + getString(R.string.settings_country_summary_no_key) + " " + countryServiceUrl;
-                preference.setIntent(new Intent().setAction(ACTION_VIEW)
-                        .setData(Uri.parse(countryServiceUrl)));
-            }
-            preference.setSummary(summary);
+            setSummary(preference, R.string.settings_country_summary, R.string.pref_settings_country_key,
+                    R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
         }
 
         private void checkSubmittedSummary() {

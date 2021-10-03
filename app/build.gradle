@@ -10,7 +10,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def versionMajor = 0
-def versionMinor = 55
+def versionMinor = 56
 def versionPatch = 0
 
 android {

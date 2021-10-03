@@ -8,7 +8,8 @@
   -->
 
 <androidx.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_ebt_account">
         <Preference
@@ -21,11 +22,11 @@
             android:key="@string/pref_settings_email_key"
             android:title="@string/settings_email_title"
             android:summary="@string/settings_email_summary"/>
-<!--        TODO com.marv42.ebt.newnote.PasswordToggleEditTextPreference -->
-        <androidx.preference.EditTextPreference
+        <com.marv42.ebt.newnote.preferences.PasswordToggleEditTextPreference
             android:key="@string/pref_settings_password_key"
             android:title="@string/settings_password_title"
-            android:summary="@string/settings_password_summary"/>
+            android:summary="@string/settings_password_summary"
+            app:endIconDrawable="@drawable/ic_password_eye"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_apis">
