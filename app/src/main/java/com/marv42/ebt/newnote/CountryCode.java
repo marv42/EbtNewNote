@@ -19,16 +19,17 @@ import okhttp3.Request;
 
 public class CountryCode {
 
-    private static final String COUNTRIES_URL = "https://restcountries.eu/rest/v2/alpha/";
+    private static final String COUNTRIES_URL = "http://api.countrylayer.com/v2/alpha/";
     private static final String NAME_ELEMENT = "name";
 
-    public String convert(String countryCode) throws HttpCallException, CallResponseException {
-        String body = executeCall(countryCode);
+    public String convert(String countryCode, String apiKey) throws HttpCallException, CallResponseException {
+        String body = executeCall(countryCode, apiKey);
         return extractName(body);
     }
 
-    private String executeCall(String countryCode) throws HttpCallException {
-        Request request = new Request.Builder().url(COUNTRIES_URL + countryCode).build();
+    private String executeCall(String countryCode, String apiKey) throws HttpCallException {
+        String url = COUNTRIES_URL + countryCode + "?access_key=" + apiKey;
+        Request request = new Request.Builder().url(url).build();
         return new HttpCaller().call(request);
     }
 
