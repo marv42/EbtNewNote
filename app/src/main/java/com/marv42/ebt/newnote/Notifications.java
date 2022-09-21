@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat;
 import org.jetbrains.annotations.NotNull;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.graphics.Color.YELLOW;
 import static com.marv42.ebt.newnote.EbtNewNote.FRAGMENT_TYPE;
@@ -53,6 +54,6 @@ public class Notifications {
     public static PendingIntent getPendingIntent(ThisApp app, Class<?> className) {
         Intent intent = new Intent(app, EbtNewNote.class);
         intent.putExtra(FRAGMENT_TYPE, className.getSimpleName());
-        return PendingIntent.getActivity(app, REQUEST_CODE, intent, FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(app, REQUEST_CODE, intent, FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE);
     }
 }
