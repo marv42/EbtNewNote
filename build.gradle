@@ -8,24 +8,25 @@
 
 buildscript {
     ext {
-        sdkVersion = 30
-        buildToolsVersion = '30.0.3'
-        kotlinVersion = '1.5.31'
-        errorproneVersion = '2.4.0'
+        sdkVersion = 33
+        buildToolsVersion = '33.0.0'
+        aboutLibrariesVersion = '10.4.1-a01'
     }
     repositories {
         mavenCentral()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.android.tools.build:gradle:7.2.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
+        classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:$aboutLibrariesVersion"
     }
 }
 
 plugins {
     id "net.ltgt.errorprone" version "1.2.1"
     id "scabbard.gradle" version "0.5.0"
+//    id "com.mikepenz.aboutlibraries.plugin" version "aboutLibrariesVersion"
 }
 
 scabbard {
@@ -35,7 +36,7 @@ scabbard {
 }
 
 dependencies {
-    errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
+    errorprone "com.google.errorprone:error_prone_core:2.4.0"
 }
 
 afterEvaluate {
