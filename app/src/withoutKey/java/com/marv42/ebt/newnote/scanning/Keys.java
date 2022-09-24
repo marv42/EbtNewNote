@@ -10,4 +10,5 @@ package com.marv42.ebt.newnote.scanning;
 
 public class Keys {
    public static final String OCR_SERVICE = "";
+   public static final String COUNTRY_SERVICE = "";
 }
