@@ -150,6 +150,7 @@
 
     <!-- about -->
     <string name="about">Info</string>
+    <string name="licenses">Lizensen</string>
     <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (%1$s), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: %2$s\nUnterstützung: %3$s</string>
 
     <!-- OCR -->

@@ -17,7 +17,6 @@
 
     <!-- app -->
     <string name="app_name">EBT New Note</string>
-    <string name="ime_name">EBT keyboard</string>
     <string name="crash_text">EBT New Note crashed\nSend a report to the developer</string>
 
     <string name="submit_fragment_title">New Note</string>
@@ -185,6 +184,7 @@
 
     <!-- about -->
     <string name="about">About</string>
+    <string name="licenses">Licenses</string>
     <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (%1$s), a web site for tracking Euro bills\n\nDeveloper contact: %2$s\nContributors: %3$s</string>
     <string name="www_ebt">www.eurobilltracker.com</string>
     <string name="developer">marv42+ebtnn@gmail.com</string>

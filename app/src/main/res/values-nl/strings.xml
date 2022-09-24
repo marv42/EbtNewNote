@@ -142,10 +142,11 @@
     <string name="location_last_known">De laatst bekende lokatie is verkregen</string>
     <string name="location_no_geocoder">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
     <string name="location_no_address">Voor de huidige lokatie kon geen postadres worden gevonden</string>
-    <string name="location_no_country"></string>
+<!--    <string name="location_no_country"></string>-->
 
     <!-- about -->
     <string name="about">Over</string>
+<!--    <string name="licenses"></string>-->
     <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (%1$s), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: %2$s\nBijdragers: %3$s</string>
     <string name="version">Versie %1$s</string>
 
