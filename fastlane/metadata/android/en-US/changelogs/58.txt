@@ -1,0 +1,2 @@
+use countrylayer.com API for country resolution
+
