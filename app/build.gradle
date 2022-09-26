@@ -11,7 +11,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 def versionMajor = 0
-def versionMinor = 58
+def versionMinor = 59
 def versionPatch = 0
 
 android {
@@ -87,7 +87,7 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
-    implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.2"
+    implementation "com.squareup.okhttp3:okhttp:4.10.0"
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.mikepenz:aboutlibraries-core:${rootProject.ext.aboutLibrariesVersion}"
 //    implementation "com.mikepenz:aboutlibraries-compose:${rootProject.ext.aboutLibrariesVersion}"
