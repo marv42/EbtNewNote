@@ -11,10 +11,12 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 def versionMajor = 0
-def versionMinor = 59
+def versionMinor = 60
 def versionPatch = 0
 
 android {
+    namespace 'com.marv42.ebt.newnote'
+
     compileSdkVersion rootProject.ext.sdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
@@ -56,7 +58,7 @@ android {
         resolutionStrategy.force "com.google.code.findbugs:jsr305:3.0.2"
     }
 
-    lintOptions {
+    lint {
         disable 'MissingTranslation'
     }
 }
@@ -87,7 +89,7 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
-    implementation "com.squareup.okhttp3:okhttp:4.10.0"
+    implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.2"
     implementation "com.squareup.picasso:picasso:2.71828"
     implementation "com.mikepenz:aboutlibraries-core:${rootProject.ext.aboutLibrariesVersion}"
 //    implementation "com.mikepenz:aboutlibraries-compose:${rootProject.ext.aboutLibrariesVersion}"
