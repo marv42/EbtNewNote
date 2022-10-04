@@ -17,7 +17,8 @@
 
     <!-- app -->
     <string name="app_name">EBT New Note</string>
-    <string name="crash_text">EBT New Note crashed\nSend a report to the developer</string>
+    <string name="crash_text">EBT New Note has crashed\nSend a report to the developer</string>
+    <string name="crash_email_address">"marv42+ebtnn-acra@gmail.com"</string>
 
     <string name="submit_fragment_title">New Note</string>
     <string name="results_fragment_title">&results_fragment_title;</string>

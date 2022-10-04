@@ -8,6 +8,12 @@
 
 package com.marv42.ebt.newnote;
 
+import static android.content.Intent.ACTION_PROVIDER_CHANGED;
+import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
+import static android.widget.Toast.LENGTH_LONG;
+import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
+import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,22 +29,15 @@ import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
 import com.marv42.ebt.newnote.location.LocationTask;
 
 import org.acra.ACRA;
-import org.acra.annotation.AcraCore;
-import org.acra.annotation.AcraMailSender;
-import org.acra.annotation.AcraToast;
+import org.acra.BuildConfig;
+import org.acra.config.CoreConfigurationBuilder;
+import org.acra.config.MailSenderConfigurationBuilder;
+import org.acra.config.ToastConfigurationBuilder;
+import org.acra.data.StringFormat;
 
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 
-import static android.content.Intent.ACTION_PROVIDER_CHANGED;
-import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
-import static android.widget.Toast.LENGTH_LONG;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
-
-@AcraCore(buildConfigClass = BuildConfig.class)
-@AcraMailSender(mailTo = "marv42+acra@gmail.com")
-@AcraToast(resText = R.string.crash_text)
 public class ThisApp extends DaggerApplication {
 
     public static final int RESULT_CODE_SUCCESS = 0;
@@ -53,7 +52,15 @@ public class ThisApp extends DaggerApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        ACRA.init(this);
+        CoreConfigurationBuilder builder = new CoreConfigurationBuilder()
+                .withBuildConfigClass(BuildConfig.class)
+                .withReportFormat(StringFormat.JSON)
+                .withPluginConfigurations(
+                        new ToastConfigurationBuilder()
+                                .withText(getString(R.string.crash_text)).build(),
+                        new MailSenderConfigurationBuilder()
+                                .withMailTo(getString(R.string.crash_email_address)).build());
+        ACRA.init(this, builder);
     }
 
     public void startLocationProviderChangedReceiver() {
