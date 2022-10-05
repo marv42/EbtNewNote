@@ -10,10 +10,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
-def versionMajor = 0
-def versionMinor = 64
-def versionPatch = 0
-
 android {
     namespace 'com.marv42.ebt.newnote'
 
@@ -22,8 +18,8 @@ android {
 
     defaultConfig {
         applicationId "com.marv42.ebt.newnote"
-        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        versionCode 6500
+        versionName "0.65.0"
         minSdkVersion 28
         targetSdkVersion rootProject.ext.sdkVersion
         multiDexEnabled true
