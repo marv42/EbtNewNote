@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 def versionMajor = 0
-def versionMinor = 61
+def versionMinor = 62
 def versionPatch = 0
 
 android {
@@ -83,15 +83,15 @@ dependencies {
     implementation "androidx.security:security-crypto:1.1.0-alpha03"
     implementation "com.android.support:design:${rootProject.ext.buildToolsVersion}"
     implementation "com.google.android.material:material:1.6.1"
-    implementation "com.google.code.gson:gson:2.8.9"
+    implementation "com.google.code.gson:gson:2.9.1"
 //    implementation "com.google.dagger:dagger:$daggerVersion"
 //    implementation "com.google.dagger:dagger-android:$daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
-    implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.2"
-    implementation "com.squareup.picasso:picasso:2.71828"
-    implementation "com.mikepenz:aboutlibraries-core:${rootProject.ext.aboutLibrariesVersion}"
+    implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.10"
+    implementation "com.squareup.picasso:picasso:2.8"
+//    implementation "com.mikepenz:aboutlibraries-core:${rootProject.ext.aboutLibrariesVersion}"
 //    implementation "com.mikepenz:aboutlibraries-compose:${rootProject.ext.aboutLibrariesVersion}"
     implementation "com.mikepenz:aboutlibraries:${rootProject.ext.aboutLibrariesVersion}"
 

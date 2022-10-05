@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -27,6 +27,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Scope
 @Retention(RUNTIME)
 @interface SettingsScope {
+}
+
+@Scope
+@Retention(RUNTIME)
+@interface LicensesScope {
 }
 
 @Scope

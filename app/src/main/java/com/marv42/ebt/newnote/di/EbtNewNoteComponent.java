@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.AllResults;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.LicensesActivity;
 import com.marv42.ebt.newnote.ResultsFragmentData;
 import com.marv42.ebt.newnote.ResultsFragmentEmpty;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
@@ -30,7 +31,7 @@ import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(subcomponents = {SubmitFragmentComponent.class, SettingsComponent.class,
+@Module(subcomponents = {SubmitFragmentComponent.class, SettingsComponent.class, LicensesComponent.class,
         ResultsEmptyFragmentComponent.class, ResultsDataFragmentComponent.class })
 abstract class EbtNewNoteModule {
 

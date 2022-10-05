@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
+import com.marv42.ebt.newnote.LicensesActivity;
 import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.location.FetchAddressIntentService;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
@@ -80,6 +81,10 @@ abstract class ApplicationModule {
     @SettingsScope
     @ContributesAndroidInjector(modules = SettingsModule.class)
     abstract SettingsActivity contributeSettingsActivityInjector();
+
+    @LicensesScope
+    @ContributesAndroidInjector(modules = LicensesModule.class)
+    abstract LicensesActivity contributeLicensesActivityInjector();
 }
 
 @Singleton

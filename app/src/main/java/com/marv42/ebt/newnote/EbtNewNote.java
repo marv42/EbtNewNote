@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -7,6 +7,13 @@
  */
 
 package com.marv42.ebt.newnote;
+
+import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
+import static android.widget.Toast.LENGTH_LONG;
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
+import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
+import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -48,13 +55,6 @@ import com.marv42.ebt.newnote.ui.SubmitViewModel;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
-
-import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
-import static android.widget.Toast.LENGTH_LONG;
-import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
-import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
-import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
-import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestion.Callback,
@@ -219,6 +219,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         menu.findItem(R.id.settings).setIntent(new Intent(this, SettingsActivity.class));
+        menu.findItem(R.id.licenses).setIntent(new Intent(this, LicensesActivity.class));
         menu.findItem(R.id.about).setOnMenuItemClickListener(new About(this));
     }
 
