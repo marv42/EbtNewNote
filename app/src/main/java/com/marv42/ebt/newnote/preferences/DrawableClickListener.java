@@ -43,13 +43,11 @@ public abstract class DrawableClickListener implements View.OnTouchListener {
 
     public boolean isClickOnDrawable(final int x, final int y, final View view, final Rect drawableBounds) {
         final int fuzz = DEFAULT_FUZZ;
-        if (x >= view.getWidth() - view.getPaddingRight() - drawableBounds.width() - fuzz)
-            if (x <= view.getWidth() - view.getPaddingRight() + fuzz)
-                if (y >= view.getPaddingTop() - fuzz)
-                    if (y <= view.getHeight() - view.getPaddingBottom() + fuzz)
-                        return true;
-        return false;
-    };
+        return x >= view.getWidth() - view.getPaddingRight() - drawableBounds.width() - fuzz &&
+                x <= view.getWidth() - view.getPaddingRight() + fuzz &&
+                y >= view.getPaddingTop() - fuzz &&
+                y <= view.getHeight() - view.getPaddingBottom() + fuzz;
+    }
 
     public abstract boolean onDrawableClick();
 }
