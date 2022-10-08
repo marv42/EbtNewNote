@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -7,6 +7,11 @@
  */
 
 package com.marv42.ebt.newnote;
+
+import static android.content.Intent.ACTION_VIEW;
+import static androidx.core.content.ContextCompat.getColor;
+import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
+import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +30,6 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.data.NoteData;
@@ -43,13 +47,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import static android.content.Intent.ACTION_VIEW;
-import static androidx.core.content.ContextCompat.getColor;
-import static com.marv42.ebt.newnote.EbtNewNote.SUBMIT_FRAGMENT_INDEX;
-import static com.marv42.ebt.newnote.Utils.getColoredString;
-
 public class ResultsFragmentData extends ResultsFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject
     ViewModelProvider viewModelProvider;
@@ -89,14 +88,6 @@ public class ResultsFragmentData extends ResultsFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupViewModel();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {  // TODO
-        super.onActivityCreated(savedInstanceState);
-        Activity activity = getActivity();
-        if (activity != null)
-            ((Callback) activity).onResultsFragmentAdded();
     }
 
     @Override
@@ -309,8 +300,6 @@ public class ResultsFragmentData extends ResultsFragment
     }
 
     public interface Callback {
-        void onResultsFragmentAdded();
-
         void switchFragment(int index);
     }
 }

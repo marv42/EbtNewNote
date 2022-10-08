@@ -58,7 +58,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestion.Callback,
-        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback, LifecycleOwner {
+        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
@@ -79,7 +79,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Inject
     ViewModelProvider viewModelProvider;
     private SubmitFragment submitFragment = null;
-    private int fragmentToSwitchTo = -1;
     private String[] commentSuggestions;
     private boolean isDualPane = false;
     private boolean isResultsEmpty = true;
@@ -104,8 +103,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
         Resources.Theme theme = getTheme();
         TypedValue colorAccentValue = new TypedValue();
         if (theme.resolveAttribute(android.R.attr.colorAccent, colorAccentValue, true)) {
-            @ColorRes int colorRes = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
-            @ColorInt int color = ContextCompat.getColor(this, colorRes);
+            @ColorRes int resourceId = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
+            @ColorInt int color = ContextCompat.getColor(this, resourceId);
             theme.applyStyle(color, true);
         }
     }
@@ -163,7 +162,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private void setupViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         viewModel.getResults().observe(this, observer -> {
-            isResultsEmpty = observer.size() == 0;
+            isResultsEmpty = observer.isEmpty();
             if (! isResultsEmpty)
                 // TODO we don't need to do this, if we already have the ResultsFragmentData
                 if (isDualPane)
@@ -173,13 +172,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
         });
     }
 
-    private void invalidateResultsView() {
-        ViewPager2 pager = findViewById(R.id.view_pager);
-        RecyclerView.Adapter<?> adapter = pager.getAdapter();
-        if (adapter != null)
-            adapter.notifyItemChanged(RESULTS_FRAGMENT_INDEX);
-    }
-
     private void replaceResultsFragment() {
         final FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction()
@@ -187,25 +179,19 @@ public class EbtNewNote extends DaggerAppCompatActivity
                 .commit();
     }
 
+    private void invalidateResultsView() {
+        ViewPager2 pager = findViewById(R.id.view_pager);
+        RecyclerView.Adapter<?> adapter = pager.getAdapter();
+        if (adapter != null)
+            adapter.notifyItemChanged(RESULTS_FRAGMENT_INDEX);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         submissionResultHandler.reset();
-        if (!isDualPane) {
-            checkFragmentToSwitchTo(intent);
-            checkSwitchFragment();
-        }
-    }
-
-    private void checkFragmentToSwitchTo(Intent intent) {
-        eventuallySetFragmentToSwitchTo(intent, SubmitFragment.class.getSimpleName(), SUBMIT_FRAGMENT_INDEX);
-        eventuallySetFragmentToSwitchTo(intent, ResultsFragment.class.getSimpleName(), RESULTS_FRAGMENT_INDEX);
-    }
-
-    private void eventuallySetFragmentToSwitchTo(Intent intent, String fragmentClassName, int fragmentIndex) {
-        Bundle extras = intent.getExtras();
-        if (extras != null && fragmentClassName.equals(extras.getString(FRAGMENT_TYPE)))
-            fragmentToSwitchTo = fragmentIndex;
+        if (!isDualPane)
+            switchFragment(RESULTS_FRAGMENT_INDEX);
     }
 
     @Override
@@ -259,24 +245,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (commentSuggestions != null && commentSuggestions.length > 0) {
             submitFragment.setCommentsAdapter(commentSuggestions);
             commentSuggestions = null;
-        }
-        checkSwitchFragment();
-    }
-
-    @Override
-    public void onResultsFragmentAdded() {
-        checkSwitchFragment();
-    }
-
-    private void checkSwitchFragment() {
-        checkSwitchFragment(SUBMIT_FRAGMENT_INDEX);
-        checkSwitchFragment(RESULTS_FRAGMENT_INDEX);
-    }
-
-    private void checkSwitchFragment(int fragmentIndex) {
-        if (fragmentToSwitchTo == fragmentIndex) {
-            switchFragment(fragmentIndex);
-            fragmentToSwitchTo = -1;
         }
     }
 
@@ -356,7 +324,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private class MyFragmentStateAdapter extends FragmentStateAdapter {
-
         MyFragmentStateAdapter() {
             super(getSupportFragmentManager(), EbtNewNote.this.getLifecycle());
         }
