@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class HttpCaller {
 
@@ -38,10 +37,7 @@ public class HttpCaller {
             if (!response.isSuccessful())
                 throw new HttpCallException("R.string.http_error " + getServer(request) + ", R.string.response_code: "
                         + response.code());
-            ResponseBody responseBody = response.body();
-            if (responseBody == null)
-                throw new HttpCallException("R.string.server_error " + getServer(request));
-            return responseBody.string();
+            return response.body().string();
         } catch (SocketTimeoutException e) {
             throw new HttpCallException("R.string.error_no_connection " + getServer(request) + ":\n" + e.getMessage());
         } catch (IOException e) {
