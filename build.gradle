@@ -9,7 +9,7 @@
 buildscript {
     ext {
         sdkVersion = 33
-        buildToolsVersion = '33.0.0'
+        buildToolsVersion = "${sdkVersion}.0.0"
         aboutLibrariesVersion = '10.5.0'
     }
     repositories {

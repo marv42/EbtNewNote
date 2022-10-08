@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class About implements OnMenuItemClickListener {
                 String.format("'%1$s' %2$s", context.getString(R.string.app_name),
                         context.getString(R.string.about_text,
                                 context.getString(R.string.www_ebt),
-                                context.getString(R.string.developer),
+                                context.getString(R.string.developer_email),
                                 context.getString(R.string.contributors))));
         dialog.show();
         return true;

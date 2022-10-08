@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2021 Marvin Horter.
+  Copyright (c) 2010 - 2022 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -188,7 +188,7 @@
     <string name="licenses">Licenses</string>
     <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (%1$s), a web site for tracking Euro bills\n\nDeveloper contact: %2$s\nContributors: %3$s</string>
     <string name="www_ebt">www.eurobilltracker.com</string>
-    <string name="developer">marv42+ebtnn@gmail.com</string>
+    <string name="developer_email">marv42+ebtnn@gmail.com</string>
     <string name="contributors">Carnager</string>
     <string name="version">Version %1$s</string>
 

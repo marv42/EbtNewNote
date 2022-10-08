@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
             callLoginAndInsert(noteData)
         } catch (e: HttpCallException) {
             SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
+        // TODO save noteData and call again later
         } catch (e: CallResponseException) {
             SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
         }

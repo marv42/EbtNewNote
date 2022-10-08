@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2021 Marvin Horter.
+ Copyright (c) 2010 - 2022 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -38,7 +38,9 @@ public class SharedPreferencesHandler {
             return (T) sharedPreferences.getString(key, (String) defValue);
         if (defValue instanceof Boolean)
             return (T) (Boolean) sharedPreferences.getBoolean(key, (Boolean) defValue);
-        throw new IllegalArgumentException("Defvalue " + defValue + " is instance of unhandled class");
+//        if (defValue instanceof Integer)
+//            return (T) (Integer) sharedPreferences.getInt(key, (Integer) defValue);
+        throw new IllegalArgumentException("defValue " + defValue + " is instance of unhandled class");
     }
 
     public <T> void set(int keyId, T value) {
@@ -50,6 +52,8 @@ public class SharedPreferencesHandler {
             sharedPreferences.edit().putString(key, (String) value).apply();
         else if (value instanceof Boolean)
             sharedPreferences.edit().putBoolean(key, (Boolean) value).apply();
+//        else if (value instanceof Integer)
+//            sharedPreferences.edit().putInt(key, (Integer) value).apply();
         else
             throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
     }
