@@ -296,7 +296,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         ocrResult = "";
         new AlertDialog.Builder(this)
                 .setTitle(R.string.ocr_multiple_results)
-                // TODO builder.setMessage(R.string.ocr_multiple_results)  https://developer.android.com/guide/topics/ui/dialogs.html#AddingAList
+//                .setMessage(R.string.ocr_multiple_results)  // https://developer.android.com/develop/ui/views/components/dialogs#AddingAList
                 .setItems(allResults, (dialog, item) -> {
                     ocrResult = allResults[item];
                     replaceShortCodeOrSerialNumber();
