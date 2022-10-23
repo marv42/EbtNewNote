@@ -18,9 +18,11 @@ import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,7 +36,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -318,7 +319,13 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void vibrate() {
-        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        Vibrator v;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            VibratorManager manager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
+            v = manager.getDefaultVibrator();
+        }
+        else
+            v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (v != null)
             v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
     }

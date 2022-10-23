@@ -10,7 +10,9 @@ package com.marv42.ebt.newnote;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.TextView;
@@ -28,11 +30,16 @@ public class About implements OnMenuItemClickListener {
         dialog.setContentView(R.layout.about);
         dialog.setTitle(R.string.app_name);
 
-        String versionNumber = "0.0";
+        String versionNumber;
+        final PackageManager packageManager = context.getPackageManager();
         try {
-            versionNumber = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(), 0).versionName;
-        } catch (NameNotFoundException ignored) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                versionNumber = packageManager.getPackageInfo(
+                        context.getPackageName(), PackageManager.PackageInfoFlags.of(0)).versionName;
+            else
+                versionNumber = packageManager.getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (NameNotFoundException ex) {
+            versionNumber = "0.0.0";
         }
 
         ((TextView) dialog.findViewById(R.id.about_version)).setText(

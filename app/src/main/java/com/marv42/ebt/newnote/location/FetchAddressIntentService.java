@@ -15,6 +15,7 @@ import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 
 import android.content.Intent;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
@@ -87,11 +88,18 @@ public class FetchAddressIntentService extends DaggerIntentService {
     private void getReceiver(Intent intent) throws NoIntentException {
         if (intent == null)
             throw new NoIntentException(ERROR + getString(R.string.internal_error));
-        receiver = intent.getParcelableExtra(RECEIVER);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            receiver = intent.getParcelableExtra(RECEIVER, ResultReceiver.class);
+        else
+            receiver = intent.getParcelableExtra(RECEIVER);
     }
 
     private Location getLocation(Intent intent) throws NoLocationException {
-        Location l = intent.getParcelableExtra(LOCATION_DATA_EXTRA);
+        Location l;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            l = intent.getParcelableExtra(LOCATION_DATA_EXTRA, Location.class);
+        else
+            l = intent.getParcelableExtra(LOCATION_DATA_EXTRA);
         if (l == null)
             throw new NoLocationException(ERROR + getString(R.string.location_none));
         return l;
