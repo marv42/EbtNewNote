@@ -259,7 +259,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public void onSuggestions(String[] suggestions) {
-        if (submitFragment.isAdded())
+        if (submitFragment != null && submitFragment.isAdded())
             submitFragment.setCommentsAdapter(suggestions);
         else
             commentSuggestions = suggestions;
