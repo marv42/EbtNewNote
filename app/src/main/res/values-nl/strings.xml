@@ -135,7 +135,8 @@
     <!-- location -->
     <string name="location">Lokatie</string>
     <string name="location_none">Lokatie informatie niet beschikbaar</string>
-    <string name="location_not_enabled">Lokatie herkenning is niet ingeschakeld\nSchakel plaatsbepaling in, in de Android instellingen app</string>
+    <string name="location_not_enabled">Lokatie herkenning is niet ingeschakeld</string>
+    <string name="location_please_enable">Schakel plaatsbepaling in, in de Android instellingen app</string>
     <string name="location_no_gps">Exacte lokatie herkenning is niet ingeschakeld\nOverweeg plaatsbepaling via zowel GPS, WiFi en Bluetooth in te schakelen</string>
     <string name="location_start">Lokatie wordt berekend…</string>
     <string name="location_got">Huidige lokatie verkregen</string>

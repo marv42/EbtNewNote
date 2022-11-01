@@ -174,7 +174,8 @@
     <!-- location -->
     <string name="location">Location</string>
     <string name="location_none">No location information available</string>
-    <string name="location_not_enabled">Location is not enabled\nPlease enable location in the system setting</string>
+    <string name="location_not_enabled">Location is not enabled</string>
+    <string name="location_please_enable">Please enable location in the system settings</string>
     <string name="location_no_gps">Fine location is not enabled\nConsider activating GPS</string>
     <string name="location_start">Gathering location information…</string>
     <string name="location_got">Got a current location</string>

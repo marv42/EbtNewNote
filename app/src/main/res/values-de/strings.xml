@@ -139,7 +139,8 @@
     <!-- location -->
     <string name="location">Ort</string>
     <string name="location_none">Keine Standort-Information verfügbar</string>
-    <string name="location_not_enabled">Standort ist nicht aktiviert\nBitte aktivieren</string>
+    <string name="location_not_enabled">Standort ist nicht aktiviert</string>
+    <string name="location_please_enable">Bitte in den Systemeinstellungen aktivieren</string>
     <string name="location_no_gps">Genauer Standort ist nicht verfügbar\nGgf. GPS aktivieren</string>
     <string name="location_start">Standort-Daten werden abgefragt…</string>
     <string name="location_got">Aktueller Standort wurde eingesetzt</string>
