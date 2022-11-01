@@ -29,12 +29,13 @@ import static android.view.View.GONE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
+import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION;
 import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION_IMAGE;
 
 public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
 
-    public static final int DENOMINATION_IMAGE_WIDTH = 55;
-    public static final int DENOMINATION_IMAGE_MARGIN = 10;
+    public static final int DENOMINATION_WIDTH = 100;
+    public static final int DENOMINATION_MARGIN = 10;
     private final LayoutInflater layoutInflater;
     private final boolean showImages;
     private final List<? extends Map<String, ?>> groupData;
@@ -67,21 +68,26 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View v = layoutInflater.inflate(R.layout.list_parents, parent, false);
         bindView(v, groupData.get(groupPosition), groupFrom, groupTo);
-        checkShowImages(v);
+        setLayoutParams(v);
         return v;
     }
 
-    private void checkShowImages(View view) {
+    private void setLayoutParams(View view) {
         if (showImages) {
             ImageView denominationImage = view.findViewById(R.id.list_denomination_image);
             TableRow.LayoutParams params = getLayoutParams();
             denominationImage.setLayoutParams(params);
         }
+        else {
+            TextView denomination = view.findViewById(R.id.list_denomination);
+            TableRow.LayoutParams params = getLayoutParams();
+            denomination.setLayoutParams(params);
+        }
     }
 
     @NotNull
     private TableRow.LayoutParams getLayoutParams() {
-        TableRow.LayoutParams params = new TableRow.LayoutParams(DENOMINATION_IMAGE_WIDTH, MATCH_PARENT);
+        TableRow.LayoutParams params = new TableRow.LayoutParams(DENOMINATION_WIDTH, MATCH_PARENT);
         final int margin = getMargin();
         params.setMargins(margin, margin, margin, margin);
         return params;
@@ -90,7 +96,7 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     private int getMargin() {
         // https://developer.android.com/training/multiscreen/screendensities#dips-pels
         final float scale = layoutInflater.getContext().getResources().getDisplayMetrics().density;
-        return (int) (DENOMINATION_IMAGE_MARGIN * scale);
+        return (int) (DENOMINATION_MARGIN * scale);
     }
 
     @Override
@@ -107,7 +113,8 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
             if (from[i].equals(DENOMINATION_IMAGE))
                 loadDenominationImage(view.findViewById(to[i]), dataFromI);
             else
-                setTextFromHtml(view.findViewById(to[i]), dataFromI);
+                if (!from[i].equals(DENOMINATION) || !showImages)
+                    setTextFromHtml(view.findViewById(to[i]), dataFromI);
         }
     }
 

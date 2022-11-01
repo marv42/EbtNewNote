@@ -54,10 +54,10 @@ public class ResultsFragmentData extends ResultsFragment
     ViewModelProvider viewModelProvider;
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    protected static final String DENOMINATION = "denomination";
     protected static final String DENOMINATION_IMAGE = "denomination image";
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
-    private static final String DENOMINATION = "denomination";
     private static final String SERIAL_NUMBER = "serial number";
     private static final String RESULT = "result";
     private static final String REASON = "reason";
@@ -182,9 +182,10 @@ public class ResultsFragmentData extends ResultsFragment
     private Map<String, String> getGroupMap(String denomination, String denominationUrl, String sn, String result) {
         Map<String, String> groupMap = new HashMap<>();
         groupMap.put(BUTTON_PLACEHOLDER, " ");
-        groupMap.put(DENOMINATION, denomination);
         if (shouldShowImages())
             groupMap.put(DENOMINATION_IMAGE, denominationUrl);
+        else
+            groupMap.put(DENOMINATION, denomination);
         final String serialNumber = sn.length() > 0 ? sn : "-";
         groupMap.put(SERIAL_NUMBER, serialNumber);
         groupMap.put(RESULT, result);
@@ -245,24 +246,21 @@ public class ResultsFragmentData extends ResultsFragment
     @NotNull
     private String[] getGroupFrom() {
         if (shouldShowImages())
-            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT};
-        else
-            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
+            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT};
+        return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
     }
 
     @NotNull
     private int[] getGroupTo() {
         if (shouldShowImages())
             return new int[]{R.id.list_place_holder,
-                    R.id.list_denomination,
                     R.id.list_denomination_image,
                     R.id.list_serial,
                     R.id.list_result};
-        else
-            return new int[]{R.id.list_place_holder,
-                    R.id.list_denomination,
-                    R.id.list_serial,
-                    R.id.list_result};
+        return new int[]{R.id.list_place_holder,
+                R.id.list_denomination,
+                R.id.list_serial,
+                R.id.list_result};
     }
 
     private SubmissionResult getSubmissionResult(long packedPosition) {
