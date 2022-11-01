@@ -10,6 +10,7 @@ package com.marv42.ebt.newnote
 import android.content.Context
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
+import android.widget.Toast.LENGTH_SHORT
 import androidx.core.util.Pair
 import com.marv42.ebt.newnote.data.LocationValues
 import com.marv42.ebt.newnote.exceptions.CallResponseException
@@ -116,14 +117,13 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     private fun onPostExecute(s: Array<String?>?) {
         val context = callback as Context
         if (s == null || s.isEmpty()) {
-            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_LONG).show()
+            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_SHORT).show()
             return
         }
         if (s[0] == ErrorMessage.ERROR) {
             Toast.makeText(context, R.string.comment_suggestions_error, LENGTH_LONG).show()
             return
         }
-        Toast.makeText(context, R.string.comment_suggestions_set, LENGTH_LONG).show()
         callback.onSuggestions(s)
     }
 

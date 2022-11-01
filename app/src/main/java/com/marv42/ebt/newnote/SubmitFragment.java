@@ -50,6 +50,7 @@ import dagger.android.support.DaggerFragment;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
 public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
@@ -371,9 +372,11 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
     void setCommentsAdapter(String[] suggestions) {
         Activity activity = getActivity();
-        if (activity != null)
+        if (activity != null) {
             binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
                     android.R.layout.simple_dropdown_item_1line, suggestions));
+            Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
+        }
     }
 
     public interface Callback {
