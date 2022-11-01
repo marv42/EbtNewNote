@@ -35,6 +35,9 @@ import org.acra.config.MailSenderConfigurationBuilder;
 import org.acra.config.ToastConfigurationBuilder;
 import org.acra.data.StringFormat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 
@@ -52,6 +55,10 @@ public class ThisApp extends DaggerApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        initAcra();
+    }
+
+    private void initAcra() {
         CoreConfigurationBuilder builder = new CoreConfigurationBuilder()
                 .withBuildConfigClass(BuildConfig.class)
                 .withReportFormat(StringFormat.JSON)
@@ -59,7 +66,9 @@ public class ThisApp extends DaggerApplication {
                         new ToastConfigurationBuilder()
                                 .withText(getString(R.string.crash_text)).build(),
                         new MailSenderConfigurationBuilder()
-                                .withMailTo(getString(R.string.crash_email_address)).build());
+                                .withMailTo(getString(R.string.crash_email_address)).build())
+                .withExcludeMatchingSharedPreferencesKeys(Arrays.asList(
+                        getString(R.string.pref_results_key), getString(R.string.pref_settings_password_key)));
         ACRA.init(this, builder);
     }
 
