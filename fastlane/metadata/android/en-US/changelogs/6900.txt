@@ -1,0 +1,1 @@
+Omit denomination text when showing denomination images
