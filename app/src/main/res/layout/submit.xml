@@ -64,9 +64,10 @@
                     android:singleLine="true" />
                 <ImageButton
                     android:id="@+id/location_button"
+                    android:src="@drawable/ic_baseline_my_location_24"
+                    android:padding="15dp"
                     android:contentDescription="@string/get_location"
-                    android:tooltipText="@string/get_location"
-                    android:src="@android:drawable/ic_menu_mylocation" />
+                    android:tooltipText="@string/get_location" />
             </TableRow>
         </TableLayout>
         <TextView
@@ -172,7 +173,8 @@
                     tools:ignore="TextFields" />
                 <ImageButton
                     android:id="@+id/photo_button"
-                    android:src="@android:drawable/ic_menu_camera"
+                    android:src="@drawable/ic_baseline_photo_camera_24"
+                    android:padding="15dp"
                     android:contentDescription="@string/acquire"
                     android:tooltipText="@string/acquire" />
             </TableRow>
