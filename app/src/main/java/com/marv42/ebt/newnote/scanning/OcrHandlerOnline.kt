@@ -22,8 +22,9 @@ import okhttp3.FormBody
 import okhttp3.Request
 import java.io.IOException
 
-class OcrHandler(private val callback: Callback, private val photoPath: String, private val photoUri: Uri?,
-                 private val contentResolver: ContentResolver, private val apiKey: String) {
+class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val photoPath: String,
+                       private val photoUri: Uri?, private val contentResolver: ContentResolver,
+                       private val apiKey: String) {
 
     private val scope = MainScope()
 
@@ -106,17 +107,16 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
     @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromCursor: Int
         get() {
-            var orientation = ORIENTATION_UNDEFINED
             val columns = arrayOf(MediaColumns.ORIENTATION)
             val cursor = contentResolver.query(photoUri!!, columns, null, null, null)
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    val columnIndex = cursor.getColumnIndex(columns[0])
-                    if (columnIndex >= 0)
-                        orientation = cursor.getInt(columnIndex)
-                }
-                cursor.close()
+                ?: return ORIENTATION_UNDEFINED
+            var orientation = ORIENTATION_UNDEFINED
+            if (cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndex(columns[0])
+                if (columnIndex >= 0)
+                    orientation = cursor.getInt(columnIndex)
             }
+            cursor.close()
             return orientation
         }
 
@@ -127,13 +127,8 @@ class OcrHandler(private val callback: Callback, private val photoPath: String, 
                 val exif = ExifInterface(photoPath)
                 exif.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)
             } catch (e: IOException) {
-                ExifInterface.ORIENTATION_UNDEFINED
+                ORIENTATION_UNDEFINED
             }
-
-    interface Callback {
-        @Throws(NoNotificationManagerException::class)
-        fun onOcrResult(result: String)
-    }
 
     companion object {
         private const val OCR_HOST = "api.ocr.space"
