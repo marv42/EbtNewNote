@@ -127,7 +127,7 @@ public class ResultsFragmentData extends ResultsFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == dataStore.getSharedPreferences())
-            if (key.equals(getString(R.string.pref_settings_images)))
+            if (key.equals(getString(R.string.pref_settings_images_key)))
                 refreshResults();
     }
 
@@ -294,7 +294,7 @@ public class ResultsFragmentData extends ResultsFragment
 
     @NotNull
     private Boolean shouldShowImages() {
-        return dataStore.get(R.string.pref_settings_images, false);
+        return dataStore.get(R.string.pref_settings_images_key, false);
     }
 
     public interface Callback {

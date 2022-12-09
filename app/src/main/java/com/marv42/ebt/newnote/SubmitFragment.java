@@ -124,7 +124,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     void takePhoto() {
         Activity activity = getActivity();
         CameraStarter cameraStarter = new CameraStarter(activity);
-        final String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+        final String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
         if (!cameraStarter.canTakePhoto(ocrKey))
             return;
         try {

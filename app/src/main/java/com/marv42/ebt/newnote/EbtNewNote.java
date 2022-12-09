@@ -228,7 +228,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
             new OcrHandlerLocal(this, this, photoPath).execute();
         }
         else {
-            String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
+            String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
             new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
         }
     }

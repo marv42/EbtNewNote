@@ -29,20 +29,23 @@
             app:endIconDrawable="@drawable/ic_password_eye"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
-        android:title="@string/settings_category_apis">
+        android:title="@string/settings_category_ocr">
+        <Preference
+            android:summary="@string/settings_ocr_summary"
+            android:selectable="false"/>
+        <androidx.preference.SwitchPreference
+            android:key="@string/pref_settings_ocr_online_key"
+            android:title="@string/settings_ocr_online_title"
+            android:defaultValue="false"/>
         <androidx.preference.EditTextPreference
-            android:key="@string/pref_settings_ocr_key"
-            android:title="@string/settings_ocr_title"
-            android:summary="@string/settings_ocr_summary"/>
-        <androidx.preference.EditTextPreference
-            android:key="@string/pref_settings_country_key"
-            android:title="@string/settings_country_title"
-            android:summary="@string/settings_country_summary"/>
+            android:key="@string/pref_settings_ocr_service_key"
+            android:title="@string/settings_ocr_service_key_title"
+            android:summary="@string/settings_ocr_service_key_summary"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_display">
-        <androidx.preference.CheckBoxPreference
-            android:key="@string/pref_settings_images"
+        <androidx.preference.SwitchPreference
+            android:key="@string/pref_settings_images_key"
             android:title="@string/settings_images_title"
             android:summary="@string/settings_images_summary"
             android:defaultValue="true"/>
@@ -51,6 +54,13 @@
             android:title="@string/settings_submitted_title"
             android:summary="@string/settings_submitted_summary"
             android:defaultValue="@string/max_show_num"/>
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_category_misc">
+        <androidx.preference.EditTextPreference
+            android:key="@string/pref_settings_country_key"
+            android:title="@string/settings_country_title"
+            android:summary="@string/settings_country_summary"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_advanced">
