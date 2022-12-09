@@ -78,7 +78,7 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
         get() = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 locationManager.removeUpdates(this)
-//                this@LocationTask.location = location
+                this@LocationTask.location = location
             }
 
             @Deprecated("Deprecated in Java")
