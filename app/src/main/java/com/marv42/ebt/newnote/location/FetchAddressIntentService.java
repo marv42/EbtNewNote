@@ -22,7 +22,6 @@ import android.os.ResultReceiver;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
-import com.marv42.ebt.newnote.CountryCode;
 import com.marv42.ebt.newnote.HttpCaller;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.data.LocationValues;
@@ -112,6 +111,7 @@ public class FetchAddressIntentService extends DaggerIntentService {
         String city = jsonAddress.optString("City");
         String postalCode = jsonAddress.optString("Postal");
         String countryName = ERROR + getString(R.string.location_no_country);
+        // TODO String countryName = new CountryCodeLocal().convert(countryCode);
         try {
             String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
             countryName = new CountryCode().convert(countryCode, apiKey);
