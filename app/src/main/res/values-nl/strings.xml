@@ -18,6 +18,7 @@
 
     <string name="submit_fragment_title">Nieuw Biljet</string>
     <string name="results_fragment_title">&results_fragment_title;</string>
+    <string name="no_data"></string>
 
     <!-- general -->
     <string name="hello">Hallo</string>
@@ -99,11 +100,11 @@
     <string name="settings_currently_not_set">, nog niet ingesteld</string>
     <string name="settings_password_title">Toegangscode</string>
     <string name="settings_password_summary">Toegangscode van je EBT account</string>
-    <string name="settings_category_apis"></string>
-    <string name="settings_ocr_title"></string>
+    <string name="settings_category_ocr"></string>
     <string name="settings_ocr_summary">Om de gefotografeerde tekst te analyseren wordt een OCR-dienst in de cloud gebruikt</string>
-    <string name="settings_country_title"></string>
-    <string name="settings_country_summary"></string>
+    <string name="settings_ocr_online_title"></string>
+    <string name="settings_ocr_service_key_title"></string>
+    <string name="settings_ocr_service_key_summary"></string>
     <string name="settings_category_display">Weergave instellingen</string>
     <string name="settings_images_title">Afbeeldingen van biljetwaarden</string>
     <string name="settings_images_summary">Toon afbeeldingen van biljetwaarden in het \'&results_fragment_title;\' scherm</string>
@@ -112,6 +113,9 @@
     <string name="settings_comment_summary">Deze tekst wordt automatisch achter de opmerking toegevoegd van ieder biljet dat je indient</string>
     <string name="settings_submitted_title">Aantal biljetten</string>
     <string name="settings_submitted_summary">Maximaal aantal biljetten om te tonen in het \'&results_fragment_title;\' scherm</string>
+    <string name="settings_category_misc"></string>
+    <string name="settings_country_title"></string>
+    <string name="settings_country_summary"></string>
     <string name="get_ocr_key">&redirect_to_settings; om een OCR service key te krijgen of in te voeren.</string>
     <string name="settings_ocr_summary_no_key">Verkrijg je persoonlijke, niet overdraadbare OCR service key op</string>
     <string name="settings_country_summary_no_key"></string>
@@ -143,11 +147,11 @@
     <string name="location_last_known">De laatst bekende lokatie is verkregen</string>
     <string name="location_no_geocoder">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
     <string name="location_no_address">Voor de huidige lokatie kon geen postadres worden gevonden</string>
-<!--    <string name="location_no_country"></string>-->
+    <string name="location_no_country"></string>
 
     <!-- about -->
     <string name="about">Over</string>
-<!--    <string name="licenses"></string>-->
+    <string name="licenses"></string>
     <string name="about_text">is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (%1$s), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: %2$s\nBijdragers: %3$s</string>
     <string name="version">Versie %1$s</string>
 
@@ -155,6 +159,7 @@
     <string name="error_reading_picture">Probleem bij het lezen van het foto bestand</string>
     <string name="error_compressing_picture">Fout tijdens het converteren van de afbeelding</string>
     <string name="error_creating_file">Fout bij het maken van het foto bestand</string>
+    <string name="error_initializing_local_ocr"></string>
     <string name="error_reading_preferences">Fout bij het lezen van de OCR service key</string>
     <string name="ocr_no_service_key">Geen OCR service key</string>
     <string name="ocr_result">Resultaat van de tekstherkenning</string>

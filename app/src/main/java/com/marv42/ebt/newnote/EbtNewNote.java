@@ -48,7 +48,9 @@ import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
-import com.marv42.ebt.newnote.scanning.OcrHandler;
+import com.marv42.ebt.newnote.scanning.IOcrHandler;
+import com.marv42.ebt.newnote.scanning.OcrHandlerLocal;
+import com.marv42.ebt.newnote.scanning.OcrHandlerOnline;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
@@ -59,7 +61,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestion.Callback,
-        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
+        IOcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
@@ -220,10 +222,14 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void processPhoto() {
         Toast.makeText(this, R.string.processing, LENGTH_LONG).show();
-        String apiKey = dataStore.get(R.string.pref_settings_ocr_key, "");
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
-        new OcrHandler(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
+        if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
+            String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
+            new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
+        }
+        else
+            new OcrHandlerLocal(this, this, photoPath).execute();
     }
 
     @Override

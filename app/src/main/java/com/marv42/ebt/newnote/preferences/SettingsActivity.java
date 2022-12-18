@@ -8,6 +8,12 @@
 
 package com.marv42.ebt.newnote.preferences;
 
+import static android.content.Intent.ACTION_VIEW;
+import static android.text.InputType.TYPE_CLASS_NUMBER;
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,25 +28,19 @@ import androidx.appcompat.app.ActionBar;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.LoginChecker;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.NoPreferenceException;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.scanning.Keys;
 
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatActivity;
-
-import static android.content.Intent.ACTION_VIEW;
-import static android.text.InputType.TYPE_CLASS_NUMBER;
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
-import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
 
 public class SettingsActivity extends DaggerAppCompatActivity {
 
@@ -89,7 +89,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             checkEmailSummary();
             checkPasswordSummary();
             checkCommentSummary();
-            checkOcrSummary();
+            checkOcrServiceKeySummary();
             checkCountrySummary();
             checkSubmittedSummary();
         }
@@ -129,8 +129,10 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             }
             if (key.equals(getString(R.string.pref_settings_comment_key)))
                 checkCommentSummary();
-            if (key.equals(getString(R.string.pref_settings_ocr_key)))
-                checkOcrSummary();
+            if (key.equals(getString(R.string.pref_settings_ocr_online_key)))
+                checkOcrOnline();
+            if (key.equals(getString(R.string.pref_settings_ocr_service_key)))
+                checkOcrServiceKeySummary();
             if (key.equals(getString(R.string.pref_settings_country_key)))
                 checkCountrySummary();
             if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
@@ -164,11 +166,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void checkOcrKey() {
             try {
-                String ocrKey = dataStore.get(R.string.pref_settings_ocr_key, "");
-                if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty()) {
-                    EditTextPreference preference = getPreference(R.string.pref_settings_ocr_key);
+                EditTextPreference preference = getPreference(R.string.pref_settings_ocr_service_key);
+                preference.setEnabled(false);
+                String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
+                if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
                     preference.setText(Keys.OCR_SERVICE);
-                }
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
                 e.printStackTrace();
@@ -241,27 +243,42 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             preference.setSummary(summary);
         }
 
-        private void checkOcrSummary() {
+        private void checkOcrOnline() {
             try {
-                EditTextPreference preference = getPreference(R.string.pref_settings_ocr_key);
-                setOcrSummary(preference);
+                final String key = getString(R.string.pref_settings_ocr_online_key);
+                SwitchPreference preference = findPreference(key);
+                if (preference == null)
+                    throw new NoPreferenceException("No preference for " + key);
+                EditTextPreference serviceKeyPreference = getPreference(R.string.pref_settings_ocr_service_key);
+                serviceKeyPreference.setEnabled(preference.isChecked());
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
                 e.printStackTrace();
             }
         }
 
-        private void setOcrSummary(EditTextPreference preference) {
-            setSummary(preference, R.string.settings_ocr_summary, R.string.pref_settings_ocr_key,
-                    R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
+        private void checkOcrServiceKeySummary() {
+            try {
+                EditTextPreference preference = getPreference(R.string.pref_settings_ocr_service_key);
+                setOcrServiceKeySummary(preference);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+                e.printStackTrace();
+            }
         }
 
-        private void setSummary(EditTextPreference preference, int resourceIdSummary,
-                                int resourceIdKey, int resourceIdUrl, int resourceIdSummaryNoKey) {
+        private void setOcrServiceKeySummary(EditTextPreference preference) {
+            setServiceKeySummary(preference, R.string.settings_ocr_service_key_summary,
+                    R.string.pref_settings_ocr_service_key, R.string.settings_ocr_service_url,
+                    R.string.settings_ocr_summary_no_key);
+        }
+
+        private void setServiceKeySummary(EditTextPreference preference, int resourceIdSummary,
+                                          int resourceIdKey, int resourceIdUrl, int resourceIdSummaryNoKey) {
             String summary = getString(resourceIdSummary);
             if (TextUtils.isEmpty(dataStore.get(resourceIdKey, ""))) {
                 String serviceUrl = getString(resourceIdUrl);
-                summary += " " + getString(resourceIdSummaryNoKey) + " " + serviceUrl;
+                summary += ".\n" + getString(resourceIdSummaryNoKey) + " " + serviceUrl;
                 preference.setIntent(new Intent().setAction(ACTION_VIEW)
                         .setData(Uri.parse(serviceUrl)));
             }
@@ -279,7 +296,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setCountrySummary(EditTextPreference preference) {
-            setSummary(preference, R.string.settings_country_summary, R.string.pref_settings_country_key,
+            setServiceKeySummary(preference, R.string.settings_country_summary, R.string.pref_settings_country_key,
                     R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
         }
 

@@ -20,15 +20,14 @@ public class TextProcessor {
     private static final int MIN_RESULT_LENGTH = 4;
     private final StringBuilder result = new StringBuilder();
 
-    String getOcrResult(String body) throws OcrException, CallResponseException {
-        String allResults = JsonAnalyzer.analyzeBody(body);
+    String getOcrResult(String allResults) {
         CorrectAllResults(allResults);
         return result.toString();
     }
 
-    private void CorrectAllResults(String allResultsInBody) {
-        String[] allResults = allResultsInBody.split(NEW_LINE);
-        for (String aResult : allResults) {
+    private void CorrectAllResults(String allResults) {
+        String[] results = allResults.split(NEW_LINE);
+        for (String aResult : results) {
             String correctedResult = Corrections.correct(aResult);
             addResult(correctedResult);
         }
