@@ -28,9 +28,14 @@ public class Corrections {
     public static final int LENGTH_THRESHOLD_SERIAL_NUMBER = 8;
 
     static String correct(String s) {
+        s = removeWhitespaces(s);
         s = correctChars(s);
         s = findPattern(s);
         return s.toUpperCase();
+    }
+
+    private static String removeWhitespaces(String s) {
+        return s.replace(" ","");
     }
 
     @NotNull
