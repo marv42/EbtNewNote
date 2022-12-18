@@ -224,13 +224,12 @@ public class EbtNewNote extends DaggerAppCompatActivity
         Toast.makeText(this, R.string.processing, LENGTH_LONG).show();
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
-        if (/*localOcrSetInPreferences*/true) {
-            new OcrHandlerLocal(this, this, photoPath).execute();
-        }
-        else {
+        if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
             String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
             new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
         }
+        else
+            new OcrHandlerLocal(this, this, photoPath).execute();
     }
 
     @Override
