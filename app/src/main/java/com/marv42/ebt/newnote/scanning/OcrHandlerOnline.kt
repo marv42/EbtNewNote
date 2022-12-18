@@ -69,7 +69,8 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
             val formBody = formBody
             val request = Request.Builder().url(OCR_URL).post(formBody).build()
             val body = HttpCaller().call(request)
-            return TextProcessor().getOcrResult(body)
+            val allResults = JsonAnalyzer.analyzeBody(body)
+            return TextProcessor().getOcrResult(allResults)
         }
 
     @get:Throws(NoPictureException::class)

@@ -8,14 +8,12 @@
 package com.marv42.ebt.newnote.scanning
 
 import android.content.Context
-import com.marv42.ebt.newnote.scanning.IOcrHandler
 import com.googlecode.tesseract.android.TessBaseAPI
-import com.marv42.ebt.newnote.scanning.OcrHandlerLocal
-import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.R
-import android.content.res.AssetManager
+import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException
 import com.marv42.ebt.newnote.executeAsyncTask
+import com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE
 import kotlinx.coroutines.MainScope
 import java.io.File
 import java.io.FileOutputStream
@@ -88,9 +86,10 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     private fun doOcr(photoPath: String): String {
         tess!!.setImage(File(photoPath))
         tess!!.getHOCRText(0)
-        val result = tess!!.utF8Text
+        var allResults = tess!!.utF8Text
         tess!!.recycle()
-        return result
+        allResults = allResults.replace("\n", NEW_LINE)
+        return TextProcessor().getOcrResult(allResults)
     }
 
     private fun onPostExecute(result: String) {
