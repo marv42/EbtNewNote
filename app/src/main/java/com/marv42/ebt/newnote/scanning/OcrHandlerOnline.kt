@@ -76,7 +76,7 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
     @get:Throws(NoPictureException::class)
     private val formBody: FormBody
         get() {
-            val base64Image = PictureConverter(photoPath, orientation).convert()
+            val base64Image = PictureConverter(photoPath, orientation).scaleAndEncodeToBase64(1024 * 1024.0)
             val formBodyBuilder = FormBody.Builder()
             formBodyBuilder.add("apikey", apiKey)
             formBodyBuilder.add("base64Image", "data:image/jpeg;base64,$base64Image")

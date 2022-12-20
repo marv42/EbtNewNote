@@ -27,29 +27,38 @@ import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180;
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270;
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90;
 
+import androidx.annotation.NonNull;
+
 class PictureConverter {
 
-    private static final double TARGET_SIZE_BYTE = 1024 * 1024; // 1024 MB
     private final String path;
     private final int orientation;
 
-    public PictureConverter(String path, int orientation) {
+    PictureConverter(String path, int orientation) {
         this.path = path;
         this.orientation = orientation;
     }
 
-    String convert() throws NoPictureException {
+    String scaleAndEncodeToBase64(double targetSizeBytes) throws NoPictureException {
+        byte[] bytes = scale(targetSizeBytes);
+        return Base64.encodeToString(bytes, NO_WRAP);
+    }
+
+    // TODO Split up scaling and conversion
+    @NonNull
+    byte[] scale(double targetSizeBytes) throws NoPictureException {
         Bitmap bitmap = getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         if (!bitmap.compress(PNG, 100 /*ignored for PNG*/, stream))
             throw new NoPictureException("R.string.error_compressing_picture");
         byte[] bytes = stream.toByteArray();
         int allocationByteCount = bitmap.getAllocationByteCount();
-        if (allocationByteCount > TARGET_SIZE_BYTE) {
-            ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, allocationByteCount);
+        if (allocationByteCount > targetSizeBytes) {
+            final double scalingFactor = getScalingFactor(allocationByteCount, targetSizeBytes);
+            ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, scalingFactor);
             bytes = streamOfScaled.toByteArray();
         }
-        return Base64.encodeToString(bytes, NO_WRAP);
+        return bytes;
     }
 
     private Bitmap getBitmap() {
@@ -74,10 +83,13 @@ class PictureConverter {
                 : orientation == ORIENTATION_ROTATE_90 ? 90 : 0;
     }
 
+    private double getScalingFactor(int allocationByteCount, double targetSizeBytes) {
+        double scalingFactor = targetSizeBytes / allocationByteCount;
+        return Math.sqrt(scalingFactor);
+    }
+
     @NotNull
-    private ByteArrayOutputStream scaleImage(Bitmap image, int allocationByteCount) throws NoPictureException {
-        double scalingFactor = TARGET_SIZE_BYTE / allocationByteCount;
-        scalingFactor = Math.sqrt(scalingFactor);
+    private ByteArrayOutputStream scaleImage(Bitmap image, double scalingFactor) throws NoPictureException {
         final int scaledWidth = (int) (scalingFactor * image.getWidth());
         final int scaledHeight = (int) (scalingFactor * image.getHeight());
         Bitmap scaledImage = createScaledBitmap(image, scaledWidth, scaledHeight, false);

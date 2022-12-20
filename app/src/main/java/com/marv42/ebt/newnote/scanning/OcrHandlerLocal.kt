@@ -8,6 +8,8 @@
 package com.marv42.ebt.newnote.scanning
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
@@ -47,9 +49,11 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         if (tess!!.init(
                 filesPath,
                 TESS_DATA_LANGUAGE,
-                TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED
-            )
-        ) return true
+                TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED)) {  // TODO Deprecated?
+            // https://pyimagesearch.com/2021/11/15/tesseract-page-segmentation-modes-psms-explained-how-to-improve-your-ocr-accuracy/
+            tess!!.pageSegMode = TessBaseAPI.PageSegMode.PSM_AUTO
+            return true
+        }
         tess!!.recycle()
         return false
     }
@@ -84,12 +88,18 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     }
 
     private fun doOcr(photoPath: String): String {
-        tess!!.setImage(File(photoPath))
-        tess!!.getHOCRText(0)
+        val image: ByteArray = PictureConverter(photoPath, ORIENTATION_UNDEFINED).scale(1024 * 1024.0)
+        val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
+        tess!!.setImage(bitmap)
+        setAllowInterruption()
         var allResults = tess!!.utF8Text
         tess!!.recycle()
         allResults = allResults.replace("\n", NEW_LINE)
         return TextProcessor().getOcrResult(allResults)
+    }
+
+    private fun setAllowInterruption() {
+        tess!!.getHOCRText(0)
     }
 
     private fun onPostExecute(result: String) {
