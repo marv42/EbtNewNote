@@ -115,14 +115,14 @@ public class Corrections {
         return replace(s, i, correctCharacter(s.charAt(i), char2something));
     }
 
-    private static String correctCharacter(char c, Map<String, String> char2char) {
+    private static String correctCharacter(char c, Map<String, String> char2something) {
         String s = Character.toString(c);
-        if (char2char.containsKey(s))
-            return char2char.get(s);
+        if (char2something.containsKey(s))
+            return char2something.get(s);
         return s;
     }
 
     private static String replace(String inString, int atIndex, String withString) {
-        return inString.substring(0, atIndex) + withString + inString.substring(atIndex + 1);
+        return inString.substring(0, atIndex) + withString + inString.substring(atIndex + withString.length());
     }
 }
