@@ -17,8 +17,8 @@ android {
 
     defaultConfig {
         applicationId 'com.marv42.ebt.newnote'
-        versionCode 7000
-        versionName "0.70.0"
+        versionCode 7100
+        versionName "0.71.0"
         minSdkVersion 28
         targetSdkVersion rootProject.ext.sdkVersion
         multiDexEnabled true
