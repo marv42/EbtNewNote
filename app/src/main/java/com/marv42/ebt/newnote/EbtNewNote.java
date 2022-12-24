@@ -193,8 +193,13 @@ public class EbtNewNote extends DaggerAppCompatActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         submissionResultHandler.reset();
-        if (!isDualPane)
+        if (!isDualPane && shouldSwitchToResults(intent))
             switchFragment(RESULTS_FRAGMENT_INDEX);
+    }
+
+    private boolean shouldSwitchToResults(Intent intent) {
+        final String extra = intent.getStringExtra(FRAGMENT_TYPE);
+        return extra != null && extra.equals(ResultsFragment.class.getSimpleName());
     }
 
     @Override
