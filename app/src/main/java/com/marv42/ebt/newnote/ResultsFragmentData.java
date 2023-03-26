@@ -144,7 +144,7 @@ public class ResultsFragmentData extends ResultsFragment
         List<List<Map<String, String>>> childData = getChildData();
         String[] groupFrom = getGroupFrom();
         int[] groupTo = getGroupTo();
-        listView.setAdapter(new MyExpandableListAdapter(
+        listView.setAdapter(new NotesExpandableListAdapter(
                 getLayoutInflater(),
                 shouldShowImages(),
                 groupData,
