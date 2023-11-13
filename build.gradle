@@ -8,8 +8,8 @@
 
 buildscript {
     ext {
-        sdkVersion = 33
-        buildToolsVersion = "${sdkVersion}.0.1"
+        sdkVersion = 34
+        buildToolsVersion = "${sdkVersion}.0.0"
         aboutLibrariesVersion = '10.5.0'
     }
     repositories {
@@ -17,8 +17,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:7.3.1"
+        classpath 'com.android.tools.build:gradle:8.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20"
+        classpath "org.owasp:dependency-check-gradle:8.1.2"
     }
 }
 

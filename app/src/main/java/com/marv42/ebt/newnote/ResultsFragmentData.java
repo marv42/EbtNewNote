@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
@@ -66,6 +67,7 @@ public class ResultsFragmentData extends ResultsFragment
     private static final String COMMENT = "comment";
     private static final int MENU_ITEM_EDIT = 1;
     private static final int MENU_ITEM_SHOW = 2;
+    private static final int MENU_ITEM_EXPAND_ALL = 3;
     private ExpandableListView listView;
     private ArrayList<SubmissionResult> results;
 
@@ -104,6 +106,7 @@ public class ResultsFragmentData extends ResultsFragment
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
         final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
+        menu.add(Menu.NONE, MENU_ITEM_EXPAND_ALL, Menu.NONE, R.string.expand_all);
         if (submissionResult.mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
@@ -119,9 +122,18 @@ public class ResultsFragmentData extends ResultsFragment
             case MENU_ITEM_SHOW:
                 showInBrowser(submissionResult.mBillId);
                 return true;
+            case MENU_ITEM_EXPAND_ALL:
+                expandAll();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private void expandAll() {
+        ExpandableListAdapter adapter = listView.getExpandableListAdapter();
+        for (int position = 0; position < adapter.getGroupCount(); position++ )
+            listView.expandGroup(position);
     }
 
     @Override
@@ -202,12 +214,7 @@ public class ResultsFragmentData extends ResultsFragment
 
     private void addChildData(List<List<Map<String, String>>> childData, SubmissionResult sr) {
         String reason = getReason(sr);
-        String denomination = sr.mNoteData.mDenomination;
-        String sn = sr.mNoteData.mSerialNumber;
-        String serialNumber = sn.length() > 0 ? ", " + sn : "";
-        String sc = sr.mNoteData.mShortCode;
-        String shortCode = sc.length() > 0 ? ", " + sc : "";
-        String note = getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
+        String note = getNoteString(sr);
         String comment = getString(R.string.comment) + ": " + sr.mNoteData.mComment;
         String location = getString(R.string.location) + ": " + getLocation(sr.mNoteData);
         List<Map<String, String>> children = getChildMap(reason, note, comment, location);
@@ -223,6 +230,16 @@ public class ResultsFragmentData extends ResultsFragment
                         getColor(activity, R.color.success)) :
                 getColoredString(new ErrorMessage(activity).getErrorMessage(result.mReason),
                         getColor(activity, R.color.failed));
+    }
+
+    @NonNull
+    private String getNoteString(SubmissionResult sr) {
+        String denomination = sr.mNoteData.mDenomination;
+        String sn = sr.mNoteData.mSerialNumber;
+        String serialNumber = sn.length() > 0 ? ", " + sn : "";
+        String sc = sr.mNoteData.mShortCode;
+        String shortCode = sc.length() > 0 ? ", " + sc : "";
+        return getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
     }
 
     private String getLocation(NoteData noteData) {
