@@ -32,7 +32,7 @@ import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION;
 import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION_IMAGE;
 
-public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
+public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
 
     public static final int DENOMINATION_WIDTH = 100;
     public static final int DENOMINATION_MARGIN = 10;
@@ -45,13 +45,13 @@ public class MyExpandableListAdapter extends SimpleExpandableListAdapter {
     private final String[] childFrom;
     private final int[] childTo;
 
-    MyExpandableListAdapter(LayoutInflater layoutInflater, boolean showImages,
-                            List<? extends Map<String, ?>> groupData,
-                            String[] groupFrom,
-                            int[] groupTo,
-                            List<? extends List<? extends Map<String, ?>>> childData,
-                            String[] childFrom,
-                            int[] childTo) {
+    NotesExpandableListAdapter(LayoutInflater layoutInflater, boolean showImages,
+                               List<? extends Map<String, ?>> groupData,
+                               String[] groupFrom,
+                               int[] groupTo,
+                               List<? extends List<? extends Map<String, ?>>> childData,
+                               String[] childFrom,
+                               int[] childTo) {
         super(layoutInflater.getContext(), groupData, R.layout.list_parents, groupFrom, groupTo,
                 childData, R.layout.list_children, childFrom, childTo);
         this.layoutInflater = layoutInflater;
