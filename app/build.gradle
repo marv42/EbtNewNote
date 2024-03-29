@@ -26,8 +26,8 @@ android {
 
     defaultConfig {
         applicationId 'com.marv42.ebt.newnote'
-        versionCode 7300
-        versionName "0.73.0"
+        versionCode 7400
+        versionName "0.74.0"
         minSdkVersion 31
         compileSdk rootProject.ext.sdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
@@ -38,6 +38,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro", "proguard-rules-acra.pro"
         }
         debug {
             debuggable true
