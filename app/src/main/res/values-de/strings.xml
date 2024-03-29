@@ -38,6 +38,8 @@
     <!-- submitted fragment -->
     <string name="edit_data">ändern, um nochmal zu senden</string>
     <string name="show_in_browser">auf der EBT-Seite zeigen</string>
+    <string name="expand_all">alle ausklappen</string>
+    <string name="collapse_all">alle einklappen</string>
 
     <!-- notification -->
     <string name="insertion">Eintragung</string>
@@ -95,7 +97,7 @@
     <!-- settings -->
     <string name="settings">Einstellungen</string>
     <string name="settings_category_ebt_account">EBT-Konto-Zugangsdaten</string>
-    <string name="settings_ebt_account_summary">Noch kein EBT-Konto?\nHier bekommst du eins</string>
+    <string name="settings_ebt_account_summary">Noch kein EuroBillTracker-Konto?\nHier bekommst du eins</string>
     <string name="invalid_login">Ungültige Zugangsdaten</string>
     <string name="settings_email_title">E-Mail-Adresse</string>
     <string name="settings_email_summary">E-Mail-Adresse zum Einloggen in das EBT-Konto</string>
@@ -110,7 +112,7 @@
     <string name="settings_ocr_service_key_summary">Man benötigt einen Registrierungs-Code, um den Online-Texterkennungs-Service verwenden zu können</string>
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
-    <string name="settings_images_summary">EuroBillTracker Nennwert-Bilder im \'&results_fragment_title;\'-Tab anzeigen anstatt die Nennwerte als Text</string>
+    <string name="settings_images_summary">EBT-Nennwert-Bilder im \'&results_fragment_title;\'-Tab anzeigen anstatt die Nennwerte als Text</string>
     <string name="settings_category_advanced">Experimentelle Einstellungen</string>
     <string name="settings_comment_title">Kommentar-Zusatz</string>
     <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>

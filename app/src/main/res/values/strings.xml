@@ -39,9 +39,11 @@
         <item quantity="other">%d hits</item>
     </plurals>
 
-    <!-- submitted fragment -->
+    <!-- results fragment -->
     <string name="edit_data">edit for resubmission</string>
     <string name="show_in_browser">show on EBT web site</string>
+    <string name="expand_all">expand all</string>
+    <string name="collapse_all">collapse all</string>
 
     <!-- notification -->
     <string name="insertion">Insertion</string>
@@ -106,7 +108,7 @@
     <!-- settings -->
     <string name="settings">Settings</string>
     <string name="settings_category_ebt_account">EBT account settings</string>
-    <string name="settings_ebt_account_summary">Don\'t have an EBT account yet?\nTap here to create one</string>
+    <string name="settings_ebt_account_summary">Don\'t have a EuroBillTracker account yet?\nTap here to create one</string>
     <string name="create_ebt_account_url">https://en.eurobilltracker.com/signup/</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>
@@ -122,7 +124,7 @@
     <string name="settings_ocr_service_key_summary">The online OCR service requires a service key</string>
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show EuroBillTracker denomination images in the \'&results_fragment_title;\' tab instead of text</string>
+    <string name="settings_images_summary">Show EBT denomination images in the \'&results_fragment_title;\' tab instead of denomination text</string>
     <string name="settings_category_advanced">Experimental settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
