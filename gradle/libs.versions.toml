@@ -1,0 +1,63 @@
+[versions]
+minSdk = "31"
+compileSdk = "34"
+targetSdk = "34"
+
+# dependencies
+aboutlibrariesVersion = "11.1.1"
+acraVersion = "5.11.3"
+appcompatVersion = "1.6.1"
+cardviewVersion = "1.0.0"
+daggerVersion = "2.51"
+designVersion = "28.0.0"
+errorproneVersion = "1.2.1"
+errorpronecoreVersion = "2.4.0"
+#espressoVersion = "3.3.0"
+exifinterfaceVersion = "1.3.7"
+fragmentKtxVersion = "1.6.2"
+gsonVersion = "2.10.1"
+kotlinxCoroutinesCore = "1.8.0"
+materialVersion = "1.11.0"
+okhttpVersion = "5.0.0-alpha.10"
+picassoVersion = "2.8"
+preferenceKtxVersion = "1.2.1"
+recyclerviewVersion = "1.3.2"
+securityCryptoVersion = "1.1.0-alpha06"
+tesseract4androidOpenmpVersion = "4.2.0"
+
+# plugins
+cyclonedxPluginVersion = "1.8.1"
+dependencyCheckGradleVersion = "8.1.2"
+gradlePluginVersion = "8.1.3"
+kotlinGradlePluginVersion = "1.9.21"
+scabbardPluginVersion = "0.5.0"
+
+[libraries]
+aboutlibraries = { group = "com.mikepenz", name = "aboutlibraries", version.ref = "aboutlibrariesVersion" }
+acra-mail = { group = "ch.acra", name = "acra-mail", version.ref = "acraVersion" }
+acra-toast = { group = "ch.acra", name = "acra-toast", version.ref = "acraVersion" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
+cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardviewVersion" }
+dagger-android-support = { group = "com.google.dagger", name = "dagger-android-support", version.ref = "daggerVersion" }
+dependency-check = { group = "org.owasp", name = "dependency-check-gradle", version.ref = "dependencyCheckGradleVersion" }
+design = { group = "com.android.support", name = "design", version.ref = "designVersion" }
+error-prone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorpronecoreVersion" }
+exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }
+fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtxVersion" }
+androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "gradlePluginVersion" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePluginVersion" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picassoVersion" }
+preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtxVersion" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
+security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoVersion" }
+tesseract4android-openmp = { group = "cz.adaptech.tesseract4android", name = "tesseract4android-openmp", version.ref = "tesseract4androidOpenmpVersion" }
+
+[plugins]
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibrariesVersion" }
+cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedxPluginVersion" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "errorproneVersion" }
+scabbard = { id = "scabbard.gradle", version.ref = "scabbardPluginVersion" }
