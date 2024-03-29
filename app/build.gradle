@@ -8,12 +8,12 @@
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'com.mikepenz.aboutlibraries.plugin' // has to be applied AFTER android
-    id 'org.owasp.dependencycheck'
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: libs.plugins.aboutlibraries.get().pluginId // has to be applied AFTER android
+apply plugin: libs.plugins.cyclonedx.get().pluginId
+apply plugin: libs.plugins.dependencycheck.get().pluginId
+apply plugin: libs.plugins.scabbard.get().pluginId
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -21,11 +21,28 @@ aboutLibraries {
     prettyPrint = true
 }
 
+cyclonedxBom {
+    projectType = "application"
+}
+
+dependencyCheck {
+    nvd {
+        apiKey="597e202d-30eb-4fb5-bd4e-5bfb1264de21"
+    }
+}
+
+scabbard {
+    enabled !gradle.startParameter.toString().contains("assembleRelease")
+    outputFormat "svg" // we got png anyway :-/
+    fullBindingGraphValidation true
+}
+
 android {
-    namespace 'com.marv42.ebt.newnote'
+    def marv42EbtNewNote = 'com.marv42.ebt.newnote'
+    namespace marv42EbtNewNote
 
     defaultConfig {
-        applicationId 'com.marv42.ebt.newnote'
+        applicationId marv42EbtNewNote
         versionCode 7500
         versionName "0.75.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()

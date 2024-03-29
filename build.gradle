@@ -18,45 +18,33 @@ buildscript {
         classpath libs.androidGradlePlugin
         classpath libs.kotlin.gradle.plugin
         classpath libs.dependency.check
+        classpath libs.cyclonedx.gradle.plugin
+        classpath libs.error.prone.core
     }
 }
 
 plugins {
-    alias libs.plugins.aboutlibraries apply false
     alias libs.plugins.errorprone
-    alias libs.plugins.cyclonedx
-    alias libs.plugins.scabbard
-}
-
-scabbard {
-    enabled true
-    outputFormat "svg"
-    fullBindingGraphValidation true
+    alias libs.plugins.aboutlibraries apply false
+    alias libs.plugins.cyclonedx apply false
+    alias libs.plugins.dependencycheck apply false
+    alias libs.plugins.scabbard apply false
 }
 
 dependencies {
     errorprone libs.error.prone.core
 }
 
-afterEvaluate {
+//afterEvaluate {
     tasks.withType(JavaCompile).configureEach {
         options.errorprone.disableWarningsInGeneratedCode = true
     }
-}
+//}
 
 allprojects {
     repositories {
         mavenCentral()
         google()
         maven { url 'https://jitpack.io' }
-    }
-
-    configurations.configureEach {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "com.github.kittinunf.result" && requested.name == "result" && requested.version == "3.0.0") {
-                useVersion("3.0.1")
-                because("Transitive dependency of Scabbard, currently not available on mavenCentral()")
-            }
-        }
     }
 }
