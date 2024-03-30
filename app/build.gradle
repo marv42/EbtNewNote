@@ -8,8 +8,10 @@
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
 apply plugin: libs.plugins.aboutlibraries.get().pluginId // has to be applied AFTER android
 apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
