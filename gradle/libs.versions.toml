@@ -34,6 +34,7 @@ scabbardPluginVersion = "0.5.0"
 
 [libraries]
 aboutlibraries = { group = "com.mikepenz", name = "aboutlibraries", version.ref = "aboutlibrariesVersion" }
+aboutlibraries-plugin = { group = "com.mikepenz.aboutlibraries.plugin", name = "aboutlibraries-plugin", version.ref = "aboutlibrariesVersion" }
 acra-mail = { group = "ch.acra", name = "acra-mail", version.ref = "acraVersion" }
 acra-toast = { group = "ch.acra", name = "acra-toast", version.ref = "acraVersion" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }

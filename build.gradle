@@ -17,6 +17,7 @@ buildscript {
     dependencies {
         classpath libs.androidGradlePlugin
         classpath libs.kotlin.gradle.plugin
+        classpath libs.aboutlibraries.plugin
         classpath libs.dependency.check
         classpath libs.cyclonedx.gradle.plugin
         classpath libs.error.prone.core
