@@ -8,7 +8,6 @@
 
 package com.marv42.ebt.newnote.location;
 
-import static com.marv42.ebt.newnote.BuildConfig.APPLICATION_ID;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_ERROR;
 import static com.marv42.ebt.newnote.ThisApp.RESULT_CODE_SUCCESS;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
@@ -24,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.marv42.ebt.newnote.HttpCaller;
 import com.marv42.ebt.newnote.R;
+import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
@@ -44,9 +44,9 @@ import okhttp3.Request;
 public class FetchAddressIntentService extends DaggerIntentService {
 
     public static final String TAG = FetchAddressIntentService.class.getSimpleName();
-    public static final String RECEIVER = APPLICATION_ID + ".RECEIVER";
-    public static final String RESULT_DATA_KEY = APPLICATION_ID + ".RESULT_DATA_KEY";
-    public static final String LOCATION_DATA_EXTRA = APPLICATION_ID + ".LOCATION_DATA_EXTRA";
+    public static final String RECEIVER = ThisApp.packageName + ".RECEIVER";
+    public static final String RESULT_DATA_KEY = ThisApp.packageName + ".RESULT_DATA_KEY";
+    public static final String LOCATION_DATA_EXTRA = ThisApp.packageName + ".LOCATION_DATA_EXTRA";
     private static final String GEOCODING_HOST = "geocode.arcgis.com";
     private static final String GEOCODING_URL = "https://" + GEOCODING_HOST + "/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
     private static final String ADDRESS_ELEMENT = "address";

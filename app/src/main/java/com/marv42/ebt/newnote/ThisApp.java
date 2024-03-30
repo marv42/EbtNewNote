@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
+import android.os.Build;
 import android.os.Handler;
 import android.widget.Toast;
 
@@ -44,7 +45,14 @@ public class ThisApp extends DaggerApplication {
 
     public static final int RESULT_CODE_SUCCESS = 0;
     public static final int RESULT_CODE_ERROR = 1;
+    public static String packageName;
     BroadcastReceiver broadcastReceiver;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        packageName = getApplicationContext().getPackageName();
+    }
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -78,7 +86,10 @@ public class ThisApp extends DaggerApplication {
             broadcastReceiver = new LocationProviderChangedReceiver();
             IntentFilter filter = new IntentFilter(PROVIDERS_CHANGED_ACTION);
             filter.addAction(ACTION_PROVIDER_CHANGED);
-            registerReceiver(broadcastReceiver, filter);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                registerReceiver(broadcastReceiver, filter);
+            else
+                registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         }
     }
 
