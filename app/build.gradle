@@ -42,6 +42,7 @@ scabbard {
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
     namespace marv42EbtNewNote
+    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId marv42EbtNewNote
