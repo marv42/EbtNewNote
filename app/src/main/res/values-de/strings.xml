@@ -122,8 +122,8 @@
     <string name="settings_country_title">Ländernamen-Auflösungs-Service-Code</string>
     <string name="settings_country_summary">Um Ländernamen aufzulösen wird ein Online-Service verwendet</string>
     <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
-    <string name="settings_ocr_summary_no_key">Bitte besorge dir deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
-    <string name="settings_country_summary_no_key">Besorge dir hier deinen persönlichen Ländernamen-Auflösungs-Service-Registrierungs-Code bei</string>
+    <string name="settings_ocr_summary_no_key">Bitte besorge dir, indem du hier tippst, deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
+    <string name="settings_country_summary_no_key">Bitte besorge dir, indem du hier tippst, deinen persönlichen Ländernamen-Auflösungs-Service-Registrierungs-Code bei</string>
     <string name="logged_in">Erfolgreich eingeloggt</string>
     <string name="trying_login">EBT-Zugangsdaten werden geprüft…</string>
     <string name="wrong_login_info">Ungültige EBT-Konto-Zugangsdaten</string>

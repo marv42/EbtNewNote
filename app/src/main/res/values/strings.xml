@@ -136,7 +136,7 @@
     <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please tap here to get your personal OCR service key at</string>
     <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
-    <string name="settings_country_summary_no_key">Please get your personal country resolution service key at</string>
+    <string name="settings_country_summary_no_key">Please tap here to get your personal country resolution service key at</string>
     <string name="settings_country_service_url">https://manage.countrylayer.com/</string>
     <string name="logged_in">Login successful</string>
     <string name="trying_login">Trying to log in to EBT…</string>
@@ -197,7 +197,7 @@
     <string name="www_ebt">www.eurobilltracker.com</string>
     <string name="developer_email">marv42+ebtnn@gmail.com</string>
     <string name="contributors">Carnager</string>
-    <string name="version">Version %1$s</string>
+    <string name="about_version">Version %1$s</string>
 
     <!-- OCR -->
     <string name="error_reading_picture">Error reading picture file</string>

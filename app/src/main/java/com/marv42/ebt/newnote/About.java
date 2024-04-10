@@ -10,12 +10,15 @@ package com.marv42.ebt.newnote;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 public class About implements OnMenuItemClickListener {
 
@@ -25,11 +28,10 @@ public class About implements OnMenuItemClickListener {
         this.context = context;
     }
 
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onMenuItemClick(@NonNull MenuItem item) {
         final Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.about);
         dialog.setTitle(R.string.app_name);
-
         String versionNumber;
         final PackageManager packageManager = context.getPackageManager();
         try {
@@ -41,11 +43,14 @@ public class About implements OnMenuItemClickListener {
         } catch (NameNotFoundException ex) {
             versionNumber = "0.0.0";
         }
-
-        ((TextView) dialog.findViewById(R.id.about_version)).setText(
-                String.format(context.getString(R.string.version), versionNumber));
-        ((TextView) dialog.findViewById(R.id.about_text)).setText(
-                String.format("'%1$s' %2$s", context.getString(R.string.app_name),
+        boolean isDebug = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        if (isDebug) {
+            versionNumber += "-DEBUG";
+        }
+        final TextView versionTextView = dialog.findViewById(R.id.about_version);
+        versionTextView.setText(String.format(context.getString(R.string.about_version), versionNumber));
+        final TextView descriptionTextView = dialog.findViewById(R.id.about_text);
+        descriptionTextView.setText(String.format("'%1$s' %2$s", context.getString(R.string.app_name),
                         context.getString(R.string.about_text,
                                 context.getString(R.string.www_ebt),
                                 context.getString(R.string.developer_email),
