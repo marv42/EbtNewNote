@@ -68,6 +68,8 @@ public class ResultsFragmentData extends ResultsFragment
     private static final int MENU_ITEM_EDIT = 1;
     private static final int MENU_ITEM_SHOW = 2;
     private static final int MENU_ITEM_EXPAND_ALL = 3;
+    private static final int MENU_ITEM_COLLAPSE_ALL = 4;
+    private enum EXPAND_OR_COLLAPSE { EXPAND, COLLAPSE }
     private ExpandableListView listView;
     private ArrayList<SubmissionResult> results;
 
@@ -106,34 +108,55 @@ public class ResultsFragmentData extends ResultsFragment
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) menuInfo;
         final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
         menu.add(Menu.NONE, MENU_ITEM_EDIT, Menu.NONE, R.string.edit_data);
-        menu.add(Menu.NONE, MENU_ITEM_EXPAND_ALL, Menu.NONE, R.string.expand_all);
+        if (! allGroupsAre(EXPAND_OR_COLLAPSE.EXPAND))
+            menu.add(Menu.NONE, MENU_ITEM_EXPAND_ALL, Menu.NONE, R.string.expand_all);
+        if (! allGroupsAre(EXPAND_OR_COLLAPSE.COLLAPSE))
+            menu.add(Menu.NONE, MENU_ITEM_COLLAPSE_ALL, Menu.NONE, R.string.collapse_all);
         if (submissionResult.mBillId > 0)
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
     }
 
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        switch (item.getItemId()) {
-            case MENU_ITEM_EDIT:
-                startNewNote(submissionResult.mNoteData);
-                return true;
-            case MENU_ITEM_SHOW:
-                showInBrowser(submissionResult.mBillId);
-                return true;
-            case MENU_ITEM_EXPAND_ALL:
-                expandAll();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+    private boolean allGroupsAre(EXPAND_OR_COLLAPSE expandedOrCollapsed) {
+        ExpandableListAdapter adapter = listView.getExpandableListAdapter();
+        for (int position = 0; position < adapter.getGroupCount(); position++) {
+            final boolean groupIsExpanded = listView.isGroupExpanded(position);
+            if ((expandedOrCollapsed == EXPAND_OR_COLLAPSE.EXPAND && ! groupIsExpanded)  ||
+                    (expandedOrCollapsed == EXPAND_OR_COLLAPSE.COLLAPSE && groupIsExpanded))
+                return false;
         }
+        return true;
     }
 
-    private void expandAll() {
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        final int itemId = item.getItemId();
+        if (itemId == MENU_ITEM_EXPAND_ALL) {
+            expandOrCollapseAll(EXPAND_OR_COLLAPSE.EXPAND);
+            return true;
+        } else if (itemId == MENU_ITEM_COLLAPSE_ALL) {
+            expandOrCollapseAll(EXPAND_OR_COLLAPSE.COLLAPSE);
+            return true;
+        }
+        ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
+        if (info == null)
+            return super.onContextItemSelected(item);
+        if (itemId == MENU_ITEM_EDIT) {
+            startNewNote(info);
+            return true;
+        } else if (itemId == MENU_ITEM_SHOW) {
+            showInBrowser(info);
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void expandOrCollapseAll(EXPAND_OR_COLLAPSE expandOrCollapse) {
         ExpandableListAdapter adapter = listView.getExpandableListAdapter();
-        for (int position = 0; position < adapter.getGroupCount(); position++ )
-            listView.expandGroup(position);
+        for (int position = 0; position < adapter.getGroupCount(); position++)
+            if (expandOrCollapse == EXPAND_OR_COLLAPSE.EXPAND)
+                listView.expandGroup(position);
+            else if (expandOrCollapse == EXPAND_OR_COLLAPSE.COLLAPSE)
+                listView.collapseGroup(position);
     }
 
     @Override
@@ -198,7 +221,7 @@ public class ResultsFragmentData extends ResultsFragment
             groupMap.put(DENOMINATION_IMAGE, denominationUrl);
         else
             groupMap.put(DENOMINATION, denomination);
-        final String serialNumber = sn.length() > 0 ? sn : "-";
+        final String serialNumber = sn.isEmpty() ? "-" : sn;
         groupMap.put(SERIAL_NUMBER, serialNumber);
         groupMap.put(RESULT, result);
         return groupMap;
@@ -236,15 +259,15 @@ public class ResultsFragmentData extends ResultsFragment
     private String getNoteString(SubmissionResult sr) {
         String denomination = sr.mNoteData.mDenomination;
         String sn = sr.mNoteData.mSerialNumber;
-        String serialNumber = sn.length() > 0 ? ", " + sn : "";
+        String serialNumber = sn.isEmpty() ? "" : ", " + sn;
         String sc = sr.mNoteData.mShortCode;
-        String shortCode = sc.length() > 0 ? ", " + sc : "";
+        String shortCode = sc.isEmpty() ? "" : ", " + sc;
         return getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
     }
 
     private String getLocation(NoteData noteData) {
         String postalCode = noteData.mPostalCode;
-        postalCode = postalCode.length() > 0 ? " (" + postalCode + ") " : " ";
+        postalCode = postalCode.isEmpty() ? " " : " (" + postalCode + ") ";
         return noteData.mCity + postalCode + noteData.mCountry;
     }
 
@@ -267,8 +290,7 @@ public class ResultsFragmentData extends ResultsFragment
         return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
     }
 
-    @NotNull
-    private int[] getGroupTo() {
+    private int @NotNull [] getGroupTo() {
         if (shouldShowImages())
             return new int[]{R.id.list_place_holder,
                     R.id.list_denomination_image,
@@ -285,27 +307,23 @@ public class ResultsFragmentData extends ResultsFragment
         return results.get(group);
     }
 
-    private void startNewNote(NoteData noteData) {
+    private void startNewNote(ExpandableListContextMenuInfo info) {
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        setSubmitFragmentValues(noteData);
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        setSubmitFragmentValues(submissionResult.mNoteData);
         ((Callback) activity).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private void setSubmitFragmentValues(NoteData noteData) {
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-        viewModel.setCountry(noteData.mCountry);
-        viewModel.setCity(noteData.mCity);
-        viewModel.setPostalCode(noteData.mPostalCode);
-        viewModel.setDenomination(noteData.mDenomination);
-        viewModel.setShortCode(noteData.mShortCode);
-        viewModel.setSerialNumber(noteData.mSerialNumber);
-        viewModel.setComment(noteData.mComment);
+        viewModel.setNoteData(noteData);
     }
 
-    private void showInBrowser(int billId) {
-        final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + billId);
+    private void showInBrowser(ExpandableListContextMenuInfo info) {
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + submissionResult.mBillId);
         startActivity(new Intent(ACTION_VIEW, uri));
     }
 
