@@ -19,10 +19,12 @@ class ReplacementMaps {
     @NotNull
     static Map<String, String> getAmbiguousMap() {
         return Stream.of(new String[][]{
+                {"(", "C"},
                 {"K", "X"},
                 {"%", "X"},
                 {"@", "0"},
                 {",", "1"},
+                {"'", "1"},
                 {"i", "1"},
                 {"t", "1"},
                 {"#", "4"},
@@ -45,7 +47,7 @@ class ReplacementMaps {
                 {"8", "A"},
                 {"3", "B"},
                 {"4", "N"},
-                {"0", "O"}, // or D :-/
+                {"0", "O"}, // or D, or P :-/
                 {"$", "S"},
                 {"1", "U"},
                 {"2", "Z"}
