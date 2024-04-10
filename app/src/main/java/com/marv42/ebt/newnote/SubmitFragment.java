@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ import com.marv42.ebt.newnote.location.LocationButtonHandler;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SavePreferencesTextWatcher;
+import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.CameraStarter;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
@@ -55,6 +57,7 @@ import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
 public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
+    private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     @Inject
     ThisApp app;
@@ -125,7 +128,8 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         Activity activity = getActivity();
         CameraStarter cameraStarter = new CameraStarter(activity);
         final String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
-        if (!cameraStarter.canTakePhoto(ocrKey))
+        final boolean isOnlineOcr = dataStore.get(R.string.pref_settings_ocr_online_key, false);
+        if (!cameraStarter.canTakePhoto(isOnlineOcr && TextUtils.isEmpty(ocrKey)))
             return;
         try {
             cameraStarter.startCameraActivity(sharedPreferencesHandler);
@@ -247,7 +251,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         try {
             putToClipboard(serialNumberOrShortCode);
         } catch (NoClipboardManagerException e) {
-            e.printStackTrace();
+            Log.w(TAG, e.getMessage());
         }
     }
 

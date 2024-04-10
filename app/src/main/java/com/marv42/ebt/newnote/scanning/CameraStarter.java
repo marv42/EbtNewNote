@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
@@ -36,6 +35,7 @@ import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.provider.MediaStore.ACTION_IMAGE_CAPTURE;
 import static android.provider.MediaStore.EXTRA_OUTPUT;
 import static android.widget.Toast.LENGTH_LONG;
+import static androidx.core.app.ActivityCompat.requestPermissions;
 import static androidx.core.content.FileProvider.getUriForFile;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
@@ -54,7 +54,7 @@ public class CameraStarter {
         this.activity = activity;
     }
 
-    public boolean canTakePhoto(CharSequence ocrKey) {
+    public boolean canTakePhoto(boolean showNoOnlineOcrServiceKeyDialog) {
         if (activity == null)
             throw new IllegalStateException("No activity");
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
@@ -63,10 +63,10 @@ public class CameraStarter {
             return false;
         }
         if (checkSelfPermission(activity, CAMERA) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+            requestPermissions(activity, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
             return false;
         }
-        if (TextUtils.isEmpty(ocrKey)) {
+        if (showNoOnlineOcrServiceKeyDialog) {
             showDialogNoOcrServiceKey(activity);
             return false;
         }
@@ -76,8 +76,7 @@ public class CameraStarter {
     private void showDialogNoOcrServiceKey(Activity activity) {
         new AlertDialog.Builder(activity)
                 .setTitle(R.string.ocr_no_service_key)
-                .setMessage(activity.getString(R.string.settings_ocr_summary) + "." +
-                        activity.getString(R.string.redirect_to_settings) + activity.getString(R.string.get_ocr_key))
+                .setMessage(activity.getString(R.string.settings_ocr_summary) + "." + activity.getString(R.string.get_ocr_key))
                 .setPositiveButton(activity.getString(android.R.string.ok),
                         (dialog, which) -> {
                             activity.startActivity(new Intent(activity.getApplicationContext(),
