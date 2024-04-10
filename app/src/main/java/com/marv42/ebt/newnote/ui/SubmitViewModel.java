@@ -15,18 +15,31 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.marv42.ebt.newnote.data.NoteData;
+
 public class SubmitViewModel extends AndroidViewModel {
 
-    private MutableLiveData<String> country;
-    private MutableLiveData<String> city;
-    private MutableLiveData<String> postalCode;
-    private MutableLiveData<String> denomination;
-    private MutableLiveData<String> shortCode;
-    private MutableLiveData<String> serialNumber;
-    private MutableLiveData<String> comment;
+    private final MutableLiveData<String> country = new MutableLiveData<>();;
+    private final MutableLiveData<String> city = new MutableLiveData<>();;
+    private final MutableLiveData<String> postalCode = new MutableLiveData<>();;
+    private final MutableLiveData<String> denomination = new MutableLiveData<>();;
+    private final MutableLiveData<String> shortCode = new MutableLiveData<>();;
+    private final MutableLiveData<String> serialNumber = new MutableLiveData<>();;
+    private final MutableLiveData<String> comment = new MutableLiveData<>();;
 
     public SubmitViewModel(@NonNull Application application) {
         super(application);
+    }
+
+    public void setNoteData(NoteData noteData)
+    {
+        setCountry(noteData.mCountry);
+        setCity(noteData.mCity);
+        setPostalCode(noteData.mPostalCode);
+        setDenomination(noteData.mDenomination);
+        setShortCode(noteData.mShortCode);
+        setSerialNumber(noteData.mSerialNumber);
+        setComment(noteData.mComment);
     }
 
     public void setCountry(String aCountry) {
@@ -34,8 +47,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getCountry() {
-        if (country == null)
-            country = new MutableLiveData<>();
         return country;
     }
 
@@ -44,8 +55,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getCity() {
-        if (city == null)
-            city = new MutableLiveData<>();
         return city;
     }
 
@@ -54,8 +63,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getPostalCode() {
-        if (postalCode == null)
-            postalCode = new MutableLiveData<>();
         return postalCode;
     }
 
@@ -64,8 +71,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getDenomination() {
-        if (denomination == null)
-            denomination = new MutableLiveData<>();
         return denomination;
     }
 
@@ -74,8 +79,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getShortCode() {
-        if (shortCode == null)
-            shortCode = new MutableLiveData<>();
         return shortCode;
     }
 
@@ -84,8 +87,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getSerialNumber() {
-        if (serialNumber == null)
-            serialNumber = new MutableLiveData<>();
         return serialNumber;
     }
 
@@ -94,8 +95,6 @@ public class SubmitViewModel extends AndroidViewModel {
     }
 
     public LiveData<String> getComment() {
-        if (comment == null)
-            comment = new MutableLiveData<>();
         return comment;
     }
 }
