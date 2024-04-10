@@ -41,13 +41,15 @@ scabbard {
 
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
+    def majorVersion = 0
+    def minorVersion = 76
+    def patchVersion = 0
     namespace marv42EbtNewNote
-    compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId marv42EbtNewNote
-        versionCode 7500
-        versionName "0.75.0"
+        versionCode majorVersion * 10000 + minorVersion * 100
+        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -57,8 +59,10 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources true
+            // TODO shrinkResources true
+            // TODO Use "proguard-android-optimize.txt"
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro", "proguard-rules-acra.pro"
+            signingConfig signingConfigs.debug
         }
         debug {
             debuggable true
