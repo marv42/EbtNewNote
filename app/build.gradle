@@ -41,15 +41,18 @@ scabbard {
 
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
-    def majorVersion = 0
-    def minorVersion = 76
-    def patchVersion = 0
+//    F-Droid needs a static version
+//    def majorVersion = 0
+//    def minorVersion = 77
+//    def patchVersion = 0
     namespace marv42EbtNewNote
 
     defaultConfig {
         applicationId marv42EbtNewNote
-        versionCode majorVersion * 10000 + minorVersion * 100
-        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
+//        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
+//        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
+        versionCode 7700
+        versionName "0.77.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
