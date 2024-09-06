@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2022 Marvin Horter.
+  Copyright (c) 2010 - 2024 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -145,7 +145,7 @@
     <string name="location_start">Lokatie wordt berekend…</string>
     <string name="location_got">Huidige lokatie verkregen</string>
     <string name="location_last_known">De laatst bekende lokatie is verkregen</string>
-    <string name="location_no_geocoder">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
+    <string name="location_no_provider">Geen Geocoder achtergrond service\nDe geografische lokatie kon niet worden vertaald in een postadres</string>
     <string name="location_no_address">Voor de huidige lokatie kon geen postadres worden gevonden</string>
     <string name="location_no_country"></string>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2022 Marvin Horter.
+  Copyright (c) 2010 - 2024 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -42,6 +42,8 @@
     <!-- results fragment -->
     <string name="edit_data">edit for resubmission</string>
     <string name="show_in_browser">show on EBT web site</string>
+    <string name="keep">keep this note</string>
+    <string name="dont_keep">don\'t keep this note</string>
     <string name="expand_all">expand all</string>
     <string name="collapse_all">collapse all</string>
 
@@ -186,7 +188,7 @@
     <string name="location_start">Gathering location information…</string>
     <string name="location_got">Got a current location</string>
     <string name="location_last_known">Got the last known location</string>
-    <string name="location_no_geocoder">No Geocoder backend service\nCould not transform latitude/longitude into postal address</string>
+    <string name="location_no_provider">No Location Provider is enabled\nCould not transform latitude/longitude into postal address</string>
     <string name="location_no_address">Geocoder didn\'t get an address for this location</string>
     <string name="location_no_country">Country resolution failed</string>
 

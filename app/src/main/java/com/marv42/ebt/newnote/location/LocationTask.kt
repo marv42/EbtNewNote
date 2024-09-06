@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@ package com.marv42.ebt.newnote.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -38,15 +37,14 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun doInBackground(): Int {
-        if (!Geocoder.isPresent())
-            return R.string.location_no_geocoder
+    private fun doInBackground(): Int {
+        val enabledProviders = locationManager.getProviders(true)
+        if (enabledProviders.isEmpty())
+            return R.string.location_no_provider
         val locationListener = locationListener
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_UPDATES_MS,
-                MIN_DISTANCE_UPDATES_M, locationListener, Looper.getMainLooper())
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_UPDATES_MS,
-                MIN_DISTANCE_UPDATES_M, locationListener, Looper.getMainLooper())
-        delay(WAIT_TIME_MS)
+        for (locationProvider in enabledProviders)
+            locationManager.requestLocationUpdates(locationProvider, MIN_TIME_UPDATES_MS,
+                    MIN_DISTANCE_UPDATES_M, locationListener, Looper.getMainLooper())
         val lastKnownLocation: Location? = lastKnownLocation
         if (lastKnownLocation != null)
             if (location == null || locationIsMuchNewer(lastKnownLocation)) {
@@ -63,15 +61,15 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
     @get:SuppressLint("MissingPermission")
     private val lastKnownLocation: Location?
         get() {
-            val lastKnownGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            val lastKnownNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            return if (lastKnownGpsLocation != null && lastKnownNetworkLocation != null) {
-                if (lastKnownNetworkLocation.accuracy > lastKnownGpsLocation.accuracy)
-                    lastKnownNetworkLocation
-                else
-                    lastKnownGpsLocation
-            } else
-                lastKnownGpsLocation ?: lastKnownNetworkLocation
+            var lastKnownLocation: Location? = null
+            val enabledProviders = locationManager.getProviders(true);
+            for (locationProvider in enabledProviders) {
+                val newLocation = locationManager.getLastKnownLocation(locationProvider)
+                if (newLocation != null)
+                    if (lastKnownLocation == null || newLocation.accuracy > lastKnownLocation.accuracy)
+                        lastKnownLocation = newLocation
+            }
+            return lastKnownLocation
         }
 
     private val locationListener: LocationListener
@@ -96,7 +94,6 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
 
     companion object {
         private const val MAX_TIME_LAST_KNOWN_NS = 30L * Utils.SECONDS_IN_NANOSECONDS
-        private const val WAIT_TIME_MS = 4 * 1000.toLong()
         private const val MIN_DISTANCE_UPDATES_M = 500f
         private const val MIN_TIME_UPDATES_MS = 10 * 1000.toLong()
     }
