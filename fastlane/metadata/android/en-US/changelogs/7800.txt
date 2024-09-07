@@ -1,0 +1,1 @@
+Bug fix: Get location fix without Google Services

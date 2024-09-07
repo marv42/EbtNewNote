@@ -43,7 +43,7 @@ android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
 //    F-Droid needs a static version
 //    def majorVersion = 0
-//    def minorVersion = 77
+//    def minorVersion = 78
 //    def patchVersion = 0
     namespace marv42EbtNewNote
 
@@ -51,8 +51,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 7700
-        versionName "0.77.0"
+        versionCode 7800
+        versionName "0.78.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -62,9 +62,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            // TODO shrinkResources true
-            // TODO Use "proguard-android-optimize.txt"
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro", "proguard-rules-acra.pro"
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro", "proguard-rules-acra.pro", "proguard-rules-gson.pro"
             signingConfig signingConfigs.debug
         }
         debug {
