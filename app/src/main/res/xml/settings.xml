@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2022 Marvin Horter.
+  Copyright (c) 2010 - 2024 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -53,7 +53,7 @@
             android:key="@string/pref_settings_show_submitted_key"
             android:title="@string/settings_submitted_title"
             android:summary="@string/settings_submitted_summary"
-            android:defaultValue="@string/max_show_num"/>
+            android:defaultValue="@string/max_show_num_default"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_misc">

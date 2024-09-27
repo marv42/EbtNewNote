@@ -126,7 +126,8 @@
 
     <!-- permissions -->
     <string name="no_permission">Onvoldoende rechten toegekend</string>
-    <string name="permission">Toegang verleend</string>
+    <string name="permission_camera">Toegang verleend</string>
+    <string name="permission_location">Toegang verleend</string>
 
     <!-- photo -->
     <string name="no_camera_activity">Foto\'s maken niet mogelijk wegens ontbrekende aktiviteit</string>

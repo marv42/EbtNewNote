@@ -133,7 +133,8 @@
 
     <!-- permissions -->
     <string name="no_permission">Erlaubnis nicht gewährt</string>
-    <string name="permission">Erlaubnis gewährt</string>
+    <string name="permission_camera">Kamera-Erlaubnis gewährt</string>
+    <string name="permission_location">Lokalisierungserlaubnis gewährt</string>
 
     <!-- photo -->
     <string name="no_camera_activity">Keine Kamera-App</string>

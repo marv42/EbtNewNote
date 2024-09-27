@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -24,16 +24,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static android.graphics.Color.BLACK;
 import static android.view.View.GONE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
 import static androidx.core.text.HtmlCompat.fromHtml;
 import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION;
 import static com.marv42.ebt.newnote.ResultsFragmentData.DENOMINATION_IMAGE;
+import static com.marv42.ebt.newnote.ResultsFragmentData.KEEP;
 
 public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
-
     public static final int DENOMINATION_WIDTH = 100;
     public static final int DENOMINATION_MARGIN = 10;
     private final LayoutInflater layoutInflater;
@@ -69,7 +71,14 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
         View v = layoutInflater.inflate(R.layout.list_parents, parent, false);
         bindView(v, groupData.get(groupPosition), groupFrom, groupTo);
         setLayoutParams(v);
+        highlightKeepView(groupPosition, v);
         return v;
+    }
+
+    private void highlightKeepView(int groupPosition, View v) {
+        final Object keep = groupData.get(groupPosition).get(KEEP);
+        if (Objects.equals(keep, String.valueOf(true)))
+            v.setBackgroundColor(BLACK);
     }
 
     private void setLayoutParams(View view) {
@@ -104,6 +113,7 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
                              View convertView, ViewGroup parent) {
         View v = layoutInflater.inflate(R.layout.list_children, parent, false);
         bindView(v, childData.get(groupPosition).get(childPosition), childFrom, childTo);
+        highlightKeepView(groupPosition, v);
         return v;
     }
 

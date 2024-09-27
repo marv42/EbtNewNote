@@ -144,7 +144,7 @@
     <string name="trying_login">Trying to log in to EBT…</string>
     <string name="wrong_login_info">No valid EBT login information</string>
     <string name="redirect_to_settings">&redirect_to_settings;</string>
-    <string name="max_show_num">100</string>
+    <string name="max_show_num_default">100</string>
 
     <!-- preferences -->
     <string name="pref_settings_email_key">pref_settings_email</string>
@@ -169,7 +169,8 @@
 
     <!-- permissions -->
     <string name="no_permission">Permissions not granted</string>
-    <string name="permission">Permissions granted</string>
+    <string name="permission_camera">Camera permission granted</string>
+    <string name="permission_location">Location permission granted</string>
 
     <!-- photo -->
     <string name="no_camera_activity">No activity for taking pictures</string>

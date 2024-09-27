@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -55,6 +55,9 @@ public class ResultsFragmentData extends ResultsFragment
     ViewModelProvider viewModelProvider;
     @Inject
     EncryptedPreferenceDataStore dataStore;
+    @Inject
+    AllResults allResults;
+    static final String KEEP = "keep";
     protected static final String DENOMINATION = "denomination";
     protected static final String DENOMINATION_IMAGE = "denomination image";
     private static final String EBT_HOST = "https://en.eurobilltracker.com/";
@@ -69,9 +72,11 @@ public class ResultsFragmentData extends ResultsFragment
     private static final int MENU_ITEM_SHOW = 2;
     private static final int MENU_ITEM_EXPAND_ALL = 3;
     private static final int MENU_ITEM_COLLAPSE_ALL = 4;
+    private static final int MENU_ITEM_KEEP = 5;
+    private static final int MENU_ITEM_DONT_KEEP = 6;
     private enum EXPAND_OR_COLLAPSE { EXPAND, COLLAPSE }
     private ExpandableListView listView;
-    private ArrayList<SubmissionResult> results;
+    private ArrayList<SubmissionResult> resultsForRefreshing;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,7 +96,7 @@ public class ResultsFragmentData extends ResultsFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupViewModel();
+        setupResultsObserver();
     }
 
     @Override
@@ -112,8 +117,13 @@ public class ResultsFragmentData extends ResultsFragment
             menu.add(Menu.NONE, MENU_ITEM_EXPAND_ALL, Menu.NONE, R.string.expand_all);
         if (! allGroupsAre(EXPAND_OR_COLLAPSE.COLLAPSE))
             menu.add(Menu.NONE, MENU_ITEM_COLLAPSE_ALL, Menu.NONE, R.string.collapse_all);
-        if (submissionResult.mBillId > 0)
+        if (submissionResult.mBillId > 0) {
             menu.add(Menu.NONE, MENU_ITEM_SHOW, Menu.NONE, R.string.show_in_browser);
+            if (submissionResult.mRemovable)
+                menu.add(Menu.NONE, MENU_ITEM_KEEP, Menu.NONE, R.string.keep);
+            else
+                menu.add(Menu.NONE, MENU_ITEM_DONT_KEEP, Menu.NONE, R.string.dont_keep);
+        }
     }
 
     private boolean allGroupsAre(EXPAND_OR_COLLAPSE expandedOrCollapsed) {
@@ -130,24 +140,20 @@ public class ResultsFragmentData extends ResultsFragment
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         final int itemId = item.getItemId();
-        if (itemId == MENU_ITEM_EXPAND_ALL) {
-            expandOrCollapseAll(EXPAND_OR_COLLAPSE.EXPAND);
-            return true;
-        } else if (itemId == MENU_ITEM_COLLAPSE_ALL) {
-            expandOrCollapseAll(EXPAND_OR_COLLAPSE.COLLAPSE);
-            return true;
-        }
         ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item.getMenuInfo();
         if (info == null)
             return super.onContextItemSelected(item);
-        if (itemId == MENU_ITEM_EDIT) {
-            startNewNote(info);
-            return true;
-        } else if (itemId == MENU_ITEM_SHOW) {
-            showInBrowser(info);
-            return true;
+        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
+        switch (itemId) {
+            case MENU_ITEM_EXPAND_ALL -> expandOrCollapseAll(EXPAND_OR_COLLAPSE.EXPAND);
+            case MENU_ITEM_COLLAPSE_ALL -> expandOrCollapseAll(EXPAND_OR_COLLAPSE.COLLAPSE);
+            case MENU_ITEM_EDIT -> startNewNote(submissionResult.mNoteData);
+            case MENU_ITEM_SHOW -> showInBrowser(submissionResult.mBillId);
+            case MENU_ITEM_KEEP -> keepEntry(submissionResult, true);
+            case MENU_ITEM_DONT_KEEP -> keepEntry(submissionResult, false);
+            default -> throw new IllegalArgumentException("itemId (resp. item)");
         }
-        return super.onContextItemSelected(item);
+        return true;
     }
 
     private void expandOrCollapseAll(EXPAND_OR_COLLAPSE expandOrCollapse) {
@@ -166,12 +172,16 @@ public class ResultsFragmentData extends ResultsFragment
                 refreshResults();
     }
 
-    private void setupViewModel() {
-        ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
-        viewModel.getResults().observe(getViewLifecycleOwner(), observer -> {
-            results = observer;
-            refreshResults();
+    private void setupResultsObserver() {
+        ResultsViewModel viewModel = getResultsViewModel();
+        viewModel.getResults().observe(getViewLifecycleOwner(), resultsObserver -> {
+            resultsForRefreshing = resultsObserver;
+            ResultsFragmentData.this.refreshResults();
         });
+    }
+
+    private @NonNull ResultsViewModel getResultsViewModel() {
+        return viewModelProvider.get(ResultsViewModel.class);
     }
 
     private void refreshResults() {
@@ -193,13 +203,13 @@ public class ResultsFragmentData extends ResultsFragment
     }
 
     private void scrollToLast() {
-        listView.setSelection(results.size());
+        listView.setSelection(resultsForRefreshing.size());
     }
 
     @NotNull
     private List<Map<String, String>> getGroupData() {
         List<Map<String, String>> groupData = new ArrayList<>();
-        for (SubmissionResult sr : results)
+        for (SubmissionResult sr : resultsForRefreshing)
             addGroupData(groupData, sr);
         return groupData;
     }
@@ -209,12 +219,13 @@ public class ResultsFragmentData extends ResultsFragment
         String denominationUrl = EBT_HOST + "img/bills/ebt" + denomination.replace(" €", "") + "b.gif";
         String serialNumber = sr.mNoteData.mSerialNumber;
         String result = sr.getResult(getActivity());
-        Map<String, String> groupMap = getGroupMap(denomination, denominationUrl, serialNumber, result);
+        boolean keep = ! sr.mRemovable;
+        Map<String, String> groupMap = getGroupMap(denomination, denominationUrl, serialNumber, result, keep);
         groupData.add(groupMap);
     }
 
     @NotNull
-    private Map<String, String> getGroupMap(String denomination, String denominationUrl, String sn, String result) {
+    private Map<String, String> getGroupMap(String denomination, String denominationUrl, String sn, String result, boolean keep) {
         Map<String, String> groupMap = new HashMap<>();
         groupMap.put(BUTTON_PLACEHOLDER, " ");
         if (shouldShowImages())
@@ -224,13 +235,14 @@ public class ResultsFragmentData extends ResultsFragment
         final String serialNumber = sn.isEmpty() ? "-" : sn;
         groupMap.put(SERIAL_NUMBER, serialNumber);
         groupMap.put(RESULT, result);
+        groupMap.put(KEEP, String.valueOf(keep));
         return groupMap;
     }
 
     @NotNull
     private List<List<Map<String, String>>> getChildData() {
         List<List<Map<String, String>>> childData = new ArrayList<>();
-        for (SubmissionResult sr : results)
+        for (SubmissionResult sr : resultsForRefreshing)
             addChildData(childData, sr);
         return childData;
     }
@@ -286,8 +298,8 @@ public class ResultsFragmentData extends ResultsFragment
     @NotNull
     private String[] getGroupFrom() {
         if (shouldShowImages())
-            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT};
-        return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT};
+            return new String[]{BUTTON_PLACEHOLDER, DENOMINATION_IMAGE, SERIAL_NUMBER, RESULT, KEEP};
+        return new String[]{BUTTON_PLACEHOLDER, DENOMINATION, SERIAL_NUMBER, RESULT, KEEP};
     }
 
     private int @NotNull [] getGroupTo() {
@@ -304,15 +316,14 @@ public class ResultsFragmentData extends ResultsFragment
 
     private SubmissionResult getSubmissionResult(long packedPosition) {
         int group = ExpandableListView.getPackedPositionGroup(packedPosition);
-        return results.get(group);
+        return allResults.getResults().get(group);
     }
 
-    private void startNewNote(ExpandableListContextMenuInfo info) {
+    private void startNewNote(NoteData noteData) {
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        setSubmitFragmentValues(submissionResult.mNoteData);
+        setSubmitFragmentValues(noteData);
         ((Callback) activity).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
@@ -321,10 +332,13 @@ public class ResultsFragmentData extends ResultsFragment
         viewModel.setNoteData(noteData);
     }
 
-    private void showInBrowser(ExpandableListContextMenuInfo info) {
-        final SubmissionResult submissionResult = getSubmissionResult(info.packedPosition);
-        final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + submissionResult.mBillId);
+    private void showInBrowser(int billId) {
+        final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + billId);
         startActivity(new Intent(ACTION_VIEW, uri));
+    }
+
+    private void keepEntry(SubmissionResult submissionResult, boolean keep) {
+        allResults.replaceResult(submissionResult, ! keep);
     }
 
     @NotNull
