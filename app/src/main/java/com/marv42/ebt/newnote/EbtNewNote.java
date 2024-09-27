@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 
 package com.marv42.ebt.newnote;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
@@ -34,10 +35,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.PermissionChecker;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -67,10 +67,11 @@ public class EbtNewNote extends DaggerAppCompatActivity
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 3;
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 4;
+    public static final int NOTIFICATIONS_PERMISSION_REQUEST_CODE = 5;
     static final int SUBMIT_FRAGMENT_INDEX = 0;
     private static final int RESULTS_FRAGMENT_INDEX = 1;
+    private static final int DATA_RESULTS_FRAGMENT_INDEX = 2;
     private static final int VIBRATION_MS = 150;
-    private static final int NUM_TABS = 2;
     @Inject
     EncryptedPreferenceDataStore dataStore;
     @Inject
@@ -78,23 +79,37 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Inject
     MySharedPreferencesListener sharedPreferencesListener;
     @Inject
-    SubmissionResultHandler submissionResultHandler;
-    @Inject
     ViewModelProvider viewModelProvider;
     private SubmitFragment submitFragment = null;
-    private String[] commentSuggestions;
-    private boolean isDualPane = false;
+    private ResultsFragment resultsFragment = null;
     private boolean isResultsEmpty = true;
+    private String[] commentSuggestionsUntilFragmentAdded;
     private String ocrResult = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLayout();
-        setDualPane();
-        setFragmentsInitially();
-        setupViewModel();
+        setupFragmentsInitially();
+        setupResultsObserver();
+        requestNotificationsPermissions();
         sharedPreferencesListener.register();
+    }
+
+    private void requestNotificationsPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                PermissionChecker.checkSelfPermission(this, NOTIFICATION_SERVICE) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, NOTIFICATIONS_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isDualPane()) {
+            submitFragment = (SubmitFragment) getSupportFragmentManager().findFragmentById(R.id.submit_fragment_container_view);
+            resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.results_fragment_container_view);
+        }
     }
 
     private void setLayout() {
@@ -112,29 +127,47 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
     }
 
-    private void setDualPane() {
-        ViewPager2 pager = findViewById(R.id.view_pager);
-        if (pager == null)
-            isDualPane = true;
+    private boolean isDualPane() {
+        return getViewPager() == null;
     }
 
-    private void setFragmentsInitially() {
-        if (isDualPane)
+    private ViewPager2 getViewPager() {
+        return findViewById(R.id.view_pager);
+    }
+
+    private void setupFragmentsInitially() {
+        if (isDualPane())
             setupFragmentsInitiallyDualPane();
         else
             setupFragmentsInitiallyNoDualPane();
     }
 
     private void setupFragmentsInitiallyDualPane() {
-        final FragmentManager manager = getSupportFragmentManager();
-        submitFragment = (SubmitFragment) manager.findFragmentById(R.id.submit_fragment);
+        addSubmitFragment();
         addResultsFragment();
     }
 
+    private String getFragmentTag(int fragmentIndex) {
+        return "f" + fragmentIndex;
+    }
+
+    private void addSubmitFragment() {
+        final String tag = getFragmentTag(SUBMIT_FRAGMENT_INDEX);
+        commitFragmentManagerAddTransaction(R.id.submit_fragment_container_view, SubmitFragment.class, tag);
+    }
+
     private void addResultsFragment() {
-        final FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction()
-                .add(R.id.results_holder, ResultsFragmentEmpty.class, null)
+        final String tag = getFragmentTag(RESULTS_FRAGMENT_INDEX);
+        commitFragmentManagerAddTransaction(R.id.results_fragment_container_view, ResultsFragmentEmpty.class, tag);
+    }
+
+    private void commitFragmentManagerAddTransaction(int containerViewId, Class<? extends Fragment> fragmentClass, String tag) {
+//        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+//        if (fragment != null)
+//            throw new IllegalArgumentException("fragment already added");
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .add(containerViewId, fragmentClass, null, tag)
                 .commit();
     }
 
@@ -144,56 +177,49 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setupViewPager() {
-        ViewPager2 pager = findViewById(R.id.view_pager);
         MyFragmentStateAdapter adapter = new MyFragmentStateAdapter();
-        pager.setAdapter(adapter);
+        ViewPager2 viewPager = getViewPager();
+        viewPager.setAdapter(adapter);
     }
 
     private void setupTabLayout() {
-        ViewPager2 pager = findViewById(R.id.view_pager);
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        new TabLayoutMediator(tabLayout, pager, (tab, position) -> {
-            if (position == SUBMIT_FRAGMENT_INDEX)
-                tab.setText(getString(R.string.submit_fragment_title));
-            else if (position == RESULTS_FRAGMENT_INDEX)
-                tab.setText(getString(R.string.results_fragment_title));
-            else
-                throw new IllegalArgumentException("position");
+        new TabLayoutMediator(getTabLayout(), getViewPager(), (tab, position) -> {
+            switch (position) {
+                case SUBMIT_FRAGMENT_INDEX -> tab.setText(getString(R.string.submit_fragment_title));
+                case RESULTS_FRAGMENT_INDEX -> tab.setText(getString(R.string.results_fragment_title));
+                default -> throw new IllegalArgumentException("position");
+            }
         }).attach();
     }
 
-    private void setupViewModel() {
+    private TabLayout getTabLayout() {
+        return findViewById(R.id.tab_layout);
+    }
+
+    private void setupResultsObserver() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
-        viewModel.getResults().observe(this, observer -> {
-            isResultsEmpty = observer.isEmpty();
-            if (! isResultsEmpty)
-                // TODO we don't need to do this, if we already have the ResultsFragmentData
-                if (isDualPane)
+        viewModel.getResults().observe(this, resultsObserver -> {
+            if (! resultsObserver.isEmpty())
+                if (isDualPane())
                     replaceResultsFragment();
                 else
-                    invalidateResultsView();
+                    isResultsEmpty = false;
         });
     }
 
     private void replaceResultsFragment() {
-        final FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction()
-                .replace(R.id.results_holder, ResultsFragmentData.class, null)
-                .commit();
-    }
-
-    private void invalidateResultsView() {
-        ViewPager2 pager = findViewById(R.id.view_pager);
-        RecyclerView.Adapter<?> adapter = pager.getAdapter();
-        if (adapter != null)
-            adapter.notifyItemChanged(RESULTS_FRAGMENT_INDEX);
+        if (resultsFragment instanceof ResultsFragmentData)
+            return;
+        getSupportFragmentManager().beginTransaction()
+            .setReorderingAllowed(true)
+            .replace(R.id.results_fragment_container_view, ResultsFragmentData.class, null)
+            .commit();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        submissionResultHandler.reset();
-        if (!isDualPane && shouldSwitchToResults(intent))
+        if (!isDualPane() && shouldSwitchToResults(intent))
             switchFragment(RESULTS_FRAGMENT_INDEX);
     }
 
@@ -232,8 +258,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
             String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
             new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
-        }
-        else
+        } else
             new OcrHandlerLocal(this, this, photoPath).execute();
     }
 
@@ -245,27 +270,29 @@ public class EbtNewNote extends DaggerAppCompatActivity
             Toast.makeText(this, R.string.no_permission, LENGTH_LONG).show();
             return;
         }
-        Toast.makeText(this, R.string.permission, LENGTH_LONG).show();
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            Toast.makeText(this, R.string.permission_location, LENGTH_LONG).show();
             submitFragment.locationButtonClicked();
-        else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
+        } else if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            Toast.makeText(this, R.string.permission_camera, LENGTH_LONG).show();
             submitFragment.takePhoto();
+        }
     }
 
     @Override
     public void onSubmitFragmentAdded() {
-        if (commentSuggestions != null && commentSuggestions.length > 0) {
-            submitFragment.setCommentsAdapter(commentSuggestions);
-            commentSuggestions = null;
+        if (commentSuggestionsUntilFragmentAdded != null && commentSuggestionsUntilFragmentAdded.length > 0) {
+            submitFragment.setCommentsAdapter(commentSuggestionsUntilFragmentAdded);
+            commentSuggestionsUntilFragmentAdded = null;
         }
     }
 
     @Override
     public void switchFragment(int fragmentIndex) {
-        if (!isDualPane) {
-            ViewPager2 viewPager = findViewById(R.id.view_pager);
-            viewPager.setCurrentItem(fragmentIndex);
-        }
+        if (isDualPane())
+            return;
+        ViewPager2 viewPager = getViewPager();
+        viewPager.setCurrentItem(fragmentIndex);
     }
 
     @Override
@@ -273,7 +300,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         if (submitFragment != null && submitFragment.isAdded())
             submitFragment.setCommentsAdapter(suggestions);
         else
-            commentSuggestions = suggestions;
+            commentSuggestionsUntilFragmentAdded = suggestions;
     }
 
     @Override
@@ -320,28 +347,31 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void replaceShortCodeOrSerialNumber() {
-        final boolean serialNumberOrShortCode = ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
-        submitFragment.checkClipboardManager(serialNumberOrShortCode);
+        if (submitFragment == null)
+            return;
+        final boolean serialNumberNotShortCode = ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
+        submitFragment.checkClipboardManager(serialNumberNotShortCode);
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
-        if (serialNumberOrShortCode)
+        if (serialNumberNotShortCode)
             viewModel.setSerialNumber(ocrResult);
         else
             viewModel.setShortCode(ocrResult);
     }
 
     private void vibrate() {
-        Vibrator v;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            VibratorManager manager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
-            v = manager.getDefaultVibrator();
-        }
-        else
-            v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        if (v != null)
-            v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
+        VibratorManager manager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
+        Vibrator v = manager.getDefaultVibrator();
+        v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
     }
 
+//    @Override
+//    public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner, @NonNull Lifecycle.State state) {
+//        // TODO
+//    }
+
     private class MyFragmentStateAdapter extends FragmentStateAdapter {
+        private static final int NUM_TABS = 2;
+
         MyFragmentStateAdapter() {
             super(getSupportFragmentManager(), EbtNewNote.this.getLifecycle());
         }
@@ -351,21 +381,34 @@ public class EbtNewNote extends DaggerAppCompatActivity
             return NUM_TABS;
         }
 
+        @Override
+        public long getItemId(int position) {
+            if (position == RESULTS_FRAGMENT_INDEX && ! isResultsEmpty)
+                position = DATA_RESULTS_FRAGMENT_INDEX; // This triggers a createFragment call for a ResultsFragmentData
+            return position;
+        }
+
+        @Override
+        public boolean containsItem(long itemId) {
+            return switch ((int) itemId) {
+                case SUBMIT_FRAGMENT_INDEX -> submitFragment != null;
+                case RESULTS_FRAGMENT_INDEX -> resultsFragment != null;
+                case DATA_RESULTS_FRAGMENT_INDEX -> ! isResultsEmpty;
+                default -> throw new IllegalArgumentException("itemId");
+            };
+        }
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            Fragment fragment;
-            if (position == SUBMIT_FRAGMENT_INDEX) {
-                submitFragment = new SubmitFragment();
-                fragment = submitFragment;
-            } else if (position == RESULTS_FRAGMENT_INDEX)
-                if (isResultsEmpty)
-                    fragment = new ResultsFragmentEmpty();
-                else
-                    fragment = new ResultsFragmentData();
-            else
-                throw new IllegalArgumentException("position");
-            return fragment;
+            switch (position) {
+                case SUBMIT_FRAGMENT_INDEX -> {
+                    submitFragment = new SubmitFragment(); return submitFragment; }
+                case RESULTS_FRAGMENT_INDEX -> {
+                    resultsFragment = isResultsEmpty ? new ResultsFragmentEmpty() : new ResultsFragmentData();
+                    return resultsFragment; }
+                default -> throw new IllegalArgumentException("position");
+            }
         }
     }
 }
