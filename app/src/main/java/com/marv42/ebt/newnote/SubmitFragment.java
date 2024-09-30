@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -39,7 +39,6 @@ import com.marv42.ebt.newnote.location.LocationButtonHandler;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SavePreferencesTextWatcher;
-import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.CameraStarter;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
@@ -56,6 +55,10 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
 public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
+
+    public interface Callback {
+        void onSubmitFragmentAdded();
+    }
 
     private static final String TAG = SubmitFragment.class.getSimpleName();
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
@@ -247,18 +250,18 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         return shortCode;
     }
 
-    void checkClipboardManager(boolean serialNumberOrShortCode) {
+    void checkClipboardManager(boolean serialNumberNotShortCode) {
         try {
-            putToClipboard(serialNumberOrShortCode);
+            putToClipboard(serialNumberNotShortCode);
         } catch (NoClipboardManagerException e) {
             Log.w(TAG, e.getMessage());
         }
     }
 
-    private void putToClipboard(boolean serialNumberOrShortCode) throws NoClipboardManagerException {
+    private void putToClipboard(boolean serialNumberNotShortCode) throws NoClipboardManagerException {
         if (binding == null)
             return; // TODO save (and replace) the text later
-        EditText editText = serialNumberOrShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
+        EditText editText = serialNumberNotShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
         ClipboardManager manager = (ClipboardManager) app.getSystemService(CLIPBOARD_SERVICE);
         if (manager == null)
             throw new NoClipboardManagerException();
@@ -272,7 +275,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
     private void setupViewModel() {
         final LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         viewModel.getCountry().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextCountry, observer));
         viewModel.getCity().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextCity, observer));
         viewModel.getPostalCode().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextPostalCode, observer));
@@ -282,9 +285,13 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         viewModel.getComment().observe(lifecycleOwner, observer -> setTextIfNotEqual(binding.editTextComment, observer));
     }
 
-    private void setTextIfNotEqual(EditText editText, String observer) {
-        if (!TextUtils.isEmpty(observer) && !TextUtils.equals(observer, editText.getText()))
-            editText.setText(observer);
+    private @NonNull SubmitViewModel getSubmitViewModel() {
+        return viewModelProvider.get(SubmitViewModel.class);
+    }
+
+    private void setTextIfNotEqual(EditText editText, String text) {
+        if (!TextUtils.isEmpty(text) && !TextUtils.equals(text, editText.getText()))
+            editText.setText(text);
     }
 
     private void setOnCheckedChangeListener() {
@@ -313,19 +320,19 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
     private void setDenominationFromPreferences() {
         String denomination = sharedPreferencesHandler.get(R.string.pref_denomination_key, getString(R.string.eur5));
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         viewModel.setDenomination(denomination);
     }
 
     private void setShortCodeFromPreferences() {
         String shortCode = sharedPreferencesHandler.get(R.string.pref_short_code_key, "");
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         viewModel.setShortCode(shortCode);
     }
 
     private void setSerialNumberFromPreferences() {
         String serialNumber = sharedPreferencesHandler.get(R.string.pref_serial_number_key, "");
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         viewModel.setSerialNumber(serialNumber);
     }
 
@@ -334,7 +341,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
         String additionalComment = dataStore.get(R.string.pref_settings_comment_key, "");
         if (comment.endsWith(additionalComment))
             comment = comment.substring(0, comment.length() - additionalComment.length());
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         viewModel.setComment(comment);
     }
 
@@ -376,15 +383,11 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
 
     void setCommentsAdapter(String[] suggestions) {
         Activity activity = getActivity();
-        if (activity != null) {
-            binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
-                    android.R.layout.simple_dropdown_item_1line, suggestions));
-            Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
-        }
-    }
-
-    public interface Callback {
-        void onSubmitFragmentAdded();
+        if (activity == null)
+            return;
+        binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
+                android.R.layout.simple_dropdown_item_1line, suggestions));
+        Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
     }
 
     private class LocationTextWatcher implements TextWatcher {
