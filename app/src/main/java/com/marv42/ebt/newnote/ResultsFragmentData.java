@@ -48,8 +48,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-public class ResultsFragmentData extends ResultsFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ResultsFragmentData extends ResultsFragment {
+
+    public interface Callback {
+        void switchFragment(int index);
+    }
 
     @Inject
     ViewModelProvider viewModelProvider;
@@ -79,14 +82,6 @@ public class ResultsFragmentData extends ResultsFragment
     private ArrayList<SubmissionResult> resultsForRefreshing;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-        if (sharedPreferences != null)
-            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.results, container, false);
         listView = view.findViewById(R.id.list);
@@ -97,14 +92,6 @@ public class ResultsFragmentData extends ResultsFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupResultsObserver();
-    }
-
-    @Override
-    public void onDestroy() {
-        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-        if (sharedPreferences != null)
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onDestroy();
     }
 
     @Override
@@ -163,13 +150,6 @@ public class ResultsFragmentData extends ResultsFragment
                 listView.expandGroup(position);
             else if (expandOrCollapse == EXPAND_OR_COLLAPSE.COLLAPSE)
                 listView.collapseGroup(position);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (sharedPreferences == dataStore.getSharedPreferences())
-            if (key.equals(getString(R.string.pref_settings_images_key)))
-                refreshResults();
     }
 
     private void setupResultsObserver() {
@@ -344,9 +324,5 @@ public class ResultsFragmentData extends ResultsFragment
     @NotNull
     private Boolean shouldShowImages() {
         return dataStore.get(R.string.pref_settings_images_key, false);
-    }
-
-    public interface Callback {
-        void switchFragment(int index);
     }
 }
