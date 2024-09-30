@@ -8,6 +8,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -31,7 +32,7 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import static com.google.gson.JsonParser.parseString;
 import static java.lang.Integer.max;
 
-public class AllResults {
+public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
     private final EncryptedPreferenceDataStore dataStore;
@@ -42,12 +43,30 @@ public class AllResults {
         this.app = app;
         this.viewModelProvider = viewModelProvider;
         this.dataStore = dataStore;
+        registerOnSharedPreferenceChangeListener(); // no unregister (activity scope)
         initResults();
         setResultsToViewModel();
     }
 
+    private void registerOnSharedPreferenceChangeListener() {
+        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
+        if (sharedPreferences != null)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == dataStore.getSharedPreferences())
+            if (key.equals(app.getString(R.string.pref_settings_images_key)) ||
+                    key.equals(app.getString(R.string.pref_settings_show_submitted_key)))
+                refreshResults();
+    }
+
     void addResult(final SubmissionResult aResult) {
         results.add(aResult);
+        refreshResults();
+    }
+
+    private void refreshResults() {
         setResultsToViewModel();
         saveToPreferences();
     }
@@ -58,8 +77,7 @@ public class AllResults {
             return;
         sr.mRemovable = removable;
         results.set(index, sr);
-        setResultsToViewModel();
-        saveToPreferences();
+        refreshResults();
     }
 
     private void initResults() {
@@ -87,6 +105,8 @@ public class AllResults {
 
     private void setResultsToViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
+        final int tooMany = getTooMany() + getNumberOfFailed();
+        removeTooManyResults(tooMany, results);
         viewModel.setResults(results);
     }
 
@@ -101,10 +121,14 @@ public class AllResults {
     private List<SubmissionResult> filterResults(List<SubmissionResult> results) {
         if (results == null)
             return results;
-        final int tooMany = results.size() - getMaxNum();
+        final int tooMany = getTooMany();
         if (tooMany > 0)
-            deleteTooMany(tooMany, results);
+            removeTooManyResults(tooMany, results);
         return results;
+    }
+
+    private int getTooMany() {
+        return results.size() - getMaxNum();
     }
 
     private int getMaxNum() {
@@ -116,13 +140,11 @@ public class AllResults {
         return Integer.parseInt(dataStore.get(R.string.pref_settings_show_submitted_key, defaultValue));
     }
 
-    private void deleteTooMany(int tooMany, List<SubmissionResult> results) {
-        Iterator<SubmissionResult> it = results.iterator();
-        while (it.hasNext() && tooMany > 0) {
-            final SubmissionResult next = it.next();
-            if (!next.mRemovable)
+    private void removeTooManyResults(int tooMany, List<SubmissionResult> results) {
+        for (Iterator<SubmissionResult> it = results.iterator(); it.hasNext() && tooMany > 0;) {
+            if (! it.next().mRemovable)
                 continue;
-            results.remove(next);
+            it.remove();
             --tooMany;
         }
     }
