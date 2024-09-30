@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -14,11 +14,10 @@ import android.util.Log;
 
 import androidx.preference.EditTextPreference;
 
-import static com.marv42.ebt.newnote.AllResults.MAX_LOAD_NUM;
-
 public class IntEditTextPreference extends EditTextPreference {
 
     private static final String TAG = IntEditTextPreference.class.getSimpleName();
+    private static final int MAX_SAVE_NUM = 9999;
 
     public IntEditTextPreference(Context context) {
         super(context);
@@ -43,8 +42,7 @@ public class IntEditTextPreference extends EditTextPreference {
             return super.persistString(value);
         } catch (NumberFormatException e) {
             Log.w(TAG, e.getMessage());
-            e.printStackTrace();
-            super.setText(String.valueOf(MAX_LOAD_NUM));
+            super.setText(String.valueOf(MAX_SAVE_NUM));
             return false;
         }
     }
