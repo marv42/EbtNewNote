@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
@@ -105,7 +106,7 @@ public class ThisApp extends DaggerApplication {
 
     public void onLocation(Location location) {
         Intent intent = new Intent(this, FetchAddressIntentService.class);
-        intent.putExtra(RECEIVER, new AddressResultReceiver(this, new Handler()));
+        intent.putExtra(RECEIVER, new AddressResultReceiver(this, new Handler(Looper.getMainLooper())));
         intent.putExtra(LOCATION_DATA_EXTRA, location);
         startService(intent);
     }
