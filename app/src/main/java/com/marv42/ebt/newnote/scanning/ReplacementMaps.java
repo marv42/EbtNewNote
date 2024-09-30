@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ class ReplacementMaps {
                 {"(", "C"},
                 {"K", "X"},
                 {"%", "X"},
-                {"@", "0"},
                 {",", "1"},
                 {"'", "1"},
                 {"i", "1"},
@@ -58,8 +57,10 @@ class ReplacementMaps {
     @NotNull
     static Map<String, String> getDigitMap() {
         return Stream.of(new String[][]{
+                {"@", "0"},
                 {"D", "0"},
                 {"O", "0"},
+                {"Ö", "0"},
                 {"o", "0"},
                 {"P", "0"},
                 {"i", "1"},
