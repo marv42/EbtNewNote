@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -19,19 +19,25 @@ import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 public class SubmissionResult {
 
-    // TODO If we rename these, we have to change the values in shared preferences
+    // If we rename these, we have to change the values in shared preferences
     final NoteData mNoteData;
     final String mReason;
     final int mBillId;
+    boolean mRemovable;
 
     SubmissionResult(final NoteData noteData, final String reason) {
         this(noteData, reason, -1);
     }
 
     SubmissionResult(final NoteData noteData, final String reason, final int billId) {
+        this(noteData, reason, billId, true);
+    }
+
+    SubmissionResult(final NoteData noteData, final String reason, final int billId, final boolean removable) {
         mNoteData = noteData;
         mReason = reason;
         mBillId = billId;
+        mRemovable = removable;
     }
 
     boolean isAHit(Context context) {
