@@ -20,8 +20,9 @@ errorpronecoreVersion = "2.4.0"
 #espressoVersion = "3.3.0"
 exifinterfaceVersion = "1.3.7"
 fragmentKtxVersion = "1.8.3"
-gsonVersion = "2.10.1"
+gsonVersion = "2.11.0"
 kotlinxCoroutinesCore = "1.8.0"
+likethesaladVersion = "2.11.0"
 materialVersion = "1.12.0"
 okhttpVersion = "5.0.0-alpha.10"
 picassoVersion = "2.8"
@@ -67,4 +68,5 @@ aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedxVersion" }
 dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyCheckVersion" }
 errorprone = { id = "net.ltgt.errorprone", version.ref = "errorproneVersion" }
+likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladVersion" }
 scabbard = { id = "scabbard.gradle", version.ref = "scabbardPluginVersion" }

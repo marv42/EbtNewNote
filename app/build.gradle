@@ -15,6 +15,7 @@ plugins {
 apply plugin: libs.plugins.aboutlibraries.get().pluginId // has to be applied AFTER android
 apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
+apply plugin: libs.plugins.likethesalad.get().pluginId
 apply plugin: libs.plugins.scabbard.get().pluginId
 
 aboutLibraries {
@@ -43,7 +44,7 @@ android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
 //    F-Droid needs a static version
 //    def majorVersion = 0
-//    def minorVersion = 78
+//    def minorVersion = 79
 //    def patchVersion = 0
     namespace marv42EbtNewNote
 
@@ -51,8 +52,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 7800
-        versionName "0.78.0"
+        versionCode 7900
+        versionName "0.79.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()

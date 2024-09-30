@@ -63,7 +63,6 @@ public class ResultsFragmentData extends ResultsFragment {
     static final String KEEP = "keep";
     protected static final String DENOMINATION = "denomination";
     protected static final String DENOMINATION_IMAGE = "denomination image";
-    private static final String EBT_HOST = "https://en.eurobilltracker.com/";
     private static final String BUTTON_PLACEHOLDER = "place holder";
     private static final String SERIAL_NUMBER = "serial number";
     private static final String RESULT = "result";
@@ -196,7 +195,7 @@ public class ResultsFragmentData extends ResultsFragment {
 
     private void addGroupData(List<Map<String, String>> groupData, SubmissionResult sr) {
         String denomination = sr.mNoteData.mDenomination;
-        String denominationUrl = EBT_HOST + "img/bills/ebt" + denomination.replace(" €", "") + "b.gif";
+        String denominationUrl = getString(R.string.ebt_url) + "img/bills/ebt" + denomination.replace(" €", "") + "b.gif";
         String serialNumber = sr.mNoteData.mSerialNumber;
         String result = sr.getResult(getActivity());
         boolean keep = ! sr.mRemovable;
@@ -313,7 +312,7 @@ public class ResultsFragmentData extends ResultsFragment {
     }
 
     private void showInBrowser(int billId) {
-        final Uri uri = Uri.parse(EBT_HOST + "notes/?id=" + billId);
+        final Uri uri = Uri.parse(getString(R.string.ebt_url) + "notes/?id=" + billId);
         startActivity(new Intent(ACTION_VIEW, uri));
     }
 

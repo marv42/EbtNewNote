@@ -29,6 +29,7 @@ plugins {
     alias libs.plugins.aboutlibraries apply false
     alias libs.plugins.cyclonedx apply false
     alias libs.plugins.dependencycheck apply false
+    alias libs.plugins.likethesalad apply false
     alias libs.plugins.scabbard apply false
 }
 

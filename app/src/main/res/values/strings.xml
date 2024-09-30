@@ -7,21 +7,16 @@
   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
   -->
 
-<!DOCTYPE resources [
-    <!ENTITY results_fragment_title "Results">
-    <!ENTITY redirect_to_settings "\n\nYou are being redirected to the settings">
-    ]>
-
 <resources>
     <!-- cf. https://material.io/design/communication/writing.html#principles -->
 
     <!-- app -->
-    <string name="app_name">EBT New Note</string>
-    <string name="crash_text">EBT New Note has crashed\nSend a report to the developer</string>
-    <string name="crash_email_address">"marv42+ebtnn-acra@gmail.com"</string>
+    <string name="app_name" translatable="false">EBT New Note</string>
+    <string name="crash_text">${app_name} has crashed\nSend a report to the developer</string>
+    <string name="crash_email_address" translatable="false">"marv42+ebtnn-acra@gmail.com"</string>
 
     <string name="submit_fragment_title">New Note</string>
-    <string name="results_fragment_title">&results_fragment_title;</string>
+    <string name="results_fragment_title">Results</string>
     <string name="no_data">This is where the results of your note data submissions will appear</string>
 
     <!-- general -->
@@ -88,13 +83,13 @@
     <string name="postal_code_hint">e.g. 10557</string>
     <string name="get_location">get the current location from the device</string>
     <string name="denomination">Denomination</string>
-    <string name="eur5">5 €</string>
-    <string name="eur10">10 €</string>
-    <string name="eur20">20 €</string>
-    <string name="eur50">50 €</string>
-    <string name="eur100">100 €</string>
-    <string name="eur200">200 €</string>
-    <string name="eur500">500 €</string>
+    <string name="eur5" translatable="false">5 €</string>
+    <string name="eur10" translatable="false">10 €</string>
+    <string name="eur20" translatable="false">20 €</string>
+    <string name="eur50" translatable="false">50 €</string>
+    <string name="eur100" translatable="false">100 €</string>
+    <string name="eur200" translatable="false">200 €</string>
+    <string name="eur500" translatable="false">500 €</string>
     <string name="short_code">Short Code</string>
     <string name="short_code_hint">e.g. A123B4 (or C5D6)</string>
     <string name="serial_number">Serial Number</string>
@@ -111,7 +106,8 @@
     <string name="settings">Settings</string>
     <string name="settings_category_ebt_account">EBT account settings</string>
     <string name="settings_ebt_account_summary">Don\'t have a EuroBillTracker account yet?\nTap here to create one</string>
-    <string name="create_ebt_account_url">https://en.eurobilltracker.com/signup/</string>
+    <string name="ebt_url" translatable="false">https://en.eurobilltracker.com/</string>
+    <string name="create_ebt_account_url">${ebt_url}signup/</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>
     <string name="settings_email_summary">Email address to log in to your EBT account</string>
@@ -126,46 +122,46 @@
     <string name="settings_ocr_service_key_summary">The online OCR service requires a service key</string>
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
-    <string name="settings_images_summary">Show EBT denomination images in the \'&results_fragment_title;\' tab instead of denomination text</string>
+    <string name="settings_images_summary">Show EBT denomination images in the \'${results_fragment_title}\' tab instead of denomination text</string>
     <string name="settings_category_advanced">Experimental settings</string>
     <string name="settings_comment_title">Additional comment</string>
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
-    <string name="settings_submitted_summary">Maximum number of notes to display in the \'&results_fragment_title;\' tab</string>
+    <string name="settings_submitted_summary">Maximum number of notes to display in the \'${results_fragment_title}\' tab</string>
     <string name="settings_category_misc">Miscellaneous settings</string>
     <string name="settings_country_title">Country resolution service key</string>
     <string name="settings_country_summary">In order to resolve the country name, an online API service is used</string>
-    <string name="get_ocr_key">&redirect_to_settings; to enter/get an OCR service key.</string>
+    <string name="redirect_to_settings">\n\nYou are being redirected to the settings</string>
+    <string name="get_ocr_key">${redirect_to_settings} to enter/get an OCR service key.</string>
     <string name="settings_ocr_summary_no_key">Please tap here to get your personal OCR service key at</string>
-    <string name="settings_ocr_service_url">https://ocr.space/ocrapi#free</string>
+    <string name="settings_ocr_service_url" translatable="false">https://ocr.space/ocrapi#free</string>
     <string name="settings_country_summary_no_key">Please tap here to get your personal country resolution service key at</string>
-    <string name="settings_country_service_url">https://manage.countrylayer.com/</string>
+    <string name="settings_country_service_url" translatable="false">https://manage.countrylayer.com/</string>
     <string name="logged_in">Login successful</string>
     <string name="trying_login">Trying to log in to EBT…</string>
     <string name="wrong_login_info">No valid EBT login information</string>
-    <string name="redirect_to_settings">&redirect_to_settings;</string>
-    <string name="max_show_num_default">100</string>
+    <string name="max_show_num_default" translatable="false">100</string>
 
     <!-- preferences -->
-    <string name="pref_settings_email_key">pref_settings_email</string>
-    <string name="pref_settings_password_key">pref_settings_password</string>
-    <string name="pref_settings_comment_key">pref_settings_comment</string>
-    <string name="pref_settings_ocr_online_key">pref_settings_ocr_online</string>
-    <string name="pref_settings_ocr_service_key">pref_settings_ocr_service</string>
-    <string name="pref_settings_country_key">pref_settings_country</string>
-    <string name="pref_settings_images_key">pref_settings_images</string>
-    <string name="pref_settings_show_submitted_key">pref_settings_show_submitted</string>
-    <string name="pref_country_key">pref_country</string>
-    <string name="pref_city_key">pref_city</string>
-    <string name="pref_postal_code_key">pref_postal_code</string>
-    <string name="pref_denomination_key">pref_denomination</string>
-    <string name="pref_short_code_key">pref_short_code</string>
-    <string name="pref_serial_number_key">pref_serial_number</string>
-    <string name="pref_comment_key">pref_comment</string>
-    <string name="pref_login_values_ok_key">pref_login_values_ok</string>
-    <string name="pref_results_key">pref_results</string>
-    <string name="pref_photo_path_key">pref_photo_path</string>
-    <string name="pref_photo_uri_key">pref_photo_uri</string>
+    <string name="pref_settings_email_key" translatable="false">pref_settings_email</string>
+    <string name="pref_settings_password_key" translatable="false">pref_settings_password</string>
+    <string name="pref_settings_comment_key" translatable="false">pref_settings_comment</string>
+    <string name="pref_settings_ocr_online_key" translatable="false">pref_settings_ocr_online</string>
+    <string name="pref_settings_ocr_service_key" translatable="false">pref_settings_ocr_service</string>
+    <string name="pref_settings_country_key" translatable="false">pref_settings_country</string>
+    <string name="pref_settings_images_key" translatable="false">pref_settings_images</string>
+    <string name="pref_settings_show_submitted_key" translatable="false">pref_settings_show_submitted</string>
+    <string name="pref_country_key" translatable="false">pref_country</string>
+    <string name="pref_city_key" translatable="false">pref_city</string>
+    <string name="pref_postal_code_key" translatable="false">pref_postal_code</string>
+    <string name="pref_denomination_key" translatable="false">pref_denomination</string>
+    <string name="pref_short_code_key" translatable="false">pref_short_code</string>
+    <string name="pref_serial_number_key" translatable="false">pref_serial_number</string>
+    <string name="pref_comment_key" translatable="false">pref_comment</string>
+    <string name="pref_login_values_ok_key" translatable="false">pref_login_values_ok</string>
+    <string name="pref_results_key" translatable="false">pref_results</string>
+    <string name="pref_photo_path_key" translatable="false">pref_photo_path</string>
+    <string name="pref_photo_uri_key" translatable="false">pref_photo_uri</string>
 
     <!-- permissions -->
     <string name="no_permission">Permissions not granted</string>
@@ -196,10 +192,10 @@
     <!-- about -->
     <string name="about">About</string>
     <string name="licenses">Licenses</string>
-    <string name="about_text">is an app for submitting Euro bill note data to EuroBillTracker (%1$s), a web site for tracking Euro bills\n\nDeveloper contact: %2$s\nContributors: %3$s</string>
-    <string name="www_ebt">www.eurobilltracker.com</string>
-    <string name="developer_email">marv42+ebtnn@gmail.com</string>
-    <string name="contributors">Carnager</string>
+    <string name="www_ebt" translatable="false">www.eurobilltracker.com</string>
+    <string name="developer_email" translatable="false">marv42+ebtnn@gmail.com</string>
+    <string name="contributors" translatable="false">Carnager</string>
+    <string name="about_text">\'${app_name}\' is an app for submitting Euro bill note data to EuroBillTracker (${www_ebt}), a web site for tracking Euro bills\n\nDeveloper contact: ${developer_email}\nContributors: ${contributors}</string>
     <string name="about_version">Version %1$s</string>
 
     <!-- OCR -->

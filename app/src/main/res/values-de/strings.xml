@@ -7,17 +7,12 @@
   http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
   -->
 
-<!DOCTYPE resources [
-    <!ENTITY results_fragment_title "Ergebnisse">
-    <!ENTITY redirect_to_settings "\n\nDu wirst nun zu den Einstellungen weitergeleitet">
-    ]>
-
 <resources>
     <!-- app -->
-    <string name="crash_text">EBT New Note ist abgestürzt\nFehlerbericht an den Entwickler senden</string>
+    <string name="crash_text">${app_name} ist abgestürzt\nFehlerbericht an den Entwickler senden</string>
 
     <string name="submit_fragment_title">Neuer Schein</string>
-    <string name="results_fragment_title">&results_fragment_title;</string>
+    <string name="results_fragment_title">Ergebnisse</string>
     <string name="no_data">Hier werden die Ergebnisse angezeigt, sobald du Daten an EBT gesendet hast</string>
 
     <!-- general -->
@@ -114,22 +109,22 @@
     <string name="settings_ocr_service_key_summary">Man benötigt einen Registrierungs-Code, um den Online-Texterkennungs-Service verwenden zu können</string>
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
-    <string name="settings_images_summary">EBT-Nennwert-Bilder im \'&results_fragment_title;\'-Tab anzeigen anstatt die Nennwerte als Text</string>
+    <string name="settings_images_summary">EBT-Nennwert-Bilder im \'${results_fragment_title}\'-Tab anzeigen anstatt die Nennwerte als Text</string>
     <string name="settings_category_advanced">Experimentelle Einstellungen</string>
     <string name="settings_comment_title">Kommentar-Zusatz</string>
     <string name="settings_comment_summary">Dieser Text wird an jeden Kommentar angehängt</string>
     <string name="settings_submitted_title">Anzahl der Scheine</string>
-    <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'&results_fragment_title;\'-Tab</string>
+    <string name="settings_submitted_summary">Maximale Anzahl der anzuzeigenden Scheine im \'${results_fragment_title}\'-Tab</string>
     <string name="settings_category_misc">Sonstige Einstellungen</string>
     <string name="settings_country_title">Ländernamen-Auflösungs-Service-Code</string>
     <string name="settings_country_summary">Um Ländernamen aufzulösen wird ein Online-Service verwendet</string>
-    <string name="get_ocr_key">&redirect_to_settings;, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
+    <string name="redirect_to_settings">\n\nDu wirst nun zu den Einstellungen weitergeleitet</string>
+    <string name="get_ocr_key">${redirect_to_settings}, um einen Texterkennungs-Service-Registrierungs-Code einzutragen, bzw. dir einen zu besorgen.</string>
     <string name="settings_ocr_summary_no_key">Bitte besorge dir, indem du hier tippst, deinen persönlichen Texterkennungs-Service-Registrierungs-Code bei</string>
     <string name="settings_country_summary_no_key">Bitte besorge dir, indem du hier tippst, deinen persönlichen Ländernamen-Auflösungs-Service-Registrierungs-Code bei</string>
     <string name="logged_in">Erfolgreich eingeloggt</string>
     <string name="trying_login">EBT-Zugangsdaten werden geprüft…</string>
     <string name="wrong_login_info">Ungültige EBT-Konto-Zugangsdaten</string>
-    <string name="redirect_to_settings">&redirect_to_settings;</string>
 
     <!-- permissions -->
     <string name="no_permission">Erlaubnis nicht gewährt</string>
@@ -160,7 +155,7 @@
     <!-- about -->
     <string name="about">Info</string>
     <string name="licenses">Lizensen</string>
-    <string name="about_text">ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (%1$s), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: %2$s\nUnterstützung: %3$s</string>
+    <string name="about_text">\'${app_name}\' ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (${www_ebt}), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: ${developer_email}\nUnterstützung: ${contributors}</string>
 
     <!-- OCR -->
     <string name="error_reading_picture">Fehler beim Lesen der Foto-Datei</string>
