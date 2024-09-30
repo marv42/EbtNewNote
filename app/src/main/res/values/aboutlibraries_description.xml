@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2010 - 2024 Marvin Horter.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the GNU Public License v2.0
+  which accompanies this distribution, and is available at
+  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  -->
+
+<resources>
+    <string name="aboutLibraries_description_name" translatable="false">${app_name}</string>
+    <string name="aboutLibraries_description_showIcon" translatable="false">true</string>
+    <string name="aboutLibraries_description_showVersion" translatable="false">true</string>
+<!-- TODO <string name="aboutLibraries_description_text" translatable="false">${about_text}</string>-->
+</resources>
