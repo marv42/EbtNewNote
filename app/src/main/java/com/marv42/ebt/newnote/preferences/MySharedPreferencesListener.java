@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2024 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.R;
@@ -69,21 +70,25 @@ public class MySharedPreferencesListener implements SharedPreferences.OnSharedPr
 
     private void setCountry() {
         String country = sharedPreferencesHandler.get(R.string.pref_country_key, "");
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         if (IsNotEqual(country, viewModel.getCountry().toString()))
             viewModel.setCountry(country);
     }
 
+    private @NonNull SubmitViewModel getSubmitViewModel() {
+        return viewModelProvider.get(SubmitViewModel.class);
+    }
+
     private void setCity() {
         String city = sharedPreferencesHandler.get(R.string.pref_city_key, "");
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         if (IsNotEqual(city, viewModel.getCity().toString()))
             viewModel.setCity(city);
     }
 
     private void setPostalCode() {
         String postalCode = sharedPreferencesHandler.get(R.string.pref_postal_code_key, "");
-        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        SubmitViewModel viewModel = getSubmitViewModel();
         if (IsNotEqual(postalCode, viewModel.getPostalCode().toString()))
             viewModel.setPostalCode(postalCode);
     }
