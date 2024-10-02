@@ -1,0 +1,3 @@
+New feature: Keep (and highlight) results
+
+Bug fix: Fix wide layout
