@@ -54,6 +54,16 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
+    private void initResults() {
+        String resultsFromPreferences = loadFromPreferences();
+        if (TextUtils.isEmpty(resultsFromPreferences))
+            return;
+        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
+        updateResults(array);
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
+        }.getType());
+    }
+
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == dataStore.getSharedPreferences())
             if (key.equals(app.getString(R.string.pref_settings_images_key)) ||
@@ -61,14 +71,14 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
                 refreshResults();
     }
 
-    void addResult(final SubmissionResult aResult) {
-        results.add(aResult);
-        refreshResults();
-    }
-
     private void refreshResults() {
         setResultsToViewModel();
         saveToPreferences();
+    }
+
+    void addResult(final SubmissionResult aResult) {
+        results.add(aResult);
+        refreshResults();
     }
 
     void replaceResult(SubmissionResult sr, boolean removable) {
@@ -78,16 +88,6 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         sr.mRemovable = removable;
         results.set(index, sr);
         refreshResults();
-    }
-
-    private void initResults() {
-        String resultsFromPreferences = loadFromPreferences();
-        if (TextUtils.isEmpty(resultsFromPreferences))
-            return;
-        JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
-        updateResults(array);
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
-        }.getType());
     }
 
     private String loadFromPreferences() {
@@ -105,7 +105,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
 
     private void setResultsToViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
-        final int tooMany = getTooMany() + getNumberOfFailed();
+        final int tooMany = getTooMany() - getNumberOfFailed();
         removeTooManyResults(tooMany, results);
         viewModel.setResults(results);
     }
@@ -120,7 +120,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
 
     private List<SubmissionResult> filterResults(List<SubmissionResult> results) {
         if (results == null)
-            return results;
+            return null;
         final int tooMany = getTooMany();
         if (tooMany > 0)
             removeTooManyResults(tooMany, results);
