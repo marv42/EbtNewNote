@@ -3,38 +3,36 @@
 #minor = "xx"
 #patch = "0"
 minSdk = "31"
-compileSdk = "34"
-targetSdk = "34"
+compileSdk = "35"
+targetSdk = "35"
 
 # dependencies
-aboutlibrariesVersion = "11.1.1"
-acraVersion = "5.11.3"
+aboutlibrariesVersion = "11.2.3"
+acraVersion = "5.11.4"
 appcompatVersion = "1.7.0"
 cardviewVersion = "1.0.0"
-cyclonedxVersion = "1.8.2"
-daggerVersion = "2.51"
-dependencyCheckVersion = "9.0.10"
-designVersion = "28.0.0"
-errorproneVersion = "3.1.0"
-errorpronecoreVersion = "2.4.0"
-#espressoVersion = "3.3.0"
+cyclonedxVersion = "1.10.0"
+daggerVersion = "2.52"
+dependencyCheckVersion = "10.0.4"
+#errorpronecoreVersion = "2.32.0"
 exifinterfaceVersion = "1.3.7"
-fragmentKtxVersion = "1.8.3"
+fragmentKtxVersion = "1.8.4"
 gsonVersion = "2.11.0"
-kotlinxCoroutinesCore = "1.8.0"
-likethesaladVersion = "2.11.0"
+kotlinxCoroutinesCore = "1.9.0"
 materialVersion = "1.12.0"
-okhttpVersion = "5.0.0-alpha.10"
+okhttpVersion = "4.12.0"
 picassoVersion = "2.8"
 preferenceKtxVersion = "1.2.1"
 recyclerviewVersion = "1.3.2"
+scabbardVersion = "0.5.0"
 securityCryptoVersion = "1.1.0-alpha06"
-tesseract4androidOpenmpVersion = "4.2.0"
+tesseract4androidOpenmpVersion = "4.7.0"
 
 # plugins
+#errorpronePluginVersion = "4.0.1"
 gradlePluginVersion = "8.5.2"
 kotlinGradlePluginVersion = "1.9.21"
-scabbardPluginVersion = "0.5.0"
+likethesaladPluginVersion = "2.11.0"
 
 [libraries]
 aboutlibraries = { group = "com.mikepenz", name = "aboutlibraries", version.ref = "aboutlibrariesVersion" }
@@ -46,8 +44,7 @@ cardview = { group = "androidx.cardview", name = "cardview", version.ref = "card
 cyclonedx-gradle-plugin = { group = "org.cyclonedx", name = "cyclonedx-gradle-plugin", version.ref = "cyclonedxVersion" }
 dagger-android-support = { group = "com.google.dagger", name = "dagger-android-support", version.ref = "daggerVersion" }
 dependency-check-plugin = { group = "org.owasp", name = "dependency-check-gradle", version.ref = "dependencyCheckVersion" }
-design = { group = "com.android.support", name = "design", version.ref = "designVersion" }
-error-prone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorpronecoreVersion" }
+#error-prone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorpronecoreVersion" }
 exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }
 fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtxVersion" }
 androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "gradlePluginVersion" }
@@ -59,7 +56,8 @@ okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhtt
 picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picassoVersion" }
 preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtxVersion" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
-scabbard-gradle-plugin = { group = "gradle.plugin.dev.arunkumar", name = "scabbard-gradle-plugin", version.ref = "scabbardPluginVersion" }
+scabbard = { group = "dev.arunkumar", name = "scabbard-processor", version.ref = "scabbardVersion" }
+scabbard-plugin = { group = "gradle.plugin.dev.arunkumar", name = "scabbard-gradle-plugin", version.ref = "scabbardVersion" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoVersion" }
 tesseract4android-openmp = { group = "cz.adaptech.tesseract4android", name = "tesseract4android-openmp", version.ref = "tesseract4androidOpenmpVersion" }
 
@@ -67,6 +65,7 @@ tesseract4android-openmp = { group = "cz.adaptech.tesseract4android", name = "te
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibrariesVersion" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedxVersion" }
 dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyCheckVersion" }
-errorprone = { id = "net.ltgt.errorprone", version.ref = "errorproneVersion" }
-likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladVersion" }
-scabbard = { id = "scabbard.gradle", version.ref = "scabbardPluginVersion" }
+#errorprone = { id = "net.ltgt.errorprone", version.ref = "errorpronePluginVersion" }
+likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladPluginVersion" }
+scabbard = { id = "scabbard.gradle", version.ref = "scabbardVersion" }
+#scabbard = { id = "gradle.plugin.dev.arunkumar", version.ref = "scabbardVersion" }
