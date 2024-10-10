@@ -16,7 +16,7 @@ apply plugin: libs.plugins.aboutlibraries.get().pluginId // has to be applied AF
 apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
 apply plugin: libs.plugins.likethesalad.get().pluginId
-apply plugin: libs.plugins.scabbard.get().pluginId
+apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-/
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -37,6 +37,7 @@ dependencyCheck {
 scabbard {
     enabled !gradle.startParameter.toString().contains("assembleRelease")
     outputFormat "svg" // we got png anyway :-/
+    failOnError true
     fullBindingGraphValidation true
 }
 
@@ -86,8 +87,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     buildFeatures {
@@ -119,41 +120,20 @@ dependencies {
     implementation libs.acra.mail
     implementation libs.acra.toast
     implementation libs.appcompat
-    implementation libs.cardview
+    implementation libs.recyclerview
     implementation libs.exifinterface
     implementation libs.fragment.ktx
+    implementation libs.preference.ktx
 //    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
 //    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
-    implementation libs.preference.ktx
-    implementation libs.recyclerview
     implementation libs.security.crypto
-    implementation libs.design
     implementation libs.material
     implementation libs.gson
-//    implementation "com.google.dagger:dagger-android:$daggerVersion"
     implementation libs.dagger.android.support
     annotationProcessor "com.google.dagger:dagger-compiler:${libs.versions.daggerVersion.get()}"
     annotationProcessor "com.google.dagger:dagger-android-processor:${libs.versions.daggerVersion.get()}"
+    implementation libs.aboutlibraries
     implementation libs.okhttp
     implementation libs.picasso
-    implementation libs.aboutlibraries
-//    TODO implementation "com.mikepenz:aboutlibraries-core:${rootProject.ext.aboutLibrariesVersion}"
-//    implementation "com.mikepenz:aboutlibraries-compose:${rootProject.ext.aboutLibrariesVersion}"
     implementation libs.tesseract4android.openmp
-
-//    androidTestImplementation "androidx.test.ext:junit:1.1.2"
-//    androidTestImplementation "androidx.test.ext:junit:1.1.3"
-//    androidTestImplementation "androidx.test:core:1.4.0"
-//    androidTestImplementation "androidx.test:runner:1.4.0"
-//    androidTestImplementation "androidx.test:rules:1.4.0"
-//    androidTestImplementation "androidx.test.ext:truth:1.4.0"
-//    androidTestImplementation "com.google.truth:truth:1.0.1"
-//    androidTestImplementation "org.testng:testng:6.9.6"
-//    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso:espresso-accessibility:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso:espresso-web:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
-//    androidTestImplementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 }
