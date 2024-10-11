@@ -54,7 +54,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
-public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
+public class SubmitFragment extends DaggerFragment {
 
     public interface Callback {
         void onSubmitFragmentAdded();
@@ -107,6 +107,7 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     public void onResume() {
         super.onResume();
         setViewValuesFromPreferences();
+        addLocationTextWatcher();
         executeCommentSuggestion();
     }
 
@@ -346,10 +347,6 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
     }
 
     private void addTextChangedListeners() {
-        locationTextWatcher = new LocationTextWatcher();
-        binding.editTextCountry.addTextChangedListener(locationTextWatcher);
-        binding.editTextCity.addTextChangedListener(locationTextWatcher);
-        binding.editTextPostalCode.addTextChangedListener(locationTextWatcher);
         binding.editTextCountry.addTextChangedListener(
                 new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_country_key)));
         binding.editTextCity.addTextChangedListener(
@@ -362,6 +359,13 @@ public class SubmitFragment extends DaggerFragment implements LifecycleOwner {
                 new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_serial_number_key)));
         binding.editTextComment.addTextChangedListener(
                 new SavePreferencesTextWatcher(sharedPreferencesHandler, getString(R.string.pref_comment_key)));
+    }
+
+    private void addLocationTextWatcher() {
+        locationTextWatcher = new LocationTextWatcher();
+        binding.editTextCountry.addTextChangedListener(locationTextWatcher);
+        binding.editTextCity.addTextChangedListener(locationTextWatcher);
+        binding.editTextPostalCode.addTextChangedListener(locationTextWatcher);
     }
 
     private void executeCommentSuggestion() {
