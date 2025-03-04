@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2025 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import okhttp3.Request;
 
 public class CountryCode {
 
-    private static final String COUNTRIES_URL = "http://api.countrylayer.com/v2/alpha/";
+    private static final String COUNTRIES_URL = "https://api.countrylayer.com/v2/alpha/";
     private static final String NAME_ELEMENT = "name";
 
     public String convert(String countryCode, String apiKey) throws HttpCallException, CallResponseException {
