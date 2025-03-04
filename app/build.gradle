@@ -45,7 +45,7 @@ android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
 //    F-Droid needs a static version
 //    def majorVersion = 0
-//    def minorVersion = 79
+//    def minorVersion = 80
 //    def patchVersion = 0
     namespace marv42EbtNewNote
 
@@ -53,8 +53,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 7900
-        versionName "0.79.0"
+        versionCode 8000
+        versionName "0.80.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -72,6 +72,7 @@ android {
         debug {
             debuggable true
             minifyEnabled false
+            shrinkResources false
         }
     }
 
