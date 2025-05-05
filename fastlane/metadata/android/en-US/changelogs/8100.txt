@@ -1,0 +1,1 @@
+Bug fix: Don't enable edge-to-edge under Android 15
