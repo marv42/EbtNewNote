@@ -20,6 +20,7 @@ apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
+    excludeFields = [ "generated" ]
     includePlatform = false
     prettyPrint = true
 }
