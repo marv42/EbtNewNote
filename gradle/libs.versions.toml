@@ -27,6 +27,7 @@ securityCryptoVersion = "1.1.0-alpha07"
 tesseract4androidOpenmpVersion = "4.8.0"
 
 # plugins
+# Minimum AGP versions: https://developer.android.com/build/releases/gradle-plugin#api-level-support
 gradlePluginVersion = "8.8.2"
 kotlinGradlePluginVersion = "1.9.21"
 likethesaladPluginVersion = "2.11.0"
