@@ -89,6 +89,7 @@ android {
     }
 
     compileOptions {
+        // https://developer.android.com/build/jdks
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
     }
