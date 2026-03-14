@@ -1,0 +1,3 @@
+Target SDK 35
+Implement edge-to-edge
+Try Online OCR again if it fails due to connectivity issue
