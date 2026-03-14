@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ class JsonAnalyzer {
     private static final String ERROR_MESSAGE_ELEMENT = "ErrorMessage";
     private static final String ERROR_DETAILS_ELEMENT = "ErrorDetails";
 
-    // cf. https://ocr.space/ocrapi#Response
     static String analyzeBody(String body) throws OcrException, CallResponseException {
         try {
             JSONObject json = new JSONObject(body);
@@ -39,6 +38,7 @@ class JsonAnalyzer {
         }
     }
 
+    // cf. https://ocr.space/ocrapi#Response
     @NotNull
     private static String extractResult(JSONObject json) throws OcrException, NoJsonElementException, CallResponseException {
         int exitCode = new JsonHelper(json).getElement(int.class, OCR_EXIT_CODE_ELEMENT);

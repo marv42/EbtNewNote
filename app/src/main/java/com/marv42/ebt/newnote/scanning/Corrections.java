@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -8,20 +8,20 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import static com.marv42.ebt.newnote.scanning.PatternAnalyzer.findPattern;
+import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getAmbiguousMap;
+import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getDigitMap;
+import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getLetterMap;
+import static java.text.Normalizer.Form;
+
+import androidx.annotation.NonNull;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.marv42.ebt.newnote.scanning.PatternAnalyzer.findPattern;
-import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getAmbiguousMap;
-import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getDigitMap;
-import static com.marv42.ebt.newnote.scanning.ReplacementMaps.getLetterMap;
-import static java.text.Normalizer.*;
-
-import androidx.annotation.NonNull;
 
 public class Corrections {
 
@@ -47,6 +47,8 @@ public class Corrections {
             else
                 s = correctDigit(s, i);
             s = correctAmbiguous(s, i);
+//            if (s.startsWith("\""))
+//                s = "YA" + s.substring(1);
         }
         return s;
     }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@ import com.marv42.ebt.newnote.data.ResultSummary;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT;
@@ -55,18 +57,10 @@ public class NotificationTexts {
     }
 
     private ResultSummary getSummary(ArrayList<SubmissionResult> results) {
-        int numberOfHits = 0;
-        int numberOfSuccessful = 0;
-        int numberOfFailed = 0;
-        for (SubmissionResult result : results) {
-            if (result.isSuccessful(app))
-                numberOfSuccessful++;
-            else
-                numberOfFailed++;
-            if (result.isAHit(app))
-                numberOfHits++;
-        }
-        return new ResultSummary(numberOfHits, numberOfSuccessful, numberOfFailed);
+        List<SubmissionResult> resultsWithHits = results.stream().filter(r -> r.isAHit(app)).collect(Collectors.toList());
+        List<SubmissionResult> successfulResults = results.stream().filter(SubmissionResult::isSuccessful).collect(Collectors.toList());
+        List<SubmissionResult> failedResults = results.stream().filter(r -> ! r.isSuccessful()).collect(Collectors.toList());
+        return new ResultSummary(resultsWithHits.size(), successfulResults.size(), failedResults.size());
     }
 
     private CharSequence getSummaryText(ResultSummary summary, boolean colored, boolean showNumber) {
@@ -108,7 +102,7 @@ public class NotificationTexts {
 
     @NotNull
     private String checkComma(String s) {
-        if (s.length() > 0)
+        if (!s.isEmpty())
             s += ", ";
         return s;
     }

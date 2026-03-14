@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+import static com.marv42.ebt.newnote.MyOnApplyWindowInsetsListener.getOnApplyWindowInsetsListener;
 import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
@@ -27,6 +28,7 @@ import android.os.VibratorManager;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -36,6 +38,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -85,6 +89,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private boolean isResultsEmpty = true;
     private String[] commentSuggestionsUntilFragmentAdded;
     private String ocrResult = "";
+    private boolean triedAgain = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,8 +118,11 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setLayout() {
+        WindowCompat.enableEdgeToEdge(getWindow());
         applyStyle();
         setContentView(R.layout.main);
+        View view = findViewById(R.id.root);
+        ViewCompat.setOnApplyWindowInsetsListener(view, getOnApplyWindowInsetsListener());
     }
 
     private void applyStyle() {
@@ -311,23 +319,45 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public void onOcrResult(@NonNull String result) {
-        if (result.isEmpty())
+        if (result.isEmpty()) {
             OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
-        else if (result.startsWith(ERROR))
-            OcrNotifier.showDialog(this, new ErrorMessage(this).getErrorMessage(result));
-        else
-            checkMultipleOcrResults(result);
+            return;
+        }
+        if (result.startsWith(ERROR)) {
+            final String errorMessage = new ErrorMessage(this).getErrorMessage(result);
+            if (! result.startsWith(ERROR + "R.string.http_error"))
+                OcrNotifier.showDialog(this, errorMessage);
+            else {
+                if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
+                    if (! triedAgain) {
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.trying_again), Toast.LENGTH_SHORT).show();
+                        processPhoto();
+                        triedAgain = true;
+                    } else {
+//                        if (dataStore.get(R.string.pref_settings_ocr_postpone_key, false)) {
+//                            Toast.makeText(this, getString(R.string.sending_later), Toast.LENGTH_SHORT).show();
+//                            // TODO remember picture data and wait for connectivity in the background, cf. https://stackoverflow.com/a/7374522/542235
+//                        } else
+                            OcrNotifier.showDialog(this, errorMessage);
+                            triedAgain = false;
+                    }
+                }
+            }
+            return;
+        }
+        checkMultipleOcrResults(result);
     }
 
     private void checkMultipleOcrResults(@NonNull String result) {
-        if (result.contains(NEW_LINE))
+        if (result.contains(NEW_LINE)) {
             letUserChoose(result);
-        else {
-            ocrResult = result;
-            vibrate();
-            replaceShortCodeOrSerialNumber();
-            Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
+            return;
         }
+        ocrResult = result;
+        vibrate();
+        replaceShortCodeOrSerialNumber();
+        Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
     }
 
     private void letUserChoose(String ocrResults) {

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package com.marv42.ebt.newnote.scanning
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
@@ -24,6 +25,7 @@ import java.io.IOException
 class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val context: Context,
                       private val photoPath: String) {
 
+    private val TAG: String? = OcrHandlerLocal::class.java.getSimpleName()
     private val scope = MainScope()
     private var tess: TessBaseAPI? = null
     private var filesPath: String? = null
@@ -83,7 +85,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
                 }
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            Log.w(TAG, e.message!!)
         }
     }
 
@@ -106,7 +108,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         try {
             callback.onOcrResult(result)
         } catch (e: NoNotificationManagerException) {
-            e.printStackTrace()
+            Log.w(TAG, e.message!!)
         }
     }
 

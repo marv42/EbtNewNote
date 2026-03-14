@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -72,13 +72,16 @@ class ReplacementMaps {
                 {"Z", "2"},
                 // {"s", "3"},
                 // {"s", "5"},
+                {"Å", "4"},
                 {"K", "4"},
                 {"S", "5"},
                 {"$", "5"},
+                {"É", "6"},
                 {"T", "7"},
                 {"Y", "7"},
                 {"a", "8"},
                 {"A", "8"},
+                {"È", "8"},
                 {"B", "8"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

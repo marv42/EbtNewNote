@@ -8,11 +8,16 @@
 
 package com.marv42.ebt.newnote;
 
+import static com.marv42.ebt.newnote.MyOnApplyWindowInsetsListener.getOnApplyWindowInsetsListener;
+
 import android.os.Bundle;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.view.MenuProvider;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -35,6 +40,9 @@ public class LicensesActivity extends DaggerAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.enableEdgeToEdge(getWindow());
+        ViewGroup content = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(content, getOnApplyWindowInsetsListener());
         getSupportFragmentManager()
                 .beginTransaction()
                 .setReorderingAllowed(true)

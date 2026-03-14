@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,13 +9,13 @@ package com.marv42.ebt.newnote.scanning
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore.MediaColumns
-import androidx.annotation.RequiresApi
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.*
 import com.marv42.ebt.newnote.HttpCaller
 import com.marv42.ebt.newnote.exceptions.*
+import com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR
 import com.marv42.ebt.newnote.executeAsyncTask
 import kotlinx.coroutines.MainScope
 import okhttp3.FormBody
@@ -26,6 +26,7 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
                        private val photoUri: Uri?, private val contentResolver: ContentResolver,
                        private val apiKey: String) {
 
+    private val TAG: String? = OcrHandlerOnline::class.java.getSimpleName()
     private val scope = MainScope()
 
     fun execute() {
@@ -44,11 +45,11 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
         } catch (e: HttpCallException) {
             getHttpCallErrorMessage(e)
         } catch (e: CallResponseException) {
-            ErrorMessage.ERROR + e.message
+            ERROR + e.message
         } catch (e: NoPictureException) {
-            ErrorMessage.ERROR + e.message
+            ERROR + e.message
         } catch (e: OcrException) {
-            ErrorMessage.ERROR + "R.string.ocr_error: " + e.message
+            ERROR + "R.string.ocr_error: " + e.message
         }
     }
 
@@ -60,7 +61,7 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
             errorMessage += ".\n\nR.string.ocr_wrong_key."
         if (!errorMessage.startsWith("R.string.http_error"))
             errorMessage = "R.string.http_error: $errorMessage"
-        return ErrorMessage.ERROR + errorMessage
+        return ERROR + errorMessage
     }
 
     @get:Throws(HttpCallException::class, CallResponseException::class, OcrException::class, NoPictureException::class)
@@ -87,25 +88,22 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
         try {
             callback.onOcrResult(result)
         } catch (e: NoNotificationManagerException) {
-            e.printStackTrace()
+            Log.w(TAG, e.message!!)
         }
     }
 
     private val orientation: Int
         get() = when {
             orientationFromExif != ORIENTATION_UNDEFINED -> orientationFromExif
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> orientationFromMediaStore
-            else -> ORIENTATION_UNDEFINED
+            else -> orientationFromMediaStore
         }
 
-    @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromMediaStore: Int
         get() = if (photoUri != null)
             orientationFromCursor
         else
             ORIENTATION_UNDEFINED
 
-    @get:RequiresApi(api = Build.VERSION_CODES.Q)
     private val orientationFromCursor: Int
         get() {
             val columns = arrayOf(MediaColumns.ORIENTATION)

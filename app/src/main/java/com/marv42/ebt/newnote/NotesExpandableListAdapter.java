@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -122,9 +122,8 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
             String dataFromI = (String) data.get(from[i]);
             if (from[i].equals(DENOMINATION_IMAGE))
                 loadDenominationImage(view.findViewById(to[i]), dataFromI);
-            else
-                if (!from[i].equals(DENOMINATION) || !showImages)
-                    setTextFromHtml(view.findViewById(to[i]), dataFromI);
+            else if (!from[i].equals(DENOMINATION) || !showImages)
+                setTextFromHtml(view.findViewById(to[i]), dataFromI);
         }
     }
 
@@ -134,11 +133,11 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
     }
 
     private void setTextFromHtml(TextView view, String data) {
-        if (view != null) {
-            final Spanned text = fromHtml(data, FROM_HTML_MODE_COMPACT);
-            view.setText(text);
-            if (TextUtils.isEmpty(data))
-                view.setVisibility(GONE);
-        }
+        if (view == null)
+            return;
+        final Spanned text = fromHtml(data, FROM_HTML_MODE_COMPACT);
+        view.setText(text);
+        if (TextUtils.isEmpty(data))
+            view.setVisibility(GONE);
     }
 }

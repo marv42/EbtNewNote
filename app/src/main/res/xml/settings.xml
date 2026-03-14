@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2024 Marvin Horter.
+  Copyright (c) 2010 - 2026 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -41,6 +41,11 @@
             android:key="@string/pref_settings_ocr_service_key"
             android:title="@string/settings_ocr_service_key_title"
             android:summary="@string/settings_ocr_service_key_summary"/>
+<!--        <androidx.preference.SwitchPreference-->
+<!--            android:key="@string/pref_settings_ocr_postpone_key"-->
+<!--            android:title="@string/settings_ocr_postpone_title"-->
+<!--            android:summary="@string/settings_ocr_postpone_summary"-->
+<!--            android:defaultValue="false"/>-->
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_display">
