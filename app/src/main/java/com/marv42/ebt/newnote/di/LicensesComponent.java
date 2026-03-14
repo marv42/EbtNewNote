@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,12 +9,10 @@
 package com.marv42.ebt.newnote.di;
 
 import com.marv42.ebt.newnote.LicensesActivity;
-import com.marv42.ebt.newnote.preferences.SettingsActivity;
 
 import dagger.Module;
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
-import dagger.android.ContributesAndroidInjector;
 
 @Module
 abstract class LicensesModule {

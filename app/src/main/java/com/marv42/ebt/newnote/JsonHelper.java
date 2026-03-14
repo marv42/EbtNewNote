@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -17,10 +17,6 @@ import org.json.JSONObject;
 public class JsonHelper {
 
     private final JSONObject json;
-
-    public static JSONObject getJsonObject(String key, String value) throws JSONException {
-        return new JSONObject("{\"" + key + "\":\"" + value + "\"}");
-    }
 
     public JsonHelper(JSONObject json) {
         this.json = json;

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -116,7 +117,7 @@ public class FetchAddressIntentService extends DaggerIntentService {
             String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
             countryName = new CountryCode().convert(countryCode, apiKey);
         } catch (HttpCallException | CallResponseException e) {
-            e.printStackTrace();
+            Log.w(TAG, e.getMessage());
         }
         return new LocationValues(countryName, city, postalCode);
     }

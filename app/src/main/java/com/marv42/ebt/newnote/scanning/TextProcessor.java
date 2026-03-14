@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -9,9 +9,6 @@
 package com.marv42.ebt.newnote.scanning;
 
 import android.text.TextUtils;
-
-import com.marv42.ebt.newnote.exceptions.CallResponseException;
-import com.marv42.ebt.newnote.exceptions.OcrException;
 
 public class TextProcessor {
 
