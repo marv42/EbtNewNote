@@ -54,8 +54,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 8400
-        versionName "0.84.0"
+        versionCode 8500
+        versionName "0.85.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -121,22 +121,19 @@ allprojects {
 
 dependencies {
     implementation libs.kotlinx.coroutines.core
+//    implementation libs.work.runtime
     implementation libs.acra.mail
     implementation libs.acra.toast
-//    implementation libs.activity
-//    implementation libs.activity.ktx
     implementation libs.core
     implementation libs.appcompat
     implementation libs.recyclerview
     implementation libs.exifinterface
-    implementation libs.fragment.ktx
-    implementation libs.preference.ktx
-//    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
-//    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
+    implementation libs.fragment
+    implementation libs.preference
     implementation libs.security.crypto
-    implementation libs.datastore
-    implementation libs.protobuf
-    implementation libs.tink
+//    implementation libs.datastore
+//    implementation libs.protobuf
+//    implementation libs.tink
     implementation libs.material
     implementation libs.gson
     implementation libs.dagger.android.support
