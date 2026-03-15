@@ -102,8 +102,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void requestNotificationsPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                PermissionChecker.checkSelfPermission(this, NOTIFICATION_SERVICE) != PERMISSION_GRANTED) {
+        if (PermissionChecker.checkSelfPermission(this, NOTIFICATION_SERVICE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, NOTIFICATIONS_PERMISSION_REQUEST_CODE);
         }
     }

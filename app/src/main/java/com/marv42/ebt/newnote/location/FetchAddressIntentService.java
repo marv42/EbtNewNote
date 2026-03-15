@@ -88,18 +88,11 @@ public class FetchAddressIntentService extends DaggerIntentService {
     private void getReceiver(Intent intent) throws NoIntentException {
         if (intent == null)
             throw new NoIntentException(ERROR + getString(R.string.internal_error));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            receiver = intent.getParcelableExtra(RECEIVER, ResultReceiver.class);
-        else
-            receiver = intent.getParcelableExtra(RECEIVER);
+        receiver = intent.getParcelableExtra(RECEIVER, ResultReceiver.class);
     }
 
     private Location getLocation(Intent intent) throws NoLocationException {
-        Location l;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            l = intent.getParcelableExtra(LOCATION_DATA_EXTRA, Location.class);
-        else
-            l = intent.getParcelableExtra(LOCATION_DATA_EXTRA);
+        Location l = intent.getParcelableExtra(LOCATION_DATA_EXTRA, Location.class);
         if (l == null)
             throw new NoLocationException(ERROR + getString(R.string.location_none));
         return l;

@@ -35,11 +35,8 @@ public class About implements OnMenuItemClickListener {
         String versionNumber;
         final PackageManager packageManager = context.getPackageManager();
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                versionNumber = packageManager.getPackageInfo(
-                        context.getPackageName(), PackageManager.PackageInfoFlags.of(0)).versionName;
-            else
-                versionNumber = packageManager.getPackageInfo(context.getPackageName(), 0).versionName;
+            versionNumber = packageManager.getPackageInfo(
+                    context.getPackageName(), PackageManager.PackageInfoFlags.of(0)).versionName;
         } catch (NameNotFoundException ex) {
             versionNumber = "0.0.0";
         }
