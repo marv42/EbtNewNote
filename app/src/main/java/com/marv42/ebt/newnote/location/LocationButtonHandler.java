@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -13,8 +13,6 @@ import android.content.Context;
 import android.location.LocationManager;
 import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
 
@@ -24,6 +22,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
+import static androidx.core.app.ActivityCompat.requestPermissions;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.marv42.ebt.newnote.EbtNewNote.LOCATION_PERMISSION_REQUEST_CODE;
@@ -67,7 +66,7 @@ public class LocationButtonHandler {
     }
 
     private void requestLocationPermissions() {
-        ActivityCompat.requestPermissions(Objects.requireNonNull(activity),
+        requestPermissions(Objects.requireNonNull(activity),
                 new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
                 LOCATION_PERMISSION_REQUEST_CODE);
     }

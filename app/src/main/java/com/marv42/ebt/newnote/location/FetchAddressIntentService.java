@@ -48,8 +48,8 @@ public class FetchAddressIntentService extends DaggerIntentService {
     public static final String RECEIVER = ThisApp.packageName + ".RECEIVER";
     public static final String RESULT_DATA_KEY = ThisApp.packageName + ".RESULT_DATA_KEY";
     public static final String LOCATION_DATA_EXTRA = ThisApp.packageName + ".LOCATION_DATA_EXTRA";
-    private static final String GEOCODING_HOST = "geocode.arcgis.com";
-    private static final String GEOCODING_URL = "https://" + GEOCODING_HOST + "/arcgis/rest/services/World/GeocodeServer/reverseGeocode";
+    private static final String GEOCODING_HOST = "geocode.arcgis.com";  // https://developers.arcgis.com/rest/geocode/service-endpoints/
+    private static final String GEOCODING_URL = "https://" + GEOCODING_HOST + "/arcgis/rest/services/World/GeocodeServer/reverseGeocode";  // https://developers.arcgis.com/rest/geocode/reverse-geocode/
     private static final String ADDRESS_ELEMENT = "address";
     private ResultReceiver receiver;
     private String result;
@@ -104,13 +104,17 @@ public class FetchAddressIntentService extends DaggerIntentService {
         String countryCode = jsonAddress.optString("CountryCode");
         String city = jsonAddress.optString("City");
         String postalCode = jsonAddress.optString("Postal");
-        String countryName = ERROR + getString(R.string.location_no_country);
-        // TODO String countryName = new CountryCodeLocal().convert(countryCode);
-        try {
-            String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
-            countryName = new CountryCode().convert(countryCode, apiKey);
-        } catch (HttpCallException | CallResponseException e) {
-            Log.w(TAG, e.getMessage());
+        String countryName = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            countryName = new CountryCodeLocal().convert(countryCode);
+        } else {
+            try {
+                String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
+                countryName = new CountryCode().convert(countryCode, apiKey);
+            } catch (HttpCallException | CallResponseException e) {
+                Log.w(TAG, e.getMessage());
+                countryName = ERROR + getString(R.string.location_no_country);
+            }
         }
         return new LocationValues(countryName, city, postalCode);
     }

@@ -8,12 +8,36 @@
 
 package com.marv42.ebt.newnote.location;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.util.Locale;
+import java.util.MissingResourceException;
 
 public class CountryCodeLocal {
 
+    @RequiresApi(api = Build.VERSION_CODES.BAKLAVA)
     public String convert(String countryCode) {
-        Locale locale = new Locale("", countryCode);
-        return locale.getDisplayCountry(new Locale("eng", "US"));
+        String twoLetterCode = CountryCodeConverter.convertThreeToTwoLetterCode(countryCode);
+        if (twoLetterCode != null)
+            countryCode = twoLetterCode;
+        Locale locale = Locale.of("*", countryCode);
+        return locale.getDisplayCountry(Locale.of("eng", "US"));
+    }
+ }
+
+class CountryCodeConverter {
+    static String convertThreeToTwoLetterCode(String threeLetterCode) {
+        Locale[] locales = Locale.getAvailableLocales();
+        for (Locale l : locales)
+            try {
+                if (l.getISO3Country().equalsIgnoreCase(threeLetterCode))
+                    return l.getCountry();
+            }
+            catch (MissingResourceException e) {
+                // ignore, continue
+            }
+        return null;
     }
 }
