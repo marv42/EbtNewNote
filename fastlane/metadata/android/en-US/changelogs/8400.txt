@@ -1,0 +1,2 @@
+Target SDK 36
+On-device country name resolution
