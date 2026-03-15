@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2024 Marvin Horter.
+  Copyright (c) 2010 - 2026 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@
 
     <!-- exceptions -->
     <string name="http_error">Error communicating to the server</string>
+    <string name="trying_again">Trying again</string>
     <string name="server_error">Unusable response from the server</string>
     <string name="ocr_error">OCR error</string>
 
@@ -67,6 +68,7 @@
     <string name="invalid_denomination">Invalid denomination</string>
     <string name="invalid_country">Invalid country</string>
     <string name="no_serial_number">No serial number</string>
+    <string name="no_short_code">No short code</string>
     <string name="invalid_serial_number">Invalid serial number</string>
     <string name="invalid_short_code">Invalid short code</string>
     <string name="city_missing">No city or postal code</string>
@@ -107,7 +109,7 @@
     <string name="settings_category_ebt_account">EBT account settings</string>
     <string name="settings_ebt_account_summary">Don\'t have a EuroBillTracker account yet?\nTap here to create one</string>
     <string name="ebt_url" translatable="false">https://en.eurobilltracker.com/</string>
-    <string name="create_ebt_account_url">${ebt_url}signup/</string>
+    <string name="create_ebt_account_url" translatable="false">${ebt_url}signup/</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>
     <string name="settings_email_summary">Email address to log in to your EBT account</string>
@@ -116,10 +118,12 @@
     <string name="settings_password_title">Password</string>
     <string name="settings_password_summary">Password of your EBT account</string>
     <string name="settings_category_ocr">OCR settings</string>
-    <string name="settings_ocr_summary">In order to analyze the photos, OCR (optical character recognition) is used.\nThe OCR can be executed on the device or you can use an online OCR service</string>
+    <string name="settings_ocr_summary">In order to analyze the photos, OCR (optical character recognition) is used.\nThe OCR can be executed on the device or alternatively an online OCR service can be used</string>
     <string name="settings_ocr_online_title">Use an online OCR service</string>
     <string name="settings_ocr_service_key_title">Online OCR service key</string>
     <string name="settings_ocr_service_key_summary">The online OCR service requires a service key</string>
+    <string name="settings_ocr_postpone_title">Postpone online OCR on connectivity failure</string>
+    <string name="settings_ocr_postpone_summary">If the communication with the online OCR service fails, wait for connectivity in the background and send the data again when available</string>
     <string name="settings_category_display">Display settings</string>
     <string name="settings_images_title">Denomination images</string>
     <string name="settings_images_summary">Show EBT denomination images in the \'${results_fragment_title}\' tab instead of denomination text</string>
@@ -141,6 +145,7 @@
     <string name="trying_login">Trying to log in to EBT…</string>
     <string name="wrong_login_info">No valid EBT login information</string>
     <string name="max_show_num_default" translatable="false">100</string>
+    <string name="max_retries_default" translatable="false">5</string>
 
     <!-- preferences -->
     <string name="pref_settings_email_key" translatable="false">pref_settings_email</string>
@@ -148,9 +153,11 @@
     <string name="pref_settings_comment_key" translatable="false">pref_settings_comment</string>
     <string name="pref_settings_ocr_online_key" translatable="false">pref_settings_ocr_online</string>
     <string name="pref_settings_ocr_service_key" translatable="false">pref_settings_ocr_service</string>
+    <string name="pref_settings_ocr_postpone_key" translatable="false">pref_settings_ocr_postpone</string>
     <string name="pref_settings_country_key" translatable="false">pref_settings_country</string>
     <string name="pref_settings_images_key" translatable="false">pref_settings_images</string>
     <string name="pref_settings_show_submitted_key" translatable="false">pref_settings_show_submitted</string>
+    <string name="pref_settings_max_retries_key" translatable="false">pref_settings_retries</string>
     <string name="pref_country_key" translatable="false">pref_country</string>
     <string name="pref_city_key" translatable="false">pref_city</string>
     <string name="pref_postal_code_key" translatable="false">pref_postal_code</string>
@@ -209,4 +216,5 @@
     <string name="ocr_result_description">OCR has finished\nSee the result</string>
     <string name="ocr_wrong_key">Please check your OCR service key</string>
     <string name="ocr_multiple_results">Multiple OCR results found</string>
+    <string name="sending_later">Online OCR will be performed as soon as connectivity will be available again</string>
 </resources>

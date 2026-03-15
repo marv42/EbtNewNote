@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -22,6 +22,10 @@ import javax.inject.Inject
 class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private val apiCaller: ApiCaller,
                                             private val callback: Callback) {
 
+    interface Callback {
+        fun onSubmissionResult(result: SubmissionResult?)
+    }
+
     private val scope = MainScope()
 
     fun execute(noteData: NoteData) {
@@ -39,8 +43,8 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
         return try {
             callLoginAndInsert(noteData)
         } catch (e: HttpCallException) {
+            // TODO Try again
             SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
-        // TODO save noteData and call again later
         } catch (e: CallResponseException) {
             SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
         }
@@ -78,10 +82,11 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
     private fun assembleReply(noteData: NoteData, insertionData: NoteInsertionData): SubmissionResult {
         val billId = insertionData.billId
         val status = insertionData.status
+        /// Cf. https://api.eurobilltracker.com/doc/api_insertbills.html
         if (status == 0)
-            return SubmissionResult(noteData, app.getString(R.string.has_been_entered), billId)
+            return SubmissionResult(noteData, app.getString(R.string.has_been_entered), true, billId)
         if (status == 1)
-            return SubmissionResult(noteData, app.getString(R.string.got_hit), billId)
+            return SubmissionResult(noteData, app.getString(R.string.got_hit), true, billId)
         var reply = ""
         if (status and 64 != 0)
             reply += app.getString(R.string.already_entered) + "<br>"
@@ -103,14 +108,10 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
             reply = reply.substring(0, reply.length - 4)
         if (TextUtils.isEmpty(reply))
             reply = "Someone seems to have to debug something here..."
-        return SubmissionResult(noteData, reply, billId)
+        return SubmissionResult(noteData, reply)
     }
 
     private fun onPostExecute(result: SubmissionResult) {
         callback.onSubmissionResult(result)
-    }
-
-    interface Callback {
-        fun onSubmissionResult(result: SubmissionResult?)
     }
 }

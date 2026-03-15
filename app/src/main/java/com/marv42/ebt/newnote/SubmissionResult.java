@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -22,36 +22,32 @@ public class SubmissionResult {
     // If we rename these, we have to change the values in shared preferences
     final NoteData mNoteData;
     final String mReason;
+    final boolean mSuccessful;
     final int mBillId;
     boolean mRemovable;
 
     SubmissionResult(final NoteData noteData, final String reason) {
-        this(noteData, reason, -1);
+        this(noteData, reason, false, -1);
     }
 
-    SubmissionResult(final NoteData noteData, final String reason, final int billId) {
-        this(noteData, reason, billId, true);
-    }
-
-    SubmissionResult(final NoteData noteData, final String reason, final int billId, final boolean removable) {
+    SubmissionResult(final NoteData noteData, final String reason, final boolean successful, final int billId) {
         mNoteData = noteData;
         mReason = reason;
+        mSuccessful = successful;
         mBillId = billId;
-        mRemovable = removable;
+        mRemovable = true;
     }
 
     boolean isAHit(Context context) {
         return mReason.equals(context.getString(R.string.got_hit));
     }
 
-    boolean isSuccessful(Context context) {
-        // TODO consider language changes
-        return mReason.equals(context.getString(R.string.has_been_entered)) ||
-                mReason.equals(context.getString(R.string.got_hit));
+    boolean isSuccessful() {
+        return mSuccessful;
     }
 
     String getResult(Context context) {
-        return isSuccessful(context) ?
+        return isSuccessful() ?
                 getColoredString(isAHit(context) ?
                         context.getString(R.string.hit) : context.getString(R.string.successful),
                         getColor(context, R.color.success)) :

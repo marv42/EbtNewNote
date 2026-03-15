@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2010 - 2024 Marvin Horter.
+  Copyright (c) 2010 - 2026 Marvin Horter.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the GNU Public License v2.0
   which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@
 
     <!-- exceptions -->
     <string name="http_error">Server-Verbindungs-Problem</string>
+    <string name="trying_again">Nochmaliger Versuch</string>
     <string name="server_error">Unbrauchbare Antwort des Servers</string>
     <string name="ocr_error">OCR-Fehler</string>
 
@@ -59,10 +60,11 @@
 
     <!-- note status -->
     <string name="has_been_entered">Schein wurde eingetragen</string>
-    <string name="got_hit">Glückwunsch! Treffer. Dieser Schein wurde schon einmal eingetragen</string>
+    <string name="got_hit">Glückwunsch! Treffer! Dieser Schein wurde schon einmal eingetragen</string>
     <string name="invalid_denomination">Ungültiger Nennwert</string>
     <string name="invalid_country">Ungültiges Land</string>
     <string name="no_serial_number">Keine Seriennummer</string>
+    <string name="no_short_code">Kein Plattencode</string>
     <string name="invalid_serial_number">Ungültige Seriennummer</string>
     <string name="invalid_short_code">Ungültiger Plattencode</string>
     <string name="city_missing">Keine Stadt oder Postleitzahl</string>
@@ -107,6 +109,8 @@
     <string name="settings_ocr_online_title">Einen Online-Texterkennungs-Service verwenden</string>
     <string name="settings_ocr_service_key_title">Online-Texterkennungs-Service-\nRegistrierungs-Code</string>
     <string name="settings_ocr_service_key_summary">Man benötigt einen Registrierungs-Code, um den Online-Texterkennungs-Service verwenden zu können</string>
+    <string name="settings_ocr_postpone_title">Bei Verbindungsproblemen die Online-Texterkennung verschieben</string>
+    <string name="settings_ocr_postpone_summary">Wenn die Kommunikation mit dem Online-Texterkennungs-Service fehlschlägt, im Hintergrund auf Konnektivität warten und dann die Daten nochmal senden</string>
     <string name="settings_category_display">Darstellungs-Einstellungen</string>
     <string name="settings_images_title">Nennwert-Bilder</string>
     <string name="settings_images_summary">EBT-Nennwert-Bilder im \'${results_fragment_title}\'-Tab anzeigen anstatt die Nennwerte als Text</string>
@@ -168,4 +172,5 @@
     <string name="ocr_result_description">Texterkennung beendet\nErgebnis betrachten</string>
     <string name="ocr_wrong_key">Bitte den Texterkennungs-Service-Registrierungs-Code überprüfen</string>
     <string name="ocr_multiple_results">Mehrere Texterkennungs-Ergebnisse gefunden</string>
+    <string name="sending_later">Online-Texterkennung wird durchgeführt, wenn die Konnektivität wieder vorhanden ist</string>
 </resources>
