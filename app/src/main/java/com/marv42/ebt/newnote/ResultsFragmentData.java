@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import static com.marv42.ebt.newnote.Utils.getColoredString;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -239,7 +238,7 @@ public class ResultsFragmentData extends ResultsFragment {
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
-        return result.isSuccessful(activity) ?
+        return result.isSuccessful() ?
                 getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
                         getColor(activity, R.color.success)) :
                 getColoredString(new ErrorMessage(activity).getErrorMessage(result.mReason),

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
@@ -60,8 +61,31 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             return;
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
         updateResults(array);
-        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {
-        }.getType());
+        results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {}.getType());
+    }
+
+    private String loadFromPreferences() {
+        final String key = app.getString(R.string.pref_results_key);
+        return getDefaultSharedPreferences(app).getString(key, "");
+    }
+
+    private void updateResults(JsonArray array) {
+        for (JsonElement element : array) {
+            final JsonObject jsonObject = element.getAsJsonObject();
+            final boolean successfulAccordingToReason = isSuccessfulAccordingToReason(jsonObject);
+            final String removable = "mRemovable";
+            if (!jsonObject.has(removable))
+                jsonObject.addProperty(removable, ! successfulAccordingToReason);
+            final String successful = "mSuccessful";
+            if (!jsonObject.has(successful))
+                jsonObject.addProperty(successful, successfulAccordingToReason);
+        }
+    }
+
+    private boolean isSuccessfulAccordingToReason(JsonObject jsonObject) {
+        final String reason = jsonObject.get("mReason").getAsString();
+        return reason.equals(app.getString(R.string.has_been_entered)) ||
+                reason.equals(app.getString(R.string.got_hit));
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -76,55 +100,11 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         saveToPreferences();
     }
 
-    void addResult(final SubmissionResult aResult) {
-        results.add(aResult);
-        refreshResults();
-    }
-
-    void replaceResult(SubmissionResult sr, boolean removable) {
-        int index = results.indexOf(sr);
-        if (index == -1)
-            return;
-        sr.mRemovable = removable;
-        results.set(index, sr);
-        refreshResults();
-    }
-
-    private String loadFromPreferences() {
-        final String key = app.getString(R.string.pref_results_key);
-        return getDefaultSharedPreferences(app).getString(key, "");
-    }
-
-    private void updateResults(JsonArray array) {
-        for (JsonElement element : array) {
-            final String removable = "mRemovable";
-            if (!element.getAsJsonObject().has(removable))
-                element.getAsJsonObject().addProperty(removable, true);
-        }
-    }
-
     private void setResultsToViewModel() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         final int tooMany = getTooMany() - getNumberOfFailed();
         removeTooManyResults(tooMany, results);
         viewModel.setResults(results);
-    }
-
-    private void saveToPreferences() {
-        List<SubmissionResult> resultsToSave = getSuccessfulResults();
-        resultsToSave.sort(new SubmissionResult.SubmissionComparator());
-        resultsToSave = filterResults(resultsToSave);
-        getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results_key),
-                new Gson().toJson(resultsToSave)).apply();
-    }
-
-    private List<SubmissionResult> filterResults(List<SubmissionResult> results) {
-        if (results == null)
-            return null;
-        final int tooMany = getTooMany();
-        if (tooMany > 0)
-            removeTooManyResults(tooMany, results);
-        return results;
     }
 
     private int getTooMany() {
@@ -149,16 +129,47 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         }
     }
 
+    private void saveToPreferences() {
+        List<SubmissionResult> resultsToSave = getSuccessfulResults();
+        resultsToSave.sort(new SubmissionResult.SubmissionComparator());
+        resultsToSave = filterResults(resultsToSave);
+        getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results_key),
+                new Gson().toJson(resultsToSave)).apply();
+    }
+
+    private List<SubmissionResult> filterResults(List<SubmissionResult> results) {
+        if (results == null)
+            return null;
+        final int tooMany = getTooMany();
+        if (tooMany > 0)
+            removeTooManyResults(tooMany, results);
+        return results;
+    }
+
+    void addResult(final SubmissionResult aResult) {
+        results.add(aResult);
+        refreshResults();
+    }
+
+    void replaceResult(SubmissionResult sr, boolean removable) {
+        int index = results.indexOf(sr);
+        if (index == -1)
+            return;
+        sr.mRemovable = removable;
+        results.set(index, sr);
+        refreshResults();
+    }
+
     private @NonNull List<SubmissionResult> getHitResults() {
         return results.stream().filter(p -> p.isAHit(app)).collect(Collectors.toList());
     }
 
     private @NonNull List<SubmissionResult> getSuccessfulResults() {
-        return results.stream().filter(p -> p.isSuccessful(app)).collect(Collectors.toList());
+        return results.stream().filter(SubmissionResult::isSuccessful).collect(Collectors.toList());
     }
 
     private @NonNull List<SubmissionResult> getFailedResults() {
-        return results.stream().filter(p -> !p.isSuccessful(app)).collect(Collectors.toList());
+        return results.stream().filter(p -> !p.isSuccessful()).collect(Collectors.toList());
     }
 
     private @NonNull List<SubmissionResult> getResultsToKeep() {
