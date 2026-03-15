@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2024 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -129,8 +129,7 @@ public class SubmitFragment extends DaggerFragment {
     }
 
     void takePhoto() {
-        Activity activity = getActivity();
-        CameraStarter cameraStarter = new CameraStarter(activity);
+        CameraStarter cameraStarter = new CameraStarter(getActivity());
         final String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
         final boolean isOnlineOcr = dataStore.get(R.string.pref_settings_ocr_online_key, false);
         if (!cameraStarter.canTakePhoto(isOnlineOcr && TextUtils.isEmpty(ocrKey)))
@@ -138,11 +137,19 @@ public class SubmitFragment extends DaggerFragment {
         try {
             cameraStarter.startCameraActivity(sharedPreferencesHandler);
         } catch (NoPictureException e) {
-            Toast.makeText(activity, new ErrorMessage(activity).getErrorMessage(e.getMessage()), LENGTH_LONG).show();
+            Toast.makeText(getActivity(), new ErrorMessage(getActivity()).getErrorMessage(e.getMessage()), LENGTH_LONG).show();
         }
     }
 
     void submitButtonClicked() {
+        if (getSerialNumber().isEmpty()) {
+            Toast.makeText(getActivity(), R.string.no_serial_number, LENGTH_LONG).show();
+            return;
+        }
+        if (getFixedShortCode().isEmpty()) {
+            Toast.makeText(getActivity(), R.string.no_short_code, LENGTH_LONG).show();
+            return;
+        }
         Toast.makeText(getActivity(), R.string.submitting, LENGTH_LONG).show();
         submitNoteData();
         binding.editTextShortCode.setText("");
