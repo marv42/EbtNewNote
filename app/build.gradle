@@ -17,6 +17,7 @@ apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
 apply plugin: libs.plugins.likethesalad.get().pluginId
 apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-/
+apply plugin: libs.plugins.protobuf.get().pluginId
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -40,6 +41,21 @@ scabbard {
     outputFormat "svg" // we got png anyway :-/
     failOnError true
     fullBindingGraphValidation true
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJavaVersion.get()}"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -66,8 +82,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro", "proguard-rules-acra.pro", "proguard-rules-gson.pro"
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+//                    "proguard-rules.pro", "proguard-rules-acra.pro", "proguard-rules-gson.pro"
             signingConfig signingConfigs.debug
         }
         debug {
@@ -122,6 +138,7 @@ allprojects {
 dependencies {
     implementation libs.kotlinx.coroutines.core
 //    implementation libs.work.runtime
+//    implementation libs.lifecycle.runtime
     implementation libs.acra.mail
     implementation libs.acra.toast
     implementation libs.core
@@ -131,9 +148,9 @@ dependencies {
     implementation libs.fragment
     implementation libs.preference
     implementation libs.security.crypto
-//    implementation libs.datastore
-//    implementation libs.protobuf
-//    implementation libs.tink
+    implementation libs.datastore
+    implementation libs.protobuf
+    implementation libs.tink
     implementation libs.material
     implementation libs.gson
     implementation libs.dagger.android.support
