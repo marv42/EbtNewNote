@@ -1,0 +1,1 @@
+Fix empty screen space when using on-screen keyboard
