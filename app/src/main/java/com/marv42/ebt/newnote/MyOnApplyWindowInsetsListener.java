@@ -8,6 +8,8 @@
 
 package com.marv42.ebt.newnote;
 
+import static java.lang.Integer.max;
+
 import android.view.ViewGroup;
 
 import androidx.core.graphics.Insets;
@@ -20,17 +22,18 @@ public class MyOnApplyWindowInsetsListener {
         return (v, windowInsets) -> {
             Insets systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            mlp.leftMargin = systemBarsInsets.left;
             mlp.bottomMargin = systemBarsInsets.bottom;
+            mlp.leftMargin = systemBarsInsets.left;
             mlp.rightMargin = systemBarsInsets.right;
             v.setLayoutParams(mlp);
             Insets cutoutInsets = windowInsets.getInsets(
                     WindowInsetsCompat.Type.systemBars()
                             | WindowInsetsCompat.Type.displayCutout());
-            v.setPadding(cutoutInsets.left, cutoutInsets.top, cutoutInsets.right, cutoutInsets.bottom);
-
+            final int imeType = WindowInsetsCompat.Type.ime();
+            int insetImeBottom = windowInsets.getInsets(imeType).bottom;
+            v.setPadding(cutoutInsets.left, cutoutInsets.top, cutoutInsets.right,
+                    max(cutoutInsets.bottom, insetImeBottom));
             return WindowInsetsCompat.CONSUMED;
         };
     }
-
 }
