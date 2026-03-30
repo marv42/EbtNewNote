@@ -1,0 +1,1 @@
+Fix duplicate controls in dual pane view

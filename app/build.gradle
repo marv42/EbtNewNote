@@ -17,7 +17,7 @@ apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
 apply plugin: libs.plugins.likethesalad.get().pluginId
 apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-/
-//apply plugin: libs.plugins.protobuf.get().pluginId
+apply plugin: libs.plugins.protobuf.get().pluginId
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -43,20 +43,20 @@ scabbard {
     fullBindingGraphValidation true
 }
 
-//protobuf {
-//    protoc {
-//        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJavaVersion.get()}"
-//    }
-//    generateProtoTasks {
-//        all().forEach { task ->
-//            task.builtins {
-//                create("java") {
-//                    option("lite")
-//                }
-//            }
-//        }
-//    }
-//}
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJavaVersion.get()}"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
 
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
@@ -70,8 +70,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 8600
-        versionName "0.86.0"
+        versionCode 8700
+        versionName "0.87.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -148,9 +148,9 @@ dependencies {
     implementation libs.fragment
     implementation libs.preference
     implementation libs.security.crypto
-//    implementation libs.datastore
-//    implementation libs.protobuf
-//    implementation libs.tink
+    implementation libs.datastore
+    implementation libs.protobuf
+    implementation libs.tink
     implementation libs.material
     implementation libs.gson
     implementation libs.dagger.android.support
