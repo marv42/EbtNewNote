@@ -20,7 +20,6 @@ import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -107,15 +106,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (isDualPane()) {
-            submitFragment = (SubmitFragment) getSupportFragmentManager().findFragmentById(R.id.submit_fragment_container_view);
-            resultsFragment = (ResultsFragment) getSupportFragmentManager().findFragmentById(R.id.results_fragment_container_view);
-        }
-    }
-
     private void setLayout() {
         WindowCompat.enableEdgeToEdge(getWindow());
         applyStyle();
@@ -143,10 +133,18 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setupFragmentsInitially() {
+        createFragments();
         if (isDualPane())
             setupFragmentsInitiallyDualPane();
         else
             setupFragmentsInitiallyNoDualPane();
+    }
+
+    private void createFragments() {
+        if (submitFragment == null)
+            submitFragment = new SubmitFragment();
+        if (resultsFragment == null)
+            resultsFragment = new ResultsFragmentEmpty();
     }
 
     private void setupFragmentsInitiallyDualPane() {
@@ -159,19 +157,27 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void addSubmitFragment() {
+        final Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.submit_fragment_container_view);
+        if (fragment != null)
+            return;
         final String tag = getFragmentTag(SUBMIT_FRAGMENT_INDEX);
-        commitFragmentManagerAddTransaction(R.id.submit_fragment_container_view, SubmitFragment.class, tag);
+        addFragment(R.id.submit_fragment_container_view, SubmitFragment.class, tag);
     }
 
     private void addResultsFragment() {
+        final Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.results_fragment_container_view);
+        if (fragment != null)
+            return;
         final String tag = getFragmentTag(RESULTS_FRAGMENT_INDEX);
-        commitFragmentManagerAddTransaction(R.id.results_fragment_container_view, ResultsFragmentEmpty.class, tag);
+        Class<? extends ResultsFragment> resultsFragmentClass;
+        if (isResultsEmpty)
+            resultsFragmentClass = ResultsFragmentEmpty.class;
+        else
+            resultsFragmentClass = ResultsFragmentData.class;
+        addFragment(R.id.results_fragment_container_view, resultsFragmentClass, tag);
     }
 
-    private void commitFragmentManagerAddTransaction(int containerViewId, Class<? extends Fragment> fragmentClass, String tag) {
-//        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-//        if (fragment != null)
-//            throw new IllegalArgumentException("fragment already added");
+    private void addFragment(int containerViewId, Class<? extends Fragment> fragmentClass, String tag) {
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .add(containerViewId, fragmentClass, null, tag)
@@ -186,6 +192,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private void setupViewPager() {
         MyFragmentStateAdapter adapter = new MyFragmentStateAdapter();
         ViewPager2 viewPager = getViewPager();
+        if (viewPager == null)
+            return;
         viewPager.setAdapter(adapter);
     }
 
@@ -206,21 +214,23 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private void setupResultsObserver() {
         ResultsViewModel viewModel = viewModelProvider.get(ResultsViewModel.class);
         viewModel.getResults().observe(this, resultsObserver -> {
-            if (! resultsObserver.isEmpty())
-                if (isDualPane())
-                    replaceResultsFragment();
-                else
-                    isResultsEmpty = false;
+            if (! resultsObserver.isEmpty()) {
+                replaceEmptyResultsFragment();
+                isResultsEmpty = false;
+            }
         });
     }
 
-    private void replaceResultsFragment() {
+    private void replaceEmptyResultsFragment() {
         if (resultsFragment instanceof ResultsFragmentData)
             return;
-        getSupportFragmentManager().beginTransaction()
-            .setReorderingAllowed(true)
-            .replace(R.id.results_fragment_container_view, ResultsFragmentData.class, null)
-            .commit();
+        if (isDualPane())
+            getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.results_fragment_container_view, ResultsFragmentData.class, null)
+                .commit();
+        else
+            resultsFragment = new ResultsFragmentData();
     }
 
     @Override
@@ -432,9 +442,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
         public Fragment createFragment(int position) {
             switch (position) {
                 case SUBMIT_FRAGMENT_INDEX -> {
-                    submitFragment = new SubmitFragment(); return submitFragment; }
+                    return submitFragment; }
                 case RESULTS_FRAGMENT_INDEX -> {
-                    resultsFragment = isResultsEmpty ? new ResultsFragmentEmpty() : new ResultsFragmentData();
                     return resultsFragment; }
                 default -> throw new IllegalArgumentException("position");
             }
