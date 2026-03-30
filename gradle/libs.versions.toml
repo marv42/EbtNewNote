@@ -60,7 +60,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
 picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picassoVersion" }
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceVersion" }
-#protobuf = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufVersion"}
+protobuf = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufVersion"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
 #scabbard = { group = "dev.arunkumar", name = "scabbard-processor", version.ref = "scabbardVersion" }
 #scabbard-plugin = { group = "gradle.plugin.dev.arunkumar", name = "scabbard-gradle-plugin", version.ref = "scabbardVersion" }
