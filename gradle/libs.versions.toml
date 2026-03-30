@@ -47,7 +47,7 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 core = { group = "androidx.core", name = "core", version.ref = "coreVersion" }
 cyclonedx-gradle-plugin = { group = "org.cyclonedx", name = "cyclonedx-gradle-plugin", version.ref = "cyclonedxVersion" }
 dagger-android-support = { group = "com.google.dagger", name = "dagger-android-support", version.ref = "daggerVersion" }
-#datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastoreVersion" }
+datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastoreVersion" }
 dependency-check-plugin = { group = "org.owasp", name = "dependency-check-gradle", version.ref = "dependencyCheckVersion" }
 exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }
 fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentVersion" }
