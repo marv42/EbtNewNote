@@ -17,7 +17,7 @@ apply plugin: libs.plugins.cyclonedx.get().pluginId
 apply plugin: libs.plugins.dependencycheck.get().pluginId
 apply plugin: libs.plugins.likethesalad.get().pluginId
 apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-/
-apply plugin: libs.plugins.protobuf.get().pluginId
+//apply plugin: libs.plugins.protobuf.get().pluginId
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -43,26 +43,26 @@ scabbard {
     fullBindingGraphValidation true
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJavaVersion.get()}"
-    }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                create("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
-}
+//protobuf {
+//    protoc {
+//        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJavaVersion.get()}"
+//    }
+//    generateProtoTasks {
+//        all().forEach { task ->
+//            task.builtins {
+//                create("java") {
+//                    option("lite")
+//                }
+//            }
+//        }
+//    }
+//}
 
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
 //    F-Droid needs a static version
 //    def majorVersion = 0
-//    def minorVersion = 80
+//    def minorVersion = 0
 //    def patchVersion = 0
     namespace marv42EbtNewNote
 
