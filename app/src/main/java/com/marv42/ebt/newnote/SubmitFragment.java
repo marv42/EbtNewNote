@@ -398,7 +398,7 @@ public class SubmitFragment extends DaggerFragment {
             return;
         binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
                 android.R.layout.simple_dropdown_item_1line, suggestions));
-        Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
+        // Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
     }
 
     private class LocationTextWatcher implements TextWatcher {
