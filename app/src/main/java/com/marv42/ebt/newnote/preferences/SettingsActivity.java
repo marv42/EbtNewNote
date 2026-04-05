@@ -189,7 +189,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 ocrKeyPreference.setEnabled(false);
                 String ocrKey = getOcrServiceKey();
                 if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                    ocrKeyPreference.setText(Keys.OCR_SERVICE);
+                    ocrKey = Keys.OCR_SERVICE;
+                ocrKeyPreference.setText(ocrKey);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
@@ -198,10 +199,10 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void checkCountryKey() {
             try {
                 String countryKey = dataStore.get(R.string.pref_settings_country_key, "");
-                if (countryKey.isEmpty() && !Keys.COUNTRY_SERVICE.isEmpty()) {
-                    EditTextPreference countryPreference = (EditTextPreference) getPreference(R.string.pref_settings_country_key);
-                    countryPreference.setText(Keys.COUNTRY_SERVICE);
-                }
+                if (countryKey.isEmpty() && !Keys.COUNTRY_SERVICE.isEmpty())
+                    countryKey = Keys.COUNTRY_SERVICE;
+                EditTextPreference countryPreference = (EditTextPreference) getPreference(R.string.pref_settings_country_key);
+                countryPreference.setText(countryKey);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
@@ -265,8 +266,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                     throw new NoPreferenceException("No preference for " + key);
                 Preference serviceKeyPreference = getPreference(R.string.pref_settings_ocr_service_key);
                 serviceKeyPreference.setEnabled(preference.isChecked());
-                Preference postponeOcrPreference = getPreference(R.string.pref_settings_ocr_postpone_key);
-                postponeOcrPreference.setEnabled(preference.isChecked());
+//                Preference postponeOcrPreference = getPreference(R.string.pref_settings_ocr_postpone_key);
+//                postponeOcrPreference.setEnabled(preference.isChecked());
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
