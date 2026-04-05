@@ -38,7 +38,9 @@ public class IntEditTextPreference extends EditTextPreference {
     @Override
     protected boolean persistString(String value) {
         try {
-            Integer.parseInt(value);
+            int i = Integer.parseInt(value);
+            if (i > MAX_SAVE_NUM)
+                value = String.valueOf(MAX_SAVE_NUM);
             return super.persistString(value);
         } catch (NumberFormatException e) {
             Log.w(TAG, e.getMessage());
