@@ -107,7 +107,8 @@ public class FetchAddressIntentService extends DaggerIntentService {
         String countryName = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             countryName = new CountryCodeLocal().convert(countryCode);
-        } else {
+        }
+        if (countryName.isEmpty()) {
             try {
                 String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
                 countryName = new CountryCode().convert(countryCode, apiKey);
