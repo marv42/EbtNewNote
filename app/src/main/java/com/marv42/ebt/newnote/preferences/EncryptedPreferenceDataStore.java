@@ -8,6 +8,7 @@
 
 package com.marv42.ebt.newnote.preferences;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 
@@ -17,6 +18,7 @@ import androidx.preference.PreferenceDataStore;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
+import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 import com.marv42.ebt.newnote.ThisApp;
 
 import java.io.IOException;
@@ -33,17 +35,26 @@ import static androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncrypt
 import static androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM;
 import static androidx.security.crypto.MasterKey.DEFAULT_MASTER_KEY_ALIAS;
 
+import kotlin.coroutines.EmptyCoroutineContext;
+import kotlinx.coroutines.BuildersKt;
+
 public class EncryptedPreferenceDataStore extends PreferenceDataStore {
 
-    private static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "ebt_new_note_encrypted_shared_prefs";
+    static final String ENCRYPTED_SHARED_PREFERENCES_FILE_NAME = "ebt_new_note_encrypted_shared_prefs";
 //    private static final String MASTER_KEY_ALIAS = "ebt_new_note_master_key";
     private static final int KEY_SIZE = 256;
     private final ThisApp app;
     private SharedPreferences sharedPreferences;
+    private DataStoreRepository dataStoreRepository;
 
     @Inject
     public EncryptedPreferenceDataStore(ThisApp app) {
         this.app = app;
+        initializeSharedPreferences();
+        createDataStoreRepository();
+    }
+
+    private void initializeSharedPreferences() {
         try {
             sharedPreferences = EncryptedSharedPreferences.create(app,
                     ENCRYPTED_SHARED_PREFERENCES_FILE_NAME,
@@ -51,6 +62,17 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
         } catch (GeneralSecurityException | IOException e) {
             sharedPreferences = getDefaultSharedPreferences(app);
         }
+    }
+
+    private void createDataStoreRepository() {
+        final Context context = app.getApplicationContext();
+        try {
+            StreamingAeadConfig.register();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+        CryptoManager cryptoManager = new CryptoManager(context);
+        dataStoreRepository = new DataStoreRepository(context, cryptoManager);
     }
 
     private MasterKey getMasterKey() throws GeneralSecurityException, IOException {
@@ -91,39 +113,76 @@ public class EncryptedPreferenceDataStore extends PreferenceDataStore {
         return value;
     }
 
-//    <T> void set(int keyId, T value) {
-//        set(app.getString(keyId), value);
-//    }
-
-//    <T> void set(String key, T value) {
-//        if (value instanceof String)
-//            putString(key, (String) value);
-//        else if (value instanceof Boolean)
-//            putBoolean(key, (Boolean) value);
-//        else if (value instanceof Integer)
-//            putInt(key, (Integer) value);
-//        else
-//            throw new IllegalArgumentException("Value " + value + " is instance of unhandled class");
-//    }
+    // setting happens through PreferenceDataStore via putSomething(key, value)
 
     @Nullable
     @Override
     public String getString(String key, @Nullable String defValue) {
-        return sharedPreferences.getString(key, defValue);
+        final String value = sharedPreferences.getString(key, defValue);
+        putStringToProtoDataStore(key, value != null ? value : "");  // migrating
+        return getStringFromProtoDataStore(key, defValue);
     }
 
     @Override
     public void putString(String key, @Nullable String value) {
+        putStringToProtoDataStore(key, value);
         sharedPreferences.edit().putString(key, value).apply();
     }
 
     @Override
     public boolean getBoolean(String key, boolean defValue) {
-        return sharedPreferences.getBoolean(key, defValue);
+        final boolean value = sharedPreferences.getBoolean(key, defValue);
+        putBooleanToProtoDataStore(key, value);  // migrating
+        return getBooleanFromProtoDataStore(key, defValue);
     }
 
     @Override
     public void putBoolean(String key, boolean value) {
+        putBooleanToProtoDataStore(key, value);
         sharedPreferences.edit().putBoolean(key, value).apply();
+    }
+
+    private String getStringFromProtoDataStore(String key, String defValue) {
+        try {
+            return BuildersKt.runBlocking(
+                    EmptyCoroutineContext.INSTANCE,
+                    (scope, continuation) -> dataStoreRepository.getString(key, continuation)
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void putStringToProtoDataStore(String key, String value) {
+        try {
+            BuildersKt.runBlocking(
+                    EmptyCoroutineContext.INSTANCE,
+                    (scope, continuation) -> dataStoreRepository.putString(key, value, continuation)
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean getBooleanFromProtoDataStore(String key, boolean defValue) {
+        try {
+            return BuildersKt.runBlocking(
+                    EmptyCoroutineContext.INSTANCE,
+                    (scope, continuation) -> dataStoreRepository.getBoolean(key, continuation)
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void putBooleanToProtoDataStore(String key, boolean value) {
+        try {
+            BuildersKt.runBlocking(
+                    EmptyCoroutineContext.INSTANCE,
+                    (scope, continuation) -> dataStoreRepository.putBoolean(key, value, continuation)
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

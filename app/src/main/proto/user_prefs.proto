@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "com.marv42.ebt.newnote";
+option java_multiple_files = true;
+message UserPreferences {
+  // old file: /data/data/com.marv42.ebt.newnote/shared_prefs/ebt_new_note_encrypted_shared_prefs.xml
+  bool pref_settings_ocr_online = 1;
+  bool pref_settings_images = 2;
+  string pref_settings_show_submitted = 3;
+  string pref_settings_ocr_service = 4;
+  string pref_settings_country = 5;
+  string pref_settings_email = 6;
+  string pref_settings_password = 7;
+  string pref_settings_comment = 8;
+}

@@ -29,7 +29,7 @@ plugins {
     alias libs.plugins.dependencycheck apply false
     alias libs.plugins.likethesalad apply false
     alias libs.plugins.scabbard apply false
-//    alias libs.plugins.protobuf apply false
+    alias libs.plugins.protobuf apply false
 }
 
 //afterEvaluate {

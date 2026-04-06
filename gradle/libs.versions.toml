@@ -24,19 +24,20 @@ materialVersion = "1.13.0"
 okhttpVersion = "5.3.2"
 picassoVersion = "2.8"
 preferenceVersion = "1.2.1"
-protobufVersion = "4.34.0"
+protobufJavaVersion = "4.34.1"
 recyclerviewVersion = "1.4.0"
 scabbardVersion = "0.5.0"
 securityCryptoVersion = "1.1.0"
 tesseract4androidOpenmpVersion = "4.8.0"
-tinkVersion = "1.20.0"
+tinkVersion = "1.21.0"
 workRuntimeVersion = "2.11.1"
 
 # plugins
 # Minimum AGP versions: https://developer.android.com/build/releases/gradle-plugin#api-level-support
-gradlePluginVersion = "8.9.2"
+gradlePluginVersion = "8.9.3"
 kotlinGradlePluginVersion = "2.3.10"
 likethesaladPluginVersion = "2.11.0"
+protobufVersion = "0.9.6"
 
 [libraries]
 aboutlibraries = { group = "com.mikepenz", name = "aboutlibraries", version.ref = "aboutlibrariesVersion" }
@@ -60,7 +61,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
 picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picassoVersion" }
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceVersion" }
-protobuf = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufVersion"}
+protobuf-java = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavaVersion"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
 #scabbard = { group = "dev.arunkumar", name = "scabbard-processor", version.ref = "scabbardVersion" }
 #scabbard-plugin = { group = "gradle.plugin.dev.arunkumar", name = "scabbard-gradle-plugin", version.ref = "scabbardVersion" }
@@ -76,3 +77,4 @@ dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyC
 likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladPluginVersion" }
 scabbard = { id = "scabbard.gradle", version.ref = "scabbardVersion" }
 #scabbard = { id = "gradle.plugin.dev.arunkumar", version.ref = "scabbardVersion" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion"}
