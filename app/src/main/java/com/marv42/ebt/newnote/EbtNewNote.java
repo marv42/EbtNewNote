@@ -100,6 +100,11 @@ public class EbtNewNote extends DaggerAppCompatActivity
         sharedPreferencesListener.register();
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        // do not call super.onSaveInstanceState, or we will end up with multiple fragments (https://stackoverflow.com/a/14578709/542235)
+    }
+
     private void requestNotificationsPermissions() {
         if (PermissionChecker.checkSelfPermission(this, NOTIFICATION_SERVICE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, NOTIFICATIONS_PERMISSION_REQUEST_CODE);
@@ -346,7 +351,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
                     } else {
 //                        if (dataStore.get(R.string.pref_settings_ocr_postpone_key, false)) {
 //                            Toast.makeText(this, getString(R.string.sending_later), Toast.LENGTH_SHORT).show();
-//                            // TODO remember picture data and wait for connectivity in the background, cf. https://stackoverflow.com/a/7374522/542235
+//                            // TODO remember picture data and wait for connectivity in the background, https://stackoverflow.com/a/7374522/542235
 //                        } else
                             OcrNotifier.showDialog(this, errorMessage);
                             triedAgain = false;
@@ -441,10 +446,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
-                case SUBMIT_FRAGMENT_INDEX -> {
-                    return submitFragment; }
-                case RESULTS_FRAGMENT_INDEX -> {
-                    return resultsFragment; }
+                case SUBMIT_FRAGMENT_INDEX -> { return submitFragment; }
+                case RESULTS_FRAGMENT_INDEX -> { return resultsFragment; }
                 default -> throw new IllegalArgumentException("position");
             }
         }
