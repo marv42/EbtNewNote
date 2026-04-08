@@ -1,2 +1,3 @@
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable
+-dontobfuscate

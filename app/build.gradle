@@ -71,8 +71,8 @@ android {
         applicationId marv42EbtNewNote
 //        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
 //        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 8800
-        versionName "0.88.0"
+        versionCode 8900
+        versionName "0.89.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -82,9 +82,8 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules-acra.pro", "proguard-rules-gson.pro"
+                    "proguard-rules-acra.pro", "proguard-rules-gson.pro", "proguard-rules.pro"
             signingConfig signingConfigs.debug
         }
         debug {
