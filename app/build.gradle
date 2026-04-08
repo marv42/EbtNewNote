@@ -31,16 +31,19 @@ cyclonedxBom {
 }
 
 dependencyCheck {
+    // failBuildOnCVSS = 9.0
     nvd {
         apiKey="597e202d-30eb-4fb5-bd4e-5bfb1264de21"
     }
 }
+// https://dependency-check.github.io/DependencyCheck/dependency-check-gradle/configuration.html
+check.dependsOn dependencyCheckAnalyze
 
 scabbard {
-    enabled !gradle.startParameter.toString().contains("assembleRelease")
-    outputFormat "svg" // we got png anyway :-/
-    failOnError true
-    fullBindingGraphValidation true
+    enabled = !gradle.startParameter.toString().contains("assembleRelease")
+    outputFormat = "svg" // we got png anyway :-/
+    failOnError = true
+    fullBindingGraphValidation = true
 }
 
 protobuf {
@@ -65,31 +68,29 @@ android {
 //    def majorVersion = 0
 //    def minorVersion = 0
 //    def patchVersion = 0
-    namespace marv42EbtNewNote
+    namespace = marv42EbtNewNote
 
     defaultConfig {
-        applicationId marv42EbtNewNote
-//        versionCode majorVersion * 10000 + minorVersion * 100 + patchVersion
-//        versionName "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode 8900
-        versionName "0.89.0"
+        applicationId = marv42EbtNewNote
+//        versionCode = majorVersion * 10000 + minorVersion * 100 + patchVersion
+//        versionName = "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
+        versionCode = 8900
+        versionName = "0.89.0"
         minSdkVersion libs.versions.minSdk.get().toInteger()
-        compileSdk libs.versions.compileSdk.get().toInteger()
+        compileSdk = libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
-        multiDexEnabled true
+        multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules-acra.pro", "proguard-rules-gson.pro", "proguard-rules.pro"
             signingConfig signingConfigs.debug
         }
         debug {
-            debuggable true
-            minifyEnabled false
-            shrinkResources false
+            debuggable = true
         }
     }
 
@@ -111,8 +112,8 @@ android {
     }
 
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
 
     configurations.configureEach {

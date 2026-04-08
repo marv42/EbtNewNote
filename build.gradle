@@ -8,7 +8,7 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "${libs.versions.compileSdk.get().toInteger()}.0.0"
+        buildToolsVersion = "${libs.versions.compileSdk.get().toInteger()}.1.0"
     }
     repositories {
         mavenCentral()
@@ -42,7 +42,7 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-        maven { url 'https://jitpack.io' }
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://jitpack.io" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
 }
