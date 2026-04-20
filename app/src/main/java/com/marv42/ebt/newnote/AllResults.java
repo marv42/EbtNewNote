@@ -44,7 +44,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         this.app = app;
         this.viewModelProvider = viewModelProvider;
         this.dataStore = dataStore;
-        registerOnSharedPreferenceChangeListener(); // no unregister (activity scope)
+        registerOnSharedPreferenceChangeListener();  // no unregister (activity scope)
         initResults();
         setResultsToViewModel();
     }
@@ -83,7 +83,10 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     }
 
     private boolean isSuccessfulAccordingToReason(JsonObject jsonObject) {
-        final String reason = jsonObject.get("mReason").getAsString();
+        final String r = "mReason";
+        if (!jsonObject.has(r))
+            return false;
+        final String reason = jsonObject.get(r).getAsString();
         return reason.equals(app.getString(R.string.has_been_entered)) ||
                 reason.equals(app.getString(R.string.got_hit));
     }
