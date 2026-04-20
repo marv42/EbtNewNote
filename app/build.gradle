@@ -64,18 +64,12 @@ protobuf {
 
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
-//    F-Droid needs a static version
-//    def majorVersion = 0
-//    def minorVersion = 0
-//    def patchVersion = 0
     namespace = marv42EbtNewNote
 
     defaultConfig {
         applicationId = marv42EbtNewNote
-//        versionCode = majorVersion * 10000 + minorVersion * 100 + patchVersion
-//        versionName = "${majorVersion.toString()}.${minorVersion.toString()}.${patchVersion.toString()}"
-        versionCode = 8900
-        versionName = "0.89.0"
+        versionCode = libs.versions.code.get().toInteger()
+        versionName = "${libs.versions.name.get()}"
         minSdkVersion libs.versions.minSdk.get().toInteger()
         compileSdk = libs.versions.compileSdk.get().toInteger()
         targetSdkVersion libs.versions.targetSdk.get().toInteger()
@@ -137,28 +131,28 @@ allprojects {
 }
 
 dependencies {
-    implementation libs.kotlinx.coroutines.core
-//    implementation libs.work.runtime
-//    implementation libs.lifecycle.runtime
-    implementation libs.acra.mail
-    implementation libs.acra.toast
-    implementation libs.core
-    implementation libs.appcompat
-    implementation libs.recyclerview
-    implementation libs.exifinterface
-    implementation libs.fragment
-    implementation libs.preference
-    implementation libs.security.crypto
-    implementation libs.datastore
-    implementation libs.protobuf.java
-    implementation libs.tink
-    implementation libs.material
-    implementation libs.gson
-    implementation libs.dagger.android.support
-    annotationProcessor "com.google.dagger:dagger-compiler:${libs.versions.daggerVersion.get()}"
-    annotationProcessor "com.google.dagger:dagger-android-processor:${libs.versions.daggerVersion.get()}"
-    implementation libs.aboutlibraries
-    implementation libs.okhttp
-    implementation libs.picasso
-    implementation libs.tesseract4android.openmp
+    implementation(libs.kotlinx.coroutines.core)
+//    implementation(libs.work.runtime)
+//    implementation(libs.lifecycle.runtime)
+    implementation(libs.acra.mail)
+    implementation(libs.acra.toast)
+    implementation(libs.core)
+    implementation(libs.appcompat)
+    implementation(libs.recyclerview)
+    implementation(libs.exifinterface)
+    implementation(libs.fragment)
+    implementation(libs.preference)
+    implementation(libs.security.crypto)
+    implementation(libs.datastore)
+    implementation(libs.protobuf.java)
+    implementation(libs.tink)
+    implementation(libs.material)
+    implementation(libs.gson)
+    implementation(libs.dagger.android.support)
+    annotationProcessor("com.google.dagger:dagger-compiler:${libs.versions.daggerVersion.get()}")
+    annotationProcessor("com.google.dagger:dagger-android-processor:${libs.versions.daggerVersion.get()}")
+    implementation(libs.aboutlibraries)
+    implementation(libs.okhttp)
+    implementation(libs.picasso)
+    implementation(libs.tesseract4android.openmp)
 }

@@ -1,7 +1,6 @@
 [versions]
-#major = "0"
-#minor = "xx"
-#patch = "0"
+code = "9000"
+name = "0.90.0"
 minSdk = "33"
 compileSdk = "36"
 targetSdk = "36"
@@ -77,4 +76,4 @@ dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyC
 likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladPluginVersion" }
 scabbard = { id = "scabbard.gradle", version.ref = "scabbardVersion" }
 #scabbard = { id = "gradle.plugin.dev.arunkumar", version.ref = "scabbardVersion" }
-protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion"}
+protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
