@@ -101,11 +101,10 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     }
 
     private fun getJsonList(allComments: JSONArray?): MutableList<JSONObject> {
-        val list: MutableList<JSONObject> = ArrayList()
-        var i = 0
-        while (allComments != null && i < allComments.length()) {
-            list.add(allComments.optJSONObject(i))
-            ++i
+        val list = mutableListOf<JSONObject>()
+        allComments?.let { comments ->
+            for (i in 0 until comments.length())
+                comments.optJSONObject(i)?.let(list::add)
         }
         return list
     }

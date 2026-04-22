@@ -235,9 +235,7 @@ public class ResultsFragmentData extends ResultsFragment {
     }
 
     private String getReason(SubmissionResult result) {
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
+        Activity activity = requireActivity();
         return result.isSuccessful() ?
                 getColoredString(getString(R.string.insertion) + " " + getString(R.string.successful),
                         getColor(activity, R.color.success)) :
@@ -300,9 +298,7 @@ public class ResultsFragmentData extends ResultsFragment {
     private void startNewNote(NoteData noteData) {
         if (noteData == null)
             return;
-        Activity activity = getActivity();
-        if (activity == null)
-            throw new IllegalStateException("No activity");
+        Activity activity = requireActivity();
         setSubmitFragmentValues(noteData);
         ((Callback) activity).switchFragment(SUBMIT_FRAGMENT_INDEX);
     }

@@ -397,9 +397,7 @@ public class SubmitFragment extends DaggerFragment {
     }
 
     void setCommentsAdapter(String[] suggestions) {
-        Activity activity = getActivity();
-        if (activity == null)
-            return;
+        Activity activity = requireActivity();
         binding.editTextComment.setAdapter(new ArrayAdapter<>(activity,
                 android.R.layout.simple_dropdown_item_1line, suggestions));
         // Toast.makeText(activity, R.string.comment_suggestions_set, LENGTH_SHORT).show();
