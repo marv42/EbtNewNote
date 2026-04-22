@@ -193,9 +193,9 @@ public class ResultsFragmentData extends ResultsFragment {
     }
 
     private void addGroupData(List<Map<String, String>> groupData, SubmissionResult sr) {
-        String denomination = sr.mNoteData.mDenomination;
+        String denomination = unNullify(sr.mNoteData.mDenomination);
         String denominationUrl = getString(R.string.ebt_url) + "img/bills/ebt" + denomination.replace(" €", "") + "b.gif";
-        String serialNumber = sr.mNoteData.mSerialNumber;
+        String serialNumber = unNullify(sr.mNoteData.mSerialNumber);
         String result = sr.getResult(getActivity());
         boolean keep = ! sr.mRemovable;
         Map<String, String> groupMap = getGroupMap(denomination, denominationUrl, serialNumber, result, keep);
@@ -228,7 +228,7 @@ public class ResultsFragmentData extends ResultsFragment {
     private void addChildData(List<List<Map<String, String>>> childData, SubmissionResult sr) {
         String reason = getReason(sr);
         String note = getNoteString(sr);
-        String comment = getString(R.string.comment) + ": " + sr.mNoteData.mComment;
+        String comment = getString(R.string.comment) + ": " + unNullify(sr.mNoteData.mComment);
         String location = getString(R.string.location) + ": " + getLocation(sr.mNoteData);
         List<Map<String, String>> children = getChildMap(reason, note, comment, location);
         childData.add(children);
@@ -245,18 +245,23 @@ public class ResultsFragmentData extends ResultsFragment {
 
     @NonNull
     private String getNoteString(SubmissionResult sr) {
-        String denomination = sr.mNoteData.mDenomination;
-        String sn = sr.mNoteData.mSerialNumber;
+        String denomination = unNullify(sr.mNoteData.mDenomination);
+        String sn = unNullify(sr.mNoteData.mSerialNumber);
         String serialNumber = sn.isEmpty() ? "" : ", " + sn;
-        String sc = sr.mNoteData.mShortCode;
+        String sc = unNullify(sr.mNoteData.mShortCode);
         String shortCode = sc.isEmpty() ? "" : ", " + sc;
         return getString(R.string.note) + ": " + denomination + serialNumber + shortCode;
     }
 
     private String getLocation(NoteData noteData) {
-        String postalCode = noteData.mPostalCode;
+        String postalCode = unNullify(noteData.mPostalCode);
         postalCode = postalCode.isEmpty() ? " " : " (" + postalCode + ") ";
-        return noteData.mCity + postalCode + noteData.mCountry;
+        return unNullify(noteData.mCity) + postalCode + unNullify(noteData.mCountry);
+    }
+
+    @NonNull
+    private static String unNullify(@Nullable String value) {
+        return value == null ? "" : value;
     }
 
     @NotNull
