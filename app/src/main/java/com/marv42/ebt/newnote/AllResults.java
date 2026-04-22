@@ -62,6 +62,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         JsonArray array = parseString(resultsFromPreferences).getAsJsonArray();
         updateResults(array);
         results = new Gson().fromJson(array, new TypeToken<ArrayList<SubmissionResult>>() {}.getType());
+        results.removeIf(result -> result == null || result.mNoteData == null);
     }
 
     private String loadFromPreferences() {
@@ -84,9 +85,38 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             final String successful = "mSuccessful";
             if (!jsonObject.has(successful))
                 jsonObject.addProperty(successful, successfulAccordingToReason);
-            if (!jsonObject.has("mNoteData") || !jsonObject.has("mBillId"))
+            if (!isValid(jsonObject)) {
                 it.remove();
+                continue;
+            }
+            sanitizeNoteData(jsonObject.getAsJsonObject("mNoteData"));
         }
+    }
+
+    private boolean isValid(@NonNull JsonObject jsonObject) {
+        final String noteData = "mNoteData";
+        final String billId = "mBillId";
+        if (!jsonObject.has(noteData) || !jsonObject.has(billId))
+            return false;
+        JsonElement noteDataElement = jsonObject.get(noteData);
+        JsonElement billIdElement = jsonObject.get(billId);
+        return !noteDataElement.isJsonNull() && noteDataElement.isJsonObject() &&
+                !billIdElement.isJsonNull();
+    }
+
+    private void sanitizeNoteData(@NonNull JsonObject noteData) {
+        sanitizeField(noteData, "mCountry");
+        sanitizeField(noteData, "mCity");
+        sanitizeField(noteData, "mPostalCode");
+        sanitizeField(noteData, "mDenomination");
+        sanitizeField(noteData, "mShortCode");
+        sanitizeField(noteData, "mSerialNumber");
+        sanitizeField(noteData, "mComment");
+    }
+
+    private void sanitizeField(@NonNull JsonObject noteData, @NonNull String key) {
+        if (!noteData.has(key) || noteData.get(key).isJsonNull())
+            noteData.addProperty(key, "");
     }
 
     private boolean isSuccessfulAccordingToReason(@NonNull JsonObject jsonObject) {
