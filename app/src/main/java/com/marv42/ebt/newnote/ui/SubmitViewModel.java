@@ -31,7 +31,7 @@ public class SubmitViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public void setNoteData(NoteData noteData)
+    public void setNoteData(@NonNull NoteData noteData)
     {
         setCountry(noteData.mCountry);
         setCity(noteData.mCity);

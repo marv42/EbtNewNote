@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class Corrections {
@@ -31,7 +32,7 @@ public class Corrections {
         s = removeWhitespaces(s);
         s = correctChars(s);
         s = findPattern(s);
-        return s.toUpperCase();
+        return s.toUpperCase(Locale.ROOT);
     }
 
     private static String removeWhitespaces(String s) {

@@ -298,6 +298,8 @@ public class ResultsFragmentData extends ResultsFragment {
     }
 
     private void startNewNote(NoteData noteData) {
+        if (noteData == null)
+            return;
         Activity activity = getActivity();
         if (activity == null)
             throw new IllegalStateException("No activity");
@@ -306,6 +308,8 @@ public class ResultsFragmentData extends ResultsFragment {
     }
 
     private void setSubmitFragmentValues(NoteData noteData) {
+        if (noteData == null)
+            return;
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
         viewModel.setNoteData(noteData);
     }

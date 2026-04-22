@@ -1,6 +1,6 @@
 [versions]
-code = "9000"
-name = "0.90.0"
+code = "9100"
+name = "0.91.0"
 minSdk = "33"
 compileSdk = "36"
 targetSdk = "36"
@@ -74,6 +74,6 @@ aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedxVersion" }
 dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyCheckVersion" }
 likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladPluginVersion" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 scabbard = { id = "scabbard.gradle", version.ref = "scabbardVersion" }
 #scabbard = { id = "gradle.plugin.dev.arunkumar", version.ref = "scabbardVersion" }
-protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }

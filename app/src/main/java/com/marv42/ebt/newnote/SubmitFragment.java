@@ -54,6 +54,8 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
+import java.util.Locale;
+
 public class SubmitFragment extends DaggerFragment {
 
     public interface Callback {
@@ -162,8 +164,8 @@ public class SubmitFragment extends DaggerFragment {
                 getCity(),
                 getPostalCode(),
                 getDenomination(),
-                getFixedShortCode().toUpperCase(),
-                getSerialNumber().toUpperCase(),
+                getFixedShortCode().toUpperCase(Locale.ROOT),
+                getSerialNumber().toUpperCase(Locale.ROOT),
                 binding.editTextComment.getText().toString());
         noteData = getNoteDataWithAdditionalComment(noteData);
         new NoteDataSubmitter(app, apiCaller, submissionResultHandler).execute(noteData);
@@ -216,6 +218,8 @@ public class SubmitFragment extends DaggerFragment {
     }
 
     private void setDenomination(String denomination) {
+        if (denomination == null)
+            return;
         if (denomination.equals(getString(R.string.eur5)))
             binding.radio5.setChecked(true);
         if (denomination.equals(getString(R.string.eur10)))
@@ -268,7 +272,7 @@ public class SubmitFragment extends DaggerFragment {
 
     private void putToClipboard(boolean serialNumberNotShortCode) throws NoClipboardManagerException {
         if (binding == null)
-            return; // TODO save (and replace) the text later
+            return; // TODO save (and replace the text later)
         EditText editText = serialNumberNotShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
         ClipboardManager manager = (ClipboardManager) app.getSystemService(CLIPBOARD_SERVICE);
         if (manager == null)
