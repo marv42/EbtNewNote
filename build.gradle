@@ -13,6 +13,7 @@ buildscript {
     repositories {
         mavenCentral()
         google()
+        gradlePluginPortal()
     }
     dependencies {
         classpath libs.androidGradlePlugin
@@ -31,12 +32,6 @@ plugins {
     alias libs.plugins.scabbard apply false
     alias libs.plugins.protobuf apply false
 }
-
-//afterEvaluate {
-    tasks.withType(JavaCompile).configureEach {
-        options.errorprone.disableWarningsInGeneratedCode = true
-    }
-//}
 
 allprojects {
     repositories {
