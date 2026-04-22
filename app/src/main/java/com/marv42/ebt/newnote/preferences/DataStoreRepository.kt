@@ -22,7 +22,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val USER_PREFERENCES_FILE_NAME = "user_prefs.pb"
+const val USER_PREFERENCES_FILE_NAME = "user_prefs.pb"
 
 @Singleton
 class DataStoreRepository @Inject constructor(

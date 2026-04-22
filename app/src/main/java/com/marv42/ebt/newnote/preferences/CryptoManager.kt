@@ -9,10 +9,12 @@
 package com.marv42.ebt.newnote.preferences
 
 import android.content.Context
+import android.util.Log
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.StreamingAead
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import kotlin.jvm.java
@@ -21,20 +23,52 @@ private const val KEYSET_NAME = "master_keyset"
 private const val PREFERENCES_FILE_NAME = "master_key_preference"
 private const val MASTER_KEY = "android-keystore://master_key"
 private const val AES256_GCM = "AES256_GCM_HKDF_4KB"
+private const val DATASTORE_DIR = "datastore"
 
 // https://proandroiddev.com/goodbye-encryptedsharedpreferences-a-2026-migration-guide-4b819b4a537a
 class CryptoManager(context: Context) {
-    private val aead = AndroidKeysetManager.Builder()
-        .withSharedPref(context, KEYSET_NAME, PREFERENCES_FILE_NAME)
-        .withKeyTemplate(KeyTemplates.get(AES256_GCM))
-        .withMasterKeyUri(MASTER_KEY)
-        .build()
-        .keysetHandle
-        .getPrimitive(RegistryConfiguration.get(), StreamingAead::class.java)
-    fun encrypt(outputStream: OutputStream): OutputStream {
-        return aead.newEncryptingStream(outputStream, ByteArray(0))
+    companion object {
+        private val TAG: String = CryptoManager::class.java.simpleName
     }
+
+    private val context = context.applicationContext
+    private val aead = createAead()
+
+    fun encrypt(outputStream: OutputStream): OutputStream {
+        return aead?.newEncryptingStream(outputStream, ByteArray(0)) ?: outputStream
+    }
+
     fun decrypt(inputStream: InputStream): InputStream {
-        return aead.newDecryptingStream(inputStream, ByteArray(0))
+        return aead?.newDecryptingStream(inputStream, ByteArray(0)) ?: inputStream
+    }
+
+    private fun createAead(): StreamingAead? {
+        return try {
+            buildAead()
+        } catch (e: Exception) {
+            Log.w(TAG, "Recreating encrypted state after keystore failure", e)
+            resetEncryptedState()
+            try {
+                buildAead()
+            } catch (e: Exception) {
+                Log.e(TAG, "Falling back to plaintext preferences after repeated keystore failure", e)
+                null
+            }
+        }
+    }
+
+    private fun buildAead(): StreamingAead {
+        return AndroidKeysetManager.Builder()
+            .withSharedPref(context, KEYSET_NAME, PREFERENCES_FILE_NAME)
+            .withKeyTemplate(KeyTemplates.get(AES256_GCM))
+            .withMasterKeyUri(MASTER_KEY)
+            .build()
+            .keysetHandle
+            .getPrimitive(RegistryConfiguration.get(), StreamingAead::class.java)
+    }
+
+    private fun resetEncryptedState() {
+        context.deleteSharedPreferences(PREFERENCES_FILE_NAME)
+        File(context.filesDir, "$DATASTORE_DIR/$USER_PREFERENCES_FILE_NAME").delete()
     }
 }

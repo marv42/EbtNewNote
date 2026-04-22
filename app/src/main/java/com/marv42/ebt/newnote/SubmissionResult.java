@@ -9,6 +9,7 @@
 package com.marv42.ebt.newnote;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.marv42.ebt.newnote.data.NoteData;
 
@@ -39,7 +40,9 @@ public class SubmissionResult {
     }
 
     boolean isAHit(Context context) {
-        return mReason.equals(context.getString(R.string.got_hit));
+        if (context == null)
+            throw new IllegalStateException("No activity");
+        return TextUtils.equals(mReason, context.getString(R.string.got_hit));
     }
 
     boolean isSuccessful() {
@@ -47,6 +50,8 @@ public class SubmissionResult {
     }
 
     String getResult(Context context) {
+        if (context == null)
+            throw new IllegalStateException("No activity");
         return isSuccessful() ?
                 getColoredString(isAHit(context) ?
                         context.getString(R.string.hit) : context.getString(R.string.successful),
@@ -58,6 +63,12 @@ public class SubmissionResult {
     static class SubmissionComparator implements Comparator<SubmissionResult> {
         @Override
         public int compare(SubmissionResult sr1, SubmissionResult sr2) {
+            if (sr1 == null && sr2 == null)
+                return 0;
+            if (sr1 == null)
+                return -1;
+            if (sr2 == null)
+                return 1;
             return sr1.mBillId - sr2.mBillId;
         }
     }

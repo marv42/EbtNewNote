@@ -69,9 +69,14 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         return getDefaultSharedPreferences(app).getString(key, "");
     }
 
-    private void updateResults(JsonArray array) {
-        for (JsonElement element : array) {
+    private void updateResults(@NonNull JsonArray array) {
+        Iterator<JsonElement> it = array.iterator();
+        while (it.hasNext()) {
+            JsonElement element = it.next();
             final JsonObject jsonObject = element.getAsJsonObject();
+            final String reason = "mReason";
+            if (!jsonObject.has(reason))
+                jsonObject.addProperty(reason, "");
             final boolean successfulAccordingToReason = isSuccessfulAccordingToReason(jsonObject);
             final String removable = "mRemovable";
             if (!jsonObject.has(removable))
@@ -79,10 +84,12 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
             final String successful = "mSuccessful";
             if (!jsonObject.has(successful))
                 jsonObject.addProperty(successful, successfulAccordingToReason);
+            if (!jsonObject.has("mNoteData") || !jsonObject.has("mBillId"))
+                it.remove();
         }
     }
 
-    private boolean isSuccessfulAccordingToReason(JsonObject jsonObject) {
+    private boolean isSuccessfulAccordingToReason(@NonNull JsonObject jsonObject) {
         final String r = "mReason";
         if (!jsonObject.has(r))
             return false;
