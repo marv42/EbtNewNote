@@ -38,7 +38,7 @@ class JsonAnalyzer {
         }
     }
 
-    // cf. https://ocr.space/ocrapi#Response
+    // https://ocr.space/ocrapi#Response
     @NotNull
     private static String extractResult(JSONObject json) throws OcrException, NoJsonElementException, CallResponseException {
         int exitCode = new JsonHelper(json).getElement(int.class, OCR_EXIT_CODE_ELEMENT);
@@ -51,7 +51,7 @@ class JsonAnalyzer {
             String errorDetails = new JsonHelper(json).getElement(String.class, ERROR_DETAILS_ELEMENT);
             throw new OcrException(errorMessage + " " + errorDetails);
         }
-        throw new CallResponseException("Undefined " + OCR_EXIT_CODE_ELEMENT);
+        throw new CallResponseException("Undefined " + OCR_EXIT_CODE_ELEMENT + ": " + exitCode);
     }
 
     private static String getResult(JSONArray parsedResults) throws CallResponseException, NoJsonElementException {

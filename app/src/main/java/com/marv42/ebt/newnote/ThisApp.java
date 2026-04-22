@@ -87,10 +87,7 @@ public class ThisApp extends DaggerApplication {
             broadcastReceiver = new LocationProviderChangedReceiver();
             IntentFilter filter = new IntentFilter(PROVIDERS_CHANGED_ACTION);
             filter.addAction(ACTION_PROVIDER_CHANGED);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                registerReceiver(broadcastReceiver, filter);
-            else
-                registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         }
     }
 

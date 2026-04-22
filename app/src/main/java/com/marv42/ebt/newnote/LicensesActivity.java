@@ -58,9 +58,4 @@ public class LicensesActivity extends DaggerAppCompatActivity {
         finish();
         return true;
     }
-
-    @Override
-    public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner, @NonNull Lifecycle.State state) {
-        // TODO not sure if something to do here
-    }
 }

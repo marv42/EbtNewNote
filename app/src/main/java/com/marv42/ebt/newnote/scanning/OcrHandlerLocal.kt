@@ -51,7 +51,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         if (tess!!.init(
                 filesPath,
                 TESS_DATA_LANGUAGE,
-                TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED)) {  // TODO Deprecated?
+                TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED)) {
             // https://pyimagesearch.com/2021/11/15/tesseract-page-segmentation-modes-psms-explained-how-to-improve-your-ocr-accuracy/
             tess!!.pageSegMode = TessBaseAPI.PageSegMode.PSM_AUTO
             return true
@@ -63,11 +63,13 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     private fun prepareTessData() {
         filesPath = File(context.getExternalFilesDir(null), "").absolutePath
         val filesDir = filesPath?.let { File(it) }
-        if (filesDir != null) {
+        if (filesDir != null)
             assert(filesDir.exists())
-        }
         val tessDataPath = File(filesDir, TESS_DATA_DIR)
-        if (tessDataPath.exists()) return else if (!tessDataPath.mkdir()) assert(tessDataPath.exists())
+        if (tessDataPath.exists())
+            return
+        else if (!tessDataPath.mkdir())
+            assert(tessDataPath.exists())
         copyTessData(tessDataPath)
     }
 
@@ -90,7 +92,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     }
 
     private fun doOcr(photoPath: String): String {
-        val image: ByteArray = PictureConverter(photoPath, ORIENTATION_UNDEFINED).scale(1024 * 1024.0)
+        val image: ByteArray = PictureConverter(photoPath, ORIENTATION_UNDEFINED).convertAndScale(1024 * 1024.0)
         val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
         tess!!.setImage(bitmap)
         setAllowInterruption()

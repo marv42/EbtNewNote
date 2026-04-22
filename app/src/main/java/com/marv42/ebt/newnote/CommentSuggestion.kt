@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -23,11 +23,22 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
-internal class CommentSuggestion(private val apiCaller: ApiCaller, private val callback: Callback, dataStore: EncryptedPreferenceDataStore) {
+internal class CommentSuggestion(private val apiCaller: ApiCaller, private val callback: Callback,
+                                 dataStore: EncryptedPreferenceDataStore) {
+    internal interface Callback {
+        fun onSuggestions(suggestions: Array<String?>?)
+    }
 
     private val additionalComment: String = dataStore.get(R.string.pref_settings_comment_key, "")
-            .replace("\u00a0", " ")
+            .replace(NO_BREAK_SPACE, " ")
     private val scope = MainScope()
+
+    companion object {
+        private const val DATA_ELEMENT = "data"
+        private const val AMOUNT_ELEMENT = "amount"
+        private const val COMMENT_ELEMENT = "comment"
+        private const val NO_BREAK_SPACE = "\u00a0"
+    }
 
     fun execute(locationValues: LocationValues) {
         scope.executeAsyncTask(
@@ -51,7 +62,7 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     private fun getSuggestions(locationValues: LocationValues): Array<String?> {
         val json = getJson(locationValues)
         val allSuggestions = json.optJSONArray(DATA_ELEMENT)
-        var uniques = getUniquesWrtAdditionalComments(allSuggestions)
+        var uniques = getUniquesWithRespectToAdditionalComments(allSuggestions)
         uniques = ArrayList(LinkedHashSet(uniques))
         return uniques.toTypedArray()
     }
@@ -75,12 +86,12 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
         }
     }
 
-    private fun getUniquesWrtAdditionalComments(allSuggestions: JSONArray?): List<String?> {
+    private fun getUniquesWithRespectToAdditionalComments(allSuggestions: JSONArray?): List<String?> {
         val suggestions = getJsonList(allSuggestions)
         suggestions.sortWith { j1: JSONObject, j2: JSONObject -> j2.optInt(AMOUNT_ELEMENT) - j1.optInt(AMOUNT_ELEMENT) }
         val uniques: MutableList<String?> = ArrayList()
         for (i in suggestions.indices) {
-            var value = suggestions[i].optString(COMMENT_ELEMENT).replace("\u00a0", " ")
+            var value = suggestions[i].optString(COMMENT_ELEMENT).replace(NO_BREAK_SPACE, " ")
             if (value.endsWith(additionalComment))
                 value = value.substring(0, value.length - additionalComment.length)
             if (value.isNotEmpty() && !uniques.contains(value))
@@ -116,8 +127,8 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
 
     private fun onPostExecute(s: Array<String?>?) {
         val context = callback as Context
-        if (s == null || s.isEmpty()) {
-            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_SHORT).show()
+        if (s.isNullOrEmpty()) {
+//            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_SHORT).show()
             return
         }
         if (s[0] == ErrorMessage.ERROR) {
@@ -125,15 +136,5 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
             return
         }
         callback.onSuggestions(s)
-    }
-
-    internal interface Callback {
-        fun onSuggestions(suggestions: Array<String?>?)
-    }
-
-    companion object {
-        private const val DATA_ELEMENT = "data"
-        private const val AMOUNT_ELEMENT = "amount"
-        private const val COMMENT_ELEMENT = "comment"
     }
 }

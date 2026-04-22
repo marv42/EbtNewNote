@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ public class CameraStarter {
         this.activity = activity;
     }
 
-    public boolean canTakePhoto(boolean showNoOnlineOcrServiceKeyDialog) {
+    public boolean canTakePhoto(boolean showDialogNoOnlineOcrServiceKey) {
         if (activity == null)
             throw new IllegalStateException("No activity");
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
@@ -66,7 +66,7 @@ public class CameraStarter {
             requestPermissions(activity, new String[]{CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
             return false;
         }
-        if (showNoOnlineOcrServiceKeyDialog) {
+        if (showDialogNoOnlineOcrServiceKey) {
             showDialogNoOcrServiceKey(activity);
             return false;
         }

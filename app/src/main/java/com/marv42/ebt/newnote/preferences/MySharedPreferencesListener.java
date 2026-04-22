@@ -56,10 +56,15 @@ public class MySharedPreferencesListener implements SharedPreferences.OnSharedPr
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (sharedPreferences == sharedPreferencesHandler.getSharedPreferences())
-            if (key.equals(context.getString(R.string.pref_country_key)) ||
-                    key.equals(context.getString(R.string.pref_city_key)) ||
-                    key.equals(context.getString(R.string.pref_postal_code_key)))
+            if (key.equals(getResource(R.string.pref_country_key)) ||
+                    key.equals(getResource(R.string.pref_city_key)) ||
+                    key.equals(getResource(R.string.pref_postal_code_key)))
                 setLocation();
+    }
+
+    @NonNull
+    private String getResource(int resId) {
+        return context.getString(resId);
     }
 
     public void setLocation() {

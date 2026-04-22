@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 - 2022 Marvin Horter.
+ Copyright (c) 2010 - 2026 Marvin Horter.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the GNU Public License v2.0
  which accompanies this distribution, and is available at
@@ -8,9 +8,18 @@
 
 package com.marv42.ebt.newnote;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.marv42.ebt.newnote.Notifications.NOTE_NOTIFICATION_ID;
+import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
+import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
+import static com.marv42.ebt.newnote.Notifications.createBuilder;
+import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
+import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -21,16 +30,9 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.marv42.ebt.newnote.Notifications.NOTE_NOTIFICATION_ID;
-import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_ID;
-import static com.marv42.ebt.newnote.Notifications.NOTE_SUBMISSION_CHANNEL_NAME;
-import static com.marv42.ebt.newnote.Notifications.createBuilder;
-import static com.marv42.ebt.newnote.Notifications.getNotificationChannel;
-import static com.marv42.ebt.newnote.Notifications.getPendingIntent;
-
 public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
 
+    private static final String TAG = SubmissionResultHandler.class.getSimpleName();
     private final ThisApp app;
     private final AllResults allResults;
     private final ArrayList<SubmissionResult> notifiedResults = new ArrayList<>();
@@ -45,15 +47,12 @@ public class SubmissionResultHandler implements NoteDataSubmitter.Callback {
     public void onSubmissionResult(SubmissionResult result) {
         allResults.addResult(result);
         notifiedResults.add(result);
+        // TODO if (result.mReason == "<HttpCallException message>") call again
         try {
             showNotification();
         } catch (NoNotificationManagerException e) {
-            e.printStackTrace();
+            Log.w(TAG, e.getMessage());
         }
-    }
-
-    void reset() {
-        notifiedResults.clear();
     }
 
     private void showNotification() throws NoNotificationManagerException {

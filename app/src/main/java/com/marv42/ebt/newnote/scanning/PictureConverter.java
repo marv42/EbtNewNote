@@ -40,25 +40,18 @@ class PictureConverter {
     }
 
     String scaleAndEncodeToBase64(double targetSizeBytes) throws NoPictureException {
-        byte[] bytes = scale(targetSizeBytes);
+        byte[] bytes = convertAndScale(targetSizeBytes);
         return Base64.encodeToString(bytes, NO_WRAP);
     }
 
-    // TODO Split up scaling and conversion
     @NonNull
-    byte[] scale(double targetSizeBytes) throws NoPictureException {
+    byte[] convertAndScale(double targetSizeBytes) throws NoPictureException {
         Bitmap bitmap = getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        if (!bitmap.compress(PNG, 100 /*ignored for PNG*/, stream))
-            throw new NoPictureException("R.string.error_compressing_picture");
-        byte[] bytes = stream.toByteArray();
+        byte[] bytes = convert(bitmap);
         int allocationByteCount = bitmap.getAllocationByteCount();
-        if (allocationByteCount > targetSizeBytes) {
-            final double scalingFactor = getScalingFactor(allocationByteCount, targetSizeBytes);
-            ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, scalingFactor);
-            bytes = streamOfScaled.toByteArray();
-        }
-        return bytes;
+        if (allocationByteCount <= targetSizeBytes)
+            return bytes;
+        return scale(bitmap, bytes, targetSizeBytes, allocationByteCount);
     }
 
     private Bitmap getBitmap() {
@@ -81,6 +74,19 @@ class PictureConverter {
         return orientation == ORIENTATION_ROTATE_270 ? 270
                 : orientation == ORIENTATION_ROTATE_180 ? 180
                 : orientation == ORIENTATION_ROTATE_90 ? 90 : 0;
+    }
+
+    private byte[] convert(Bitmap bitmap) throws NoPictureException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (!bitmap.compress(PNG /*JPEG*/, 100 /*ignored for PNG*/, stream))
+            throw new NoPictureException("R.string.error_compressing_picture");
+        return stream.toByteArray();
+    }
+
+    private byte[] scale(Bitmap bitmap, byte[] bytes, double targetSizeBytes, int allocationByteCount) throws NoPictureException {
+        final double scalingFactor = getScalingFactor(allocationByteCount, targetSizeBytes);
+        ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, scalingFactor);
+        return streamOfScaled.toByteArray();
     }
 
     private double getScalingFactor(int allocationByteCount, double targetSizeBytes) {
