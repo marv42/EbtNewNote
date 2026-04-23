@@ -169,6 +169,7 @@ public class FetchAddressIntentService extends DaggerIntentService {
     private void deliverResultToReceiver() {
         Bundle bundle = new Bundle();
         bundle.putString(RESULT_DATA_KEY, result);
-        receiver.send(resultCode, bundle);
+        if (receiver != null)
+            receiver.send(resultCode, bundle);
     }
 }

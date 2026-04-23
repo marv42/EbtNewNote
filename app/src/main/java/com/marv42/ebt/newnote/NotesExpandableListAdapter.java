@@ -120,6 +120,8 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
     private void bindView(View view, Map<String, ?> data, String[] from, int[] to) {
         for (int i = 0; i < to.length; ++i) {
             String dataFromI = (String) data.get(from[i]);
+            if (dataFromI == null)
+                continue;
             if (from[i].equals(DENOMINATION_IMAGE))
                 loadDenominationImage(view.findViewById(to[i]), dataFromI);
             else if (!from[i].equals(DENOMINATION) || !showImages)

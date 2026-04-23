@@ -114,16 +114,19 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         sanitizeField(noteData, "mComment");
     }
 
-    private void sanitizeField(@NonNull JsonObject noteData, @NonNull String key) {
-        if (!noteData.has(key) || noteData.get(key).isJsonNull())
-            noteData.addProperty(key, "");
+    private void sanitizeField(@NonNull JsonObject object, @NonNull String key) {
+        if (!object.has(key) || object.get(key).isJsonNull())
+            object.addProperty(key, "");
     }
 
     private boolean isSuccessfulAccordingToReason(@NonNull JsonObject jsonObject) {
         final String r = "mReason";
         if (!jsonObject.has(r))
             return false;
-        final String reason = jsonObject.get(r).getAsString();
+        final JsonElement element = jsonObject.get(r);
+        if (element.isJsonNull())
+            return false;
+        final String reason = element.getAsString();
         return reason.equals(app.getString(R.string.has_been_entered)) ||
                 reason.equals(app.getString(R.string.got_hit));
     }
@@ -173,8 +176,9 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
         List<SubmissionResult> resultsToSave = getSuccessfulResults();
         resultsToSave.sort(new SubmissionResult.SubmissionComparator());
         resultsToSave = filterResults(resultsToSave);
-        getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results_key),
-                new Gson().toJson(resultsToSave)).apply();
+        if (resultsToSave != null)
+            getDefaultSharedPreferences(app).edit().putString(app.getString(R.string.pref_results_key),
+                    new Gson().toJson(resultsToSave)).apply();
     }
 
     private List<SubmissionResult> filterResults(List<SubmissionResult> results) {
