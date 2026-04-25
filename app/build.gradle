@@ -9,15 +9,16 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 
 plugins {
+    // TODO alias(libs.plugins.android.application)
     id("com.android.application")
     id("kotlin-android")
+    alias(libs.plugins.aboutlibraries) // has to be applied AFTER android
+    alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.dependencycheck)
+    alias(libs.plugins.likethesalad)
+    alias(libs.plugins.scabbard)
+    alias(libs.plugins.protobuf)
 }
-apply plugin: libs.plugins.aboutlibraries.get().pluginId // has to be applied AFTER android
-apply plugin: libs.plugins.cyclonedx.get().pluginId
-apply plugin: libs.plugins.dependencycheck.get().pluginId
-apply plugin: libs.plugins.likethesalad.get().pluginId
-apply plugin: libs.plugins.scabbard.get().pluginId // does not work correctly :-/
-apply plugin: libs.plugins.protobuf.get().pluginId
 
 aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
@@ -33,7 +34,7 @@ cyclonedxBom {
 dependencyCheck {
     // failBuildOnCVSS = 9.0
     nvd {
-        apiKey="597e202d-30eb-4fb5-bd4e-5bfb1264de21"
+        apiKey = "597e202d-30eb-4fb5-bd4e-5bfb1264de21"
     }
 }
 // https://dependency-check.github.io/DependencyCheck/dependency-check-gradle/configuration.html
@@ -65,23 +66,25 @@ protobuf {
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
     namespace = marv42EbtNewNote
-
+    compileSdk = libs.versions.compileSdk.get().toInteger()
     defaultConfig {
         applicationId = marv42EbtNewNote
         versionCode = libs.versions.code.get().toInteger()
-        versionName = "${libs.versions.name.get()}"
-        minSdkVersion libs.versions.minSdk.get().toInteger()
-        compileSdk = libs.versions.compileSdk.get().toInteger()
-        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionName = libs.versions.name.get()
+        minSdk = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.targetSdk.get().toInteger()
         multiDexEnabled = true
     }
 
     buildTypes {
         release {
             minifyEnabled = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules-acra.pro", "proguard-rules-gson.pro", "proguard-rules.pro"
-            signingConfig signingConfigs.debug
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules-acra.pro",
+                    "proguard-rules-gson.pro",
+                    "proguard-rules.pro")
+            signingConfig = signingConfigs.debug
         }
         debug {
             debuggable = true
@@ -91,18 +94,18 @@ android {
     flavorDimensions = ['ocrServiceKey']
     productFlavors {
         withKey {
-            dimension 'ocrServiceKey'
-            versionNameSuffix '-withKey'
+            dimension = 'ocrServiceKey'
+            versionNameSuffix = '-withKey'
         }
         withoutKey {
-            dimension 'ocrServiceKey'
+            dimension = 'ocrServiceKey'
         }
     }
 
     compileOptions {
         // https://developer.android.com/build/jdks
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
@@ -111,7 +114,7 @@ android {
     }
 
     lint {
-        disable 'MissingTranslation'
+        disable += 'MissingTranslation'
     }
 }
 
@@ -128,8 +131,6 @@ allprojects {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-//    implementation(libs.work.runtime)
-//    implementation(libs.lifecycle.runtime)
     implementation(libs.acra.mail)
     implementation(libs.acra.toast)
     implementation(libs.core)

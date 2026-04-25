@@ -6,13 +6,27 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-//pluginManagement {
+pluginManagement {
 //    plugins {
 //    }
 //    resolutionStrategy {
 //    }
-//    repositories {
-//    }
-//}
+    repositories {
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+    repositories {
+        mavenCentral()
+        google()
+        maven { url = "https://jitpack.io" }
+//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+}
+
 rootProject.name = "EbtNewNote"
 include ':app'

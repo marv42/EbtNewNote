@@ -7,37 +7,18 @@
  */
 
 buildscript {
-    ext {
-        buildToolsVersion = "${libs.versions.compileSdk.get().toInteger()}.1.0"
-    }
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-    }
     dependencies {
         classpath libs.androidGradlePlugin
         classpath libs.kotlin.gradle.plugin
-        classpath libs.aboutlibraries.plugin
-        classpath libs.dependency.check.plugin
-        classpath libs.cyclonedx.gradle.plugin
     }
 }
 
 plugins {
-    alias libs.plugins.aboutlibraries apply false
-    alias libs.plugins.cyclonedx apply false
-    alias libs.plugins.dependencycheck apply false
-    alias libs.plugins.likethesalad apply false
-    alias libs.plugins.scabbard apply false
-    alias libs.plugins.protobuf apply false
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
-        google()
-        maven { url = "https://jitpack.io" }
-        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
-    }
+    // TODO alias(libs.plugins.android.application)
+    alias(libs.plugins.aboutlibraries) apply false
+    alias(libs.plugins.cyclonedx) apply false
+    alias(libs.plugins.dependencycheck) apply false
+    alias(libs.plugins.likethesalad) apply false
+    alias(libs.plugins.scabbard) apply false
+    alias(libs.plugins.protobuf) apply false
 }
