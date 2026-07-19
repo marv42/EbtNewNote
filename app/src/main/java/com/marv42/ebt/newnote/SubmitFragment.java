@@ -51,7 +51,6 @@ import dagger.android.support.DaggerFragment;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
 import java.util.Locale;
@@ -60,10 +59,10 @@ public class SubmitFragment extends DaggerFragment {
 
     public interface Callback {
         void onSubmitFragmentAdded();
+        void onSubmitButtonClicked();
     }
 
     private static final String TAG = SubmitFragment.class.getSimpleName();
-    private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     @Inject
     ThisApp app;
     @Inject
@@ -156,6 +155,8 @@ public class SubmitFragment extends DaggerFragment {
         submitNoteData();
         binding.editTextShortCode.setText("");
         binding.editTextSerialNumber.setText("");
+        FragmentActivity activity = requireActivity();
+        ((Callback) activity).onSubmitButtonClicked();
     }
 
     private void submitNoteData() {
@@ -260,29 +261,6 @@ public class SubmitFragment extends DaggerFragment {
         else if (shortCode.length() == 5)
             shortCode = shortCode.charAt(0) + "0" + shortCode.substring(1);
         return shortCode;
-    }
-
-    void checkClipboardManager(boolean serialNumberNotShortCode) {
-        try {
-            putToClipboard(serialNumberNotShortCode);
-        } catch (NoClipboardManagerException e) {
-            Log.w(TAG, e.getMessage());
-        }
-    }
-
-    private void putToClipboard(boolean serialNumberNotShortCode) throws NoClipboardManagerException {
-        if (binding == null)
-            return; // TODO save (and replace the text later)
-        EditText editText = serialNumberNotShortCode ? binding.editTextSerialNumber : binding.editTextShortCode;
-        ClipboardManager manager = (ClipboardManager) app.getSystemService(CLIPBOARD_SERVICE);
-        if (manager == null)
-            throw new NoClipboardManagerException();
-        String text = editText.getText().toString();
-        if (!text.isEmpty()) {
-            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
-            manager.setPrimaryClip(data);
-            Toast.makeText(getActivity(), R.string.content_in_clipboard, LENGTH_LONG).show();
-        }
     }
 
     private void setupViewModel() {

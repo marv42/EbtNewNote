@@ -17,6 +17,8 @@ import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -24,10 +26,12 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -47,6 +51,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
+import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
@@ -75,6 +80,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private static final int RESULTS_FRAGMENT_INDEX = 1;
     private static final int DATA_RESULTS_FRAGMENT_INDEX = 2;
     private static final int VIBRATION_MS = 150;
+    private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
+    private static final String TAG = EbtNewNote.class.getSimpleName();
     @Inject
     EncryptedPreferenceDataStore dataStore;
     @Inject
@@ -88,6 +95,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private boolean isResultsEmpty = true;
     private String[] commentSuggestionsUntilFragmentAdded;
     private String ocrResult = "";
+    private String secondOcrResult = "";
     private boolean triedAgain = false;
 
     @Override
@@ -310,6 +318,14 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     @Override
+    public void onSubmitButtonClicked() {
+        if (secondOcrResult.isEmpty())
+            return;
+        setSerialNumberOrShortCode(secondOcrResult);
+        secondOcrResult = "";
+    }
+
+    @Override
     public void switchFragment(int fragmentIndex) {
         if (isDualPane())
             return;
@@ -341,8 +357,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
             final String errorMessage = new ErrorMessage(this).getErrorMessage(result);
             if (! result.startsWith(ERROR + "R.string.http_error"))
                 OcrNotifier.showDialog(this, errorMessage);
-            else {
-                if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
+            else
+                if (dataStore.get(R.string.pref_settings_ocr_online_key, false))
                     if (! triedAgain) {
                         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
                         Toast.makeText(this, getString(R.string.trying_again), Toast.LENGTH_SHORT).show();
@@ -356,8 +372,6 @@ public class EbtNewNote extends DaggerAppCompatActivity
                             OcrNotifier.showDialog(this, errorMessage);
                             triedAgain = false;
                     }
-                }
-            }
             return;
         }
         checkMultipleOcrResults(result);
@@ -382,6 +396,9 @@ public class EbtNewNote extends DaggerAppCompatActivity
 //                .setMessage(R.string.ocr_multiple_results)  // https://developer.android.com/develop/ui/views/components/dialogs#AddingAList
                 .setItems(allResults, (dialog, item) -> {
                     ocrResult = allResults[item];
+                    for (int i = 0; i < allResults.length && secondOcrResult.isEmpty(); ++i)
+                        if (i != item)
+                            secondOcrResult = allResults[i];
                     replaceShortCodeOrSerialNumber();
                 })
                 .setCancelable(false)
@@ -391,10 +408,16 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void replaceShortCodeOrSerialNumber() {
-        if (submitFragment == null)
-            return;
-        final boolean serialNumberNotShortCode = ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
-        submitFragment.checkClipboardManager(serialNumberNotShortCode);
+        checkClipboardManager();
+        setSerialNumberOrShortCode(ocrResult);
+    }
+
+    private boolean isSerialNumberNotShortCode(String ocrResult) {
+        return ocrResult.length() >= LENGTH_THRESHOLD_SERIAL_NUMBER;
+    }
+
+    private void setSerialNumberOrShortCode(String ocrResult) {
+        final boolean serialNumberNotShortCode = isSerialNumberNotShortCode(ocrResult);
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
         if (serialNumberNotShortCode)
             viewModel.setSerialNumber(ocrResult);
@@ -402,16 +425,35 @@ public class EbtNewNote extends DaggerAppCompatActivity
             viewModel.setShortCode(ocrResult);
     }
 
+    void checkClipboardManager() {
+        try {
+            putToClipboard();
+        } catch (NoClipboardManagerException e) {
+            Log.w(TAG, e.getMessage());
+        }
+    }
+
+    private void putToClipboard() throws NoClipboardManagerException {
+        ClipboardManager manager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        if (manager == null)
+            throw new NoClipboardManagerException();
+        SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
+        final boolean serialNumberNotShortCode = isSerialNumberNotShortCode(ocrResult);
+        String text = viewModel.getSerialNumber().toString();
+        if (!serialNumberNotShortCode)
+            text = viewModel.getShortCode().toString();
+        if (!text.isEmpty()) {
+            ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
+            manager.setPrimaryClip(data);
+            Toast.makeText(this, R.string.content_in_clipboard, LENGTH_LONG).show();
+        }
+    }
+
     private void vibrate() {
         VibratorManager manager = (VibratorManager) getSystemService(VIBRATOR_MANAGER_SERVICE);
         Vibrator v = manager.getDefaultVibrator();
         v.vibrate(VibrationEffect.createOneShot(VIBRATION_MS, DEFAULT_AMPLITUDE));
     }
-
-//    @Override
-//    public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner, @NonNull Lifecycle.State state) {
-//        // TODO
-//    }
 
     private class MyFragmentStateAdapter extends FragmentStateAdapter {
         private static final int NUM_TABS = 2;

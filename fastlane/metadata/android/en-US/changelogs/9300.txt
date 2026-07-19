@@ -1,0 +1,2 @@
+* Hidden feature: put in a second OCR result automatically
+* Update dependencies
