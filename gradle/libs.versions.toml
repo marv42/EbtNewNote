@@ -1,6 +1,6 @@
 [versions]
-code = "9300"
-name = "0.93.0"
+code = "9400"
+name = "0.94.0"
 minSdk = "33"
 compileSdk = "36"
 targetSdk = "36"

@@ -439,10 +439,10 @@ public class EbtNewNote extends DaggerAppCompatActivity
             throw new NoClipboardManagerException();
         SubmitViewModel viewModel = viewModelProvider.get(SubmitViewModel.class);
         final boolean serialNumberNotShortCode = isSerialNumberNotShortCode(ocrResult);
-        String text = viewModel.getSerialNumber().toString();
+        String text = viewModel.getSerialNumber().getValue();
         if (!serialNumberNotShortCode)
-            text = viewModel.getShortCode().toString();
-        if (!text.isEmpty()) {
+            text = viewModel.getShortCode().getValue();
+        if (text != null && !text.isEmpty()) {
             ClipData data = ClipData.newPlainText(CLIPBOARD_LABEL, text);
             manager.setPrimaryClip(data);
             Toast.makeText(this, R.string.content_in_clipboard, LENGTH_LONG).show();
