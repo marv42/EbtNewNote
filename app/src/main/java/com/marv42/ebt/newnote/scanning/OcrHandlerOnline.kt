@@ -26,7 +26,7 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
                        private val photoUri: Uri?, private val contentResolver: ContentResolver,
                        private val apiKey: String) {
 
-    private val TAG: String? = OcrHandlerOnline::class.java.getSimpleName()
+    private val TAG: String? = OcrHandlerOnline::class.java.simpleName
     private val scope = MainScope()
 
     fun execute() {

@@ -98,7 +98,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         setAllowInterruption()
         var allResults = tess!!.utF8Text
         tess!!.recycle()
-        allResults = allResults.replace("\n", NEW_LINE)
+        allResults = allResults.replace("\r\n", NEW_LINE)
         return TextProcessor().getOcrResult(allResults)
     }
 

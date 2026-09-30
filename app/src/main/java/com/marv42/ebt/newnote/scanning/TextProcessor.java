@@ -12,7 +12,7 @@ import android.text.TextUtils;
 
 public class TextProcessor {
 
-    public static final String NEW_LINE = "\r\n";
+    public static final String NEW_LINE = "\n";
     private static final String EURO = "EU20";
     private static final int MIN_RESULT_LENGTH = 4;
     private final StringBuilder result = new StringBuilder();

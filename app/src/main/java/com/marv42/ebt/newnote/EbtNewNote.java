@@ -31,7 +31,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -62,6 +61,12 @@ import com.marv42.ebt.newnote.scanning.OcrHandlerOnline;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -95,7 +100,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private boolean isResultsEmpty = true;
     private String[] commentSuggestionsUntilFragmentAdded;
     private String ocrResult = "";
-    private String secondOcrResult = "";
+    private List<String> remainingOcrResults;
     private boolean triedAgain = false;
 
     @Override
@@ -319,10 +324,16 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     public void onSubmitButtonClicked() {
-        if (secondOcrResult.isEmpty())
+        if (remainingOcrResults == null || remainingOcrResults.isEmpty())
             return;
-        setSerialNumberOrShortCode(secondOcrResult);
-        secondOcrResult = "";
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.ocr_multiple_results)
+                .setMessage(R.string.remaining_results)
+                .setPositiveButton(getString(android.R.string.ok),
+                        (dialog, which) ->
+                                letUserChoose(remainingOcrResults.toArray(new String[0])))
+                .create()
+                .show();
     }
 
     @Override
@@ -379,7 +390,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void checkMultipleOcrResults(@NonNull String result) {
         if (result.contains(NEW_LINE)) {
-            letUserChoose(result);
+            String[] allResults = result.split(NEW_LINE);
+            letUserChoose(allResults);
             return;
         }
         ocrResult = result;
@@ -388,23 +400,25 @@ public class EbtNewNote extends DaggerAppCompatActivity
         Toast.makeText(this, R.string.ocr_return, LENGTH_LONG).show();
     }
 
-    private void letUserChoose(String ocrResults) {
-        String[] allResults = ocrResults.split(NEW_LINE);
+    private void letUserChoose(String[] ocrResults) {
         ocrResult = "";
         new AlertDialog.Builder(this)
                 .setTitle(R.string.ocr_multiple_results)
-//                .setMessage(R.string.ocr_multiple_results)  // https://developer.android.com/develop/ui/views/components/dialogs#AddingAList
-                .setItems(allResults, (dialog, item) -> {
-                    ocrResult = allResults[item];
-                    for (int i = 0; i < allResults.length && secondOcrResult.isEmpty(); ++i)
-                        if (i != item)
-                            secondOcrResult = allResults[i];
+//                .setMessage(R.string.ocr_multiple_results)  // https://developer.android.com/develop/ui/views/components/dialogs#AddAList
+                .setItems(ocrResults, (dialog, item) -> {
+                    setOcrResults(ocrResults, item);
                     replaceShortCodeOrSerialNumber();
                 })
                 .setCancelable(false)
                 .setNegativeButton(getString(android.R.string.cancel), null)
                 .create()
                 .show();
+    }
+
+    private void setOcrResults(String[] ocrResults, int item) {
+        ocrResult = ocrResults[item];
+        remainingOcrResults = new LinkedList<>(Arrays.asList(ocrResults));
+        remainingOcrResults.remove(ocrResult);
     }
 
     private void replaceShortCodeOrSerialNumber() {

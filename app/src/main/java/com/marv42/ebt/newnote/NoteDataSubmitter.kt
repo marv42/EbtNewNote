@@ -82,7 +82,7 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
     private fun assembleReply(noteData: NoteData, insertionData: NoteInsertionData): SubmissionResult {
         val billId = insertionData.billId
         val status = insertionData.status
-        /// Cf. https://api.eurobilltracker.com/doc/api_insertbills.html
+        // https://api.eurobilltracker.com/doc/api_insertbills.html
         if (status == 0)
             return SubmissionResult(noteData, app.getString(R.string.has_been_entered), true, billId)
         if (status == 1)

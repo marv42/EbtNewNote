@@ -87,6 +87,7 @@
     <string name="serial_number_hint">z.B. AB1234567890</string>
     <string name="comment">Kommentar</string>
     <string name="comment_hint">z.B.: Woher hast du den Schein? …</string>
+    <string name="keep_comment">Kommentar beibehalten</string>
     <string name="submit">An EBT senden</string>
     <string name="acquire">ein Foto machen und die Werte auslesen</string>
     <string name="no_comment_suggestions">Keine Kommentar-Vorschläge</string>
@@ -159,7 +160,7 @@
     <!-- about -->
     <string name="about">Info</string>
     <string name="licenses">Lizensen</string>
-    <string name="about_text">\'${app_name}\' ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (${www_ebt}), eine Web-Seite zum Verfolgen von Euro-Scheinen\n\nEntwickler: ${developer_email}\nUnterstützung: ${contributors}</string>
+    <string name="about_text">\'${app_name}\' ist eine App zum Übermitteln von Euro-Schein-Daten an EuroBillTracker (${www_ebt}), eine Web-Seite zum Verfolgen von Euro-Scheinen.\n\nEntwickler: ${developer_email}\nUnterstützung: ${contributors}</string>
 
     <!-- OCR -->
     <string name="error_reading_picture">Fehler beim Lesen der Foto-Datei</string>
@@ -173,4 +174,5 @@
     <string name="ocr_wrong_key">Bitte den Texterkennungs-Service-Registrierungs-Code überprüfen</string>
     <string name="ocr_multiple_results">Mehrere Texterkennungs-Ergebnisse gefunden</string>
     <string name="sending_later">Online-Texterkennung wird durchgeführt, wenn die Konnektivität wieder vorhanden ist</string>
+    <string name="remaining_results">Es gibt verbleibende Ergebnisse des vorangegangenen Texterkennungs-Durchlaufs.\nSie werden dir nun angezeigt.</string>
 </resources>

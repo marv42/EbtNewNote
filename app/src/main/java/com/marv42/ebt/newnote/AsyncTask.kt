@@ -19,9 +19,9 @@ fun <R> CoroutineScope.executeAsyncTask(
         doInBackground: () -> R,
         onPostExecute: (R) -> Unit
 ) = launch {
-    onPreExecute() // runs in Main Thread
+    onPreExecute() // runs in main thread
     val result = withContext(Dispatchers.IO) {
-        doInBackground() // runs in background thread without blocking the Main Thread
+        doInBackground() // runs in background thread without blocking the main thread
     }
-    onPostExecute(result) // runs in Main Thread
+    onPostExecute(result) // runs in main thread
 }

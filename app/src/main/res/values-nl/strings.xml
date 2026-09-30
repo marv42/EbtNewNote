@@ -148,7 +148,7 @@
     <!-- about -->
     <string name="about">Over</string>
     <string name="licenses"></string>
-    <string name="about_text">\'${app_name}\' is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (${www_ebt}), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd\n\nSchrijf de ontwikkelaar van deze app op: ${developer_email}\nBijdragers: ${contributors}</string>
+    <string name="about_text">\'${app_name}\' is een app om informatie van Euro bankbiljetten te registreren op EuroBillTracker (${www_ebt}), waardoor zichtbaar is welke reis de bankbiljetten in hun bestaan hebben afgelegd.\n\nSchrijf de ontwikkelaar van deze app op: ${developer_email}\nBijdragers: ${contributors}</string>
     <string name="about_version">Versie %1$s</string>
 
     <!-- OCR -->

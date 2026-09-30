@@ -1,0 +1,1 @@
+New feature: Take a photo of multiple serial numbers and submit them one after another

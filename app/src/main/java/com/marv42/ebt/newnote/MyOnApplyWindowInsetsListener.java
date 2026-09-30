@@ -17,7 +17,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MyOnApplyWindowInsetsListener {
-    /// Cf. https://developer.android.com/develop/ui/views/layout/edge-to-edge#handle-overlaps
+    // https://developer.android.com/develop/ui/views/layout/edge-to-edge#handle-overlaps
     public static OnApplyWindowInsetsListener getOnApplyWindowInsetsListener() {
         return (v, windowInsets) -> {
             Insets systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
