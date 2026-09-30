@@ -7,6 +7,7 @@
  */
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     // TODO alias(libs.plugins.android.application)
@@ -63,6 +64,13 @@ protobuf {
     }
 }
 
+def javaVersion = libs.versions.javaVersion.get()
+kotlin {
+    compilerOptions {
+        jvmTarget.set("JVM_" + javaVersion)
+    }
+}
+
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
     namespace = marv42EbtNewNote
@@ -104,8 +112,8 @@ android {
 
     compileOptions {
         // https://developer.android.com/build/jdks
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.toVersion(javaVersion.toInteger())
+        targetCompatibility = JavaVersion.toVersion(javaVersion.toInteger())
     }
 
     buildFeatures {

@@ -4,6 +4,7 @@ name = "0.96.0"
 minSdk = "33"
 compileSdk = "36"
 targetSdk = "36"
+javaVersion = "21"
 
 # dependencies
 aboutlibrariesVersion = "11.2.3"
