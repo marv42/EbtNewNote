@@ -153,7 +153,8 @@ public class SubmitFragment extends DaggerFragment {
         }
         Toast.makeText(getActivity(), R.string.submitting, LENGTH_LONG).show();
         submitNoteData();
-        binding.editTextShortCode.setText("");
+        if (! binding.checkboxKeepShortCode.isChecked())
+            binding.editTextShortCode.setText("");
         binding.editTextSerialNumber.setText("");
         FragmentActivity activity = requireActivity();
         ((Callback) activity).onSubmitButtonClicked();

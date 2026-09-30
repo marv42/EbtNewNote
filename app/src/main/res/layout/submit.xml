@@ -192,15 +192,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/comment_hint"
+                android:nextFocusDown="@+id/checkbox_keep_short_code"
                 android:completionThreshold="1"
                 android:imeOptions="actionDone"
                 android:singleLine="true" />
         </LinearLayout>
-        <Button
-            android:id="@+id/submit_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/submit" />
+            android:gravity="center">
+            <CheckBox
+                android:id="@+id/checkbox_keep_short_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/keep_short_code" />
+            <Button
+                android:id="@+id/submit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/submit" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

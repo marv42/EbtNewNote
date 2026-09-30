@@ -87,7 +87,7 @@
     <string name="serial_number_hint">z.B. AB1234567890</string>
     <string name="comment">Kommentar</string>
     <string name="comment_hint">z.B.: Woher hast du den Schein? …</string>
-    <string name="keep_comment">Kommentar beibehalten</string>
+    <string name="keep_short_code">Plattencode beibehalten</string>
     <string name="submit">An EBT senden</string>
     <string name="acquire">ein Foto machen und die Werte auslesen</string>
     <string name="no_comment_suggestions">Keine Kommentar-Vorschläge</string>

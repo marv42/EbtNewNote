@@ -98,7 +98,7 @@
     <string name="serial_number_hint">e.g. AB1234567890</string>
     <string name="comment">Comment</string>
     <string name="comment_hint">e.g.: Where did you get the note from? …</string>
-    <string name="keep_comment">Keep Comment</string>
+    <string name="keep_short_code">Keep Short Code</string>
     <string name="submit">Submit Data to EBT</string>
     <string name="acquire">take a photo and acquire the values</string>
     <string name="no_comment_suggestions">No comment suggestions</string>
