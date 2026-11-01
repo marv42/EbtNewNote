@@ -7,12 +7,10 @@
  */
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     // TODO alias(libs.plugins.android.application)
     id("com.android.application")
-    id("kotlin-android")
     alias(libs.plugins.aboutlibraries) // has to be applied AFTER android
     alias(libs.plugins.cyclonedx)
     alias(libs.plugins.dependencycheck)
@@ -22,10 +20,9 @@ plugins {
 }
 
 aboutLibraries {
-    duplicationMode = DuplicateMode.MERGE
-    excludeFields = [ "generated" ]
-    includePlatform = false
-    prettyPrint = true
+    library.duplicationMode = DuplicateMode.MERGE
+    collect.includePlatform = false
+    export.prettyPrint = true
 }
 
 cyclonedxBom {
@@ -64,13 +61,6 @@ protobuf {
     }
 }
 
-def javaVersion = libs.versions.javaVersion.get()
-kotlin {
-    compilerOptions {
-        jvmTarget.set("JVM_" + javaVersion)
-    }
-}
-
 android {
     def marv42EbtNewNote = 'com.marv42.ebt.newnote'
     namespace = marv42EbtNewNote
@@ -99,7 +89,7 @@ android {
         }
     }
 
-    flavorDimensions = ['ocrServiceKey']
+    flavorDimensions.add("ocrServiceKey")
     productFlavors {
         withKey {
             dimension = 'ocrServiceKey'
@@ -111,9 +101,10 @@ android {
     }
 
     compileOptions {
+        def javaVersion = libs.versions.javaVersion.get().toInteger()
         // https://developer.android.com/build/jdks
-        sourceCompatibility = JavaVersion.toVersion(javaVersion.toInteger())
-        targetCompatibility = JavaVersion.toVersion(javaVersion.toInteger())
+        sourceCompatibility = JavaVersion.toVersion(javaVersion)
+        targetCompatibility = JavaVersion.toVersion(javaVersion)
     }
 
     buildFeatures {
