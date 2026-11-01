@@ -126,6 +126,8 @@
     <string name="settings_ocr_postpone_title">Postpone online OCR on connectivity failure</string>
     <string name="settings_ocr_postpone_summary">If the communication with the online OCR service fails, wait for connectivity in the background and send the data again when available</string>
     <string name="settings_category_display">Display settings</string>
+    <string name="settings_color_title">Color</string>
+    <string name="settings_color_summary">Change the theme (accent) color used for highlights and controls</string>
     <string name="settings_images_title">Denomination images</string>
     <string name="settings_images_summary">Show EBT denomination images in the \'${results_fragment_title}\' tab instead of denomination text</string>
     <string name="settings_category_advanced">Experimental settings</string>
@@ -155,6 +157,7 @@
     <string name="pref_settings_ocr_online_key" translatable="false">pref_settings_ocr_online</string>
     <string name="pref_settings_ocr_service_key" translatable="false">pref_settings_ocr_service</string>
     <string name="pref_settings_ocr_postpone_key" translatable="false">pref_settings_ocr_postpone</string>
+    <string name="pref_settings_color_key" translatable="false">pref_settings_color</string>
     <string name="pref_settings_country_key" translatable="false">pref_settings_country</string>
     <string name="pref_settings_images_key" translatable="false">pref_settings_images</string>
     <string name="pref_settings_show_submitted_key" translatable="false">pref_settings_show_submitted</string>

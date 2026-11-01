@@ -20,25 +20,20 @@ import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -51,6 +46,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
+import com.marv42.ebt.newnote.preferences.Color;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
@@ -62,11 +58,9 @@ import com.marv42.ebt.newnote.scanning.OcrNotifier;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -101,6 +95,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private String[] commentSuggestionsUntilFragmentAdded;
     private String ocrResult = "";
     private List<String> remainingOcrResults;
+    private String appliedColor;
     private boolean triedAgain = false;
 
     @Override
@@ -111,6 +106,21 @@ public class EbtNewNote extends DaggerAppCompatActivity
         setupResultsObserver();
         requestNotificationsPermissions();
         sharedPreferencesListener.register();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String color = getColor();
+        if (!color.equals(appliedColor)) {
+            appliedColor = color;
+            recreate();
+        }
+    }
+
+    @NonNull
+    private String getColor() {
+        return dataStore.get(R.string.pref_settings_color_key, Color.DEFAULT.getKey());
     }
 
     @Override
@@ -125,21 +135,16 @@ public class EbtNewNote extends DaggerAppCompatActivity
     }
 
     private void setLayout() {
-        WindowCompat.enableEdgeToEdge(getWindow());
         applyStyle();
+        WindowCompat.enableEdgeToEdge(getWindow());
         setContentView(R.layout.main);
         View view = findViewById(R.id.root);
         ViewCompat.setOnApplyWindowInsetsListener(view, getOnApplyWindowInsetsListener());
     }
 
     private void applyStyle() {
-        Resources.Theme theme = getTheme();
-        TypedValue colorAccentValue = new TypedValue();
-        if (theme.resolveAttribute(android.R.attr.colorAccent, colorAccentValue, true)) {
-            @ColorRes int resourceId = colorAccentValue.resourceId != 0 ? colorAccentValue.resourceId : colorAccentValue.data;
-            @ColorInt int color = ContextCompat.getColor(this, resourceId);
-            theme.applyStyle(color, true);
-        }
+        appliedColor = getColor();
+        Color.fromKey(appliedColor).applyTo(this);
     }
 
     private boolean isDualPane() {

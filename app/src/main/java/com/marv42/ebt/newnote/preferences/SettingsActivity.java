@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -51,9 +50,14 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class SettingsActivity extends DaggerAppCompatActivity {
 
+    @Inject
+    EncryptedPreferenceDataStore dataStore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Color.fromKey(dataStore.get(R.string.pref_settings_color_key,
+                Color.DEFAULT.getKey())).applyTo(this);
         WindowCompat.enableEdgeToEdge(getWindow());
         ViewGroup content = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(content, getOnApplyWindowInsetsListener());
@@ -157,6 +161,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 checkCountrySummary();
             if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
                 checkSubmittedSummary();
+            if (key.equals(getString(R.string.pref_settings_color_key))) {
+                Activity activity = getActivity();
+                if (activity != null)
+                    activity.getWindow().getDecorView().post(activity::recreate);
+            }
         }
 
         private void setInputTypes() {

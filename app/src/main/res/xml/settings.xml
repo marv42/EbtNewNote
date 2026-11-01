@@ -49,6 +49,11 @@
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_display">
+        <com.marv42.ebt.newnote.preferences.ColorPreference
+            android:key="@string/pref_settings_color_key"
+            android:title="@string/settings_color_title"
+            android:summary="@string/settings_color_summary"
+            android:defaultValue="orange" />
         <androidx.preference.SwitchPreference
             android:key="@string/pref_settings_images_key"
             android:title="@string/settings_images_title"

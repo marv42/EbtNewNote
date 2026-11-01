@@ -101,6 +101,8 @@
     <string name="invalid_login">Ungültige Zugangsdaten</string>
     <string name="settings_email_title">E-Mail-Adresse</string>
     <string name="settings_email_summary">E-Mail-Adresse zum Einloggen in das EBT-Konto</string>
+    <string name="settings_color_title">Farbe</string>
+    <string name="settings_color_summary">Die Farbe zum Hervorheben der Bedienelemente der App ändern</string>
     <string name="settings_currently">:</string>
     <string name="settings_currently_not_set">, nicht gesetzt</string>
     <string name="settings_password_title">Passwort</string>

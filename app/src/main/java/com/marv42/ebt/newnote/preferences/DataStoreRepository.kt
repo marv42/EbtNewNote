@@ -45,6 +45,7 @@ class DataStoreRepository @Inject constructor(
     private val EMAIL_KEY by lazy { getResource(R.string.pref_settings_email_key) }
     private val PASSWORD_KEY by lazy { getResource(R.string.pref_settings_password_key) }
     private val COMMENT_KEY by lazy { getResource(R.string.pref_settings_comment_key) }
+    private val COLOR_KEY by lazy { getResource(R.string.pref_settings_color_key) }
 
     private fun getResource(resId: Int): String = context.getString(resId)
 
@@ -69,6 +70,8 @@ class DataStoreRepository @Inject constructor(
             return passwordFlow.first()
         if (key == COMMENT_KEY)
             return commentFlow.first()
+        if (key == COLOR_KEY)
+            return colorFlow.first()
         throw IllegalArgumentException("key")
     }
 
@@ -85,6 +88,8 @@ class DataStoreRepository @Inject constructor(
             updatePassword(value)
         else if (key == COMMENT_KEY)
             updateComment(value)
+        else if (key == COLOR_KEY)
+            updateColor(value)
         else
             throw IllegalArgumentException("key")
     }
@@ -203,6 +208,18 @@ class DataStoreRepository @Inject constructor(
         context.userPreferencesStore.updateData { prefs ->
             prefs.toBuilder()
                 .setPrefSettingsComment(comment)
+                .build()
+        }
+    }
+
+    val colorFlow: Flow<String> = context.userPreferencesStore.data
+        .catch { e -> if (e is IOException) emit(UserPreferences.getDefaultInstance()) else throw e }
+        .map { prefs -> prefs.prefSettingsColor }
+
+    suspend fun updateColor(color: String) {
+        context.userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder()
+                .setPrefSettingsColor(color)
                 .build()
         }
     }
