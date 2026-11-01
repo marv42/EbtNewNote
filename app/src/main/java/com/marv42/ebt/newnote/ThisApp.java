@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
@@ -31,7 +30,6 @@ import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
 import com.marv42.ebt.newnote.location.LocationTask;
 
 import org.acra.ACRA;
-import org.acra.BuildConfig;
 import org.acra.config.CoreConfigurationBuilder;
 import org.acra.config.MailSenderConfigurationBuilder;
 import org.acra.config.ToastConfigurationBuilder;
@@ -68,7 +66,6 @@ public class ThisApp extends DaggerApplication {
 
     private void initAcra() {
         CoreConfigurationBuilder builder = new CoreConfigurationBuilder()
-                .withBuildConfigClass(BuildConfig.class)
                 .withReportFormat(StringFormat.JSON)
                 .withPluginConfigurations(
                         new ToastConfigurationBuilder()
