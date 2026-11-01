@@ -8,8 +8,8 @@
   -->
 
 <resources>
-    <color name="failed">@color/red</color>
-    <color name="success">@color/green</color>
+    <color name="failed">@color/holo_red_dark</color>
+    <color name="success">@color/holo_green_dark</color>
 
     <color name="blue">@color/holo_blue_light</color>
     <color name="green">@color/holo_green_light</color>
