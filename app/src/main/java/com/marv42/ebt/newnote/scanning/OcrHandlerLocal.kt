@@ -40,7 +40,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
             })
     }
 
-    private fun doInBackground(): String  {
+    private fun doInBackground(): String {
         return if (!prepareOcr()) ErrorMessage.ERROR + context.getString(R.string.error_initializing_local_ocr)
         else doOcr(photoPath)
     }
@@ -62,31 +62,51 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
 
     private fun prepareTessData() {
         filesPath = File(context.getExternalFilesDir(null), "").absolutePath
-        val filesDir = filesPath?.let { File(it) }
-        if (filesDir != null)
-            assert(filesDir.exists())
-        val tessDataPath = File(filesDir, TESS_DATA_DIR)
-        if (tessDataPath.exists())
-            return
-        else if (!tessDataPath.mkdir())
+        val tessDataPath = getTessDataPath()
+        if (!tessDataPath.exists() && !tessDataPath.mkdir())
             assert(tessDataPath.exists())
-        copyTessData(tessDataPath)
+        val trainedDataFile = File(tessDataPath, TRAINED_DATA_FILE)
+        if (!trainedDataFile.exists() || readVersion() != TRAINED_DATA_VERSION)
+            copyTessData()
     }
 
-    private fun copyTessData(tessDataPath: File) {
+    private fun getTessDataPath(): File = File(filesPath, TESS_DATA_DIR)
+
+    private fun readVersion(): String? =
+        try {
+            val versionFile = getVersionFile()
+            if (versionFile.exists()) versionFile.readText() else null
+        } catch (e: IOException) {
+            Log.w(TAG, e.message!!)
+            null
+        }
+
+    private fun getVersionFile(): File = File(getTessDataPath(), VERSION_FILE)
+
+    private fun copyTessData() {
         val inputFileName = TESS_DATA_DIR + File.separator + TRAINED_DATA_FILE
+        val tessDataPath = getTessDataPath()
+        val tmpFile = File(tessDataPath, TRAINED_DATA_FILE + TMP_SUFFIX)
         val outputFile = File(tessDataPath, TRAINED_DATA_FILE)
         // https://github.com/adaptech-cz/Tesseract4Android/blob/master/sample/src/main/java/cz/adaptech/tesseract4android/sample/Assets.java
         val manager = context.assets
         try {
-            manager.open(inputFileName).use { `in` ->
-                FileOutputStream(outputFile).use { out ->
+            manager.open(inputFileName).use { input ->
+                FileOutputStream(tmpFile).use { output ->
                     val buffer = ByteArray(1024)
                     var read: Int
-                    while (`in`.read(buffer).also { read = it } != -1) out.write(buffer, 0, read)
+                    while (input.read(buffer).also { read = it } != -1) output.write(buffer, 0, read)
                 }
             }
+            if (!tmpFile.renameTo(outputFile)) {
+                outputFile.delete()
+                if (!tmpFile.renameTo(outputFile))
+                    throw IOException("Could not rename $tmpFile to $outputFile")
+            }
+            val versionFile = getVersionFile()
+            versionFile.writeText(TRAINED_DATA_VERSION)
         } catch (e: IOException) {
+            tmpFile.delete()
             Log.w(TAG, e.message!!)
         }
     }
@@ -115,8 +135,11 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     }
 
     companion object {
-        const val TESS_DATA_LANGUAGE = "eng"
+        private const val TESS_DATA_LANGUAGE = "eng"
         private const val TRAINED_DATA_FILE = "$TESS_DATA_LANGUAGE.traineddata"
         private const val TESS_DATA_DIR = "tessdata"
+        private const val VERSION_FILE = ".model_version"
+        private const val TRAINED_DATA_VERSION = "combined-20170629" // "best-20170629"
+        private const val TMP_SUFFIX = ".tmp"
     }
 }
