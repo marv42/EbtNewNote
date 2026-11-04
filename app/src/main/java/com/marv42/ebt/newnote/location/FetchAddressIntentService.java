@@ -102,22 +102,28 @@ public class FetchAddressIntentService extends DaggerIntentService {
         String body = executeHttpCall(location);
         JSONObject jsonAddress = getAddress(body);
         String countryCode = jsonAddress.optString("CountryCode");
+        String countryName = getCountryName(countryCode);
         String city = jsonAddress.optString("City");
         String postalCode = jsonAddress.optString("Postal");
-        String countryName = "";
+        return new LocationValues(countryName, city, postalCode);
+    }
+
+    private String getCountryName(String countryCode) {
+        String countryName;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             countryName = new CountryCodeLocal().convert(countryCode);
-        }
-        if (countryName.isEmpty()) {
-            try {
-                String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
-                countryName = new CountryCode().convert(countryCode, apiKey);
-            } catch (HttpCallException | CallResponseException e) {
-                Log.w(TAG, e.getMessage());
+            if (countryName.isEmpty())
                 countryName = ERROR + getString(R.string.location_no_country);
-            }
+            return countryName;
         }
-        return new LocationValues(countryName, city, postalCode);
+        try {
+            String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
+            countryName = new CountryCode().convert(countryCode, apiKey);
+        } catch (HttpCallException | CallResponseException e) {
+            Log.w(TAG, e.getMessage());
+            countryName = ERROR + getString(R.string.location_no_country);
+        }
+        return countryName;
     }
 
     private String executeHttpCall(Location location) throws HttpCallException {

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,6 +35,7 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
 import com.marv42.ebt.newnote.ApiCaller;
@@ -130,9 +132,18 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             getPreferenceManager().setPreferenceDataStore(dataStore);
             addPreferencesFromResource(R.xml.settings);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
+                removeMiscCategory();
             Context context = getContext();
             if (context != null)
                 PreferenceManager.setDefaultValues(context, R.xml.settings, false);
+        }
+
+        private void removeMiscCategory() {
+            Preference misc = findPreference(getString(R.string.pref_settings_category_misc_key));
+            PreferenceScreen screen = getPreferenceScreen();
+            if (misc != null && screen != null)
+                screen.removePreference(misc);
         }
 
         @Override
@@ -206,6 +217,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkCountryKey() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
+                return;
             try {
                 String countryKey = dataStore.get(R.string.pref_settings_country_key, "");
                 if (countryKey.isEmpty() && !Keys.COUNTRY_SERVICE.isEmpty())
@@ -327,6 +340,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkCountrySummary() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
+                return;
             try {
                 Preference preference = getPreference(R.string.pref_settings_country_key);
                 setCountrySummary(preference);

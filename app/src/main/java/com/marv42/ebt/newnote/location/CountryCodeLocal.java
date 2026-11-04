@@ -19,6 +19,8 @@ public class CountryCodeLocal {
 
     @RequiresApi(api = Build.VERSION_CODES.BAKLAVA)
     public String convert(String countryCode) {
+        if (countryCode == null || countryCode.isEmpty())
+            return "";
         String twoLetterCode = CountryCodeConverter.convertThreeToTwoLetterCode(countryCode);
         if (twoLetterCode != null)
             countryCode = twoLetterCode;

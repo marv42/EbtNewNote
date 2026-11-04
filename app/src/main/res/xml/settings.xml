@@ -66,6 +66,7 @@
             android:defaultValue="@string/max_show_num_default"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
+        android:key="@string/pref_settings_category_misc_key"
         android:title="@string/settings_category_misc">
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_country_key"
