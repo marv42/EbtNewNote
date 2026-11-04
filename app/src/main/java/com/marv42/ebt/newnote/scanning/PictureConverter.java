@@ -31,6 +31,9 @@ import androidx.annotation.NonNull;
 
 class PictureConverter {
 
+static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
+    private static final double UNDERSHOOT_FACTOR = 0.7;
+
     private final String path;
     private final int orientation;
 
@@ -52,6 +55,52 @@ class PictureConverter {
         if (allocationByteCount <= targetSizeBytes)
             return bytes;
         return scale(bitmap, bytes, targetSizeBytes, allocationByteCount);
+    }
+
+    @NonNull
+    Bitmap toBitmap(int maxLongSide) throws NoPictureException {
+        Bitmap decoded = decodeSampled(maxLongSide);
+        Bitmap rotated = createBitmap(decoded, 0, 0, decoded.getWidth(), decoded.getHeight(),
+                rotateImage(), true);
+        if (rotated != decoded)
+            decoded.recycle();
+        return rotated;
+    }
+
+    @NonNull
+    private Bitmap decodeSampled(int maxLongSide) throws NoPictureException {
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, bounds);
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0)
+            throw new NoPictureException("R.string.error_reading_picture: " + path);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = getInSampleSize(bounds.outWidth, bounds.outHeight, maxLongSide);
+        options.inPreferredConfig = BITMAP_CONFIG;
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+        if (bitmap == null)
+            throw new NoPictureException("R.string.error_reading_picture: " + path);
+        return bitmap;
+    }
+
+    private int getInSampleSize(int width, int height, int maxLongSide) {
+        int longestSide = Math.max(width, height);
+        int inSampleSize = 1;
+        // Halve while the result does not fall too far below the target resolution.
+        while (isImageTooBig(longestSide, inSampleSize, maxLongSide)) {
+            if (isTargetResolutionReached(longestSide, inSampleSize, maxLongSide))
+                break;
+            inSampleSize *= 2;
+        }
+        return inSampleSize;
+    }
+
+    private static boolean isTargetResolutionReached(int longestSide, int inSampleSize, int maxLongSide) {
+        return longestSide / (inSampleSize * 2) < maxLongSide * UNDERSHOOT_FACTOR;
+    }
+
+    private static boolean isImageTooBig(int longestSide, int inSampleSize, int maxLongSide) {
+        return longestSide / inSampleSize > maxLongSide;
     }
 
     private Bitmap getBitmap() {

@@ -8,9 +8,10 @@
 package com.marv42.ebt.newnote.scanning
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
+import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
@@ -54,10 +55,18 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
                 TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED)) {
             // https://pyimagesearch.com/2021/11/15/tesseract-page-segmentation-modes-psms-explained-how-to-improve-your-ocr-accuracy/
             tess!!.pageSegMode = TessBaseAPI.PageSegMode.PSM_AUTO
+            setVariables()
             return true
         }
         tess!!.recycle()
         return false
+    }
+
+    private fun setVariables() {
+        if (!tess!!.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, CHAR_WHITELIST))
+            Log.w(TAG, "Character whitelist rejected")
+        tess!!.setVariable("load_system_dawg", "0")
+        tess!!.setVariable("load_freq_dawg", "0")
     }
 
     private fun prepareTessData() {
@@ -112,15 +121,24 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     }
 
     private fun doOcr(photoPath: String): String {
-        val image: ByteArray = PictureConverter(photoPath, ORIENTATION_UNDEFINED).convertAndScale(1024 * 1024.0)
-        val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size)
+        val bitmap = ImagePreprocessor.grayscaleWithLevelStretch(
+            PictureConverter(photoPath, orientation).toBitmap(MAX_LONG_SIDE))
         tess!!.setImage(bitmap)
         setAllowInterruption()
         var allResults = tess!!.utF8Text
         tess!!.recycle()
+        bitmap.recycle()
         allResults = allResults.replace("\r\n", NEW_LINE)
         return TextProcessor().getOcrResult(allResults)
     }
+
+    private val orientation: Int
+        get() = try {
+            ExifInterface(photoPath).getAttributeInt(TAG_ORIENTATION, ORIENTATION_UNDEFINED)
+        } catch (e: IOException) {
+            Log.w(TAG, e.message!!)
+            ORIENTATION_UNDEFINED
+        }
 
     private fun setAllowInterruption() {
         tess!!.getHOCRText(0)
@@ -141,5 +159,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         private const val VERSION_FILE = ".model_version"
         private const val TRAINED_DATA_VERSION = "combined-20170629" // "best-20170629"
         private const val TMP_SUFFIX = ".tmp"
+        private const val CHAR_WHITELIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        private const val MAX_LONG_SIDE = 2048
     }
 }
