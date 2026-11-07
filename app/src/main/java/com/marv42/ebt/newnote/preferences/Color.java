@@ -17,10 +17,13 @@ import com.marv42.ebt.newnote.R;
 
 public enum Color {
 
-    BLUE("blue", R.color.blue, R.style.ThemeOverlay_AppTheme_Blue),
-    GREEN("green", R.color.green, R.style.ThemeOverlay_AppTheme_Green),
+    LIGHT_BLUE("light_blue", R.color.blue_light, R.style.ThemeOverlay_AppTheme_BlueLight),
+    DARK_BLUE("dark_blue", R.color.blue_dark, R.style.ThemeOverlay_AppTheme_BlueDark),
+    DARK_GREEN("dark_green", R.color.green_dark, R.style.ThemeOverlay_AppTheme_GreenDark),
+    LIGHT_GREEN("light_green", R.color.green_light, R.style.ThemeOverlay_AppTheme_GreenLight),
     ORANGE("orange", R.color.orange, R.style.ThemeOverlay_AppTheme_Orange),
-    RED("red", R.color.red, R.style.ThemeOverlay_AppTheme_Red),
+    LIGHT_RED("light_red", R.color.red_light, R.style.ThemeOverlay_AppTheme_RedLight),
+    DARK_RED("dark_red", R.color.red_dark, R.style.ThemeOverlay_AppTheme_RedDark),
     PURPLE("purple", R.color.purple, R.style.ThemeOverlay_AppTheme_Purple);
 
     public static final Color DEFAULT = ORANGE;

@@ -11,17 +11,30 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.Bridge">
         <item name="colorAccent">@color/orange</item>
     </style>
-    <style name="ThemeOverlay.AppTheme.Blue" parent="">
-        <item name="colorAccent">@color/blue</item>
-        <item name="android:colorAccent">@color/blue</item>
-        <item name="colorSecondary">@color/blue</item>
-        <item name="colorControlActivated">@color/blue</item>
+
+    <style name="ThemeOverlay.AppTheme.BlueLight" parent="">
+        <item name="colorAccent">@color/blue_light</item>
+        <item name="android:colorAccent">@color/blue_light</item>
+        <item name="colorSecondary">@color/blue_light</item>
+        <item name="colorControlActivated">@color/blue_light</item>
     </style>
-    <style name="ThemeOverlay.AppTheme.Green" parent="">
-        <item name="colorAccent">@color/green</item>
-        <item name="android:colorAccent">@color/green</item>
-        <item name="colorSecondary">@color/green</item>
-        <item name="colorControlActivated">@color/green</item>
+    <style name="ThemeOverlay.AppTheme.BlueDark" parent="">
+        <item name="colorAccent">@color/blue_dark</item>
+        <item name="android:colorAccent">@color/blue_dark</item>
+        <item name="colorSecondary">@color/blue_dark</item>
+        <item name="colorControlActivated">@color/blue_dark</item>
+    </style>
+    <style name="ThemeOverlay.AppTheme.GreenDark" parent="">
+        <item name="colorAccent">@color/green_dark</item>
+        <item name="android:colorAccent">@color/green_dark</item>
+        <item name="colorSecondary">@color/green_dark</item>
+        <item name="colorControlActivated">@color/green_dark</item>
+    </style>
+    <style name="ThemeOverlay.AppTheme.GreenLight" parent="">
+        <item name="colorAccent">@color/green_light</item>
+        <item name="android:colorAccent">@color/green_light</item>
+        <item name="colorSecondary">@color/green_light</item>
+        <item name="colorControlActivated">@color/green_light</item>
     </style>
     <style name="ThemeOverlay.AppTheme.Orange" parent="">
         <item name="colorAccent">@color/orange</item>
@@ -29,11 +42,17 @@
         <item name="colorSecondary">@color/orange</item>
         <item name="colorControlActivated">@color/orange</item>
     </style>
-    <style name="ThemeOverlay.AppTheme.Red" parent="">
-        <item name="colorAccent">@color/red</item>
-        <item name="android:colorAccent">@color/red</item>
-        <item name="colorSecondary">@color/red</item>
-        <item name="colorControlActivated">@color/red</item>
+    <style name="ThemeOverlay.AppTheme.RedLight" parent="">
+        <item name="colorAccent">@color/red_light</item>
+        <item name="android:colorAccent">@color/red_light</item>
+        <item name="colorSecondary">@color/red_light</item>
+        <item name="colorControlActivated">@color/red_light</item>
+    </style>
+    <style name="ThemeOverlay.AppTheme.RedDark" parent="">
+        <item name="colorAccent">@color/red_dark</item>
+        <item name="android:colorAccent">@color/red_dark</item>
+        <item name="colorSecondary">@color/red_dark</item>
+        <item name="colorControlActivated">@color/red_dark</item>
     </style>
     <style name="ThemeOverlay.AppTheme.Purple" parent="">
         <item name="colorAccent">@color/purple</item>
@@ -41,6 +60,7 @@
         <item name="colorSecondary">@color/purple</item>
         <item name="colorControlActivated">@color/purple</item>
     </style>
+
     <style name="HorizontalDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
