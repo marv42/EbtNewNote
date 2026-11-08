@@ -17,6 +17,7 @@ import com.marv42.ebt.newnote.exceptions.CallResponseException
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.HttpCallException
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import org.json.JSONArray
 import org.json.JSONException
@@ -32,6 +33,7 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     private val additionalComment: String = dataStore.get(R.string.pref_settings_comment_key, "")
             .replace(NO_BREAK_SPACE, " ")
     private val scope = MainScope()
+    private var job: Job? = null
 
     companion object {
         private const val DATA_ELEMENT = "data"
@@ -41,13 +43,19 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     }
 
     fun execute(locationValues: LocationValues) {
-        scope.executeAsyncTask(
+        job?.cancel()
+        job = scope.executeAsyncTask(
            onPreExecute = {
         }, doInBackground = {
             doInBackground(locationValues)
         }, onPostExecute = {
             onPostExecute(it)
         })
+    }
+
+    fun cancel() {
+        job?.cancel()
+        job = null
     }
 
     private fun doInBackground(locationValues: LocationValues): Array<String?>? {

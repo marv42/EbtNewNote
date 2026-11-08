@@ -13,21 +13,29 @@ import android.net.Uri
 import android.util.Log
 import com.marv42.ebt.newnote.executeAsyncTask
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 
 abstract class OcrHandler(private val callback: Callback, protected val photoPath: String,
                           private val photoUri: Uri?, private val contentResolver: ContentResolver) {
 
     private val scope = MainScope()
+    private var job: Job? = null
 
     fun execute() {
-        scope.executeAsyncTask(
+        job?.cancel()
+        job = scope.executeAsyncTask(
             onPreExecute = {
             }, doInBackground = {
                 doInBackground()
             }, onPostExecute = {
                 onPostExecute(it)
             })
+    }
+
+    fun cancel() {
+        job?.cancel()
+        job = null
     }
 
     protected abstract fun doInBackground(): String

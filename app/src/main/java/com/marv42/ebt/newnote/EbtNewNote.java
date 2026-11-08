@@ -97,6 +97,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private List<String> remainingOcrResults;
     private String appliedColor;
     private boolean triedAgain = false;
+    private OcrHandler ocrHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,13 +294,22 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void processPhoto() {
         Toast.makeText(this, R.string.processing, LENGTH_LONG).show();
+        cancelOcr();
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
         if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
             String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
-            new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey).execute();
+            ocrHandler = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey);
         } else
-            new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver()).execute();
+            ocrHandler = new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver());
+        ocrHandler.execute();
+    }
+
+    private void cancelOcr() {
+        if (ocrHandler != null) {
+            ocrHandler.cancel();
+            ocrHandler = null;
+        }
     }
 
     @Override
@@ -359,12 +369,14 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     protected void onDestroy() {
+        cancelOcr();
         sharedPreferencesListener.unregister();
         super.onDestroy();
     }
 
     @Override
     public void onOcrResult(@NonNull String result) {
+        ocrHandler = null;
         if (result.isEmpty()) {
             OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
             return;

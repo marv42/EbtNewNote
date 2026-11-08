@@ -9,13 +9,10 @@
 package com.marv42.ebt.newnote;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +30,6 @@ import com.marv42.ebt.newnote.data.LocationValues;
 import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.databinding.SubmitBinding;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
-import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.location.LocationButtonHandler;
 import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
@@ -49,7 +45,6 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_LONG;
 import static androidx.appcompat.widget.TooltipCompat.setTooltipText;
 
@@ -62,7 +57,6 @@ public class SubmitFragment extends DaggerFragment {
         void onSubmitButtonClicked();
     }
 
-    private static final String TAG = SubmitFragment.class.getSimpleName();
     @Inject
     ThisApp app;
     @Inject
@@ -82,6 +76,7 @@ public class SubmitFragment extends DaggerFragment {
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
+    private CommentSuggestion commentSuggestion;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,6 +109,7 @@ public class SubmitFragment extends DaggerFragment {
 
     @Override
     public void onDestroyView() {
+        cancelCommentSuggestion();
         removeTextChangedListeners();
         binding = null;
         super.onDestroyView();
@@ -361,11 +357,19 @@ public class SubmitFragment extends DaggerFragment {
     private void executeCommentSuggestion() {
         if (!sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
-        new CommentSuggestion(apiCaller, (EbtNewNote) requireActivity(), dataStore)
-                .execute(new LocationValues(
-                        getCountry(),
-                        getCity(),
-                        getPostalCode()));
+        cancelCommentSuggestion();
+        commentSuggestion = new CommentSuggestion(apiCaller, (EbtNewNote) requireActivity(), dataStore);
+        commentSuggestion.execute(new LocationValues(
+                getCountry(),
+                getCity(),
+                getPostalCode()));
+    }
+
+    private void cancelCommentSuggestion() {
+        if (commentSuggestion != null) {
+            commentSuggestion.cancel();
+            commentSuggestion = null;
+        }
     }
 
     private void removeTextChangedListeners() {
