@@ -9,10 +9,7 @@ package com.marv42.ebt.newnote.scanning
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.provider.MediaStore.MediaColumns
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
-import androidx.exifinterface.media.ExifInterface.*
 import com.marv42.ebt.newnote.HttpCaller
 import com.marv42.ebt.newnote.exceptions.*
 import com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR
@@ -20,7 +17,6 @@ import com.marv42.ebt.newnote.executeAsyncTask
 import kotlinx.coroutines.MainScope
 import okhttp3.FormBody
 import okhttp3.Request
-import java.io.IOException
 
 class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val photoPath: String,
                        private val photoUri: Uri?, private val contentResolver: ContentResolver,
@@ -77,6 +73,7 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
     @get:Throws(NoPictureException::class)
     private val formBody: FormBody
         get() {
+            val orientation = ImageOrientation.of(photoPath, contentResolver, photoUri)
             val base64Image = PictureConverter(photoPath, orientation).scaleAndEncodeToBase64(1024 * 1024.0)
             val formBodyBuilder = FormBody.Builder()
             formBodyBuilder.add("apikey", apiKey)
@@ -91,43 +88,6 @@ class OcrHandlerOnline(private val callback: IOcrHandler.Callback, private val p
             Log.w(TAG, e.message!!)
         }
     }
-
-    private val orientation: Int
-        get() = when {
-            orientationFromExif != ORIENTATION_UNDEFINED -> orientationFromExif
-            else -> orientationFromMediaStore
-        }
-
-    private val orientationFromMediaStore: Int
-        get() = if (photoUri != null)
-            orientationFromCursor
-        else
-            ORIENTATION_UNDEFINED
-
-    private val orientationFromCursor: Int
-        get() {
-            val columns = arrayOf(MediaColumns.ORIENTATION)
-            val cursor = contentResolver.query(photoUri!!, columns, null, null, null)
-                ?: return ORIENTATION_UNDEFINED
-            var orientation = ORIENTATION_UNDEFINED
-            if (cursor.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndex(columns[0])
-                if (columnIndex >= 0)
-                    orientation = cursor.getInt(columnIndex)
-            }
-            cursor.close()
-            return orientation
-        }
-
-    // this is always 0 :-(
-    private val orientationFromExif: Int
-        get() =
-            try {
-                val exif = ExifInterface(photoPath)
-                exif.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)
-            } catch (e: IOException) {
-                ORIENTATION_UNDEFINED
-            }
 
     companion object {
         private const val OCR_HOST = "api.ocr.space"

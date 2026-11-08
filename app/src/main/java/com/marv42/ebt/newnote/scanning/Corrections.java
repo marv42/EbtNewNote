@@ -41,6 +41,8 @@ public class Corrections {
 
     @NotNull
     private static String correctChars(String s) {
+        if (s.startsWith("\""))
+            s = "YA" + s.substring(1);
         List<Integer> letterIndices = getLetterIndices(s);
         for (int i = 0; i < s.length(); ++i) {
             if (letterIndices.contains(i))
@@ -48,8 +50,6 @@ public class Corrections {
             else
                 s = correctDigit(s, i);
             s = correctAmbiguous(s, i);
-//            if (s.startsWith("\""))
-//                s = "YA" + s.substring(1);
         }
         return s;
     }

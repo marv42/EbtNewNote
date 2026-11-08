@@ -7,11 +7,10 @@
  */
 package com.marv42.ebt.newnote.scanning
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
-import androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
-import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
@@ -20,11 +19,14 @@ import com.marv42.ebt.newnote.executeAsyncTask
 import com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE
 import kotlinx.coroutines.MainScope
 import java.io.File
+import java.io.File.separator
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.zip.ZipFile
 
 class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val context: Context,
-                      private val photoPath: String) {
+                      private val photoPath: String, private val photoUri: Uri?,
+                      private val contentResolver: ContentResolver) {
 
     private val TAG: String? = OcrHandlerLocal::class.java.getSimpleName()
     private val scope = MainScope()
@@ -43,18 +45,19 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
 
     private fun doInBackground(): String {
         return if (!prepareOcr()) ErrorMessage.ERROR + context.getString(R.string.error_initializing_local_ocr)
-        else doOcr(photoPath)
+        else doOcr()
     }
 
     private fun prepareOcr(): Boolean {
-        prepareTessData()
+        if (!prepareTessData())
+            return false
         tess = TessBaseAPI()
         if (tess!!.init(
                 filesPath,
                 TESS_DATA_LANGUAGE,
-                TessBaseAPI.OEM_TESSERACT_LSTM_COMBINED)) {
+                TessBaseAPI.OEM_LSTM_ONLY)) {
             // https://pyimagesearch.com/2021/11/15/tesseract-page-segmentation-modes-psms-explained-how-to-improve-your-ocr-accuracy/
-            tess!!.pageSegMode = TessBaseAPI.PageSegMode.PSM_AUTO
+            tess!!.pageSegMode = TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT
             setVariables()
             return true
         }
@@ -69,37 +72,34 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         tess!!.setVariable("load_freq_dawg", "0")
     }
 
-    private fun prepareTessData() {
+    private fun prepareTessData() : Boolean {
         filesPath = File(context.getExternalFilesDir(null), "").absolutePath
-        val tessDataPath = getTessDataPath()
-        if (!tessDataPath.exists() && !tessDataPath.mkdir())
-            assert(tessDataPath.exists())
-        val trainedDataFile = File(tessDataPath, TRAINED_DATA_FILE)
-        if (!trainedDataFile.exists() || readVersion() != TRAINED_DATA_VERSION)
-            copyTessData()
+        val tessDataDir = tessDataDir()
+        if (!tessDataDir.isDirectory)
+            if (!tessDataDir.mkdirs())
+                return false
+        val outputFile = outputFile()
+        if (outputFile.length() == assetTrainedDataSize())
+            return true
+        return copyTessData()
     }
 
-    private fun getTessDataPath(): File = File(filesPath, TESS_DATA_DIR)
+    private fun tessDataDir(): File = File(filesPath, TESS_DATA_DIR)
 
-    private fun readVersion(): String? =
-        try {
-            val versionFile = getVersionFile()
-            if (versionFile.exists()) versionFile.readText() else null
-        } catch (e: IOException) {
-            Log.w(TAG, e.message!!)
-            null
+    private fun outputFile(): File = File(tessDataDir(), TRAINED_DATA_FILE)
+
+    private fun assetTrainedDataSize(): Long =
+        ZipFile(context.applicationInfo.sourceDir).use { zip ->
+            zip.getEntry("assets/$TESS_DATA_DIR/$TRAINED_DATA_FILE")?.size ?: -1L
         }
+//        context.assets.openFd(TRAINED_DATA_FILE).use { it.length }
 
-    private fun getVersionFile(): File = File(getTessDataPath(), VERSION_FILE)
-
-    private fun copyTessData() {
-        val inputFileName = TESS_DATA_DIR + File.separator + TRAINED_DATA_FILE
-        val tessDataPath = getTessDataPath()
-        val tmpFile = File(tessDataPath, TRAINED_DATA_FILE + TMP_SUFFIX)
-        val outputFile = File(tessDataPath, TRAINED_DATA_FILE)
+    private fun copyTessData() : Boolean {
+        val tmpFile = File(tessDataDir(), TRAINED_DATA_FILE + TMP_SUFFIX)
         // https://github.com/adaptech-cz/Tesseract4Android/blob/master/sample/src/main/java/cz/adaptech/tesseract4android/sample/Assets.java
         val manager = context.assets
         try {
+            val inputFileName = TESS_DATA_DIR + separator + TRAINED_DATA_FILE
             manager.open(inputFileName).use { input ->
                 FileOutputStream(tmpFile).use { output ->
                     val buffer = ByteArray(1024)
@@ -107,41 +107,33 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
                     while (input.read(buffer).also { read = it } != -1) output.write(buffer, 0, read)
                 }
             }
+            val outputFile = outputFile()
             if (!tmpFile.renameTo(outputFile)) {
                 outputFile.delete()
                 if (!tmpFile.renameTo(outputFile))
                     throw IOException("Could not rename $tmpFile to $outputFile")
             }
-            val versionFile = getVersionFile()
-            versionFile.writeText(TRAINED_DATA_VERSION)
         } catch (e: IOException) {
             tmpFile.delete()
             Log.w(TAG, e.message!!)
+            return false
         }
+        return true
     }
 
-    private fun doOcr(photoPath: String): String {
+    private fun doOcr(): String {
+        val orientation = ImageOrientation.of(photoPath, contentResolver, photoUri)
         val bitmap = ImagePreprocessor.grayscaleWithLevelStretch(
-            PictureConverter(photoPath, orientation).toBitmap(MAX_LONG_SIDE))
+            PictureConverter(photoPath, orientation).toBitmap(MAX_LONG_SIDE)
+        )
         tess!!.setImage(bitmap)
-        setAllowInterruption()
         var allResults = tess!!.utF8Text
         tess!!.recycle()
         bitmap.recycle()
+        if (allResults == null)
+            return ErrorMessage.ERROR + context.getString(R.string.ocr_dialog_empty)
         allResults = allResults.replace("\r\n", NEW_LINE)
         return TextProcessor().getOcrResult(allResults)
-    }
-
-    private val orientation: Int
-        get() = try {
-            ExifInterface(photoPath).getAttributeInt(TAG_ORIENTATION, ORIENTATION_UNDEFINED)
-        } catch (e: IOException) {
-            Log.w(TAG, e.message!!)
-            ORIENTATION_UNDEFINED
-        }
-
-    private fun setAllowInterruption() {
-        tess!!.getHOCRText(0)
     }
 
     private fun onPostExecute(result: String) {
@@ -156,8 +148,6 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         private const val TESS_DATA_LANGUAGE = "eng"
         private const val TRAINED_DATA_FILE = "$TESS_DATA_LANGUAGE.traineddata"
         private const val TESS_DATA_DIR = "tessdata"
-        private const val VERSION_FILE = ".model_version"
-        private const val TRAINED_DATA_VERSION = "combined-20170629" // "best-20170629"
         private const val TMP_SUFFIX = ".tmp"
         private const val CHAR_WHITELIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         private const val MAX_LONG_SIDE = 2048

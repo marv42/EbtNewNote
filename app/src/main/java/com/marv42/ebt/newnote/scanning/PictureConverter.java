@@ -8,9 +8,11 @@
 
 package com.marv42.ebt.newnote.scanning;
 
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.util.Base64;
 
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
@@ -31,7 +33,7 @@ import androidx.annotation.NonNull;
 
 class PictureConverter {
 
-static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
+    static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
     private static final double UNDERSHOOT_FACTOR = 0.7;
 
     private final String path;
@@ -42,26 +44,29 @@ static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
         this.orientation = orientation;
     }
 
+    static PictureConverter of(String path, ContentResolver contentResolver, Uri photoUri) {
+        return new PictureConverter(path, ImageOrientation.of(path, contentResolver, photoUri));
+    }
+
     String scaleAndEncodeToBase64(double targetSizeBytes) throws NoPictureException {
         byte[] bytes = convertAndScale(targetSizeBytes);
         return Base64.encodeToString(bytes, NO_WRAP);
     }
 
     @NonNull
-    byte[] convertAndScale(double targetSizeBytes) throws NoPictureException {
+    private byte[] convertAndScale(double targetSizeBytes) throws NoPictureException {
         Bitmap bitmap = getBitmap();
         byte[] bytes = convert(bitmap);
         int allocationByteCount = bitmap.getAllocationByteCount();
         if (allocationByteCount <= targetSizeBytes)
             return bytes;
-        return scale(bitmap, bytes, targetSizeBytes, allocationByteCount);
+        return scale(bitmap, targetSizeBytes, allocationByteCount);
     }
 
     @NonNull
     Bitmap toBitmap(int maxLongSide) throws NoPictureException {
         Bitmap decoded = decodeSampled(maxLongSide);
-        Bitmap rotated = createBitmap(decoded, 0, 0, decoded.getWidth(), decoded.getHeight(),
-                rotateImage(), true);
+        Bitmap rotated = getRotatedBitmap(decoded);
         if (rotated != decoded)
             decoded.recycle();
         return rotated;
@@ -86,7 +91,6 @@ static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
     private int getInSampleSize(int width, int height, int maxLongSide) {
         int longestSide = Math.max(width, height);
         int inSampleSize = 1;
-        // Halve while the result does not fall too far below the target resolution.
         while (isImageTooBig(longestSide, inSampleSize, maxLongSide)) {
             if (isTargetResolutionReached(longestSide, inSampleSize, maxLongSide))
                 break;
@@ -103,16 +107,25 @@ static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
         return longestSide / inSampleSize > maxLongSide;
     }
 
-    private Bitmap getBitmap() {
-        Bitmap image = BitmapFactory.decodeFile(path);
-        final int width = image.getWidth();
-        final int height = image.getHeight();
-        Matrix matrix = rotateImage();
-        return createBitmap(image, 0, 0, width, height, matrix, true);
+    private Bitmap getBitmap() throws NoPictureException {
+        Bitmap decoded = BitmapFactory.decodeFile(path);
+        if (decoded == null)
+            throw new NoPictureException("R.string.error_reading_picture: " + path);
+        Bitmap rotated = getRotatedBitmap(decoded);
+        if (decoded != rotated)
+            decoded.recycle();
+        return rotated;
+    }
+
+    @NonNull
+    private Bitmap getRotatedBitmap(Bitmap bitmap) {
+        final int width = bitmap.getWidth();
+        final int height = bitmap.getHeight();
+        return createBitmap(bitmap, 0, 0, width, height, getRotationMatrix(), true);
     }
 
     @NotNull
-    private Matrix rotateImage() {
+    private Matrix getRotationMatrix() {
         int degrees = getDegrees();
         Matrix matrix = new Matrix();
         matrix.postRotate(degrees);
@@ -132,7 +145,7 @@ static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
         return stream.toByteArray();
     }
 
-    private byte[] scale(Bitmap bitmap, byte[] bytes, double targetSizeBytes, int allocationByteCount) throws NoPictureException {
+    private byte[] scale(Bitmap bitmap, double targetSizeBytes, int allocationByteCount) throws NoPictureException {
         final double scalingFactor = getScalingFactor(allocationByteCount, targetSizeBytes);
         ByteArrayOutputStream streamOfScaled = scaleImage(bitmap, scalingFactor);
         return streamOfScaled.toByteArray();
@@ -144,10 +157,10 @@ static final Bitmap.Config BITMAP_CONFIG = Bitmap.Config.ARGB_8888;
     }
 
     @NotNull
-    private ByteArrayOutputStream scaleImage(Bitmap image, double scalingFactor) throws NoPictureException {
-        final int scaledWidth = (int) (scalingFactor * image.getWidth());
-        final int scaledHeight = (int) (scalingFactor * image.getHeight());
-        Bitmap scaledImage = createScaledBitmap(image, scaledWidth, scaledHeight, false);
+    private ByteArrayOutputStream scaleImage(Bitmap bitmap, double scalingFactor) throws NoPictureException {
+        final int scaledWidth = (int) (scalingFactor * bitmap.getWidth());
+        final int scaledHeight = (int) (scalingFactor * bitmap.getHeight());
+        Bitmap scaledImage = createScaledBitmap(bitmap, scaledWidth, scaledHeight, false);
         ByteArrayOutputStream streamOfScaled = new ByteArrayOutputStream();
         if (!scaledImage.compress(PNG, 100, streamOfScaled))
             throw new NoPictureException("R.string.error_compressing_picture");
