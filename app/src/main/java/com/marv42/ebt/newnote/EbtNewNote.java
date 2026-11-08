@@ -51,7 +51,7 @@ import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
-import com.marv42.ebt.newnote.scanning.IOcrHandler;
+import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.OcrHandlerLocal;
 import com.marv42.ebt.newnote.scanning.OcrHandlerOnline;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
@@ -68,7 +68,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class EbtNewNote extends DaggerAppCompatActivity
         implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestion.Callback,
-        IOcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
+        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;

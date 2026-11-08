@@ -21,14 +21,14 @@ import static android.provider.MediaStore.MediaColumns.ORIENTATION;
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED;
 import static androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION;
 
-public final class ImageOrientation {
+final class ImageOrientation {
 
     private static final String TAG = ImageOrientation.class.getSimpleName();
 
     private ImageOrientation() {
     }
 
-    public static int of(String photoPath, ContentResolver contentResolver, Uri photoUri) {
+    static int of(String photoPath, ContentResolver contentResolver, Uri photoUri) {
         final int fromExif = fromExif(photoPath);
         return fromExif != ORIENTATION_UNDEFINED ? fromExif :
                 fromMediaStore(contentResolver, photoUri);

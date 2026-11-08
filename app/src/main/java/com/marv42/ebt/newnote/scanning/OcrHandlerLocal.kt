@@ -14,36 +14,22 @@ import android.util.Log
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
-import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException
-import com.marv42.ebt.newnote.executeAsyncTask
 import com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE
-import kotlinx.coroutines.MainScope
 import java.io.File
 import java.io.File.separator
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.zip.ZipFile
 
-class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val context: Context,
-                      private val photoPath: String, private val photoUri: Uri?,
-                      private val contentResolver: ContentResolver) {
+class OcrHandlerLocal(callback: Callback, private val context: Context,
+                      photoPath: String, photoUri: Uri?, contentResolver: ContentResolver) :
+    OcrHandler(callback, photoPath, photoUri, contentResolver) {
 
     private val TAG: String? = OcrHandlerLocal::class.java.getSimpleName()
-    private val scope = MainScope()
     private var tess: TessBaseAPI? = null
     private var filesPath: String? = null
 
-    fun execute() {
-        scope.executeAsyncTask(
-            onPreExecute = {
-            }, doInBackground = {
-                doInBackground()
-            }, onPostExecute = {
-                onPostExecute(it)
-            })
-    }
-
-    private fun doInBackground(): String {
+    override fun doInBackground(): String {
         return if (!prepareOcr()) ErrorMessage.ERROR + context.getString(R.string.error_initializing_local_ocr)
         else doOcr()
     }
@@ -122,10 +108,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
     }
 
     private fun doOcr(): String {
-        val orientation = ImageOrientation.of(photoPath, contentResolver, photoUri)
-        val bitmap = ImagePreprocessor.grayscaleWithLevelStretch(
-            PictureConverter(photoPath, orientation).toBitmap(MAX_LONG_SIDE)
-        )
+        val bitmap = ImagePreprocessor.grayscaleWithLevelStretch(toBitmap(MAX_LONG_SIDE))
         tess!!.setImage(bitmap)
         var allResults = tess!!.utF8Text
         tess!!.recycle()
@@ -133,15 +116,7 @@ class OcrHandlerLocal(private val callback: IOcrHandler.Callback, private val co
         if (allResults == null)
             return ErrorMessage.ERROR + context.getString(R.string.ocr_dialog_empty)
         allResults = allResults.replace("\r\n", NEW_LINE)
-        return TextProcessor().getOcrResult(allResults)
-    }
-
-    private fun onPostExecute(result: String) {
-        try {
-            callback.onOcrResult(result)
-        } catch (e: NoNotificationManagerException) {
-            Log.w(TAG, e.message!!)
-        }
+        return toOcrResult(allResults)
     }
 
     companion object {
