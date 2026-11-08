@@ -29,8 +29,19 @@ cyclonedxBom {
     projectType = "application"
 }
 
+def localProps = new Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+def nvdApiKey = localProps.getProperty("dependencyCheck.nvd.apiKey", "").trim()
+
 dependencyCheck {
     scanConfigurations = ["withKeyReleaseRuntimeClasspath"]
+    formats = ["HTML", "JSON", "SARIF"]
+    nvd {
+        apiKey = nvdApiKey
+    }
     // failBuildOnCVSS = 9.0
 }
 // https://dependency-check.github.io/DependencyCheck/dependency-check-gradle/configuration.html
