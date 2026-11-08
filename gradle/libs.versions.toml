@@ -18,6 +18,7 @@ dependencyCheckVersion = "13.0.0"
 exifinterfaceVersion = "1.4.2"
 fragmentVersion = "1.9.1"
 gsonVersion = "2.15.0"
+junitVersion = "4.13.2"
 kotlinxCoroutinesCore = "1.11.0"
 materialVersion = "1.14.0"
 okhttpVersion = "5.5.1"
@@ -25,6 +26,7 @@ picassoVersion = "2.8" # TODO Use https://coil-kt.github.io/coil/
 preferenceVersion = "1.2.1"
 protobufJavaVersion = "4.36.2"
 recyclerviewVersion = "1.4.0"
+robolectricVersion = "4.17"
 scabbardVersion = "0.5.0"
 securityCryptoVersion = "1.1.0"
 tesseract4androidOpenmpVersion = "4.9.0"
@@ -52,6 +54,7 @@ exifinterface = { group = "androidx.exifinterface", name = "exifinterface", vers
 fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentVersion" }
 androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "gradlePluginVersion" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
+junit = { group = "junit", name = "junit", version.ref = "junitVersion" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePluginVersion" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
@@ -60,6 +63,7 @@ picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "pic
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceVersion" }
 protobuf-java = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavaVersion"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectricVersion" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoVersion" }
 tesseract4android-openmp = { group = "cz.adaptech.tesseract4android", name = "tesseract4android-openmp", version.ref = "tesseract4androidOpenmpVersion" }
 tink = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tinkVersion" }
