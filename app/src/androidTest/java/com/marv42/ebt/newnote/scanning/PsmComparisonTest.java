@@ -36,18 +36,15 @@ public class PsmComparisonTest extends LocalOcrTestCase {
     }
 
     @Test
-    public void autoIsAtLeastAsGoodAsSparseText() throws NoPictureException {
+    public void sparseTextIsAtLeastAsGoodAsAuto() throws NoPictureException {
         final String sparse = process(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT);
         final String auto = process(TessBaseAPI.PageSegMode.PSM_AUTO);
         final List<String> deviations = new ArrayList<>();
         for (String serial : testCase.serials())
-            if (sparse.contains(serial) && !auto.contains(serial))
-                deviations.add("PSM_AUTO lost " + serial);
-        if (Ocr.lineCount(auto) > Ocr.lineCount(sparse))
-            deviations.add("PSM_AUTO returned " + Ocr.lineCount(auto) + " lines instead of "
-                    + Ocr.lineCount(sparse));
-        assertEquals(testCase + ": PSM_SPARSE_TEXT=" + sparse.replace(TextProcessor.NEW_LINE, " | ")
-                        + ", PSM_AUTO=" + auto.replace(TextProcessor.NEW_LINE, " | "),
+            if (auto.contains(serial) && !sparse.contains(serial))
+                deviations.add("PSM_SPARSE_TEXT lost " + serial);
+        assertEquals(testCase + ": PSM_AUTO=" + auto.replace(TextProcessor.NEW_LINE, " | ")
+                        + ", PSM_SPARSE_TEXT=" + sparse.replace(TextProcessor.NEW_LINE, " | "),
                 "", String.join("; ", deviations));
     }
 

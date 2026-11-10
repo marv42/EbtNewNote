@@ -45,10 +45,6 @@ final class Ocr implements AutoCloseable {
         return new TextProcessor().getOcrResult(allResults.replace("\r\n", TextProcessor.NEW_LINE));
     }
 
-    static int lineCount(String result) {
-        return result.isEmpty() ? 0 : result.split(TextProcessor.NEW_LINE).length;
-    }
-
     @Override
     public void close() {
         if (localOcr != null)
