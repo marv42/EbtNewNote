@@ -1,2 +1,4 @@
 *.traineddata* binary
+*.traineddata* skip-difftool
 *.jpg binary
+*.jpg skip-difftool
