@@ -40,10 +40,10 @@ import androidx.preference.SwitchPreference;
 
 import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.LoginChecker;
+import com.marv42.ebt.newnote.Predefines;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.NoPreferenceException;
-import com.marv42.ebt.newnote.scanning.Keys;
 
 import javax.inject.Inject;
 
@@ -101,6 +101,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             setInputTypes();
             checkOcrKey();
             checkCountryKey();
+            checkCommentKey();
             checkEmailSummary();
             checkPasswordSummary();
             checkCommentSummary();
@@ -208,8 +209,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 EditTextPreference ocrKeyPreference = (EditTextPreference) getPreference(R.string.pref_settings_ocr_service_key);
                 ocrKeyPreference.setEnabled(false);
                 String ocrKey = getOcrServiceKey();
-                if (ocrKey.isEmpty() && !Keys.OCR_SERVICE.isEmpty())
-                    ocrKey = Keys.OCR_SERVICE;
+                if (ocrKey.isEmpty() && !Predefines.OCR_SERVICE.isEmpty())
+                    ocrKey = Predefines.OCR_SERVICE;
                 ocrKeyPreference.setText(ocrKey);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
@@ -221,10 +222,22 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 return;
             try {
                 String countryKey = dataStore.get(R.string.pref_settings_country_key, "");
-                if (countryKey.isEmpty() && !Keys.COUNTRY_SERVICE.isEmpty())
-                    countryKey = Keys.COUNTRY_SERVICE;
+                if (countryKey.isEmpty() && !Predefines.COUNTRY_SERVICE.isEmpty())
+                    countryKey = Predefines.COUNTRY_SERVICE;
                 EditTextPreference countryPreference = (EditTextPreference) getPreference(R.string.pref_settings_country_key);
                 countryPreference.setText(countryKey);
+            } catch (NoPreferenceException e) {
+                Log.w(TAG, e.getMessage());
+            }
+        }
+
+        private void checkCommentKey() {
+            try {
+                String comment = dataStore.get(R.string.pref_settings_comment_key, "");
+                if (comment.isEmpty() && !Predefines.ADDITIONAL_COMMENT.isEmpty())
+                    comment = Predefines.ADDITIONAL_COMMENT;
+                EditTextPreference commentPreference = (EditTextPreference) getPreference(R.string.pref_settings_comment_key);
+                commentPreference.setText(comment);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
