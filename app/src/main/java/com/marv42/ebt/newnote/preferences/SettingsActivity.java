@@ -45,6 +45,8 @@ import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.exceptions.NoPreferenceException;
 
+import java.util.function.Consumer;
+
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
@@ -99,16 +101,9 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             super.onResume();
             registerOnSharedPreferenceChangeListener();
             setInputTypes();
-            checkOcrKey();
-            checkCountryKey();
-            checkCommentKey();
-            checkEmailSummary();
-            checkPasswordSummary();
-            checkCommentSummary();
-            checkOcrServiceKeySummary();
+            checkKeys();
+            checkSummaries();
             checkOcrOnline();
-            checkCountrySummary();
-            checkSubmittedSummary();
         }
 
         private void registerOnSharedPreferenceChangeListener() {
@@ -163,21 +158,21 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (activity != null)
                     new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
             }
-            if (key.equals(getString(R.string.pref_settings_comment_key)))
-                checkCommentSummary();
             if (key.equals(getString(R.string.pref_settings_ocr_online_key)))
                 checkOcrOnline();
             if (key.equals(getString(R.string.pref_settings_ocr_service_key)))
                 checkOcrServiceKeySummary();
-            if (key.equals(getString(R.string.pref_settings_country_key)))
-                checkCountrySummary();
-            if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
-                checkSubmittedSummary();
             if (key.equals(getString(R.string.pref_settings_color_key))) {
                 Activity activity = getActivity();
                 if (activity != null)
                     activity.getWindow().getDecorView().post(activity::recreate);
             }
+            if (key.equals(getString(R.string.pref_settings_country_key)))
+                checkCountrySummary();
+            if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
+                checkSubmittedSummary();
+            if (key.equals(getString(R.string.pref_settings_comment_key)))
+                checkCommentSummary();
         }
 
         private void setInputTypes() {
@@ -204,69 +199,87 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             return preference;
         }
 
+        private void checkKeys() {
+            checkEmailKey();
+            checkOcrKey();
+            checkCountryKey();
+            checkCommentKey();
+        }
+
+        private void checkEmailKey() {
+            checkKey(R.string.pref_settings_email_key, Predefines.EMAIL);
+        }
+
         private void checkOcrKey() {
-            try {
-                EditTextPreference ocrKeyPreference = (EditTextPreference) getPreference(R.string.pref_settings_ocr_service_key);
-                ocrKeyPreference.setEnabled(false);
-                String ocrKey = getOcrServiceKey();
-                if (ocrKey.isEmpty() && !Predefines.OCR_SERVICE.isEmpty())
-                    ocrKey = Predefines.OCR_SERVICE;
-                ocrKeyPreference.setText(ocrKey);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
+            checkKey(R.string.pref_settings_ocr_service_key, Predefines.OCR_SERVICE);
         }
 
         private void checkCountryKey() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
-                return;
-            try {
-                String countryKey = dataStore.get(R.string.pref_settings_country_key, "");
-                if (countryKey.isEmpty() && !Predefines.COUNTRY_SERVICE.isEmpty())
-                    countryKey = Predefines.COUNTRY_SERVICE;
-                EditTextPreference countryPreference = (EditTextPreference) getPreference(R.string.pref_settings_country_key);
-                countryPreference.setText(countryKey);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
+                checkKey(R.string.pref_settings_country_key, Predefines.COUNTRY_SERVICE);
         }
 
         private void checkCommentKey() {
+            checkKey(R.string.pref_settings_comment_key, Predefines.ADDITIONAL_COMMENT);
+        }
+
+        private void checkKey(int preferenceKey, String predefine) {
             try {
-                String comment = dataStore.get(R.string.pref_settings_comment_key, "");
-                if (comment.isEmpty() && !Predefines.ADDITIONAL_COMMENT.isEmpty())
-                    comment = Predefines.ADDITIONAL_COMMENT;
-                EditTextPreference commentPreference = (EditTextPreference) getPreference(R.string.pref_settings_comment_key);
-                commentPreference.setText(comment);
+                String value = dataStore.get(preferenceKey, "");
+                if (value.isEmpty() && !predefine.isEmpty())
+                    value = predefine;
+                EditTextPreference preference = (EditTextPreference) getPreference(preferenceKey);
+                preference.setText(value);
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
         }
 
+        private void checkSummaries() {
+            checkEmailSummary();
+            checkPasswordSummary();
+            checkOcrServiceKeySummary();
+            checkSubmittedSummary();
+            checkCountrySummary();
+            checkCommentSummary();
+        }
+
         private void checkEmailSummary() {
+            checkSummary(R.string.pref_settings_email_key, this::setEmailSummary);
+        }
+
+        private void checkPasswordSummary() {
+            checkSummary(R.string.pref_settings_password_key, this::setPasswordSummary);
+        }
+
+        private void checkOcrServiceKeySummary() {
+            checkSummary(R.string.pref_settings_ocr_service_key, this::setOcrServiceKeySummary);
+        }
+
+        private void checkSubmittedSummary() {
+            checkSummary(R.string.pref_settings_show_submitted_key, this::setSubmittedSummary);
+        }
+
+        private void checkCountrySummary() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
+                checkSummary(R.string.pref_settings_country_key, this::setCountrySummary);
+        }
+
+        private void checkCommentSummary() {
+            checkSummary(R.string.pref_settings_comment_key, this::setCommentSummary);
+        }
+
+        private void checkSummary(int preferenceKey, Consumer<Preference> setSummary) {
             try {
-                Preference emailPreference = getPreference(R.string.pref_settings_email_key);
-                setEmailSummary(emailPreference);
+                setSummary.accept(getPreference(preferenceKey));
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
         }
 
         private void setEmailSummary(Preference preference) {
-            String email = dataStore.get(R.string.pref_settings_email_key, "");
-            String summary = getString(R.string.settings_email_summary);
-            if (!TextUtils.isEmpty(email))
-                summary += getString(R.string.settings_currently) + " " + email.trim();
-            preference.setSummary(summary);
-        }
-
-        private void checkPasswordSummary() {
-            try {
-                Preference passwordPreference = getPreference(R.string.pref_settings_password_key);
-                setPasswordSummary(passwordPreference);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
+            setSummary(preference, R.string.pref_settings_email_key,
+                    R.string.settings_email_summary, true);
         }
 
         private void setPasswordSummary(Preference preference) {
@@ -276,20 +289,46 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             preference.setSummary(summary);
         }
 
-        private void checkCommentSummary() {
-            try {
-                Preference commentPreference = getPreference(R.string.pref_settings_comment_key);
-                setCommentSummary(commentPreference);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
+        private void setCommentSummary(Preference preference) {
+            setSummary(preference, R.string.pref_settings_comment_key,
+                    R.string.settings_comment_summary, false);
         }
 
-        private void setCommentSummary(Preference preference) {
-            String comment = dataStore.get(R.string.pref_settings_comment_key, "");
-            String summary = getString(R.string.settings_comment_summary);
-            if (!TextUtils.isEmpty(comment))
-                summary += getString(R.string.settings_currently) + " " + comment;
+        private void setOcrServiceKeySummary(Preference preference) {
+            setServiceKeySummary(preference, R.string.pref_settings_ocr_service_key,
+                    R.string.settings_ocr_service_key_summary,
+                    R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
+        }
+
+        private void setCountrySummary(Preference preference) {
+            setServiceKeySummary(preference, R.string.pref_settings_country_key,
+                    R.string.settings_country_summary,
+                    R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
+        }
+
+        private void setServiceKeySummary(Preference preference, int preferenceKey,
+                                          int summaryResId, int urlResId, int summaryNoKeyResId) {
+            String summary = getString(summaryResId);
+            if (dataStore.get(preferenceKey, "").isEmpty()) {
+                String serviceUrl = getString(urlResId);
+                summary += ".\n" + getString(summaryNoKeyResId) + " " + serviceUrl;
+                preference.setIntent(new Intent().setAction(ACTION_VIEW).setData(Uri.parse(serviceUrl)));
+            } else
+                preference.setIntent(null);
+            preference.setSummary(summary);
+        }
+
+        private void setSubmittedSummary(Preference preference) {
+            setSummary(preference, R.string.pref_settings_show_submitted_key,
+                    R.string.settings_submitted_summary, true);
+        }
+
+        private void setSummary(Preference preference, int preferenceKey,
+                                int summaryResId, boolean trim) {
+            String value = dataStore.get(preferenceKey, "");
+            String summary = getString(summaryResId);
+            if (!TextUtils.isEmpty(value))
+                summary += getString(R.string.settings_currently) + " " + (trim ? value.trim() : value);
             preference.setSummary(summary);
         }
 
@@ -306,83 +345,6 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             } catch (NoPreferenceException e) {
                 Log.w(TAG, e.getMessage());
             }
-        }
-
-        private void checkOcrServiceKeySummary() {
-            try {
-                Preference ocrKeyPreference = getPreference(R.string.pref_settings_ocr_service_key);
-                setOcrServiceKeySummary(ocrKeyPreference);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
-        }
-
-        private void setOcrServiceKeySummary(Preference preference) {
-            setServiceKeySummary(preference, R.string.settings_ocr_service_key_summary,
-                    R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
-        }
-
-        private void setServiceKeySummary(Preference preference, int resourceIdSummary,
-                                          int resourceIdUrl, int resourceIdSummaryNoKey) {
-            String summary = getString(resourceIdSummary);
-            if (isServiceKeyNotSet(resourceIdSummary)) {
-                String serviceUrl = getString(resourceIdUrl);
-                summary += ".\n" + getString(resourceIdSummaryNoKey) + " " + serviceUrl;
-                preference.setIntent(new Intent().setAction(ACTION_VIEW).setData(Uri.parse(serviceUrl)));
-            } else
-                preference.setIntent(null);
-            preference.setSummary(summary);
-        }
-
-        private boolean isServiceKeyNotSet(int resourceIdSummary) {
-            if (resourceIdSummary == R.string.settings_ocr_service_key_summary)
-                return getOcrServiceKey().isEmpty();
-            if (resourceIdSummary == R.string.settings_country_summary)
-                return getCountryResolutionServiceKey().isEmpty();
-            throw new IllegalArgumentException("resourceIdSummary");
-        }
-
-        @NonNull
-        private String getOcrServiceKey() {
-            return dataStore.get(R.string.pref_settings_ocr_service_key, "");
-        }
-
-        @NonNull
-        private String getCountryResolutionServiceKey() {
-            return dataStore.get(R.string.pref_settings_country_key, "");
-        }
-
-        private void checkCountrySummary() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
-                return;
-            try {
-                Preference preference = getPreference(R.string.pref_settings_country_key);
-                setCountrySummary(preference);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
-        }
-
-        private void setCountrySummary(Preference preference) {
-            setServiceKeySummary(preference, R.string.settings_country_summary,
-                    R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
-        }
-
-        private void checkSubmittedSummary() {
-            try {
-                Preference preference = getPreference(R.string.pref_settings_show_submitted_key);
-                setSubmittedSummary(preference);
-            } catch (NoPreferenceException e) {
-                Log.w(TAG, e.getMessage());
-            }
-        }
-
-        private void setSubmittedSummary(Preference preference) {
-            String submitted = dataStore.get(R.string.pref_settings_show_submitted_key, "");
-            String summary = getString(R.string.settings_submitted_summary);
-            if (!TextUtils.isEmpty(submitted))
-                summary += getString(R.string.settings_currently) + " " + submitted.trim();
-            preference.setSummary(summary);
         }
 
         private boolean isEmailAndPasswordSet() {
