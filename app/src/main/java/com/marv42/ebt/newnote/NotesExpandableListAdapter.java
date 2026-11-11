@@ -8,6 +8,7 @@
 
 package com.marv42.ebt.newnote;
 
+import android.content.Context;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,7 +19,10 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import coil3.ImageLoader;
+import coil3.SingletonImageLoader;
+import coil3.request.ImageRequest;
+import coil3.target.ImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -130,8 +134,13 @@ public class NotesExpandableListAdapter extends SimpleExpandableListAdapter {
     }
 
     private void loadDenominationImage(ImageView view, String data) {
-        if (view != null)
-            Picasso.get().load(data).into(view);
+        if (view != null) {
+            final Context context = view.getContext();
+            SingletonImageLoader.get(context).enqueue(new ImageRequest.Builder(context)
+                    .data(data)
+                    .target(new ImageViewTarget(view))
+                    .build());
+        }
     }
 
     private void setTextFromHtml(TextView view, String data) {

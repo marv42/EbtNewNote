@@ -24,7 +24,7 @@ junitVersion = "4.13.2"
 kotlinxCoroutinesCore = "1.11.0"
 materialVersion = "1.14.0"
 okhttpVersion = "5.5.1"
-picassoVersion = "2.8" # TODO Use https://coil-kt.github.io/coil/
+coilVersion = "3.6.3"
 preferenceVersion = "1.2.1"
 protobufJavaVersion = "4.36.2"
 recyclerviewVersion = "1.4.0"
@@ -61,7 +61,8 @@ junit = { group = "junit", name = "junit", version.ref = "junitVersion" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
-picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picassoVersion" }
+coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coilVersion" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coilVersion" }
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceVersion" }
 protobuf-java = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavaVersion"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
