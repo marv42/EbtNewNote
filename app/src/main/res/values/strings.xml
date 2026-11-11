@@ -110,7 +110,7 @@
     <string name="settings_category_ebt_account">EBT account settings</string>
     <string name="settings_ebt_account_summary">Don\'t have a EuroBillTracker account yet?\nTap here to create one</string>
     <string name="ebt_url" translatable="false">https://en.eurobilltracker.com/</string>
-    <string name="create_ebt_account_url" translatable="false">${ebt_url}signup/</string>
+    <string name="create_ebt_account_url" translatable="false">${ebt_url}signup/?referer=40342</string>
     <string name="invalid_login">Invalid login</string>
     <string name="settings_email_title">Email address</string>
     <string name="settings_email_summary">Email address to log in to your EBT account</string>
