@@ -9,8 +9,7 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 
 plugins {
-    // TODO alias(libs.plugins.android.application)
-    id("com.android.application")
+    alias(libs.plugins.android.application)
     alias(libs.plugins.aboutlibraries) // has to be applied AFTER android
     alias(libs.plugins.cyclonedx)
     alias(libs.plugins.dependencycheck)

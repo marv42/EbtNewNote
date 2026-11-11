@@ -56,10 +56,8 @@ datastore = { group = "androidx.datastore", name = "datastore", version.ref = "d
 dependency-check-plugin = { group = "org.owasp", name = "dependency-check-gradle", version.ref = "dependencyCheckVersion" }
 exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }
 fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentVersion" }
-androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "gradlePluginVersion" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junitVersion" }
-kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePluginVersion" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
@@ -77,6 +75,7 @@ aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 android-application = { id = "com.android.application", version.ref = "gradlePluginVersion" }
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedxVersion" }
 dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "dependencyCheckVersion" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePluginVersion" }
 likethesalad = { id = "com.likethesalad.stem", version.ref = "likethesaladPluginVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 scabbard = { id = "scabbard.gradle", version.ref = "scabbardVersion" }

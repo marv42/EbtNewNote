@@ -6,15 +6,9 @@
  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-buildscript {
-    dependencies {
-        classpath libs.androidGradlePlugin
-        classpath libs.kotlin.gradle.plugin
-    }
-}
-
 plugins {
-    // TODO alias(libs.plugins.android.application)
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.cyclonedx) apply false
     alias(libs.plugins.dependencycheck) apply false
