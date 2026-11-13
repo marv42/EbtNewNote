@@ -75,7 +75,9 @@ public class ThisApp extends DaggerApplication {
                 .withExcludeMatchingSharedPreferencesKeys(Arrays.asList(
                         getString(R.string.pref_results_key),
                         getString(R.string.pref_settings_email_key),
-                        getString(R.string.pref_settings_password_key)));
+                        getString(R.string.pref_settings_password_key),
+                        getString(R.string.pref_settings_ocr_service_key_key),
+                        getString(R.string.pref_settings_country_service_key_key)));
         ACRA.init(this, builder);
     }
 
