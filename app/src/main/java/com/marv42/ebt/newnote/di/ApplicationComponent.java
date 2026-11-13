@@ -19,8 +19,8 @@ import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.LicensesActivity;
 import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.location.FetchAddressIntentService;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 
 import javax.inject.Singleton;
@@ -60,13 +60,13 @@ abstract class ApplicationModule {
 
     @Provides
     @Singleton
-    static EncryptedPreferenceDataStore provideEncryptedPreferenceDataStore(@NonNull ThisApp app) {
-        return new EncryptedPreferenceDataStore(app);
+    static SharedPreferenceDataStore provideSharedPreferenceDataStore(@NonNull ThisApp app) {
+        return new SharedPreferenceDataStore(app);
     }
 
     @Provides
     @Singleton
-    static ApiCaller provideApiCaller(EncryptedPreferenceDataStore dataStore) {
+    static ApiCaller provideApiCaller(SharedPreferenceDataStore dataStore) {
         return new ApiCaller(dataStore);
     }
 

@@ -30,7 +30,6 @@ protobufJavaVersion = "4.36.2"
 recyclerviewVersion = "1.4.0"
 robolectricVersion = "4.17"
 scabbardVersion = "0.5.0"
-securityCryptoVersion = "1.1.0"
 tesseract4androidOpenmpVersion = "4.9.0"
 tinkVersion = "1.24.0"
 
@@ -67,7 +66,6 @@ preference = { group = "androidx.preference", name = "preference-ktx", version.r
 protobuf-java = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavaVersion"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectricVersion" }
-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCryptoVersion" }
 tesseract4android-openmp = { group = "cz.adaptech.tesseract4android", name = "tesseract4android-openmp", version.ref = "tesseract4androidOpenmpVersion" }
 tink = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tinkVersion" }
 

@@ -34,7 +34,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.marv42.ebt.newnote.data.NoteData;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
@@ -56,7 +56,7 @@ public class ResultsFragmentData extends ResultsFragment {
     @Inject
     ViewModelProvider viewModelProvider;
     @Inject
-    EncryptedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore dataStore;
     @Inject
     AllResults allResults;
     static final String KEEP = "keep";

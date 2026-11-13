@@ -19,7 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 
 import java.util.ArrayList;
@@ -36,11 +36,11 @@ import static java.lang.Integer.max;
 public class AllResults implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
-    private final EncryptedPreferenceDataStore dataStore;
+    private final SharedPreferenceDataStore dataStore;
     private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
-    public AllResults(ThisApp app, EncryptedPreferenceDataStore dataStore, ViewModelProvider viewModelProvider) {
+    public AllResults(ThisApp app, SharedPreferenceDataStore dataStore, ViewModelProvider viewModelProvider) {
         this.app = app;
         this.viewModelProvider = viewModelProvider;
         this.dataStore = dataStore;
@@ -50,9 +50,7 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     }
 
     private void registerOnSharedPreferenceChangeListener() {
-        SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-        if (sharedPreferences != null)
-            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        dataStore.registerOnSharedPreferenceChangeListener(this);  // no unregister (activity scope)
     }
 
     private void initResults() {

@@ -148,7 +148,7 @@ allprojects {
         tasks.withType(JavaCompile).tap {
             configureEach {
                 options.compilerArgs += ["-Xlint:deprecation"]
-                options.compilerArgs += ["-Xlint:unchecked"]
+//                options.compilerArgs += ["-Xlint:unchecked"]
             }
         }
     }
@@ -164,7 +164,6 @@ dependencies {
     implementation(libs.exifinterface)
     implementation(libs.fragment)
     implementation(libs.preference)
-    implementation(libs.security.crypto)
     implementation(libs.datastore)
     implementation(libs.protobuf.java)
     implementation(libs.tink)

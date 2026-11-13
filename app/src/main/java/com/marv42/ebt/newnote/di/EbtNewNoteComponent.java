@@ -20,8 +20,8 @@ import com.marv42.ebt.newnote.ResultsFragmentEmpty;
 import com.marv42.ebt.newnote.SubmissionResultHandler;
 import com.marv42.ebt.newnote.SubmitFragment;
 import com.marv42.ebt.newnote.ThisApp;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 
 import dagger.Module;
@@ -59,15 +59,15 @@ abstract class EbtNewNoteModule {
     @Provides
     @ActivityScope
     static MySharedPreferencesListener provideMySharedPreferencesListener(
-            @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore,
-            @NonNull SharedPreferencesHandler sharedPreferencesHandler, @NonNull ViewModelProvider viewModelProvider) {
-        return new MySharedPreferencesListener(app, dataStore, sharedPreferencesHandler, viewModelProvider);
+            @NonNull ThisApp app, @NonNull SharedPreferencesHandler sharedPreferencesHandler,
+            @NonNull ViewModelProvider viewModelProvider) {
+        return new MySharedPreferencesListener(app, sharedPreferencesHandler, viewModelProvider);
     }
 
     @Provides
     @ActivityScope
     static AllResults provideAllResults(
-            @NonNull ThisApp app, @NonNull EncryptedPreferenceDataStore dataStore, @NonNull ViewModelProvider viewModelProvider) {
+            @NonNull ThisApp app, @NonNull SharedPreferenceDataStore dataStore, @NonNull ViewModelProvider viewModelProvider) {
         return new AllResults(app, dataStore, viewModelProvider);
     }
 

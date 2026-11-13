@@ -16,7 +16,7 @@ import com.marv42.ebt.newnote.data.NoteInsertionData;
 import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoJsonElementException;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -42,10 +42,10 @@ public class ApiCaller {
     private static final String MY_CITY_ELEMENT = "my_city";
     private static final String MY_ZIP_ELEMENT = "my_zip";
 
-    private final EncryptedPreferenceDataStore dataStore;
+    private final SharedPreferenceDataStore dataStore;
 
     @Inject
-    public ApiCaller(EncryptedPreferenceDataStore dataStore) {
+    public ApiCaller(SharedPreferenceDataStore dataStore) {
         this.dataStore = dataStore;
     }
 

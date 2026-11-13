@@ -30,7 +30,7 @@ import com.marv42.ebt.newnote.exceptions.CallResponseException;
 import com.marv42.ebt.newnote.exceptions.HttpCallException;
 import com.marv42.ebt.newnote.exceptions.NoIntentException;
 import com.marv42.ebt.newnote.exceptions.NoLocationException;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -55,7 +55,7 @@ public class FetchAddressIntentService extends DaggerIntentService {
     private String result;
     private int resultCode = RESULT_CODE_ERROR;
     @Inject
-    EncryptedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore dataStore;
 
     public FetchAddressIntentService() {
         super(TAG);
@@ -117,7 +117,7 @@ public class FetchAddressIntentService extends DaggerIntentService {
             return countryName;
         }
         try {
-            String apiKey = dataStore.get(R.string.pref_settings_country_key, "");
+            String apiKey = dataStore.get(R.string.pref_settings_country_service_key_key, "");
             countryName = new CountryCode().convert(countryCode, apiKey);
         } catch (HttpCallException | CallResponseException e) {
             Log.w(TAG, e.getMessage());

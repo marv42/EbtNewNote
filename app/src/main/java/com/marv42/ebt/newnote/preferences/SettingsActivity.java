@@ -55,7 +55,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 public class SettingsActivity extends DaggerAppCompatActivity {
 
     @Inject
-    EncryptedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore dataStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +88,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         @Inject
         ApiCaller apiCaller;
         @Inject
-        EncryptedPreferenceDataStore dataStore;
+        SharedPreferenceDataStore dataStore;
 
         @Override
         public void onAttach(@NonNull Context context) {
@@ -107,9 +107,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void registerOnSharedPreferenceChangeListener() {
-            SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-            if (sharedPreferences != null)
-                sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+            dataStore.registerOnSharedPreferenceChangeListener(this);
         }
 
         @Override
@@ -119,9 +117,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void unregisterOnSharedPreferenceChangeListener() {
-            SharedPreferences sharedPreferences = dataStore.getSharedPreferences();
-            if (sharedPreferences != null)
-                sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+            dataStore.unregisterOnSharedPreferenceChangeListener(this);
         }
 
         @Override
@@ -160,14 +156,14 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             }
             if (key.equals(getString(R.string.pref_settings_ocr_online_key)))
                 checkOcrOnline();
-            if (key.equals(getString(R.string.pref_settings_ocr_service_key)))
+            if (key.equals(getString(R.string.pref_settings_ocr_service_key_key)))
                 checkOcrServiceKeySummary();
             if (key.equals(getString(R.string.pref_settings_color_key))) {
                 Activity activity = getActivity();
                 if (activity != null)
                     activity.getWindow().getDecorView().post(activity::recreate);
             }
-            if (key.equals(getString(R.string.pref_settings_country_key)))
+            if (key.equals(getString(R.string.pref_settings_country_service_key_key)))
                 checkCountrySummary();
             if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
                 checkSubmittedSummary();
@@ -211,12 +207,12 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkOcrKey() {
-            checkKey(R.string.pref_settings_ocr_service_key, Predefines.OCR_SERVICE);
+            checkKey(R.string.pref_settings_ocr_service_key_key, Predefines.OCR_SERVICE);
         }
 
         private void checkCountryKey() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
-                checkKey(R.string.pref_settings_country_key, Predefines.COUNTRY_SERVICE);
+                checkKey(R.string.pref_settings_country_service_key_key, Predefines.COUNTRY_SERVICE);
         }
 
         private void checkCommentKey() {
@@ -253,7 +249,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void checkOcrServiceKeySummary() {
-            checkSummary(R.string.pref_settings_ocr_service_key, this::setOcrServiceKeySummary);
+            checkSummary(R.string.pref_settings_ocr_service_key_key, this::setOcrServiceKeySummary);
         }
 
         private void checkSubmittedSummary() {
@@ -262,7 +258,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void checkCountrySummary() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
-                checkSummary(R.string.pref_settings_country_key, this::setCountrySummary);
+                checkSummary(R.string.pref_settings_country_service_key_key, this::setCountrySummary);
         }
 
         private void checkCommentSummary() {
@@ -295,13 +291,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         }
 
         private void setOcrServiceKeySummary(Preference preference) {
-            setServiceKeySummary(preference, R.string.pref_settings_ocr_service_key,
+            setServiceKeySummary(preference, R.string.pref_settings_ocr_service_key_key,
                     R.string.settings_ocr_service_key_summary,
                     R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
         }
 
         private void setCountrySummary(Preference preference) {
-            setServiceKeySummary(preference, R.string.pref_settings_country_key,
+            setServiceKeySummary(preference, R.string.pref_settings_country_service_key_key,
                     R.string.settings_country_summary,
                     R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
         }
@@ -338,7 +334,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 SwitchPreference preference = findPreference(key);
                 if (preference == null)
                     throw new NoPreferenceException("No preference for " + key);
-                Preference serviceKeyPreference = getPreference(R.string.pref_settings_ocr_service_key);
+                Preference serviceKeyPreference = getPreference(R.string.pref_settings_ocr_service_key_key);
                 serviceKeyPreference.setEnabled(preference.isChecked());
 //                Preference postponeOcrPreference = getPreference(R.string.pref_settings_ocr_postpone_key);
 //                postponeOcrPreference.setEnabled(preference.isChecked());

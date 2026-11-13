@@ -47,9 +47,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoClipboardManagerException;
 import com.marv42.ebt.newnote.preferences.Color;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.OcrHandler;
 import com.marv42.ebt.newnote.scanning.OcrHandlerLocal;
@@ -82,7 +82,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final String TAG = EbtNewNote.class.getSimpleName();
     @Inject
-    EncryptedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore dataStore;
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
@@ -298,7 +298,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
         if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
-            String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
+            String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key_key, "");
             ocrHandler = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey);
         } else
             ocrHandler = new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver());

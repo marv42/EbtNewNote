@@ -153,16 +153,16 @@
     <!-- preferences -->
     <string name="pref_settings_email_key" translatable="false">pref_settings_email</string>
     <string name="pref_settings_password_key" translatable="false">pref_settings_password</string>
-    <string name="pref_settings_comment_key" translatable="false">pref_settings_comment</string>
     <string name="pref_settings_ocr_online_key" translatable="false">pref_settings_ocr_online</string>
-    <string name="pref_settings_ocr_service_key" translatable="false">pref_settings_ocr_service</string>
+    <string name="pref_settings_ocr_service_key_key" translatable="false">pref_settings_ocr_service_key</string>
     <string name="pref_settings_ocr_postpone_key" translatable="false">pref_settings_ocr_postpone</string>
     <string name="pref_settings_color_key" translatable="false">pref_settings_color</string>
     <string name="pref_settings_category_misc_key" translatable="false">pref_settings_category_misc</string>
-    <string name="pref_settings_country_key" translatable="false">pref_settings_country</string>
+    <string name="pref_settings_country_service_key_key" translatable="false">pref_settings_country_service_key</string>
     <string name="pref_settings_images_key" translatable="false">pref_settings_images</string>
     <string name="pref_settings_show_submitted_key" translatable="false">pref_settings_show_submitted</string>
     <string name="pref_settings_max_retries_key" translatable="false">pref_settings_retries</string>
+    <string name="pref_settings_comment_key" translatable="false">pref_settings_comment</string>
     <string name="pref_country_key" translatable="false">pref_country</string>
     <string name="pref_city_key" translatable="false">pref_city</string>
     <string name="pref_postal_code_key" translatable="false">pref_postal_code</string>

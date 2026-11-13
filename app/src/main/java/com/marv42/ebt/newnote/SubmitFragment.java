@@ -32,9 +32,9 @@ import com.marv42.ebt.newnote.databinding.SubmitBinding;
 import com.marv42.ebt.newnote.exceptions.ErrorMessage;
 import com.marv42.ebt.newnote.exceptions.NoPictureException;
 import com.marv42.ebt.newnote.location.LocationButtonHandler;
-import com.marv42.ebt.newnote.preferences.EncryptedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SavePreferencesTextWatcher;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 import com.marv42.ebt.newnote.scanning.CameraStarter;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
@@ -68,7 +68,7 @@ public class SubmitFragment extends DaggerFragment {
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
-    EncryptedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore dataStore;
     @Inject
     MySharedPreferencesListener sharedPreferencesListener;
     @Inject
@@ -127,7 +127,7 @@ public class SubmitFragment extends DaggerFragment {
 
     void takePhoto() {
         CameraStarter cameraStarter = new CameraStarter(getActivity());
-        final String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key, "");
+        final String ocrKey = dataStore.get(R.string.pref_settings_ocr_service_key_key, "");
         final boolean isOnlineOcr = dataStore.get(R.string.pref_settings_ocr_online_key, false);
         if (!cameraStarter.canTakePhoto(isOnlineOcr && TextUtils.isEmpty(ocrKey)))
             return;

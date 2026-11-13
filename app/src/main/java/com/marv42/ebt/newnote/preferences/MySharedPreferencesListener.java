@@ -24,32 +24,23 @@ import javax.inject.Inject;
 public class MySharedPreferencesListener implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final Context context;
-    private final EncryptedPreferenceDataStore dataStore;
     private final SharedPreferencesHandler sharedPreferencesHandler;
     private final ViewModelProvider viewModelProvider;
 
     @Inject
     public MySharedPreferencesListener(ThisApp app,
-                                       EncryptedPreferenceDataStore dataStore,
                                        SharedPreferencesHandler sharedPreferencesHandler,
                                        ViewModelProvider viewModelProvider) {
         context = app;
-        this.dataStore = dataStore;
         this.sharedPreferencesHandler = sharedPreferencesHandler;
         this.viewModelProvider = viewModelProvider;
     }
 
     public void register() {
-        SharedPreferences preferences = dataStore.getSharedPreferences();
-        if (preferences != null)
-            preferences.registerOnSharedPreferenceChangeListener(this);
         sharedPreferencesHandler.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     public void unregister() {
-        SharedPreferences preferences = dataStore.getSharedPreferences();
-        if (preferences != null)
-            preferences.unregisterOnSharedPreferenceChangeListener(this);
         sharedPreferencesHandler.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
