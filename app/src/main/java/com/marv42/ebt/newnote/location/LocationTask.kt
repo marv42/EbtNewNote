@@ -19,25 +19,38 @@ import android.widget.Toast.LENGTH_LONG
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.ThisApp
 import com.marv42.ebt.newnote.Utils
-import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import com.marv42.ebt.newnote.executeAsyncTask
+import com.marv42.ebt.newnote.mainScope
+import kotlinx.coroutines.Job
 
-class LocationTask(private val app: ThisApp) : CoroutineScope {
+class LocationTask(private val app: ThisApp) {
 
     private val locationManager: LocationManager = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    // the listener writes on the main thread, requestLocation() reads on Dispatchers.IO
+    @Volatile
     private var location: Location? = null
 
-    private var job: Job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+    private val scope = mainScope()
+    private var job: Job? = null
 
-    fun execute() = launch {
-        val result = doInBackground()
-        onPostExecute(result)
+    fun execute() {
+        job?.cancel()
+        job = scope.executeAsyncTask(
+            doInBackground = {
+                requestLocation()
+            }, onPostExecute = {
+                deliverResult(it)
+            })
+    }
+
+    fun cancel() {
+        job?.cancel()
+        job = null
     }
 
     @SuppressLint("MissingPermission")
-    private fun doInBackground(): Int {
+    private fun requestLocation(): Int {
         val enabledProviders = locationManager.getProviders(true)
         if (enabledProviders.isEmpty())
             return R.string.location_no_provider
@@ -85,11 +98,9 @@ class LocationTask(private val app: ThisApp) : CoroutineScope {
             override fun onProviderDisabled(provider: String) {}
         }
 
-    private fun onPostExecute(result: Int?) {
-        if (result != null)
-            Toast.makeText(app, result, LENGTH_LONG).show()
-        if (location != null)
-            app.onLocation(location)
+    private fun deliverResult(result: Int) {
+        Toast.makeText(app, result, LENGTH_LONG).show()
+        location?.let { app.onLocation(it) }
     }
 
     companion object {

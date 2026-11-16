@@ -11,25 +11,27 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import com.marv42.ebt.newnote.executeAsyncTask
+import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.NoNotificationManagerException
+import com.marv42.ebt.newnote.executeAsyncTask
+import com.marv42.ebt.newnote.mainScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 
 abstract class OcrHandler(private val callback: Callback, protected val photoPath: String,
                           private val photoUri: Uri?, private val contentResolver: ContentResolver) {
 
-    private val scope = MainScope()
+    private val scope = mainScope()
     private var job: Job? = null
 
     fun execute() {
         job?.cancel()
         job = scope.executeAsyncTask(
-            onPreExecute = {
-            }, doInBackground = {
-                doInBackground()
+            doInBackground = {
+                scan()
             }, onPostExecute = {
-                onPostExecute(it)
+                deliverResult(it)
+            }, onError = {
+                deliverResult(ErrorMessage.ERROR + "R.string.ocr_error")
             })
     }
 
@@ -38,7 +40,7 @@ abstract class OcrHandler(private val callback: Callback, protected val photoPat
         job = null
     }
 
-    protected abstract fun doInBackground(): String
+    protected abstract fun scan(): String
 
     protected fun toBitmap(maxLongSide: Int): Bitmap =
         pictureConverter().toBitmap(maxLongSide)
@@ -51,7 +53,7 @@ abstract class OcrHandler(private val callback: Callback, protected val photoPat
     private fun pictureConverter(): PictureConverter =
         PictureConverter.of(photoPath, contentResolver, photoUri)
 
-    private fun onPostExecute(result: String) {
+    private fun deliverResult(result: String) {
         try {
             callback.onOcrResult(result)
         } catch (e: NoNotificationManagerException) {

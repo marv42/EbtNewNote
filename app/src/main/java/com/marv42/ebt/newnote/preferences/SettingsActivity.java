@@ -89,6 +89,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         ApiCaller apiCaller;
         @Inject
         SharedPreferenceDataStore dataStore;
+        private LoginChecker loginChecker;
 
         @Override
         public void onAttach(@NonNull Context context) {
@@ -151,8 +152,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             if ((key.equals(emailKey) || key.equals(passwordKey)) &&
                     isEmailAndPasswordSet()) {
                 Activity activity = getActivity();
-                if (activity != null)
-                    new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller).execute();
+                if (activity != null) {
+                    cancelLoginChecker();
+                    loginChecker = new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller);
+                    loginChecker.execute();
+                }
             }
             if (key.equals(getString(R.string.pref_settings_ocr_online_key)))
                 checkOcrOnline();
@@ -169,6 +173,13 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 checkSubmittedSummary();
             if (key.equals(getString(R.string.pref_settings_comment_key)))
                 checkCommentSummary();
+        }
+
+        private void cancelLoginChecker() {
+            if (loginChecker != null) {
+                loginChecker.cancel();
+                loginChecker = null;
+            }
         }
 
         private void setInputTypes() {

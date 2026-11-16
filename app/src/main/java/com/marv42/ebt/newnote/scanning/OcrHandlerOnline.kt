@@ -19,7 +19,7 @@ class OcrHandlerOnline(callback: Callback, photoPath: String, photoUri: Uri?,
                        contentResolver: ContentResolver, private val apiKey: String) :
     OcrHandler(callback, photoPath, photoUri, contentResolver) {
 
-    override fun doInBackground(): String {
+    override fun scan(): String {
         return try {
             result
         } catch (e: HttpCallException) {

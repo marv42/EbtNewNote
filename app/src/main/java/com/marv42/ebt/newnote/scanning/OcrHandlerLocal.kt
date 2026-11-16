@@ -19,7 +19,7 @@ class OcrHandlerLocal(callback: Callback, private val context: Context,
                       photoPath: String, photoUri: Uri?, contentResolver: ContentResolver) :
     OcrHandler(callback, photoPath, photoUri, contentResolver) {
 
-    override fun doInBackground(): String {
+    override fun scan(): String {
         val filesPath = TessData.install(context) ?: return initializationError()
         val localOcr = LocalOcr(filesPath)
         if (!localOcr.isInitialized) {

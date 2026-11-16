@@ -18,7 +18,6 @@ import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.HttpCallException
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -32,7 +31,7 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
 
     private val additionalComment: String = dataStore.get(R.string.pref_settings_comment_key, "")
             .replace(NO_BREAK_SPACE, " ")
-    private val scope = MainScope()
+    private val scope = mainScope()
     private var job: Job? = null
 
     companion object {
@@ -45,11 +44,12 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     fun execute(locationValues: LocationValues) {
         job?.cancel()
         job = scope.executeAsyncTask(
-           onPreExecute = {
-        }, doInBackground = {
-            doInBackground(locationValues)
+           doInBackground = {
+            loadSuggestions(locationValues)
         }, onPostExecute = {
-            onPostExecute(it)
+            showSuggestions(it)
+        }, onError = {
+            showSuggestions(getErrorStrings(null))
         })
     }
 
@@ -58,7 +58,7 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
         job = null
     }
 
-    private fun doInBackground(locationValues: LocationValues): Array<String?>? {
+    private fun loadSuggestions(locationValues: LocationValues): Array<String?>? {
         return try {
             getSuggestions(locationValues)
         } catch (e: CallResponseException) {
@@ -132,7 +132,7 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
         return params
     }
 
-    private fun onPostExecute(s: Array<String?>?) {
+    private fun showSuggestions(s: Array<String?>?) {
         val context = callback as Context
         if (s.isNullOrEmpty()) {
 //            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_SHORT).show()

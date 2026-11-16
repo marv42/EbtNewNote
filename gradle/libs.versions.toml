@@ -58,6 +58,7 @@ fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junitVersion" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
 coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coilVersion" }

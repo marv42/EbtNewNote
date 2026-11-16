@@ -114,7 +114,7 @@ public class OcrHandlerTest {
         }
 
         @Override
-        protected String doInBackground() {
+        protected String scan() {
             countDown(started);
             await(gate);
             countDown(finished);

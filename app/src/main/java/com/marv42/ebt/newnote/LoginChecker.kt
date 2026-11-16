@@ -20,28 +20,37 @@ import com.marv42.ebt.newnote.exceptions.CallResponseException
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.HttpCallException
 import com.marv42.ebt.newnote.preferences.SettingsActivity
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
 
 class LoginChecker(private val app: ThisApp, private val apiCaller: ApiCaller) {
 
-    private val scope = MainScope()
+    private val scope = mainScope()
+    private var job: Job? = null
 
     fun execute() {
-        scope.executeAsyncTask(
+        job?.cancel()
+        job = scope.executeAsyncTask(
            onPreExecute = {
-            onPreExecute()
+            showProgress()
         }, doInBackground = {
-            doInBackground()
+            checkLogin()
         }, onPostExecute = {
-            onPostExecute(it)
+            showResult(it)
+        }, onError = {
+            showResult(ErrorMessage.ERROR + "R.string.internal_error")
         })
     }
 
-    private fun onPreExecute() {
+    fun cancel() {
+        job?.cancel()
+        job = null
+    }
+
+    private fun showProgress() {
         Toast.makeText(app, R.string.trying_login, LENGTH_LONG).show()
     }
 
-    private fun doInBackground(): String {
+    private fun checkLogin(): String {
         return try {
             tryToLogIn()
         } catch (e: HttpCallException) {
@@ -77,7 +86,7 @@ ${app.getString(R.string.hello)} ${loginInfo.userName}"""
                 .putString(app.getString(R.string.pref_postal_code_key), loginInfo.locationValues.postalCode).apply()
     }
 
-    private fun onPostExecute(result: String) {
+    private fun showResult(result: String) {
         var text = result
         if (text.startsWith(ErrorMessage.ERROR))
             text = ErrorMessage(app).getErrorMessage(text)

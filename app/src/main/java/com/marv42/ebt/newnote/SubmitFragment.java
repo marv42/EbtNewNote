@@ -77,6 +77,7 @@ public class SubmitFragment extends DaggerFragment {
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
     private CommentSuggestion commentSuggestion;
+    private NoteDataSubmitter noteDataSubmitter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -166,7 +167,16 @@ public class SubmitFragment extends DaggerFragment {
                 getSerialNumber().toUpperCase(Locale.ROOT),
                 binding.editTextComment.getText().toString());
         noteData = getNoteDataWithAdditionalComment(noteData);
-        new NoteDataSubmitter(app, apiCaller, submissionResultHandler).execute(noteData);
+        cancelNoteDataSubmitter();
+        noteDataSubmitter = new NoteDataSubmitter(app, apiCaller, submissionResultHandler);
+        noteDataSubmitter.execute(noteData);
+    }
+
+    private void cancelNoteDataSubmitter() {
+        if (noteDataSubmitter != null) {
+            noteDataSubmitter.cancel();
+            noteDataSubmitter = null;
+        }
     }
 
     @NotNull

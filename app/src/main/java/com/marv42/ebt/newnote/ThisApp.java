@@ -46,6 +46,7 @@ public class ThisApp extends DaggerApplication {
     public static final int RESULT_CODE_ERROR = 1;
     public static String packageName;
     BroadcastReceiver broadcastReceiver;
+    LocationTask locationTask;
 
     @Override
     public void onCreate() {
@@ -97,7 +98,16 @@ public class ThisApp extends DaggerApplication {
 
     public void startLocationTask() {
         Toast.makeText(this, R.string.location_start, LENGTH_LONG).show();
-        new LocationTask(this).execute();
+        cancelLocationTask();
+        locationTask = new LocationTask(this);
+        locationTask.execute();
+    }
+
+    private void cancelLocationTask() {
+        if (locationTask != null) {
+            locationTask.cancel();
+            locationTask = null;
+        }
     }
 
     public void onLocation(Location location) {

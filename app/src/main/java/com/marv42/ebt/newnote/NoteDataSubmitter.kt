@@ -15,7 +15,7 @@ import com.marv42.ebt.newnote.data.NoteInsertionData
 import com.marv42.ebt.newnote.exceptions.CallResponseException
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.HttpCallException
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.Job
 import java.util.*
 import javax.inject.Inject
 
@@ -26,20 +26,27 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
         fun onSubmissionResult(result: SubmissionResult?)
     }
 
-    private val scope = MainScope()
+    private val scope = mainScope()
+    private var job: Job? = null
 
     fun execute(noteData: NoteData) {
-        scope.executeAsyncTask(
-           onPreExecute = {
-        }, doInBackground = {
-            doInBackground(noteData)
+        job?.cancel()
+        job = scope.executeAsyncTask(
+           doInBackground = {
+            submit(noteData)
         }, onPostExecute = {
-            onPostExecute(it)
+            deliverResult(it)
+        }, onError = {
+            deliverResult(SubmissionResult(noteData, app.getString(R.string.internal_error)))
         })
     }
 
-    private fun doInBackground(vararg noteDatas: NoteData): SubmissionResult {
-        val noteData = noteDatas[0]
+    fun cancel() {
+        job?.cancel()
+        job = null
+    }
+
+    private fun submit(noteData: NoteData): SubmissionResult {
         return try {
             callLoginAndInsert(noteData)
         } catch (e: HttpCallException) {
@@ -111,7 +118,7 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
         return SubmissionResult(noteData, reply)
     }
 
-    private fun onPostExecute(result: SubmissionResult) {
+    private fun deliverResult(result: SubmissionResult) {
         callback.onSubmissionResult(result)
     }
 }
