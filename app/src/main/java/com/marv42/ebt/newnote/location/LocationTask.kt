@@ -57,13 +57,13 @@ class LocationTask(private val app: ThisApp) {
         val providers = locationManager.getProviders(true) - LocationManager.PASSIVE_PROVIDER
         if (providers.isEmpty())
             return LocationResult(null, R.string.location_no_provider)
-        lastKnownLocation(providers)?.let {
-            return LocationResult(it, R.string.location_last_known)
+        val result = try {
+            lastKnownLocation(providers)?.let { LocationResult(it, R.string.location_last_known) }
+                ?: freshLocation(providers)?.let { LocationResult(it, R.string.location_got) }
+        } catch (e: SecurityException) {
+            null
         }
-        freshLocation(providers)?.let {
-            return LocationResult(it, R.string.location_got)
-        }
-        return LocationResult(null, R.string.location_none)
+        return result ?: LocationResult(null, R.string.location_none)
     }
 
     @SuppressLint("MissingPermission")
