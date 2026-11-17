@@ -18,7 +18,6 @@ import com.marv42.ebt.newnote.ApiCaller;
 import com.marv42.ebt.newnote.EbtNewNote;
 import com.marv42.ebt.newnote.LicensesActivity;
 import com.marv42.ebt.newnote.ThisApp;
-import com.marv42.ebt.newnote.location.FetchAddressIntentService;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
@@ -32,8 +31,7 @@ import dagger.android.AndroidInjector;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
 
-@Module(subcomponents = {EbtNewNoteComponent.class, FetchAddressIntentServiceComponent.class,
-        SettingsComponent.class})
+@Module(subcomponents = {EbtNewNoteComponent.class, SettingsComponent.class})
 abstract class ApplicationModule {
 
 //    @Singleton
@@ -73,10 +71,6 @@ abstract class ApplicationModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = EbtNewNoteModule.class)
     abstract EbtNewNote contributeEbtNewNoteInjector();
-
-    @IntentServiceScope
-    @ContributesAndroidInjector(modules = FetchAddressIntentServiceModule.class)
-    abstract FetchAddressIntentService contributeFetchAddressIntentServiceInjector();
 
     @SettingsScope
     @ContributesAndroidInjector(modules = SettingsModule.class)

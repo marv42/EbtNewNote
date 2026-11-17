@@ -11,23 +11,19 @@ package com.marv42.ebt.newnote;
 import static android.content.Intent.ACTION_PROVIDER_CHANGED;
 import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 import static android.widget.Toast.LENGTH_LONG;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
-import static com.marv42.ebt.newnote.location.FetchAddressIntentService.RECEIVER;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.marv42.ebt.newnote.di.DaggerApplicationComponent;
-import com.marv42.ebt.newnote.location.AddressResultReceiver;
-import com.marv42.ebt.newnote.location.FetchAddressIntentService;
+import com.marv42.ebt.newnote.location.AddressTask;
 import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
 import com.marv42.ebt.newnote.location.LocationTask;
+import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
+import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
 
 import org.acra.ACRA;
 import org.acra.config.CoreConfigurationBuilder;
@@ -37,22 +33,22 @@ import org.acra.data.StringFormat;
 
 import java.util.Arrays;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 
 public class ThisApp extends DaggerApplication {
 
-    public static final int RESULT_CODE_SUCCESS = 0;
-    public static final int RESULT_CODE_ERROR = 1;
-    public static String packageName;
+    @Inject
+    Provider<SharedPreferenceDataStore> dataStoreProvider;
+    @Inject
+    SharedPreferencesHandler preferences;
+
     BroadcastReceiver broadcastReceiver;
     LocationTask locationTask;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        packageName = getApplicationContext().getPackageName();
-    }
+    AddressTask addressTask;
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -111,9 +107,15 @@ public class ThisApp extends DaggerApplication {
     }
 
     public void onLocation(Location location) {
-        Intent intent = new Intent(this, FetchAddressIntentService.class);
-        intent.putExtra(RECEIVER, new AddressResultReceiver(this, new Handler(Looper.getMainLooper())));
-        intent.putExtra(LOCATION_DATA_EXTRA, location);
-        startService(intent);
+        cancelAddressTask();
+        addressTask = new AddressTask(this, dataStoreProvider.get(), preferences);
+        addressTask.execute(location);
+    }
+
+    private void cancelAddressTask() {
+        if (addressTask != null) {
+            addressTask.cancel();
+            addressTask = null;
+        }
     }
 }
