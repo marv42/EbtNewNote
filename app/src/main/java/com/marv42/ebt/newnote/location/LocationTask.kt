@@ -10,26 +10,28 @@ package com.marv42.ebt.newnote.location
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Bundle
-import android.os.Looper
+import android.os.CancellationSignal
+import android.os.SystemClock
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.ThisApp
-import com.marv42.ebt.newnote.Utils
 import com.marv42.ebt.newnote.executeAsyncTask
 import com.marv42.ebt.newnote.mainScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.resume
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class LocationTask(private val app: ThisApp) {
 
     private val locationManager: LocationManager = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-    // the listener writes on the main thread, requestLocation() reads on Dispatchers.IO
-    @Volatile
-    private var location: Location? = null
 
     private val scope = mainScope()
     private var job: Job? = null
@@ -41,6 +43,8 @@ class LocationTask(private val app: ThisApp) {
                 requestLocation()
             }, onPostExecute = {
                 deliverResult(it)
+            }, onError = {
+                deliverResult(LocationResult(null, R.string.location_none))
             })
     }
 
@@ -49,63 +53,62 @@ class LocationTask(private val app: ThisApp) {
         job = null
     }
 
+    private suspend fun requestLocation(): LocationResult {
+        val providers = locationManager.getProviders(true) - LocationManager.PASSIVE_PROVIDER
+        if (providers.isEmpty())
+            return LocationResult(null, R.string.location_no_provider)
+        lastKnownLocation(providers)?.let {
+            return LocationResult(it, R.string.location_last_known)
+        }
+        freshLocation(providers)?.let {
+            return LocationResult(it, R.string.location_got)
+        }
+        return LocationResult(null, R.string.location_none)
+    }
+
     @SuppressLint("MissingPermission")
-    private fun requestLocation(): Int {
-        val enabledProviders = locationManager.getProviders(true)
-        if (enabledProviders.isEmpty())
-            return R.string.location_no_provider
-        val locationListener = locationListener
-        for (locationProvider in enabledProviders)
-            locationManager.requestLocationUpdates(locationProvider, MIN_TIME_UPDATES_MS,
-                    MIN_DISTANCE_UPDATES_M, locationListener, Looper.getMainLooper())
-        val lastKnownLocation: Location? = lastKnownLocation
-        if (lastKnownLocation != null)
-            if (location == null || locationIsMuchNewer(lastKnownLocation)) {
-                location = lastKnownLocation
-                return R.string.location_last_known
-            }
-        return R.string.location_got
-    }
+    private fun lastKnownLocation(providers: List<String>): Location? =
+            mostAccurateLocation(providers.mapNotNull { locationManager.getLastKnownLocation(it) },
+                    SystemClock.elapsedRealtimeNanos())
 
-    private fun locationIsMuchNewer(l: Location): Boolean {
-        return l.elapsedRealtimeNanos - location!!.elapsedRealtimeNanos > MAX_TIME_LAST_KNOWN_NS
-    }
+    private suspend fun freshLocation(providers: List<String>): Location? =
+            firstFix(providers, TIMEOUT_S) { currentLocation(it) }
 
-    @get:SuppressLint("MissingPermission")
-    private val lastKnownLocation: Location?
-        get() {
-            var lastKnownLocation: Location? = null
-            val enabledProviders = locationManager.getProviders(true);
-            for (locationProvider in enabledProviders) {
-                val newLocation = locationManager.getLastKnownLocation(locationProvider)
-                if (newLocation != null)
-                    if (lastKnownLocation == null || newLocation.accuracy > lastKnownLocation.accuracy)
-                        lastKnownLocation = newLocation
-            }
-            return lastKnownLocation
-        }
-
-    private val locationListener: LocationListener
-        get() = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                locationManager.removeUpdates(this)
-                this@LocationTask.location = location
+    @SuppressLint("MissingPermission")
+    private suspend fun currentLocation(provider: String): Location? =
+            suspendCancellableCoroutine { continuation ->
+                val signal = CancellationSignal()
+                continuation.invokeOnCancellation { signal.cancel() }
+                locationManager.getCurrentLocation(provider, signal, app.mainExecutor) { location ->
+                    continuation.resume(location)
+                }
             }
 
-            @Deprecated("Deprecated in Java")
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-            override fun onProviderEnabled(provider: String) {}
-            override fun onProviderDisabled(provider: String) {}
-        }
-
-    private fun deliverResult(result: Int) {
-        Toast.makeText(app, result, LENGTH_LONG).show()
-        location?.let { app.onLocation(it) }
+    private fun deliverResult(result: LocationResult) {
+        Toast.makeText(app, result.messageResId, LENGTH_LONG).show()
+        result.location?.let { app.onLocation(it) }
     }
+
+    private class LocationResult(val location: Location?, val messageResId: Int)
 
     companion object {
-        private const val MAX_TIME_LAST_KNOWN_NS = 30L * Utils.SECONDS_IN_NANOSECONDS
-        private const val MIN_DISTANCE_UPDATES_M = 500f
-        private const val MIN_TIME_UPDATES_MS = 10 * 1000.toLong()
+        private val MAX_TIME_LAST_KNOWN_NS = 30.seconds.inWholeNanoseconds
+        private val TIMEOUT_S = 5.seconds
+
+        internal suspend fun firstFix(
+            providers: List<String>, timeout: Duration,
+            get: suspend (String) -> Location?
+        ): Location? = coroutineScope {
+            val fix = CompletableDeferred<Location>()
+            providers.forEach { provider ->
+                launch { get(provider)?.let { fix.complete(it) } }
+            }
+            withTimeoutOrNull(timeout) { fix.await() }
+        }
+
+        internal fun mostAccurateLocation(locations: List<Location>, nowNs: Long,
+                                          maxAgeNs: Long = MAX_TIME_LAST_KNOWN_NS): Location? =
+                locations.filter { nowNs - it.elapsedRealtimeNanos <= maxAgeNs }
+                        .minByOrNull { it.accuracy }
     }
 }

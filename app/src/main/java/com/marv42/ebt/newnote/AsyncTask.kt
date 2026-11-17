@@ -34,7 +34,7 @@ fun mainScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.M
 // https://stackoverflow.com/a/62748880/542235
 fun <R> CoroutineScope.executeAsyncTask(
         onPreExecute: () -> Unit = {},
-        doInBackground: () -> R,
+        doInBackground: suspend () -> R,
         onPostExecute: (R) -> Unit,
         onError: (Throwable) -> Unit = {}
 ): Job = launch {
