@@ -13,6 +13,7 @@ import android.net.Uri
 import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
+import com.marv42.ebt.newnote.exceptions.NoPictureException
 import com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE
 
 class OcrHandlerLocal(callback: Callback, private val context: Context,
@@ -28,6 +29,8 @@ class OcrHandlerLocal(callback: Callback, private val context: Context,
         }
         return try {
             doOcr(localOcr)
+        } catch (e: NoPictureException) {
+            ErrorMessage.ERROR + e.message
         } finally {
             localOcr.recycle()
         }
