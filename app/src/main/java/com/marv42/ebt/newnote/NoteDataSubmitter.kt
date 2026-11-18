@@ -51,7 +51,7 @@ class NoteDataSubmitter @Inject constructor(private val app: ThisApp, private va
             callLoginAndInsert(noteData)
         } catch (e: HttpCallException) {
             // TODO Try again
-            SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
+            SubmissionResult(noteData, ErrorMessage(app).getHttpCallErrorMessage(e))
         } catch (e: CallResponseException) {
             SubmissionResult(noteData, ErrorMessage(app).getErrorMessage(e.message))
         }

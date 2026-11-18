@@ -52,6 +52,8 @@
 
     <!-- exceptions -->
     <string name="http_error">Error communicating to the server</string>
+    <string name="http_error_details">Got %1$s (%2$s) calling %3$s</string>
+    <string name="http_error_unknown_reason">an error</string>
     <string name="trying_again">Trying again</string>
     <string name="server_error">Unusable response from the server</string>
     <string name="ocr_error">OCR error</string>

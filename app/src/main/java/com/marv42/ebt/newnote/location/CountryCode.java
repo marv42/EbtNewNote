@@ -20,7 +20,8 @@ import okhttp3.Request;
 
 public class CountryCode {
 
-    private static final String COUNTRIES_URL = "https://api.countrylayer.com/v2/alpha/";
+    static final String COUNTRY_LAYER_API_HOST = "api.countrylayer.com";
+    private static final String COUNTRIES_URL = "https://" + COUNTRY_LAYER_API_HOST + "/v2/alpha/";
     private static final String NAME_ELEMENT = "name";
 
     public String convert(String countryCode, String apiKey) throws HttpCallException, CallResponseException {
@@ -47,7 +48,7 @@ public class CountryCode {
     @NotNull
     private String getName(JSONObject json) throws CallResponseException {
         if (! json.has(NAME_ELEMENT))
-            throw new CallResponseException("no '" + NAME_ELEMENT + "' element");
+            throw new CallResponseException("R.string.server_error: no '" + NAME_ELEMENT + "' element");
         return json.optString(NAME_ELEMENT);
     }
 }

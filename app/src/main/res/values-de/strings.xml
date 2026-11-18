@@ -48,6 +48,8 @@
 
     <!-- exceptions -->
     <string name="http_error">Server-Verbindungs-Problem</string>
+    <string name="http_error_details">Server %3$s antwortet mit %1$s (%2$s)</string>
+    <string name="http_error_unknown_reason">einem Fehler</string>
     <string name="trying_again">Nochmaliger Versuch</string>
     <string name="server_error">Unbrauchbare Antwort des Servers</string>
     <string name="ocr_error">OCR-Fehler</string>
@@ -153,8 +155,8 @@
     <string name="location_please_enable">Bitte in den Systemeinstellungen aktivieren</string>
     <string name="location_no_gps">Genauer Standort ist nicht verfügbar\nGgf. GPS aktivieren</string>
     <string name="location_start">Standort-Daten werden abgefragt…</string>
-    <string name="location_got">Aktueller Standort wurde eingesetzt</string>
-    <string name="location_last_known">Zuletzt bekannter Standort wurde eingesetzt</string>
+    <string name="location_got">Aktueller Standort wurde gesetzt</string>
+    <string name="location_last_known">Zuletzt bekannter Standort wurde gesetzt</string>
     <string name="location_no_provider">Kein Location-Provider aktiviert\nKoordinaten konnten nicht in Adresse umgewandelt werden</string>
     <string name="location_no_address">Geocoder konnte keine Adresse für den Standort ausmachen</string>
     <string name="location_no_country">Name des Landes konnte nicht aufgelöst werden</string>

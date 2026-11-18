@@ -10,8 +10,6 @@ package com.marv42.ebt.newnote.location
 import android.location.Location
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import com.marv42.ebt.newnote.HttpCaller
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.ThisApp
@@ -60,7 +58,7 @@ class AddressTask(private val app: ThisApp, private val dataStore: SharedPrefere
         try {
             AddressResult.Success(getLocationValues(location))
         } catch (e: HttpCallException) {
-            AddressResult.Failure(e.message)
+            AddressResult.Failure(ERROR + ErrorMessage(app).getHttpCallErrorMessage(e))
         } catch (e: CallResponseException) {
             AddressResult.Failure(e.message)
         }
@@ -90,14 +88,19 @@ class AddressTask(private val app: ThisApp, private val dataStore: SharedPrefere
             throw CallResponseException(geocodingError(e, body))
         }
 
-    private fun geocodingError(e: Throwable, body: String): String =
-        ERROR + app.getString(R.string.server_error) + " " + GEOCODING_HOST + ": " + e.message + ": " + body
+    private fun geocodingError(e: Throwable, body: String): String {
+        Log.w(TAG, "Unusable geocoding response: $body")
+        return ERROR + app.getString(R.string.server_error) + " " + GEOCODING_HOST + ": " +
+                (e.message ?: e.toString())
+    }
 
     private fun countryName(countryCode: String): String =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
             CountryCodeLocal().convert(countryCode).ifEmpty { noCountry() }
         else
             remoteCountryName(countryCode)
+
+    private fun noCountry(): String = ERROR + app.getString(R.string.location_no_country)
 
     private fun remoteCountryName(countryCode: String): String =
         try {
@@ -111,10 +114,13 @@ class AddressTask(private val app: ThisApp, private val dataStore: SharedPrefere
 
     private fun logAndNoCountry(e: Throwable): String {
         Log.w(TAG, e.message ?: e.toString())
-        return noCountry()
+        return ERROR + when (e) {
+            is HttpCallException -> ErrorMessage(app).getHttpCallErrorMessage(e, R.string.location_no_country)
+            is CallResponseException ->
+                ErrorMessage(app).getErrorMessage(e.message, R.string.location_no_country)
+            else -> app.getString(R.string.location_no_country)
+        }
     }
-
-    private fun noCountry(): String = ERROR + app.getString(R.string.location_no_country)
 
     private fun deliverResult(result: AddressResult) {
         when (result) {
@@ -133,8 +139,7 @@ class AddressTask(private val app: ThisApp, private val dataStore: SharedPrefere
     }
 
     private fun showError(message: String?) {
-        val text = message ?: app.getString(R.string.internal_error)
-        Toast.makeText(app, ErrorMessage(app).getErrorMessage(text), LENGTH_LONG).show()
+        ErrorMessage(app).showErrorToasts(message)
     }
 
     private sealed class AddressResult {

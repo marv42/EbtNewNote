@@ -7,4 +7,10 @@
  */
 package com.marv42.ebt.newnote.exceptions
 
-class HttpCallException(s: String?) : Throwable(s)
+class HttpCallException @JvmOverloads constructor(
+    s: String?,
+    val server: String? = null,
+    val responseCode: Int = 0,
+    val reason: String? = null,
+    val apiErrorMessage: String? = null
+) : Throwable(s)

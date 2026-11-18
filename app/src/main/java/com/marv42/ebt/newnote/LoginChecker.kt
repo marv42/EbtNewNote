@@ -54,7 +54,7 @@ class LoginChecker(private val app: ThisApp, private val apiCaller: ApiCaller) {
         return try {
             tryToLogIn()
         } catch (e: HttpCallException) {
-            ErrorMessage.ERROR + e.message
+            ErrorMessage.ERROR + ErrorMessage(app).getHttpCallErrorMessage(e)
         } catch (e: CallResponseException) {
             ErrorMessage.ERROR + e.message
         }
@@ -87,10 +87,10 @@ ${app.getString(R.string.hello)} ${loginInfo.userName}"""
     }
 
     private fun showResult(result: String) {
-        var text = result
-        if (text.startsWith(ErrorMessage.ERROR))
-            text = ErrorMessage(app).getErrorMessage(text)
-        Toast.makeText(app, text, LENGTH_LONG).show()
+        if (result.startsWith(ErrorMessage.ERROR))
+            ErrorMessage(app).showErrorToasts(result)
+        else
+            Toast.makeText(app, result, LENGTH_LONG).show()
     }
 
     companion object {

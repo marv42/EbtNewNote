@@ -299,7 +299,7 @@ public class EbtNewNote extends DaggerAppCompatActivity
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
         if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
             String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key_key, "");
-            ocrHandler = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), apiKey);
+            ocrHandler = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), this, apiKey);
         } else
             ocrHandler = new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver());
         ocrHandler.execute();
@@ -383,12 +383,12 @@ public class EbtNewNote extends DaggerAppCompatActivity
         }
         if (result.startsWith(ERROR)) {
             final String errorMessage = new ErrorMessage(this).getErrorMessage(result);
-            if (! result.startsWith(ERROR + "R.string.http_error"))
+            if (! result.startsWith(ERROR + getString(R.string.http_error)))
                 OcrNotifier.showDialog(this, errorMessage);
             else
                 if (dataStore.get(R.string.pref_settings_ocr_online_key, false))
                     if (! triedAgain) {
-                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+                        new ErrorMessage(this).showErrorToasts(errorMessage);
                         Toast.makeText(this, getString(R.string.trying_again), Toast.LENGTH_SHORT).show();
                         processPhoto();
                         triedAgain = true;
