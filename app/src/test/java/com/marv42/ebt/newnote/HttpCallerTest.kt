@@ -24,6 +24,12 @@ class HttpCallerTest {
     }
 
     @Test
+    fun extractsTheFirstErrorArrayMessage() {
+        assertEquals("No matching authorization key found.", HttpCaller.parseApiErrorMessage(
+                """{"errors": [{"message": "No matching authorization key found.", "code": "general.auth_key_not_found"}]}"""))
+    }
+
+    @Test
     fun extractsATopLevelMessage() {
         assertEquals("Something went wrong",
                 HttpCaller.parseApiErrorMessage("""{"message": "Something went wrong"}"""))

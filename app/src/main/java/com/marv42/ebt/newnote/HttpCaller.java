@@ -42,11 +42,8 @@ public class HttpCaller {
             if (!response.isSuccessful())
                 throw responseException(request, response);
             return response.body().string();
-        } catch (SocketTimeoutException e) {
-            throw new HttpCallException("R.string.error_no_connection " + getServer(request) + ":\n" +
-                    e.getMessage(), getServer(request), 0, null, null, true);
-        } catch (IOException e) {
-            throw new HttpCallException("R.string.error_no_connection " + getServer(request) + ":\n" +
+        } catch (IOException e) {  // e.g. SocketTimeoutException
+            throw new HttpCallException("R.string.error_no_connection " + getServer(request) + "\n" +
                     e.getMessage(), getServer(request), 0, null, null, true);
         }
     }
