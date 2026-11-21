@@ -18,7 +18,7 @@ import com.googlecode.tesseract.android.TessBaseAPI
 
 class OcrHandlerLocal(callback: Callback, private val context: Context,
                       photoPath: String, photoUri: Uri?, contentResolver: ContentResolver) :
-    OcrHandler(callback, photoPath, photoUri, contentResolver) {
+    OcrHandlerTask(callback, photoPath, photoUri, contentResolver) {
 
     override fun scan(): OcrResult = OcrResult(scanText())
 

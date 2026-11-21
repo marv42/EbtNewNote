@@ -78,7 +78,7 @@ public class SubmitFragment extends DaggerFragment {
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
-    private CommentSuggestion commentSuggestion;
+    private CommentSuggestionTask commentSuggestionTask;
     private NoteDataSubmitterTask noteDataSubmitterTask;
 
     @Override
@@ -98,7 +98,7 @@ public class SubmitFragment extends DaggerFragment {
         setTooltipText(binding.photoButton, getString(R.string.acquire));
 
         FragmentActivity activity = requireActivity();
-        LoginChecker.checkLoginInfo(activity);
+        LoginCheckerTask.checkLoginInfo(activity);
         ((Callback) activity).onSubmitFragmentAdded();
     }
 
@@ -370,17 +370,17 @@ public class SubmitFragment extends DaggerFragment {
         if (!sharedPreferencesHandler.get(R.string.pref_login_values_ok_key, false))
             return;
         cancelCommentSuggestion();
-        commentSuggestion = new CommentSuggestion(apiCaller, (EbtNewNote) requireActivity(), dataStore);
-        commentSuggestion.execute(new LocationValues(
+        commentSuggestionTask = new CommentSuggestionTask(apiCaller, (EbtNewNote) requireActivity(), dataStore);
+        commentSuggestionTask.execute(new LocationValues(
                 getCountry(),
                 getCity(),
                 getPostalCode()));
     }
 
     private void cancelCommentSuggestion() {
-        if (commentSuggestion != null) {
-            commentSuggestion.cancel();
-            commentSuggestion = null;
+        if (commentSuggestionTask != null) {
+            commentSuggestionTask.cancel();
+            commentSuggestionTask = null;
         }
     }
 

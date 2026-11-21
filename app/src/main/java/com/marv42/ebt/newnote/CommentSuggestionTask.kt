@@ -10,7 +10,6 @@ package com.marv42.ebt.newnote
 import android.content.Context
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
-import android.widget.Toast.LENGTH_SHORT
 import androidx.core.util.Pair
 import com.marv42.ebt.newnote.data.LocationValues
 import com.marv42.ebt.newnote.exceptions.CallResponseException
@@ -23,8 +22,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
-internal class CommentSuggestion(private val apiCaller: ApiCaller, private val callback: Callback,
-                                 dataStore: SharedPreferenceDataStore) {
+internal class CommentSuggestionTask(private val apiCaller: ApiCaller, private val callback: Callback,
+                                     dataStore: SharedPreferenceDataStore) {
     internal interface Callback {
         fun onSuggestions(suggestions: Array<String?>?)
     }
@@ -133,13 +132,12 @@ internal class CommentSuggestion(private val apiCaller: ApiCaller, private val c
     }
 
     private fun showSuggestions(s: Array<String?>?) {
-        val context = callback as Context
-        if (s.isNullOrEmpty()) {
-//            Toast.makeText(context, R.string.no_comment_suggestions, LENGTH_SHORT).show()
+        if (s.isNullOrEmpty())
             return
-        }
         if (s[0] == ErrorMessage.ERROR) {
+            val context = callback as Context
             Toast.makeText(context, R.string.comment_suggestions_error, LENGTH_LONG).show()
+            ErrorMessage(context).showErrorToasts(s[1]);
             return
         }
         callback.onSuggestions(s)

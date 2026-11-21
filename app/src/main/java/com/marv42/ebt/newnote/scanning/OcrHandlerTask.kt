@@ -17,8 +17,8 @@ import com.marv42.ebt.newnote.executeAsyncTask
 import com.marv42.ebt.newnote.mainScope
 import kotlinx.coroutines.Job
 
-abstract class OcrHandler(private val callback: Callback, protected val photoPath: String,
-                          protected val photoUri: Uri?, protected val contentResolver: ContentResolver) {
+abstract class OcrHandlerTask(private val callback: Callback, protected val photoPath: String,
+                              protected val photoUri: Uri?, protected val contentResolver: ContentResolver) {
 
     private val scope = mainScope()
     private var job: Job? = null

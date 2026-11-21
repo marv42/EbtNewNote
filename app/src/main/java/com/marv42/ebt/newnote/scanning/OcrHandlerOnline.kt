@@ -12,7 +12,7 @@ import android.net.Uri
 
 class OcrHandlerOnline(callback: Callback, photoPath: String, photoUri: Uri?,
                        contentResolver: ContentResolver, private val onlineOcr: OnlineOcr) :
-    OcrHandler(callback, photoPath, photoUri, contentResolver) {
+    OcrHandlerTask(callback, photoPath, photoUri, contentResolver) {
 
     override fun scan(): OcrResult =
         onlineOcr.scan(photoPath, photoUri, contentResolver)
