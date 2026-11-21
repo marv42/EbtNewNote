@@ -157,8 +157,6 @@
                     android:inputType="textCapCharacters"
                     android:nextFocusDown="@+id/edit_text_serial_number"
                     android:singleLine="true" />
-<!--                TODO android:ellipsize="marquee"
-                         https://stackoverflow.com/a/7328941/542235 -->
             </TableRow>
             <TableRow>
                 <TextView android:text="@string/serial_number" />
