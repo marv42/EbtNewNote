@@ -36,7 +36,8 @@ class DataStoreRepository @Inject constructor(
     )
 
     private val OCR_SERVICE_KEY by lazy { getResource(R.string.pref_settings_ocr_service_key_key) }
-    private val COUNTRY_SERVICE_KEY by lazy { getResource(R.string.pref_settings_country_service_key_key) }
+    private val COUNTRY_LAYER_KEY by lazy { getResource(R.string.pref_settings_country_layer_key_key) }
+    private val REST_COUNTRIES_KEY by lazy { getResource(R.string.pref_settings_rest_countries_key_key) }
     private val EMAIL_KEY by lazy { getResource(R.string.pref_settings_email_key) }
     private val PASSWORD_KEY by lazy { getResource(R.string.pref_settings_password_key) }
 
@@ -46,14 +47,16 @@ class DataStoreRepository @Inject constructor(
         .catch { e -> if (e is IOException) emit(UserPreferences.getDefaultInstance()) else throw e }
 
     private val ocrServiceKeyFlow: Flow<String> = preferencesFlow.map { it.prefSettingsOcrServiceKey }
-    private val countryServiceKeyFlow: Flow<String> = preferencesFlow.map { it.prefSettingsCountryServiceKey }
+    private val countryLayerKeyFlow: Flow<String> = preferencesFlow.map { it.prefSettingsCountryLayerKey }
+    private val restCountriesKeyFlow: Flow<String> = preferencesFlow.map { it.prefSettingsRestCountriesKey }
     private val emailFlow: Flow<String> = preferencesFlow.map { it.prefSettingsEmail }
     private val passwordFlow: Flow<String> = preferencesFlow.map { it.prefSettingsPassword }
 
     fun getStringBlocking(key: String): String = blocking {
         when (key) {
             OCR_SERVICE_KEY -> ocrServiceKeyFlow.first()
-            COUNTRY_SERVICE_KEY -> countryServiceKeyFlow.first()
+            COUNTRY_LAYER_KEY -> countryLayerKeyFlow.first()
+            REST_COUNTRIES_KEY -> restCountriesKeyFlow.first()
             EMAIL_KEY -> emailFlow.first()
             PASSWORD_KEY -> passwordFlow.first()
             else -> throw IllegalArgumentException("key")
@@ -63,7 +66,8 @@ class DataStoreRepository @Inject constructor(
     fun putStringBlocking(key: String, value: String) = blocking {
         when (key) {
             OCR_SERVICE_KEY -> update { it.toBuilder().setPrefSettingsOcrServiceKey(value).build() }
-            COUNTRY_SERVICE_KEY -> update { it.toBuilder().setPrefSettingsCountryServiceKey(value).build() }
+            COUNTRY_LAYER_KEY -> update { it.toBuilder().setPrefSettingsCountryLayerKey(value).build() }
+            REST_COUNTRIES_KEY -> update { it.toBuilder().setPrefSettingsRestCountriesKey(value).build() }
             EMAIL_KEY -> update { it.toBuilder().setPrefSettingsEmail(value).build() }
             PASSWORD_KEY -> update { it.toBuilder().setPrefSettingsPassword(value).build() }
             else -> throw IllegalArgumentException("key")

@@ -18,19 +18,20 @@ import org.json.JSONObject;
 
 import okhttp3.Request;
 
-public class CountryCode {
+public class CountryCodeCountryLayer implements CountryCodeService {
 
     static final String COUNTRY_LAYER_API_HOST = "api.countrylayer.com";
-    private static final String COUNTRIES_URL = "https://" + COUNTRY_LAYER_API_HOST + "/v2/alpha/";
+    private static final String COUNTRY_LAYER_URL = "https://" + COUNTRY_LAYER_API_HOST + "/v2/alpha/";
     private static final String NAME_ELEMENT = "name";
 
+    @Override
     public String convert(String countryCode, String apiKey) throws HttpCallException, CallResponseException {
         String body = executeCall(countryCode, apiKey);
         return extractName(body);
     }
 
     private String executeCall(String countryCode, String apiKey) throws HttpCallException {
-        String url = COUNTRIES_URL + countryCode + "?access_key=" + apiKey;
+        String url = COUNTRY_LAYER_URL + countryCode + "?access_key=" + apiKey;
         Request request = new Request.Builder().url(url).build();
         return new HttpCaller().call(request);
     }

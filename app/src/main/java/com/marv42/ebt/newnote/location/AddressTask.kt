@@ -11,6 +11,7 @@ import android.location.Location
 import android.os.Build
 import android.util.Log
 import com.marv42.ebt.newnote.HttpCaller
+import com.marv42.ebt.newnote.Predefines
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.ThisApp
 import com.marv42.ebt.newnote.data.LocationValues
@@ -104,13 +105,18 @@ class AddressTask(private val app: ThisApp, private val dataStore: SharedPrefere
 
     private fun remoteCountryName(countryCode: String): String =
         try {
-            CountryCode().convert(countryCode,
-                dataStore.get(R.string.pref_settings_country_service_key_key, ""))
+            CountryCodeResolver().convert(
+                countryCode,
+                serviceKey(R.string.pref_settings_rest_countries_key_key, Predefines.REST_COUNTRIES_SERVICE),
+                serviceKey(R.string.pref_settings_country_layer_key_key, Predefines.COUNTRY_LAYER_SERVICE))
         } catch (e: HttpCallException) {
             logAndNoCountry(e)
         } catch (e: CallResponseException) {
             logAndNoCountry(e)
         }
+
+    private fun serviceKey(keyId: Int, predefine: String): String =
+        dataStore.get(keyId, "").ifEmpty { predefine }
 
     private fun logAndNoCountry(e: Throwable): String {
         Log.w(TAG, e.message ?: e.toString())

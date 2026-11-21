@@ -11,6 +11,7 @@ package com.marv42.ebt.newnote;
 public class Predefines {
    public static final String EMAIL = "";
    public static final String OCR_SERVICE = "";
-   public static final String COUNTRY_SERVICE = "";
+   public static final String COUNTRY_LAYER_SERVICE = "";
+   public static final String REST_COUNTRIES_SERVICE = "";
    public static final String ADDITIONAL_COMMENT = "";
 }

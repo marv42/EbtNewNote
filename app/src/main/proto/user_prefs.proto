@@ -7,9 +7,10 @@ message UserPreferences {
   bool pref_settings_images = 2 [deprecated = true];
   string pref_settings_show_submitted = 3 [deprecated = true];
   string pref_settings_ocr_service_key = 4;
-  string pref_settings_country_service_key = 5;
+  string pref_settings_country_layer_key = 5;
   string pref_settings_email = 6;
   string pref_settings_password = 7;
   string pref_settings_comment = 8 [deprecated = true];
   string pref_settings_color = 9 [deprecated = true];
+  string pref_settings_rest_countries_key = 10;
 }

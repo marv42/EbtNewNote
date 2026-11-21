@@ -54,7 +54,8 @@ public class SharedPreferenceDataStore extends PreferenceDataStore {
                 getResource(R.string.pref_settings_password_key),
                 getResource(R.string.pref_settings_email_key),
                 getResource(R.string.pref_settings_ocr_service_key_key),
-                getResource(R.string.pref_settings_country_service_key_key)));
+                getResource(R.string.pref_settings_country_layer_key_key),
+                getResource(R.string.pref_settings_rest_countries_key_key)));
         sharedPreferences.registerOnSharedPreferenceChangeListener(forwarder);
     }
 
