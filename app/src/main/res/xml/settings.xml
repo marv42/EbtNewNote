@@ -41,11 +41,6 @@
             android:key="@string/pref_settings_ocr_service_key_key"
             android:title="@string/settings_ocr_service_key_title"
             android:summary="@string/settings_ocr_service_key_summary"/>
-<!--        <androidx.preference.SwitchPreference-->
-<!--            android:key="@string/pref_settings_ocr_postpone_key"-->
-<!--            android:title="@string/settings_ocr_postpone_title"-->
-<!--            android:summary="@string/settings_ocr_postpone_summary"-->
-<!--            android:defaultValue="false"/>-->
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_display">
@@ -68,13 +63,24 @@
     <androidx.preference.PreferenceCategory
         android:key="@string/pref_settings_category_misc_key"
         android:title="@string/settings_category_misc">
+        <Preference
+            android:summary="@string/settings_misc_summary"/>
         <androidx.preference.EditTextPreference
-            android:key="@string/pref_settings_country_service_key_key"
-            android:title="@string/settings_country_title"
-            android:summary="@string/settings_country_summary"/>
+            android:key="@string/pref_settings_rest_countries_key_key"
+            android:title="@string/settings_rest_countries_title"
+            android:summary="@string/settings_rest_countries_summary"/>
+        <androidx.preference.EditTextPreference
+            android:key="@string/pref_settings_country_layer_key_key"
+            android:title="@string/settings_country_layer_title"
+            android:summary="@string/settings_country_layer_summary"/>
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory
         android:title="@string/settings_category_advanced">
+        <com.marv42.ebt.newnote.preferences.IntEditTextPreference
+            android:key="@string/pref_settings_max_retries_key"
+            android:title="@string/settings_max_retries_title"
+            android:summary="@string/settings_max_retries_summary"
+            android:defaultValue="@string/max_retries_default"/>
         <androidx.preference.EditTextPreference
             android:key="@string/pref_settings_comment_key"
             android:title="@string/settings_comment_title"

@@ -17,6 +17,7 @@ import static com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR;
 import static com.marv42.ebt.newnote.scanning.Corrections.LENGTH_THRESHOLD_SERIAL_NUMBER;
 import static com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -51,10 +52,13 @@ import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SettingsActivity;
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
-import com.marv42.ebt.newnote.scanning.OcrHandler;
+import com.marv42.ebt.newnote.retry.RetryManager;
+import com.marv42.ebt.newnote.scanning.OcrHandlerTask;
 import com.marv42.ebt.newnote.scanning.OcrHandlerLocal;
 import com.marv42.ebt.newnote.scanning.OcrHandlerOnline;
 import com.marv42.ebt.newnote.scanning.OcrNotifier;
+import com.marv42.ebt.newnote.scanning.OcrResult;
+import com.marv42.ebt.newnote.scanning.OnlineOcr;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 import com.marv42.ebt.newnote.ui.SubmitViewModel;
 
@@ -67,8 +71,8 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerAppCompatActivity;
 
 public class EbtNewNote extends DaggerAppCompatActivity
-        implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestion.Callback,
-        OcrHandler.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
+        implements SubmitFragment.Callback, ResultsFragmentData.Callback, CommentSuggestionTask.Callback,
+        OcrHandlerTask.Callback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final String FRAGMENT_TYPE = "fragment_type";
     public static final int IMAGE_CAPTURE_REQUEST_CODE = 2;
@@ -82,13 +86,19 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private static final CharSequence CLIPBOARD_LABEL = "overwritten EBT data";
     private static final String TAG = EbtNewNote.class.getSimpleName();
     @Inject
-    SharedPreferenceDataStore dataStore;
+    SharedPreferenceDataStore sharedPreferenceDataStore;
     @Inject
     SharedPreferencesHandler sharedPreferencesHandler;
     @Inject
     MySharedPreferencesListener sharedPreferencesListener;
     @Inject
     ViewModelProvider viewModelProvider;
+    @Inject
+    AllResults allResults;
+    @Inject
+    RetryManager retryManager;
+    @Inject
+    OnlineOcr onlineOcr;
     private SubmitFragment submitFragment = null;
     private ResultsFragment resultsFragment = null;
     private boolean isResultsEmpty = true;
@@ -96,8 +106,8 @@ public class EbtNewNote extends DaggerAppCompatActivity
     private String ocrResult = "";
     private List<String> remainingOcrResults;
     private String appliedColor;
-    private boolean triedAgain = false;
-    private OcrHandler ocrHandler;
+    private OcrHandlerTask ocrHandlerTask;
+    private final RetryManager.Listener retryListener = this::onRetryFinished;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +117,9 @@ public class EbtNewNote extends DaggerAppCompatActivity
         setupResultsObserver();
         requestNotificationsPermissions();
         sharedPreferencesListener.register();
+        retryManager.init();
+        retryManager.addListener(retryListener);
+        deliverCompletedOcr();
     }
 
     @Override
@@ -121,9 +134,10 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @NonNull
     private String getColor() {
-        return dataStore.get(R.string.pref_settings_color_key, Color.DEFAULT.getKey());
+        return sharedPreferenceDataStore.get(R.string.pref_settings_color_key, Color.DEFAULT.getKey());
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         // do not call super.onSaveInstanceState, or we will end up with multiple fragments (https://stackoverflow.com/a/14578709/542235)
@@ -260,13 +274,22 @@ public class EbtNewNote extends DaggerAppCompatActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (!isDualPane() && shouldSwitchToResults(intent))
+        if (isDualPane())
+            return;
+        if (shouldSwitchToResults(intent))
             switchFragment(RESULTS_FRAGMENT_INDEX);
+        else if (shouldSwitchToSubmit(intent))
+            switchFragment(SUBMIT_FRAGMENT_INDEX);
     }
 
     private boolean shouldSwitchToResults(Intent intent) {
         final String extra = intent.getStringExtra(FRAGMENT_TYPE);
         return extra != null && extra.equals(ResultsFragment.class.getSimpleName());
+    }
+
+    private boolean shouldSwitchToSubmit(Intent intent) {
+        final String extra = intent.getStringExtra(FRAGMENT_TYPE);
+        return extra != null && extra.equals(SubmitFragment.class.getSimpleName());
     }
 
     @Override
@@ -294,21 +317,21 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     private void processPhoto() {
         Toast.makeText(this, R.string.processing, LENGTH_LONG).show();
+        retryManager.cancelPendingOcr();
         cancelOcr();
         String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
         Uri photoUri = Uri.parse(sharedPreferencesHandler.get(R.string.pref_photo_uri_key, ""));
-        if (dataStore.get(R.string.pref_settings_ocr_online_key, false)) {
-            String apiKey = dataStore.get(R.string.pref_settings_ocr_service_key_key, "");
-            ocrHandler = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), this, apiKey);
-        } else
-            ocrHandler = new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver());
-        ocrHandler.execute();
+        if (sharedPreferenceDataStore.get(R.string.pref_settings_ocr_online_key, false))
+            ocrHandlerTask = new OcrHandlerOnline(this, photoPath, photoUri, getContentResolver(), onlineOcr);
+        else
+            ocrHandlerTask = new OcrHandlerLocal(this, this, photoPath, photoUri, getContentResolver());
+        ocrHandlerTask.execute();
     }
 
     private void cancelOcr() {
-        if (ocrHandler != null) {
-            ocrHandler.cancel();
-            ocrHandler = null;
+        if (ocrHandlerTask != null) {
+            ocrHandlerTask.cancel();
+            ocrHandlerTask = null;
         }
     }
 
@@ -369,40 +392,52 @@ public class EbtNewNote extends DaggerAppCompatActivity
 
     @Override
     protected void onDestroy() {
+        retryManager.removeListener(retryListener);
         cancelOcr();
         sharedPreferencesListener.unregister();
         super.onDestroy();
     }
 
+    private void onRetryFinished() {
+        allResults.mergeCompletedResults();
+        deliverCompletedOcr();
+    }
+
+    private void deliverCompletedOcr() {
+        for (String text : retryManager.drainCompletedOcr())
+            onOcrResult(new OcrResult(text));
+    }
+
+    private boolean isOnlineOcr() {
+        return sharedPreferenceDataStore.get(R.string.pref_settings_ocr_online_key, false);
+    }
+
+    private void scheduleOcr() {
+        String photoPath = sharedPreferencesHandler.get(R.string.pref_photo_path_key, "");
+        String photoUri = sharedPreferencesHandler.get(R.string.pref_photo_uri_key, "");
+        retryManager.scheduleOcr(photoPath, photoUri);
+    }
+
     @Override
-    public void onOcrResult(@NonNull String result) {
-        ocrHandler = null;
-        if (result.isEmpty()) {
+    public void onOcrResult(@NonNull OcrResult result) {
+        ocrHandlerTask = null;
+        final String text = result.text;
+        if (text.isEmpty()) {
             OcrNotifier.showDialog(this, getString(R.string.ocr_dialog_empty));
             return;
         }
-        if (result.startsWith(ERROR)) {
-            final String errorMessage = new ErrorMessage(this).getErrorMessage(result);
-            if (! result.startsWith(ERROR + getString(R.string.http_error)))
-                OcrNotifier.showDialog(this, errorMessage);
-            else
-                if (dataStore.get(R.string.pref_settings_ocr_online_key, false))
-                    if (! triedAgain) {
-                        new ErrorMessage(this).showErrorToasts(errorMessage);
-                        Toast.makeText(this, getString(R.string.trying_again), Toast.LENGTH_SHORT).show();
-                        processPhoto();
-                        triedAgain = true;
-                    } else {
-//                        if (dataStore.get(R.string.pref_settings_ocr_postpone_key, false)) {
-//                            Toast.makeText(this, getString(R.string.sending_later), Toast.LENGTH_SHORT).show();
-//                            // TODO remember picture data and wait for connectivity in the background, https://stackoverflow.com/a/7374522/542235
-//                        } else
-                            OcrNotifier.showDialog(this, errorMessage);
-                            triedAgain = false;
-                    }
+        if (text.startsWith(ERROR)) {
+            new ErrorMessage(this).showErrorToasts(text);
+            if (result.retryableConnectionFailure && isOnlineOcr()) {
+                scheduleOcr();
+                Toast.makeText(this, R.string.sending_later, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final String errorMessage = new ErrorMessage(this).getErrorMessage(text);
+            OcrNotifier.showDialog(this, errorMessage);
             return;
         }
-        checkMultipleOcrResults(result);
+        checkMultipleOcrResults(text);
     }
 
     private void checkMultipleOcrResults(@NonNull String result) {

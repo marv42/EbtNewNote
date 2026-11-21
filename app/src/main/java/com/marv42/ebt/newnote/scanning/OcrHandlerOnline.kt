@@ -8,65 +8,12 @@
 package com.marv42.ebt.newnote.scanning
 
 import android.content.ContentResolver
-import android.content.Context
 import android.net.Uri
-import com.marv42.ebt.newnote.HttpCaller
-import com.marv42.ebt.newnote.R
-import com.marv42.ebt.newnote.exceptions.*
-import com.marv42.ebt.newnote.exceptions.ErrorMessage.ERROR
-import okhttp3.FormBody
-import okhttp3.Request
 
 class OcrHandlerOnline(callback: Callback, photoPath: String, photoUri: Uri?,
-                       contentResolver: ContentResolver, private val context: Context,
-                       private val apiKey: String) :
+                       contentResolver: ContentResolver, private val onlineOcr: OnlineOcr) :
     OcrHandler(callback, photoPath, photoUri, contentResolver) {
 
-    override fun scan(): String {
-        return try {
-            result
-        } catch (e: HttpCallException) {
-            getHttpCallErrorMessage(e)
-        } catch (e: CallResponseException) {
-            ERROR + e.message
-        } catch (e: NoPictureException) {
-            ERROR + e.message
-        } catch (e: OcrException) {
-            ERROR + "R.string.ocr_error: " + e.message
-        }
-    }
-
-    private fun getHttpCallErrorMessage(e: HttpCallException): String {
-        var errorMessage = ErrorMessage(context).getHttpCallErrorMessage(e)
-        if (e.responseCode == FORBIDDEN)
-            errorMessage += "\n\n" + context.getString(R.string.ocr_wrong_key) + "."
-        return ERROR + errorMessage
-    }
-
-    @get:Throws(HttpCallException::class, CallResponseException::class, OcrException::class, NoPictureException::class)
-    private val result: String
-        get() {
-            val formBody = formBody
-            val request = Request.Builder().url(OCR_URL).post(formBody).build()
-            val body = HttpCaller().call(request)
-            val allResults = JsonAnalyzer.analyzeBody(body)
-            return toOcrResult(allResults)
-        }
-
-    @get:Throws(NoPictureException::class)
-    private val formBody: FormBody
-        get() {
-            val base64Image = toBase64Picture(MAX_IMAGE_BYTES)
-            val formBodyBuilder = FormBody.Builder()
-            formBodyBuilder.add("apikey", apiKey)
-            formBodyBuilder.add("base64Image", "data:image/png;base64,$base64Image")
-            return formBodyBuilder.build()
-        }
-
-    companion object {
-        private const val OCR_HOST = "api.ocr.space"
-        private const val OCR_URL = "https://$OCR_HOST/parse/image"
-        private const val FORBIDDEN = 403
-        private const val MAX_IMAGE_BYTES = 1024 * 1024.0
-    }
+    override fun scan(): OcrResult =
+        onlineOcr.scan(photoPath, photoUri, contentResolver)
 }

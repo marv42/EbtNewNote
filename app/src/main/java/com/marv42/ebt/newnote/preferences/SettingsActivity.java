@@ -39,7 +39,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
 import com.marv42.ebt.newnote.ApiCaller;
-import com.marv42.ebt.newnote.LoginChecker;
+import com.marv42.ebt.newnote.LoginCheckerTask;
 import com.marv42.ebt.newnote.Predefines;
 import com.marv42.ebt.newnote.R;
 import com.marv42.ebt.newnote.ThisApp;
@@ -89,7 +89,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         ApiCaller apiCaller;
         @Inject
         SharedPreferenceDataStore dataStore;
-        private LoginChecker loginChecker;
+        private LoginCheckerTask loginChecker;
 
         @Override
         public void onAttach(@NonNull Context context) {
@@ -154,7 +154,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 Activity activity = getActivity();
                 if (activity != null) {
                     cancelLoginChecker();
-                    loginChecker = new LoginChecker((ThisApp) activity.getApplicationContext(), apiCaller);
+                    loginChecker = new LoginCheckerTask((ThisApp) activity.getApplicationContext(), apiCaller);
                     loginChecker.execute();
                 }
             }
@@ -167,10 +167,14 @@ public class SettingsActivity extends DaggerAppCompatActivity {
                 if (activity != null)
                     activity.getWindow().getDecorView().post(activity::recreate);
             }
-            if (key.equals(getString(R.string.pref_settings_country_service_key_key)))
-                checkCountrySummary();
+            if (key.equals(getString(R.string.pref_settings_rest_countries_key_key)))
+                checkRestCountriesSummary();
+            if (key.equals(getString(R.string.pref_settings_country_layer_key_key)))
+                checkCountryLayerSummary();
             if (key.equals(getString(R.string.pref_settings_show_submitted_key)))
                 checkSubmittedSummary();
+            if (key.equals(getString(R.string.pref_settings_max_retries_key)))
+                checkMaxRetriesSummary();
             if (key.equals(getString(R.string.pref_settings_comment_key)))
                 checkCommentSummary();
         }
@@ -186,6 +190,7 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             setOnBindListeners(R.string.pref_settings_email_key, TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
             setOnBindListeners(R.string.pref_settings_password_key, TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD);
             setOnBindListeners(R.string.pref_settings_show_submitted_key, TYPE_CLASS_NUMBER);
+            setOnBindListeners(R.string.pref_settings_max_retries_key, TYPE_CLASS_NUMBER);
         }
 
         private void setOnBindListeners(int resourceId, int type) {
@@ -209,7 +214,8 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void checkKeys() {
             checkEmailKey();
             checkOcrKey();
-            checkCountryKey();
+            checkRestCountriesKey();
+            checkCountryLayerKey();
             checkCommentKey();
         }
 
@@ -221,9 +227,14 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             checkKey(R.string.pref_settings_ocr_service_key_key, Predefines.OCR_SERVICE);
         }
 
-        private void checkCountryKey() {
+        private void checkRestCountriesKey() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
-                checkKey(R.string.pref_settings_country_service_key_key, Predefines.COUNTRY_SERVICE);
+                checkKey(R.string.pref_settings_rest_countries_key_key, Predefines.REST_COUNTRIES_SERVICE);
+        }
+
+        private void checkCountryLayerKey() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
+                checkKey(R.string.pref_settings_country_layer_key_key, Predefines.COUNTRY_LAYER_SERVICE);
         }
 
         private void checkCommentKey() {
@@ -247,7 +258,9 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             checkPasswordSummary();
             checkOcrServiceKeySummary();
             checkSubmittedSummary();
-            checkCountrySummary();
+            checkMaxRetriesSummary();
+            checkRestCountriesSummary();
+            checkCountryLayerSummary();
             checkCommentSummary();
         }
 
@@ -267,9 +280,18 @@ public class SettingsActivity extends DaggerAppCompatActivity {
             checkSummary(R.string.pref_settings_show_submitted_key, this::setSubmittedSummary);
         }
 
-        private void checkCountrySummary() {
+        private void checkMaxRetriesSummary() {
+            checkSummary(R.string.pref_settings_max_retries_key, this::setMaxRetriesSummary);
+        }
+
+        private void checkRestCountriesSummary() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
-                checkSummary(R.string.pref_settings_country_service_key_key, this::setCountrySummary);
+                checkSummary(R.string.pref_settings_rest_countries_key_key, this::setRestCountriesSummary);
+        }
+
+        private void checkCountryLayerSummary() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA)
+                checkSummary(R.string.pref_settings_country_layer_key_key, this::setCountryLayerSummary);
         }
 
         private void checkCommentSummary() {
@@ -303,19 +325,23 @@ public class SettingsActivity extends DaggerAppCompatActivity {
 
         private void setOcrServiceKeySummary(Preference preference) {
             setServiceKeySummary(preference, R.string.pref_settings_ocr_service_key_key,
-                    R.string.settings_ocr_service_key_summary,
-                    R.string.settings_ocr_service_url, R.string.settings_ocr_summary_no_key);
+                    "", R.string.settings_ocr_service_key_summary, R.string.settings_ocr_service_url);
         }
 
-        private void setCountrySummary(Preference preference) {
-            setServiceKeySummary(preference, R.string.pref_settings_country_service_key_key,
-                    R.string.settings_country_summary,
-                    R.string.settings_country_service_url, R.string.settings_country_summary_no_key);
+        private void setRestCountriesSummary(Preference preference) {
+            setServiceKeySummary(preference, R.string.pref_settings_rest_countries_key_key,
+                    getString(R.string.settings_rest_countries_summary),
+                    R.string.settings_country_summary_no_key, R.string.settings_rest_countries_url);
+        }
+
+        private void setCountryLayerSummary(Preference preference) {
+            setServiceKeySummary(preference, R.string.pref_settings_country_layer_key_key,
+                    getString(R.string.settings_country_layer_summary),
+                    R.string.settings_country_summary_no_key, R.string.settings_country_layer_url);
         }
 
         private void setServiceKeySummary(Preference preference, int preferenceKey,
-                                          int summaryResId, int urlResId, int summaryNoKeyResId) {
-            String summary = getString(summaryResId);
+                                          String summary, int summaryNoKeyResId, int urlResId) {
             if (dataStore.get(preferenceKey, "").isEmpty()) {
                 String serviceUrl = getString(urlResId);
                 summary += ".\n" + getString(summaryNoKeyResId) + " " + serviceUrl;
@@ -328,6 +354,11 @@ public class SettingsActivity extends DaggerAppCompatActivity {
         private void setSubmittedSummary(Preference preference) {
             setSummary(preference, R.string.pref_settings_show_submitted_key,
                     R.string.settings_submitted_summary, true);
+        }
+
+        private void setMaxRetriesSummary(Preference preference) {
+            setSummary(preference, R.string.pref_settings_max_retries_key,
+                    R.string.settings_max_retries_summary, true);
         }
 
         private void setSummary(Preference preference, int preferenceKey,

@@ -73,11 +73,13 @@ public class SubmitFragment extends DaggerFragment {
     MySharedPreferencesListener sharedPreferencesListener;
     @Inject
     ViewModelProvider viewModelProvider;
+    @Inject
+    NoteSubmitter noteSubmitter;
     private SubmitBinding binding;
     private boolean radioChangingDone;
     private LocationTextWatcher locationTextWatcher;
     private CommentSuggestion commentSuggestion;
-    private NoteDataSubmitter noteDataSubmitter;
+    private NoteDataSubmitterTask noteDataSubmitterTask;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -168,14 +170,14 @@ public class SubmitFragment extends DaggerFragment {
                 binding.editTextComment.getText().toString());
         noteData = getNoteDataWithAdditionalComment(noteData);
         cancelNoteDataSubmitter();
-        noteDataSubmitter = new NoteDataSubmitter(app, apiCaller, submissionResultHandler);
-        noteDataSubmitter.execute(noteData);
+        noteDataSubmitterTask = new NoteDataSubmitterTask(app, noteSubmitter, submissionResultHandler);
+        noteDataSubmitterTask.execute(noteData);
     }
 
     private void cancelNoteDataSubmitter() {
-        if (noteDataSubmitter != null) {
-            noteDataSubmitter.cancel();
-            noteDataSubmitter = null;
+        if (noteDataSubmitterTask != null) {
+            noteDataSubmitterTask.cancel();
+            noteDataSubmitterTask = null;
         }
     }
 

@@ -63,6 +63,7 @@
     <string name="response_code">HTTP status code</string>
     <string name="no_json">Not in valid JSON format</string>
     <string name="internal_error">Internal error</string>
+    <string name="sending_later">The web call will be performed as soon as connectivity will be available again</string>
 
     <!-- note status -->
     <string name="has_been_entered">Note entered into the system</string>
@@ -103,7 +104,6 @@
     <string name="keep_short_code">Keep Short Code</string>
     <string name="submit">Submit Data to EBT</string>
     <string name="acquire">take a photo and acquire the values</string>
-    <string name="no_comment_suggestions">No comment suggestions</string>
     <string name="comment_suggestions_error">Error getting comment suggestions</string>
     <string name="comment_suggestions_set">Comment suggestions set</string>
 
@@ -121,10 +121,11 @@
     <string name="settings_password_title">Password</string>
     <string name="settings_password_summary">Password of your EBT account</string>
     <string name="settings_category_ocr">OCR settings</string>
-    <string name="settings_ocr_summary">In order to analyze the photos, OCR (optical character recognition) is used.\nThe OCR can be executed on the device or alternatively an online OCR service can be used</string>
+    <string name="settings_ocr_summary">In order to analyze the photos, OCR (optical character recognition) is used.\nOCR can be executed on the device or alternatively an online OCR service can be used.</string>
     <string name="settings_ocr_online_title">Use an online OCR service</string>
     <string name="settings_ocr_service_key_title">Online OCR service key</string>
-    <string name="settings_ocr_service_key_summary">The online OCR service requires a service key</string>
+    <string name="settings_ocr_service_key_summary">The online OCR service requires a service key.\nPlease tap here to get your personal OCR service key at</string>
+    <string name="settings_ocr_service_url" translatable="false">https://ocr.space/ocrapi#free</string>
     <string name="settings_ocr_postpone_title">Postpone online OCR on connectivity failure</string>
     <string name="settings_ocr_postpone_summary">If the communication with the online OCR service fails, wait for connectivity in the background and send the data again when available</string>
     <string name="settings_category_display">Display settings</string>
@@ -137,15 +138,19 @@
     <string name="settings_comment_summary">This text is added to the end of every comment you submit</string>
     <string name="settings_submitted_title">Number of notes</string>
     <string name="settings_submitted_summary">Maximum number of notes to display in the \'${results_fragment_title}\' tab</string>
-    <string name="settings_category_misc">Miscellaneous settings</string>
-    <string name="settings_country_title">Country resolution service key</string>
-    <string name="settings_country_summary">In order to resolve the country name, an online API service is used</string>
+    <string name="settings_max_retries_title">Number of web call retries</string>
+    <string name="settings_max_retries_summary">Maximum number of how often failed web calls are retried when the server cannot be reached.\nThis applies to note submissions and online OCRs.\n0 means unlimited</string>
+    <string name="settings_category_misc">Country resolution settings</string>
+    <string name="settings_misc_summary">In order to resolve country codes into country names, online services are used.\nHere are 2 options for this.</string>
+    <string name="settings_rest_countries_title">\"REST Countries\" API key</string>
+    <string name="settings_rest_countries_summary">API key for the \"REST Countries\" service</string>
+    <string name="settings_country_layer_title">\"countrylayer\" API key</string>
+    <string name="settings_country_layer_summary">API key for the \"countrylayer\" service</string>
     <string name="redirect_to_settings">\n\nYou are being redirected to the settings</string>
     <string name="get_ocr_key">${redirect_to_settings} to enter/get an OCR service key.</string>
-    <string name="settings_ocr_summary_no_key">Please tap here to get your personal OCR service key at</string>
-    <string name="settings_ocr_service_url" translatable="false">https://ocr.space/ocrapi#free</string>
-    <string name="settings_country_summary_no_key">Please tap here to get your personal country resolution service key at</string>
-    <string name="settings_country_service_url" translatable="false">https://manage.countrylayer.com/</string>
+    <string name="settings_country_summary_no_key">Please tap here to get your personal country resolution service API key at</string>
+    <string name="settings_country_layer_url" translatable="false">https://manage.countrylayer.com</string>
+    <string name="settings_rest_countries_url" translatable="false">https://restcountries.com/sign-up</string>
     <string name="logged_in">Login successful</string>
     <string name="trying_login">Trying to log in to EBT…</string>
     <string name="wrong_login_info">No valid EBT login information</string>
@@ -160,10 +165,14 @@
     <string name="pref_settings_ocr_postpone_key" translatable="false">pref_settings_ocr_postpone</string>
     <string name="pref_settings_color_key" translatable="false">pref_settings_color</string>
     <string name="pref_settings_category_misc_key" translatable="false">pref_settings_category_misc</string>
-    <string name="pref_settings_country_service_key_key" translatable="false">pref_settings_country_service_key</string>
+    <string name="pref_settings_country_layer_key_key" translatable="false">pref_settings_country_layer_key</string>
+    <string name="pref_settings_rest_countries_key_key" translatable="false">pref_settings_rest_countries_key</string>
     <string name="pref_settings_images_key" translatable="false">pref_settings_images</string>
     <string name="pref_settings_show_submitted_key" translatable="false">pref_settings_show_submitted</string>
     <string name="pref_settings_max_retries_key" translatable="false">pref_settings_retries</string>
+    <string name="pref_retry_pending_key" translatable="false">pref_retry_pending</string>
+    <string name="pref_retry_completed_submissions_key" translatable="false">pref_retry_completed_submissions</string>
+    <string name="pref_retry_completed_ocr_key" translatable="false">pref_retry_completed_ocr</string>
     <string name="pref_settings_comment_key" translatable="false">pref_settings_comment</string>
     <string name="pref_country_key" translatable="false">pref_country</string>
     <string name="pref_city_key" translatable="false">pref_city</string>
@@ -220,9 +229,8 @@
     <string name="error_reading_preferences">Error reading OCR service key</string>
     <string name="ocr_no_service_key">No OCR service key</string>
     <string name="ocr_result">OCR result</string>
-    <string name="ocr_result_description">OCR has finished\nSee the result</string>
+    <string name="ocr_result_description">OCR has finished.\nSee the result</string>
     <string name="ocr_wrong_key">Please check your OCR service key</string>
     <string name="ocr_multiple_results">Multiple OCR results found</string>
-    <string name="sending_later">Online OCR will be performed as soon as connectivity will be available again</string>
     <string name="remaining_results">There are remaining results of the most recent OCR recognition run.\nYou can see them now.</string>
 </resources>

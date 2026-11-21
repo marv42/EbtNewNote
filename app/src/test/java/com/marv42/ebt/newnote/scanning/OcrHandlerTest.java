@@ -13,7 +13,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import android.app.Application;
-import android.os.Looper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +36,8 @@ public class OcrHandlerTest {
     public void deliversOcrResultToCallback() throws InterruptedException {
         CountDownLatch delivered = new CountDownLatch(1);
         AtomicReference<String> result = new AtomicReference<>();
-        OcrHandler handler = new FakeOcrHandler(value -> {
-            result.set(value);
+        OcrHandlerTask handler = new FakeOcrHandler(value -> {
+            result.set(value.text);
             delivered.countDown();
         });
 
@@ -94,7 +93,7 @@ public class OcrHandlerTest {
         }
     }
 
-    private static class FakeOcrHandler extends OcrHandler {
+    private static class FakeOcrHandler extends OcrHandlerTask {
 
         private final CountDownLatch gate;
         private final CountDownLatch started;
@@ -114,11 +113,11 @@ public class OcrHandlerTest {
         }
 
         @Override
-        protected String scan() {
+        protected OcrResult scan() {
             countDown(started);
             await(gate);
             countDown(finished);
-            return SERIAL_NUMBER;
+            return new OcrResult(SERIAL_NUMBER);
         }
 
         String process(String allResults) {

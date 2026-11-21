@@ -23,6 +23,8 @@ import com.marv42.ebt.newnote.ThisApp;
 import com.marv42.ebt.newnote.preferences.MySharedPreferencesListener;
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.retry.RetryManager;
+import com.marv42.ebt.newnote.retry.RetryStore;
 
 import dagger.Module;
 import dagger.Provides;
@@ -67,15 +69,16 @@ abstract class EbtNewNoteModule {
     @Provides
     @ActivityScope
     static AllResults provideAllResults(
-            @NonNull ThisApp app, @NonNull SharedPreferenceDataStore dataStore, @NonNull ViewModelProvider viewModelProvider) {
-        return new AllResults(app, dataStore, viewModelProvider);
+            @NonNull ThisApp app, @NonNull SharedPreferenceDataStore dataStore, @NonNull ViewModelProvider viewModelProvider,
+            @NonNull RetryStore retryStore) {
+        return new AllResults(app, dataStore, viewModelProvider, retryStore);
     }
 
     @Provides
     @ActivityScope
     static SubmissionResultHandler provideSubmissionResultHandler(
-            @NonNull ThisApp app, @NonNull AllResults allResults) {
-        return new SubmissionResultHandler(app, allResults);
+            @NonNull ThisApp app, @NonNull AllResults allResults, @NonNull RetryManager retryManager) {
+        return new SubmissionResultHandler(app, allResults, retryManager);
     }
 
     @SubmitFragmentScope

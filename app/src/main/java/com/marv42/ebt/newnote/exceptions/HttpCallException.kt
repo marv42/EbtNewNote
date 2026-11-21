@@ -12,5 +12,6 @@ class HttpCallException @JvmOverloads constructor(
     val server: String? = null,
     val responseCode: Int = 0,
     val reason: String? = null,
-    val apiErrorMessage: String? = null
+    val apiErrorMessage: String? = null,
+    val retryable: Boolean = false
 ) : Throwable(s)

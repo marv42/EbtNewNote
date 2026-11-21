@@ -25,17 +25,28 @@ public class SubmissionResult {
     final String mReason;
     final boolean mSuccessful;
     final int mBillId;
+    final boolean mRetryable;
     boolean mRemovable;
 
-    SubmissionResult(final NoteData noteData, final String reason) {
-        this(noteData, reason, false, -1);
+    public SubmissionResult(final NoteData noteData, final String reason) {
+        this(noteData, reason, false, -1, false);
     }
 
     SubmissionResult(final NoteData noteData, final String reason, final boolean successful, final int billId) {
+        this(noteData, reason, successful, billId, false);
+    }
+
+    SubmissionResult(final NoteData noteData, final String reason, final boolean retryable) {
+        this(noteData, reason, false, -1, retryable);
+    }
+
+    SubmissionResult(final NoteData noteData, final String reason, final boolean successful, final int billId,
+                     final boolean retryable) {
         mNoteData = noteData;
         mReason = reason;
         mSuccessful = successful;
         mBillId = billId;
+        mRetryable = retryable;
         mRemovable = true;
     }
 
@@ -47,6 +58,14 @@ public class SubmissionResult {
 
     boolean isSuccessful() {
         return mSuccessful;
+    }
+
+    public String getReason() {
+        return mReason;
+    }
+
+    public boolean isRetryable() {
+        return mRetryable;
     }
 
     String getResult(Context context) {

@@ -24,6 +24,7 @@ import com.marv42.ebt.newnote.location.LocationProviderChangedReceiver;
 import com.marv42.ebt.newnote.location.LocationTask;
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
 import com.marv42.ebt.newnote.preferences.SharedPreferencesHandler;
+import com.marv42.ebt.newnote.retry.RetryManager;
 
 import org.acra.ACRA;
 import org.acra.config.CoreConfigurationBuilder;
@@ -45,10 +46,18 @@ public class ThisApp extends DaggerApplication {
     Provider<SharedPreferenceDataStore> dataStoreProvider;
     @Inject
     SharedPreferencesHandler preferences;
+    @Inject
+    RetryManager retryManager;
 
     BroadcastReceiver broadcastReceiver;
     LocationTask locationTask;
     AddressTask addressTask;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        retryManager.init();
+    }
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
@@ -74,7 +83,8 @@ public class ThisApp extends DaggerApplication {
                         getString(R.string.pref_settings_email_key),
                         getString(R.string.pref_settings_password_key),
                         getString(R.string.pref_settings_ocr_service_key_key),
-                        getString(R.string.pref_settings_country_service_key_key)));
+                        getString(R.string.pref_settings_country_layer_key_key),
+                        getString(R.string.pref_settings_rest_countries_key_key)));
         ACRA.init(this, builder);
     }
 

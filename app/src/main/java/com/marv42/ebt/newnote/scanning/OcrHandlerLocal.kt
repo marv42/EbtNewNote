@@ -10,17 +10,19 @@ package com.marv42.ebt.newnote.scanning
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import com.googlecode.tesseract.android.TessBaseAPI
 import com.marv42.ebt.newnote.R
 import com.marv42.ebt.newnote.exceptions.ErrorMessage
 import com.marv42.ebt.newnote.exceptions.NoPictureException
 import com.marv42.ebt.newnote.scanning.TextProcessor.NEW_LINE
+import com.googlecode.tesseract.android.TessBaseAPI
 
 class OcrHandlerLocal(callback: Callback, private val context: Context,
                       photoPath: String, photoUri: Uri?, contentResolver: ContentResolver) :
     OcrHandler(callback, photoPath, photoUri, contentResolver) {
 
-    override fun scan(): String {
+    override fun scan(): OcrResult = OcrResult(scanText())
+
+    private fun scanText(): String {
         val filesPath = TessData.install(context) ?: return initializationError()
         val localOcr = LocalOcr(filesPath)
         if (!localOcr.isInitialized) {

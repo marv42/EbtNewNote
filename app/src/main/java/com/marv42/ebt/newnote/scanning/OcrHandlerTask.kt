@@ -18,7 +18,7 @@ import com.marv42.ebt.newnote.mainScope
 import kotlinx.coroutines.Job
 
 abstract class OcrHandler(private val callback: Callback, protected val photoPath: String,
-                          private val photoUri: Uri?, private val contentResolver: ContentResolver) {
+                          protected val photoUri: Uri?, protected val contentResolver: ContentResolver) {
 
     private val scope = mainScope()
     private var job: Job? = null
@@ -31,7 +31,7 @@ abstract class OcrHandler(private val callback: Callback, protected val photoPat
             }, onPostExecute = {
                 deliverResult(it)
             }, onError = {
-                deliverResult(ErrorMessage.ERROR + "R.string.ocr_error")
+                deliverResult(OcrResult(ErrorMessage.ERROR + "R.string.ocr_error"))
             })
     }
 
@@ -40,20 +40,17 @@ abstract class OcrHandler(private val callback: Callback, protected val photoPat
         job = null
     }
 
-    protected abstract fun scan(): String
+    protected abstract fun scan(): OcrResult
 
     protected fun toBitmap(maxLongSide: Int): Bitmap =
         pictureConverter().toBitmap(maxLongSide)
-
-    protected fun toBase64Picture(targetSizeBytes: Double): String =
-        pictureConverter().scaleAndEncodeToBase64(targetSizeBytes)
 
     protected fun toOcrResult(allResults: String): String = TextProcessor().getOcrResult(allResults)
 
     private fun pictureConverter(): PictureConverter =
         PictureConverter.of(photoPath, contentResolver, photoUri)
 
-    private fun deliverResult(result: String) {
+    private fun deliverResult(result: OcrResult) {
         try {
             callback.onOcrResult(result)
         } catch (e: NoNotificationManagerException) {
@@ -62,6 +59,6 @@ abstract class OcrHandler(private val callback: Callback, protected val photoPat
     }
 
     interface Callback {
-        fun onOcrResult(result: String)
+        fun onOcrResult(result: OcrResult)
     }
 }

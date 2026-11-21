@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.marv42.ebt.newnote.preferences.SharedPreferenceDataStore;
+import com.marv42.ebt.newnote.retry.RetryStore;
 import com.marv42.ebt.newnote.ui.ResultsViewModel;
 
 import java.util.ArrayList;
@@ -37,16 +38,30 @@ public class AllResults implements SharedPreferences.OnSharedPreferenceChangeLis
     private final ThisApp app;
     private final ViewModelProvider viewModelProvider;
     private final SharedPreferenceDataStore dataStore;
+    private final RetryStore retryStore;
     private ArrayList<SubmissionResult> results = new ArrayList<>();
 
     @Inject
-    public AllResults(ThisApp app, SharedPreferenceDataStore dataStore, ViewModelProvider viewModelProvider) {
+    public AllResults(ThisApp app, SharedPreferenceDataStore dataStore, ViewModelProvider viewModelProvider,
+                      RetryStore retryStore) {
         this.app = app;
         this.viewModelProvider = viewModelProvider;
         this.dataStore = dataStore;
+        this.retryStore = retryStore;
         registerOnSharedPreferenceChangeListener();  // no unregister (activity scope)
         initResults();
-        setResultsToViewModel();
+        if (! mergeCompletedResults())
+            setResultsToViewModel();
+    }
+
+    boolean mergeCompletedResults() {
+        List<SubmissionResult> completed = retryStore.drainCompletedSubmissions();
+        completed.removeIf(result -> result == null || result.mNoteData == null);
+        if (completed.isEmpty())
+            return false;
+        results.addAll(completed);
+        refreshResults();
+        return true;
     }
 
     private void registerOnSharedPreferenceChangeListener() {
