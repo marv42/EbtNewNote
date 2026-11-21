@@ -32,7 +32,7 @@ public class NotificationTexts {
     }
 
     @NotNull
-    CharSequence getContentTitle(@NonNull ArrayList<SubmissionResult> notifiedResults) {
+    CharSequence getTitle(@NonNull ArrayList<SubmissionResult> notifiedResults) {
         String title = getHowManyNotes(notifiedResults) + ": " + getSummaryText(getSummary(notifiedResults), true, false);
         return getHtml(title);
     }
