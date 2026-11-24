@@ -6,3 +6,4 @@ app/build/
 app/libs/
 build/
 .gitignore
+acra-reports/
