@@ -1,1 +1,2 @@
-Retry failed note submissions and online OCR in the background as soon as the server is reachable again
+* Fix crashes
+* Retry failed note submissions and online OCR in the background as soon as the server is reachable again
